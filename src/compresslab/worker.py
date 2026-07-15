@@ -27,6 +27,7 @@ from .native import (
     delta_transpose as _native_delta_transpose,
     inverse_delta_transpose as _native_inverse_delta_transpose,
     native_available,
+    structured_text_zstd_stream_decode,
     zstd_available,
     zstd_compress,
     zstd_decompress,
@@ -373,6 +374,11 @@ def _adaptive_v3_decompress(encoded: bytes) -> tuple[bytes, dict]:
         encoded,
         zstd_decode=_v2_zstd_decompress,
         inverse_delta_transpose=_inverse_delta_transpose,
+        structured_text_zstd_decode=(
+            structured_text_zstd_stream_decode
+            if native_available() and zstd_available()
+            else None
+        ),
         transform_engine="rust" if native_available() else "python-fallback",
         codec_engine="libzstd-ffi" if zstd_available() else "zstd-cli",
     )

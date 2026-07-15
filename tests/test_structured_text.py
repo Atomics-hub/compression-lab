@@ -6,6 +6,7 @@ from compresslab.native import (
     native_available,
     structured_text_decode as native_decode,
     structured_text_encode as native_encode,
+    structured_text_zstd_stream_decode,
     zstd_compress,
     zstd_decompress,
 )
@@ -95,6 +96,32 @@ class StructuredTextTransformTests(unittest.TestCase):
         )
         self.assertEqual(transformed, expected)
         self.assertEqual(native_decode(transformed, len(source)), source)
+
+    def test_streaming_zstd_decode_handles_tiny_chunks_and_corruption(self):
+        if not native_available():
+            self.skipTest("native library has not been built")
+        source = (
+            b"streaming_identifier shared_identifier value\n" * 10000
+        ) + b"\xfftail"
+        transformed = native_encode(source, 32)
+        payload = zstd_compress(transformed, level=3)
+        restored = structured_text_zstd_stream_decode(
+            payload, len(transformed), len(source), chunk_size=7
+        )
+        self.assertEqual(restored, source)
+
+        with self.assertRaises((RuntimeError, ValueError)):
+            structured_text_zstd_stream_decode(
+                payload[:-1], len(transformed), len(source), chunk_size=7
+            )
+        with self.assertRaises(ValueError):
+            structured_text_zstd_stream_decode(
+                payload, len(transformed) + 1, len(source), chunk_size=7
+            )
+        with self.assertRaises(ValueError):
+            structured_text_zstd_stream_decode(
+                payload + b"x", len(transformed), len(source), chunk_size=7
+            )
 
     def test_decoder_rejects_truncated_escape_and_duplicate_dictionary(self):
         with self.assertRaises(ValueError):

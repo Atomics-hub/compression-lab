@@ -4,7 +4,7 @@ from collections import Counter
 import hashlib
 import struct
 import time
-from typing import Callable, Dict, List, Tuple
+from typing import Callable, Dict, List, Optional, Tuple
 import zlib
 
 from .structured_text import (
@@ -41,6 +41,7 @@ Encoder = Callable[[bytes], bytes]
 Decoder = Callable[[bytes, int], bytes]
 Transform = Callable[[bytes], bytes]
 InverseTransform = Callable[[bytes, int], bytes]
+StructuredDecoder = Callable[[bytes, int, int], bytes]
 EncodedSegment = Tuple[int, bytes, bytes]
 
 
@@ -266,6 +267,7 @@ def decompress(
     *,
     zstd_decode: Decoder,
     inverse_delta_transpose: InverseTransform,
+    structured_text_zstd_decode: Optional[StructuredDecoder],
     transform_engine: str,
     codec_engine: str,
 ) -> Tuple[bytes, dict]:
@@ -326,10 +328,14 @@ def decompress(
             maximum_size = segment_size * 2 + STRUCTURED_TEXT_MAX_HEADER_SIZE
             if transformed_size > maximum_size:
                 raise ValueError("structured-text transformed size is invalid")
-            transformed = zstd_decode(
-                payload[TRANSFORMED_SIZE.size:], transformed_size
-            )
-            segment = decode_structured_text(transformed, segment_size)
+            compressed_transform = payload[TRANSFORMED_SIZE.size:]
+            if structured_text_zstd_decode is not None:
+                segment = structured_text_zstd_decode(
+                    compressed_transform, transformed_size, segment_size
+                )
+            else:
+                transformed = zstd_decode(compressed_transform, transformed_size)
+                segment = decode_structured_text(transformed, segment_size)
         else:
             raise ValueError(f"unsupported adaptive-v3 segment recipe: {recipe}")
         if len(segment) != segment_size:

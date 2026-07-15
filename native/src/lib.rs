@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::ffi::c_void;
 use std::slice;
 
 const OK: i32 = 0;
@@ -225,6 +226,204 @@ fn decode_structured_text(data: &[u8], expected_size: usize) -> Option<Vec<u8>> 
     (output.len() == expected_size).then_some(output)
 }
 
+struct StreamingTextDecoder {
+    expected_size: usize,
+    output_pos: usize,
+    header: Vec<u8>,
+    dictionary_count: Option<usize>,
+    dictionary: Vec<Vec<u8>>,
+    pending_token_size: Option<usize>,
+    pending_token: Vec<u8>,
+    marker_pending: bool,
+    invalid: bool,
+}
+
+impl StreamingTextDecoder {
+    fn new(expected_size: usize) -> Self {
+        Self {
+            expected_size,
+            output_pos: 0,
+            header: Vec::with_capacity(6),
+            dictionary_count: None,
+            dictionary: Vec::new(),
+            pending_token_size: None,
+            pending_token: Vec::new(),
+            marker_pending: false,
+            invalid: false,
+        }
+    }
+
+    fn append(&mut self, value: &[u8], output: &mut [u8]) -> bool {
+        if value.len() > self.expected_size.saturating_sub(self.output_pos)
+            || self.output_pos + value.len() > output.len()
+        {
+            self.invalid = true;
+            return false;
+        }
+        output[self.output_pos..self.output_pos + value.len()].copy_from_slice(value);
+        self.output_pos += value.len();
+        true
+    }
+
+    fn update(&mut self, input: &[u8], output: &mut [u8]) -> bool {
+        if self.invalid {
+            return false;
+        }
+        let mut offset = 0;
+        while offset < input.len() {
+            if self.header.len() < 6 {
+                let needed = 6 - self.header.len();
+                let take = needed.min(input.len() - offset);
+                self.header.extend_from_slice(&input[offset..offset + take]);
+                offset += take;
+                if self.header.len() == 6 {
+                    if &self.header[..4] != STX_MAGIC {
+                        self.invalid = true;
+                        return false;
+                    }
+                    let count = u16::from_be_bytes([self.header[4], self.header[5]]) as usize;
+                    if count > STX_MAX_DICTIONARY {
+                        self.invalid = true;
+                        return false;
+                    }
+                    self.dictionary_count = Some(count);
+                    self.dictionary.reserve(count);
+                }
+                continue;
+            }
+
+            let dictionary_count = self.dictionary_count.unwrap_or(0);
+            if self.dictionary.len() < dictionary_count {
+                if self.pending_token_size.is_none() {
+                    let size = input[offset] as usize;
+                    offset += 1;
+                    if size == 0 || size > STX_MAX_TOKEN_SIZE {
+                        self.invalid = true;
+                        return false;
+                    }
+                    self.pending_token_size = Some(size);
+                    self.pending_token.clear();
+                }
+                let size = self.pending_token_size.unwrap_or(0);
+                let needed = size - self.pending_token.len();
+                let take = needed.min(input.len() - offset);
+                self.pending_token
+                    .extend_from_slice(&input[offset..offset + take]);
+                offset += take;
+                if self.pending_token.len() == size {
+                    if !valid_dictionary_token(&self.pending_token)
+                        || self.dictionary.contains(&self.pending_token)
+                    {
+                        self.invalid = true;
+                        return false;
+                    }
+                    self.dictionary.push(self.pending_token.clone());
+                    self.pending_token_size = None;
+                }
+                continue;
+            }
+
+            if self.marker_pending {
+                let value = input[offset];
+                offset += 1;
+                self.marker_pending = false;
+                if value == STX_ESCAPED_MARKER {
+                    if !self.append(&[STX_MARKER], output) {
+                        return false;
+                    }
+                } else if let Some(token) = self.dictionary.get(value as usize) {
+                    if token.len() > self.expected_size.saturating_sub(self.output_pos)
+                        || self.output_pos + token.len() > output.len()
+                    {
+                        self.invalid = true;
+                        return false;
+                    }
+                    output[self.output_pos..self.output_pos + token.len()].copy_from_slice(token);
+                    self.output_pos += token.len();
+                } else {
+                    self.invalid = true;
+                    return false;
+                }
+                continue;
+            }
+
+            if let Some(relative) = input[offset..]
+                .iter()
+                .position(|&value| value == STX_MARKER)
+            {
+                if !self.append(&input[offset..offset + relative], output) {
+                    return false;
+                }
+                offset += relative + 1;
+                self.marker_pending = true;
+            } else {
+                if !self.append(&input[offset..], output) {
+                    return false;
+                }
+                offset = input.len();
+            }
+        }
+        true
+    }
+
+    fn finish(&self) -> bool {
+        !self.invalid
+            && self.header.len() == 6
+            && self.dictionary_count == Some(self.dictionary.len())
+            && self.pending_token_size.is_none()
+            && !self.marker_pending
+            && self.output_pos == self.expected_size
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn clab_structured_text_decoder_create(expected_size: usize) -> *mut c_void {
+    Box::into_raw(Box::new(StreamingTextDecoder::new(expected_size))) as *mut c_void
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn clab_structured_text_decoder_update(
+    decoder: *mut c_void,
+    input: *const u8,
+    len: usize,
+    output: *mut u8,
+    output_capacity: usize,
+) -> i32 {
+    if decoder.is_null()
+        || (input.is_null() && len != 0)
+        || (output.is_null() && output_capacity != 0)
+    {
+        return NULL_POINTER;
+    }
+    let state = &mut *(decoder as *mut StreamingTextDecoder);
+    let source = slice::from_raw_parts(input, len);
+    let destination = slice::from_raw_parts_mut(output, output_capacity);
+    if state.update(source, destination) {
+        OK
+    } else {
+        INVALID_INPUT
+    }
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn clab_structured_text_decoder_finish(decoder: *mut c_void) -> i32 {
+    if decoder.is_null() {
+        return NULL_POINTER;
+    }
+    if (&*(decoder as *mut StreamingTextDecoder)).finish() {
+        OK
+    } else {
+        INVALID_INPUT
+    }
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn clab_structured_text_decoder_free(decoder: *mut c_void) {
+    if !decoder.is_null() {
+        drop(Box::from_raw(decoder as *mut StreamingTextDecoder));
+    }
+}
+
 #[no_mangle]
 pub unsafe extern "C" fn clab_structured_text_encode(
     input: *const u8,
@@ -243,8 +442,7 @@ pub unsafe extern "C" fn clab_structured_text_encode(
     if encoded.len() > output_capacity {
         return OUTPUT_TOO_SMALL;
     }
-    slice::from_raw_parts_mut(output, output_capacity)[..encoded.len()]
-        .copy_from_slice(&encoded);
+    slice::from_raw_parts_mut(output, output_capacity)[..encoded.len()].copy_from_slice(&encoded);
     *output_len = encoded.len();
     OK
 }
@@ -363,6 +561,22 @@ mod tests {
     fn structured_text_round_trip_preserves_markers_and_tokens() {
         let source = b"repeated_identifier other repeated_identifier \xff tail";
         let encoded = encode_structured_text(source, 16, source.len());
-        assert_eq!(decode_structured_text(&encoded, source.len()), Some(source.to_vec()));
+        assert_eq!(
+            decode_structured_text(&encoded, source.len()),
+            Some(source.to_vec())
+        );
+    }
+
+    #[test]
+    fn streaming_structured_text_decoder_handles_single_byte_chunks() {
+        let source = b"repeated_identifier other repeated_identifier \xff tail";
+        let encoded = encode_structured_text(source, 16, source.len());
+        let mut decoder = StreamingTextDecoder::new(source.len());
+        let mut output = vec![0_u8; source.len()];
+        for value in &encoded {
+            assert!(decoder.update(&[*value], &mut output));
+        }
+        assert!(decoder.finish());
+        assert_eq!(output, source);
     }
 }

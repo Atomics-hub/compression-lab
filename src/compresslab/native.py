@@ -17,6 +17,22 @@ _ZSTD_CONTENTSIZE_UNKNOWN = (1 << 64) - 1
 _ZSTD_CONTENTSIZE_ERROR = (1 << 64) - 2
 
 
+class _ZstdInBuffer(ctypes.Structure):
+    _fields_ = [
+        ("src", ctypes.c_void_p),
+        ("size", ctypes.c_size_t),
+        ("pos", ctypes.c_size_t),
+    ]
+
+
+class _ZstdOutBuffer(ctypes.Structure):
+    _fields_ = [
+        ("dst", ctypes.c_void_p),
+        ("size", ctypes.c_size_t),
+        ("pos", ctypes.c_size_t),
+    ]
+
+
 def _library_filename() -> str:
     if sys.platform == "darwin":
         return "libcompression_lab_native.dylib"
@@ -63,6 +79,20 @@ def _load_library() -> Optional[ctypes.CDLL]:
         ctypes.c_size_t,
     ]
     library.clab_structured_text_decode.restype = ctypes.c_int
+    library.clab_structured_text_decoder_create.argtypes = [ctypes.c_size_t]
+    library.clab_structured_text_decoder_create.restype = ctypes.c_void_p
+    library.clab_structured_text_decoder_update.argtypes = [
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+        ctypes.c_size_t,
+        ctypes.c_void_p,
+        ctypes.c_size_t,
+    ]
+    library.clab_structured_text_decoder_update.restype = ctypes.c_int
+    library.clab_structured_text_decoder_finish.argtypes = [ctypes.c_void_p]
+    library.clab_structured_text_decoder_finish.restype = ctypes.c_int
+    library.clab_structured_text_decoder_free.argtypes = [ctypes.c_void_p]
+    library.clab_structured_text_decoder_free.restype = None
     _LIBRARY = library
     return library
 
@@ -183,6 +213,18 @@ def _load_zstd() -> Optional[ctypes.CDLL]:
         library.ZSTD_isError.restype = ctypes.c_uint
         library.ZSTD_getErrorName.argtypes = [ctypes.c_size_t]
         library.ZSTD_getErrorName.restype = ctypes.c_char_p
+        library.ZSTD_createDStream.argtypes = []
+        library.ZSTD_createDStream.restype = ctypes.c_void_p
+        library.ZSTD_freeDStream.argtypes = [ctypes.c_void_p]
+        library.ZSTD_freeDStream.restype = ctypes.c_size_t
+        library.ZSTD_initDStream.argtypes = [ctypes.c_void_p]
+        library.ZSTD_initDStream.restype = ctypes.c_size_t
+        library.ZSTD_decompressStream.argtypes = [
+            ctypes.c_void_p,
+            ctypes.POINTER(_ZstdOutBuffer),
+            ctypes.POINTER(_ZstdInBuffer),
+        ]
+        library.ZSTD_decompressStream.restype = ctypes.c_size_t
         _ZSTD_LIBRARY = library
         return library
     return None
@@ -238,3 +280,76 @@ def zstd_decompress(data: bytes, expected_size: Optional[int] = None) -> bytes:
             f"libzstd output size mismatch: expected {expected_size}, got {result}"
         )
     return output.raw[:result]
+
+
+def structured_text_zstd_stream_decode(
+    data: bytes,
+    transformed_size: int,
+    expected_size: int,
+    chunk_size: int = 256 * 1024,
+) -> bytes:
+    native = _load_library()
+    zstd = _load_zstd()
+    if native is None or zstd is None:
+        raise RuntimeError("native streaming structured-text decode is unavailable")
+    if chunk_size < 1:
+        raise ValueError("streaming decode chunk size must be positive")
+
+    stream = zstd.ZSTD_createDStream()
+    decoder = native.clab_structured_text_decoder_create(expected_size)
+    if not stream or not decoder:
+        if stream:
+            zstd.ZSTD_freeDStream(stream)
+        if decoder:
+            native.clab_structured_text_decoder_free(decoder)
+        raise RuntimeError("failed to allocate streaming structured-text decoder")
+
+    source = ctypes.create_string_buffer(data, max(1, len(data)))
+    source_buffer = _ZstdInBuffer(
+        ctypes.cast(source, ctypes.c_void_p), len(data), 0
+    )
+    output = ctypes.create_string_buffer(max(1, expected_size))
+    total_transformed = 0
+    try:
+        result = int(zstd.ZSTD_initDStream(stream))
+        _zstd_error(zstd, result)
+        chunk = ctypes.create_string_buffer(chunk_size)
+        while True:
+            chunk_buffer = _ZstdOutBuffer(
+                ctypes.cast(chunk, ctypes.c_void_p), len(chunk), 0
+            )
+            result = int(
+                zstd.ZSTD_decompressStream(
+                    stream, ctypes.byref(chunk_buffer), ctypes.byref(source_buffer)
+                )
+            )
+            _zstd_error(zstd, result)
+            produced = int(chunk_buffer.pos)
+            total_transformed += produced
+            if total_transformed > transformed_size:
+                raise ValueError("structured-text transformed size exceeds declaration")
+            status = native.clab_structured_text_decoder_update(
+                decoder, chunk, produced, output, expected_size
+            )
+            if status != 0:
+                raise ValueError(
+                    f"native streaming structured-text decode failed with status {status}"
+                )
+            if result == 0:
+                if source_buffer.pos != source_buffer.size:
+                    raise ValueError("structured-text zstd payload has trailing data")
+                break
+            if source_buffer.pos == source_buffer.size and produced == 0:
+                raise ValueError("structured-text zstd payload is truncated")
+
+        if total_transformed != transformed_size:
+            raise ValueError("structured-text transformed size mismatch")
+        status = native.clab_structured_text_decoder_finish(decoder)
+        if status != 0:
+            raise ValueError(
+                f"native streaming structured-text finish failed with status {status}"
+            )
+        return output.raw[:expected_size]
+    finally:
+        native.clab_structured_text_decoder_free(decoder)
+        zstd.ZSTD_freeDStream(stream)
