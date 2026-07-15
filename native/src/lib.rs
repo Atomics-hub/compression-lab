@@ -55,20 +55,54 @@ fn token_key(token: &[u8]) -> TokenKey {
     TokenKey(first, second)
 }
 
-fn ranked_dictionary(data: &[u8], limit: usize) -> Vec<Vec<u8>> {
-    let mut counts: HashMap<TokenKey, Vec<(Vec<u8>, usize)>> = HashMap::new();
-    visit_token_ranges(data, |start, end| {
-        let token = &data[start..end];
-        let bucket = counts.entry(token_key(token)).or_default();
-        if let Some((_, count)) = bucket
-            .iter_mut()
-            .find(|(stored, _)| stored.as_slice() == token)
+fn representative_ranges(data: &[u8], sample_budget: usize) -> Vec<(usize, usize)> {
+    if sample_budget == 0 || data.len() <= sample_budget {
+        return vec![(0, data.len())];
+    }
+    let block = (sample_budget / 3).max(1);
+    let tail = sample_budget.saturating_sub(2 * block).max(1);
+    let middle = data.len() / 2 - block / 2;
+    let mut ranges = vec![
+        (0, block.min(data.len())),
+        (middle, (middle + block).min(data.len())),
+        (data.len().saturating_sub(tail), data.len()),
+    ];
+    for (start, end) in &mut ranges {
+        while *start > 0
+            && *start < data.len()
+            && token_continue(data[*start - 1])
+            && token_continue(data[*start])
         {
-            *count += 1;
-        } else {
-            bucket.push((token.to_vec(), 1));
+            *start += 1;
         }
-    });
+        while *end > *start
+            && *end < data.len()
+            && token_continue(data[*end - 1])
+            && token_continue(data[*end])
+        {
+            *end -= 1;
+        }
+    }
+    ranges
+}
+
+fn ranked_dictionary(data: &[u8], limit: usize, sample_budget: usize) -> Vec<Vec<u8>> {
+    let mut counts: HashMap<TokenKey, Vec<(Vec<u8>, usize)>> = HashMap::new();
+    for (range_start, range_end) in representative_ranges(data, sample_budget) {
+        let sample = &data[range_start..range_end];
+        visit_token_ranges(sample, |start, end| {
+            let token = &sample[start..end];
+            let bucket = counts.entry(token_key(token)).or_default();
+            if let Some((_, count)) = bucket
+                .iter_mut()
+                .find(|(stored, _)| stored.as_slice() == token)
+            {
+                *count += 1;
+            } else {
+                bucket.push((token.to_vec(), 1));
+            }
+        });
+    }
     let mut ranked: Vec<(usize, usize, Vec<u8>)> = counts
         .into_iter()
         .flat_map(|(_, bucket)| bucket)
@@ -92,8 +126,8 @@ fn ranked_dictionary(data: &[u8], limit: usize) -> Vec<Vec<u8>> {
         .collect()
 }
 
-fn encode_structured_text(data: &[u8], limit: usize) -> Vec<u8> {
-    let dictionary = ranked_dictionary(data, limit);
+fn encode_structured_text(data: &[u8], limit: usize, sample_budget: usize) -> Vec<u8> {
+    let dictionary = ranked_dictionary(data, limit, sample_budget);
     let mut codes: HashMap<TokenKey, Vec<(&[u8], u8)>> = HashMap::new();
     for (code, token) in dictionary.iter().enumerate() {
         codes
@@ -196,6 +230,7 @@ pub unsafe extern "C" fn clab_structured_text_encode(
     input: *const u8,
     len: usize,
     dictionary_limit: usize,
+    sample_budget: usize,
     output: *mut u8,
     output_capacity: usize,
     output_len: *mut usize,
@@ -204,7 +239,7 @@ pub unsafe extern "C" fn clab_structured_text_encode(
         return NULL_POINTER;
     }
     let source = slice::from_raw_parts(input, len);
-    let encoded = encode_structured_text(source, dictionary_limit);
+    let encoded = encode_structured_text(source, dictionary_limit, sample_budget);
     if encoded.len() > output_capacity {
         return OUTPUT_TOO_SMALL;
     }
@@ -327,7 +362,7 @@ mod tests {
     #[test]
     fn structured_text_round_trip_preserves_markers_and_tokens() {
         let source = b"repeated_identifier other repeated_identifier \xff tail";
-        let encoded = encode_structured_text(source, 16);
+        let encoded = encode_structured_text(source, 16, source.len());
         assert_eq!(decode_structured_text(&encoded, source.len()), Some(source.to_vec()));
     }
 }

@@ -50,6 +50,7 @@ def _load_library() -> Optional[ctypes.CDLL]:
         ctypes.c_void_p,
         ctypes.c_size_t,
         ctypes.c_size_t,
+        ctypes.c_size_t,
         ctypes.c_void_p,
         ctypes.c_size_t,
         ctypes.POINTER(ctypes.c_size_t),
@@ -92,7 +93,9 @@ def inverse_delta_transpose(data: bytes) -> bytes:
     return _call("clab_inverse_delta_transpose", data)
 
 
-def structured_text_encode(data: bytes, dictionary_limit: int) -> bytes:
+def structured_text_encode(
+    data: bytes, dictionary_limit: int, sample_budget: int = 1024 * 1024
+) -> bytes:
     library = _load_library()
     if library is None:
         raise RuntimeError("compression-lab native library is not built")
@@ -104,6 +107,7 @@ def structured_text_encode(data: bytes, dictionary_limit: int) -> bytes:
         source,
         len(data),
         dictionary_limit,
+        sample_budget,
         output,
         capacity,
         ctypes.byref(output_len),

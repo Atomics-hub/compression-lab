@@ -10,6 +10,7 @@ from compresslab.native import (
     zstd_decompress,
 )
 from compresslab.structured_text import (
+    DICTIONARY_SAMPLE_BYTES,
     HEADER,
     MAGIC,
     _ranked_dictionary,
@@ -74,6 +75,26 @@ class StructuredTextTransformTests(unittest.TestCase):
                 source, lambda data: zstd_compress(data, level=3)
             )
         self.assertIsNotNone(candidate)
+
+    def test_sampled_native_dictionary_matches_python_reference(self):
+        if not native_available():
+            self.skipTest("native library has not been built")
+        source = b"".join(
+            b"sampled_identifier shared_identifier region_"
+            + str(index % 97).encode("ascii")
+            + b" value\n"
+            for index in range(30000)
+        )
+        self.assertGreater(len(source), DICTIONARY_SAMPLE_BYTES)
+        dictionary = _ranked_dictionary(
+            source, DICTIONARY_SAMPLE_BYTES
+        )[:128]
+        expected = encode_with_dictionary(source, dictionary)
+        transformed = native_encode(
+            source, len(dictionary), DICTIONARY_SAMPLE_BYTES
+        )
+        self.assertEqual(transformed, expected)
+        self.assertEqual(native_decode(transformed, len(source)), source)
 
     def test_decoder_rejects_truncated_escape_and_duplicate_dictionary(self):
         with self.assertRaises(ValueError):

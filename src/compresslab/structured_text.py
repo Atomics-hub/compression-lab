@@ -22,8 +22,13 @@ MAX_TOKEN_SIZE = 64
 MAX_HEADER_SIZE = HEADER.size + MAX_DICTIONARY_TOKENS * (1 + MAX_TOKEN_SIZE)
 SMALL_TEXT_DICTIONARY_TOKENS = 16
 JSON_DICTIONARY_TOKENS = 128
+DICTIONARY_SAMPLE_BYTES = 1024 * 1024
 
 Encoder = Callable[[bytes], bytes]
+
+
+def _token_continue(value: int) -> bool:
+    return value == 95 or 48 <= value <= 57 or 65 <= value <= 90 or 97 <= value <= 122
 
 
 def is_likely_structured_text(data: bytes) -> bool:
@@ -41,8 +46,41 @@ def is_likely_structured_text(data: bytes) -> bool:
     return printable / len(sample) >= 0.85 and len(TOKEN.findall(sample)) >= 8
 
 
-def _ranked_dictionary(data: bytes) -> List[bytes]:
-    counts = Counter(TOKEN.findall(data))
+def _representative_ranges(data: bytes, sample_budget: int) -> List[Tuple[int, int]]:
+    if sample_budget <= 0 or len(data) <= sample_budget:
+        return [(0, len(data))]
+    block = max(1, sample_budget // 3)
+    tail = max(1, sample_budget - 2 * block)
+    middle = len(data) // 2 - block // 2
+    ranges = [
+        [0, min(block, len(data))],
+        [middle, min(middle + block, len(data))],
+        [max(0, len(data) - tail), len(data)],
+    ]
+    for bounds in ranges:
+        start, end = bounds
+        while (
+            0 < start < len(data)
+            and _token_continue(data[start - 1])
+            and _token_continue(data[start])
+        ):
+            start += 1
+        while (
+            start < end < len(data)
+            and _token_continue(data[end - 1])
+            and _token_continue(data[end])
+        ):
+            end -= 1
+        bounds[:] = [start, end]
+    return [(start, end) for start, end in ranges]
+
+
+def _ranked_dictionary(
+    data: bytes, sample_budget: int = DICTIONARY_SAMPLE_BYTES
+) -> List[bytes]:
+    counts: Counter[bytes] = Counter()
+    for start, end in _representative_ranges(data, sample_budget):
+        counts.update(TOKEN.findall(data[start:end]))
     ranked = []
     for token, count in counts.items():
         estimated_gain = count * (len(token) - 2) - len(token) - 1
@@ -100,10 +138,10 @@ def encode_best(
         return None
     limit = _dictionary_limit(data)
     if native_available():
-        transformed = native_encode(data, limit)
+        transformed = native_encode(data, limit, DICTIONARY_SAMPLE_BYTES)
         _, dictionary_size = HEADER.unpack(transformed[:HEADER.size])
     else:
-        dictionary = _ranked_dictionary(data)[:limit]
+        dictionary = _ranked_dictionary(data, DICTIONARY_SAMPLE_BYTES)[:limit]
         if not dictionary:
             return None
         dictionary_size = len(dictionary)
