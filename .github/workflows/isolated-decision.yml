@@ -21,7 +21,6 @@ jobs:
     runs-on: macos-15
     timeout-minutes: 45
     env:
-      EVIDENCE_DIR: ${{ runner.temp }}/compression-lab-evidence
       PYTHONUNBUFFERED: "1"
 
     steps:
@@ -32,7 +31,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p "$EVIDENCE_DIR"
+          evidence_dir="$RUNNER_TEMP/compression-lab-evidence"
+          mkdir -p "$evidence_dir"
           {
             sw_vers
             uname -a
@@ -41,7 +41,7 @@ jobs:
             rustc --version
             git rev-parse HEAD
             git status --porcelain
-          } | tee "$EVIDENCE_DIR/runner-provenance.txt"
+          } | tee "$evidence_dir/runner-provenance.txt"
 
       - name: Install native baselines
         run: scripts/bootstrap-macos-baselines.sh
@@ -61,10 +61,11 @@ jobs:
         shell: bash
         run: |
           set +e
-          scripts/run-stability.sh runs/isolated-decision 2>&1 | tee "$EVIDENCE_DIR/benchmark.log"
+          evidence_dir="$RUNNER_TEMP/compression-lab-evidence"
+          scripts/run-stability.sh runs/isolated-decision 2>&1 | tee "$evidence_dir/benchmark.log"
           status=${PIPESTATUS[0]}
           if [[ -d runs/isolated-decision ]]; then
-            cp -R runs/isolated-decision "$EVIDENCE_DIR/"
+            cp -R runs/isolated-decision "$evidence_dir/"
           fi
           echo "exit_code=$status" >> "$GITHUB_OUTPUT"
           exit 0
