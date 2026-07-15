@@ -9,6 +9,7 @@
     "frontier_tolerance_total_time_percent": 10.0,
     "target_frontier_coverage_percent": 80.0,
     "minimum_repetitions": 7,
+    "max_unmet_batch_targets": 0,
     "max_compression_throughput_cv_percent": 5.0,
     "max_decompression_throughput_cv_percent": 5.0,
     "max_frontier_coverage_range_percentage_points": 5.0,

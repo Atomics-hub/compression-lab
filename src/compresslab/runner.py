@@ -96,6 +96,8 @@ class _PersistentWorker:
         source: Path,
         destination: Path,
         timeout_seconds: float,
+        minimum_duration_ns: int,
+        max_iterations: int,
     ) -> Dict[str, Any]:
         request_id = uuid.uuid4().hex
         request = {
@@ -104,6 +106,8 @@ class _PersistentWorker:
             "operation": operation,
             "source": str(source),
             "destination": str(destination),
+            "minimum_duration_ns": minimum_duration_ns,
+            "max_iterations": max_iterations,
         }
         if self._process.poll() is not None or self._process.stdin is None:
             raise RuntimeError("persistent worker is not running")
@@ -162,6 +166,8 @@ class _PersistentWorkerPool:
         source: Path,
         destination: Path,
         timeout_seconds: float,
+        minimum_duration_ns: int = 0,
+        max_iterations: int = 1,
     ) -> Tuple[int, Dict[str, Any], str]:
         try:
             worker = self._workers.get(codec.id)
@@ -174,7 +180,13 @@ class _PersistentWorkerPool:
         start = time.perf_counter_ns()
         try:
             response = worker.run(
-                codec, operation, source, destination, timeout_seconds
+                codec,
+                operation,
+                source,
+                destination,
+                timeout_seconds,
+                minimum_duration_ns,
+                max_iterations,
             )
             elapsed = time.perf_counter_ns() - start
         except (TimeoutError, RuntimeError, OSError, json.JSONDecodeError) as exc:
@@ -184,7 +196,9 @@ class _PersistentWorkerPool:
             return elapsed, {}, str(exc)
         telemetry = response.get("telemetry", {})
         error = str(response.get("error", telemetry.get("error", "")))
-        return elapsed, telemetry, error
+        iterations = max(1, int(telemetry.get("batch_iterations", 1)))
+        telemetry["batch_total_parent_ns"] = elapsed
+        return int(elapsed / iterations), telemetry, error
 
     def close(self) -> None:
         for worker in self._workers.values():
@@ -252,6 +266,8 @@ def _trial(
     work_dir: Path,
     timeout_seconds: float,
     worker_pool: Optional[_PersistentWorkerPool] = None,
+    minimum_duration_ns: int = 0,
+    max_batch_iterations: int = 1,
 ) -> TrialResult:
     prefix = f"{item.id}.{codec.id}.r{repetition}"
     compressed = work_dir / f"{prefix}.compressed"
@@ -265,7 +281,13 @@ def _trial(
         )
     else:
         compression_ns, cmeta, error = worker_pool.run(
-            codec, "compress", item.path, compressed, timeout_seconds
+            codec,
+            "compress",
+            item.path,
+            compressed,
+            timeout_seconds,
+            minimum_duration_ns,
+            max_batch_iterations,
         )
     if error:
         return _failed_trial(
@@ -278,7 +300,13 @@ def _trial(
         )
     else:
         decompression_ns, dmeta, error = worker_pool.run(
-            codec, "decompress", compressed, restored, timeout_seconds
+            codec,
+            "decompress",
+            compressed,
+            restored,
+            timeout_seconds,
+            minimum_duration_ns,
+            max_batch_iterations,
         )
     if error:
         return _failed_trial(
@@ -317,6 +345,16 @@ def _trial(
         decompression_peak_rss_bytes=int(dmeta.get("peak_rss_bytes", 0)),
         compression_worker_pid=int(cmeta.get("pid", 0)),
         decompression_worker_pid=int(dmeta.get("pid", 0)),
+        compression_batch_iterations=int(cmeta.get("batch_iterations", 1)),
+        decompression_batch_iterations=int(dmeta.get("batch_iterations", 1)),
+        compression_batch_total_worker_ns=int(
+            cmeta.get("batch_total_worker_wall_ns", cmeta.get("wall_ns", 0))
+        ),
+        decompression_batch_total_worker_ns=int(
+            dmeta.get("batch_total_worker_wall_ns", dmeta.get("wall_ns", 0))
+        ),
+        compression_batch_target_met=bool(cmeta.get("batch_target_met", True)),
+        decompression_batch_target_met=bool(dmeta.get("batch_target_met", True)),
         roundtrip_ok=roundtrip_ok,
         source_sha256=item.sha256,
         restored_sha256=restored_sha256,
@@ -367,6 +405,16 @@ def _failed_trial(
         decompression_peak_rss_bytes=int(dmeta.get("peak_rss_bytes", 0)),
         compression_worker_pid=int(cmeta.get("pid", 0)),
         decompression_worker_pid=int(dmeta.get("pid", 0)),
+        compression_batch_iterations=int(cmeta.get("batch_iterations", 1)),
+        decompression_batch_iterations=int(dmeta.get("batch_iterations", 1)),
+        compression_batch_total_worker_ns=int(
+            cmeta.get("batch_total_worker_wall_ns", cmeta.get("wall_ns", 0))
+        ),
+        decompression_batch_total_worker_ns=int(
+            dmeta.get("batch_total_worker_wall_ns", dmeta.get("wall_ns", 0))
+        ),
+        compression_batch_target_met=bool(cmeta.get("batch_target_met", False)),
+        decompression_batch_target_met=bool(dmeta.get("batch_target_met", False)),
         roundtrip_ok=False,
         source_sha256=item.sha256,
         restored_sha256="",
@@ -407,6 +455,28 @@ def _system_state(label: str, include_thermal_signal: bool = False) -> Dict[str,
     return state
 
 
+def _git_state() -> Dict[str, Any]:
+    repository = Path(__file__).resolve().parents[2]
+
+    def command(*arguments: str) -> str:
+        completed = subprocess.run(
+            ["git", *arguments],
+            cwd=repository,
+            capture_output=True,
+            text=True,
+            timeout=5.0,
+            check=False,
+        )
+        return completed.stdout.strip() if completed.returncode == 0 else ""
+
+    status = command("status", "--porcelain")
+    return {
+        "commit": command("rev-parse", "HEAD"),
+        "branch": command("branch", "--show-current"),
+        "dirty": bool(status),
+    }
+
+
 def run_benchmark(
     corpus_root: Path,
     output_dir: Path,
@@ -421,6 +491,8 @@ def run_benchmark(
     order_seed: int = 20260715,
     confidence_level: float = 0.95,
     bootstrap_samples: int = 2000,
+    minimum_trial_time_ms: float = 0.0,
+    max_batch_iterations: int = 4096,
 ) -> BenchmarkRun:
     if repetitions < 1:
         raise ValueError("repetitions must be at least 1")
@@ -430,6 +502,14 @@ def run_benchmark(
         raise ValueError("bandwidths must be positive")
     if execution_mode not in {"cold-process", "persistent-worker"}:
         raise ValueError("execution mode must be cold-process or persistent-worker")
+    if minimum_trial_time_ms < 0:
+        raise ValueError("minimum trial time cannot be negative")
+    if max_batch_iterations < 1:
+        raise ValueError("maximum batch iterations must be at least 1")
+    if minimum_trial_time_ms > 0 and execution_mode != "persistent-worker":
+        raise ValueError("calibrated batching requires persistent-worker mode")
+
+    minimum_duration_ns = int(minimum_trial_time_ms * 1_000_000)
 
     codecs = probe_codec_versions(codecs)
     items = load_corpus(corpus_root, splits)
@@ -487,6 +567,8 @@ def run_benchmark(
                     work_dir,
                     timeout_seconds,
                     worker_pool,
+                    minimum_duration_ns,
+                    max_batch_iterations,
                 )
                 trial_rows.append(result.to_dict())
             system_states.append(_system_state(f"repetition-{repetition}-end"))
@@ -521,7 +603,7 @@ def run_benchmark(
     ]
 
     run = BenchmarkRun(
-        schema_version=2,
+        schema_version=3,
         run_id=run_id,
         generated_at=datetime.now(timezone.utc).isoformat(),
         system={
@@ -532,6 +614,7 @@ def run_benchmark(
             "python_executable": sys.executable,
             "cpu_count": os.cpu_count(),
             "state_samples": system_states,
+            "git": _git_state(),
         },
         config={
             "repetitions": repetitions,
@@ -544,10 +627,17 @@ def run_benchmark(
             "trial_order": "deterministic shuffle within every warmup and repetition block",
             "confidence_level": confidence_level,
             "bootstrap_samples": bootstrap_samples,
+            "minimum_trial_time_ms": minimum_trial_time_ms,
+            "max_batch_iterations": max_batch_iterations,
             "timing_scope": (
                 "parent wall clock including worker process startup"
                 if execution_mode == "cold-process"
-                else "parent wall clock excluding Python worker startup; includes IPC, file I/O, and external codec subprocess startup"
+                else (
+                    "parent wall clock per operation excluding Python worker startup; "
+                    "includes amortized IPC and file I/O, with measured operations "
+                    f"batched to {minimum_trial_time_ms:g} ms or "
+                    f"{max_batch_iterations} iterations"
+                )
             ),
             "memory_scope": "worker high-water RSS",
         },

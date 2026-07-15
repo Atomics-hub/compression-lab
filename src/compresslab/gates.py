@@ -102,6 +102,7 @@ def evaluate_candidate(
     )
     stability_requirements = {
         "minimum_repetitions",
+        "max_unmet_batch_targets",
         "max_compression_throughput_cv_percent",
         "max_decompression_throughput_cv_percent",
         "max_frontier_coverage_range_percentage_points",
@@ -118,6 +119,30 @@ def evaluate_candidate(
                     stability["repetitions"],
                     requirements["minimum_repetitions"],
                     "repetitions",
+                )
+            )
+        if "max_unmet_batch_targets" in requirements:
+            calibrated = (
+                float(results.get("config", {}).get("minimum_trial_time_ms", 0.0))
+                > 0.0
+            )
+            default_met = not calibrated
+            unmet = sum(
+                not bool(row.get(field, default_met))
+                for row in results.get("trials", [])
+                if row.get("roundtrip_ok")
+                for field in (
+                    "compression_batch_target_met",
+                    "decompression_batch_target_met",
+                )
+            )
+            checks.append(
+                _check(
+                    "calibrated_batch_targets",
+                    unmet <= requirements["max_unmet_batch_targets"],
+                    unmet,
+                    requirements["max_unmet_batch_targets"],
+                    "unmet operation targets",
                 )
             )
         for metric, check_name, requirement_name in (

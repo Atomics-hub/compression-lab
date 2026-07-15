@@ -13,6 +13,8 @@ _LIBRARY: Optional[ctypes.CDLL] = None
 _LOAD_ATTEMPTED = False
 _ZSTD_LIBRARY: Optional[ctypes.CDLL] = None
 _ZSTD_LOAD_ATTEMPTED = False
+_ZSTD_CONTENTSIZE_UNKNOWN = (1 << 64) - 1
+_ZSTD_CONTENTSIZE_ERROR = (1 << 64) - 2
 
 
 def _library_filename() -> str:
@@ -117,6 +119,11 @@ def _load_zstd() -> Optional[ctypes.CDLL]:
             ctypes.c_size_t,
         ]
         library.ZSTD_decompress.restype = ctypes.c_size_t
+        library.ZSTD_getFrameContentSize.argtypes = [
+            ctypes.c_void_p,
+            ctypes.c_size_t,
+        ]
+        library.ZSTD_getFrameContentSize.restype = ctypes.c_ulonglong
         library.ZSTD_isError.argtypes = [ctypes.c_size_t]
         library.ZSTD_isError.restype = ctypes.c_uint
         library.ZSTD_getErrorName.argtypes = [ctypes.c_size_t]
@@ -148,10 +155,25 @@ def zstd_compress(data: bytes, level: int = 3) -> bytes:
     return output.raw[:result]
 
 
-def zstd_decompress(data: bytes, expected_size: int) -> bytes:
+def zstd_frame_content_size(data: bytes) -> int:
     library = _load_zstd()
     if library is None:
         raise RuntimeError("libzstd is unavailable")
+    source = ctypes.create_string_buffer(data, max(1, len(data)))
+    result = int(library.ZSTD_getFrameContentSize(source, len(data)))
+    if result == _ZSTD_CONTENTSIZE_ERROR:
+        raise ValueError("libzstd frame content size is invalid")
+    if result == _ZSTD_CONTENTSIZE_UNKNOWN:
+        raise ValueError("libzstd frame does not declare its content size")
+    return result
+
+
+def zstd_decompress(data: bytes, expected_size: Optional[int] = None) -> bytes:
+    library = _load_zstd()
+    if library is None:
+        raise RuntimeError("libzstd is unavailable")
+    if expected_size is None:
+        expected_size = zstd_frame_content_size(data)
     source = ctypes.create_string_buffer(data, max(1, len(data)))
     output = ctypes.create_string_buffer(max(1, expected_size))
     result = int(library.ZSTD_decompress(output, expected_size, source, len(data)))

@@ -23,7 +23,9 @@ PYTHONPATH=src python3 -m compresslab run \
   --execution-mode persistent-worker \
   --order-seed 20260715 \
   --confidence-level 0.95 \
-  --bootstrap-samples 5000
+  --bootstrap-samples 5000 \
+  --minimum-trial-time-ms 250 \
+  --max-batch-iterations 4096
 
 set +e
 PYTHONPATH=src python3 -m compresslab evaluate \

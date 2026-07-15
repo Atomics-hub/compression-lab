@@ -81,6 +81,8 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--order-seed", type=int, default=20260715)
     run.add_argument("--confidence-level", type=float, default=0.95)
     run.add_argument("--bootstrap-samples", type=int, default=2000)
+    run.add_argument("--minimum-trial-time-ms", type=float, default=0.0)
+    run.add_argument("--max-batch-iterations", type=int, default=4096)
 
     evaluate = subparsers.add_parser("evaluate", help="evaluate a candidate against gates")
     evaluate.add_argument("--results", type=Path, required=True)
@@ -140,6 +142,8 @@ def main(argv=None) -> int:
             order_seed=args.order_seed,
             confidence_level=args.confidence_level,
             bootstrap_samples=args.bootstrap_samples,
+            minimum_trial_time_ms=args.minimum_trial_time_ms,
+            max_batch_iterations=args.max_batch_iterations,
         )
         print(args.output / "report.md")
         return 1 if benchmark.failures else 0

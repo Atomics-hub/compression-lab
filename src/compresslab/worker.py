@@ -455,7 +455,27 @@ def _run_external(codec, operation: str, source: Path, destination: Path) -> dic
     if completed.returncode != 0:
         detail = stderr.strip() or stdout.strip()
         raise RuntimeError(f"external codec exited {completed.returncode}: {detail}")
-    return {"selected_backend": codec.id, "selector_ns": 0}
+    return {
+        "selected_backend": codec.id,
+        "selector_ns": 0,
+        "codec_engine": f"{codec.implementation}-cli",
+    }
+
+
+def _run_zstd_ffi(codec, operation: str, source: Path, destination: Path) -> dict:
+    data = source.read_bytes()
+    if operation == "compress":
+        output = zstd_compress(data, level=codec.level)
+    elif operation == "decompress":
+        output = zstd_decompress(data)
+    else:
+        raise ValueError(f"Unsupported operation: {operation}")
+    destination.write_bytes(output)
+    return {
+        "selected_backend": codec.id,
+        "selector_ns": 0,
+        "codec_engine": "libzstd-ffi",
+    }
 
 
 def run(codec_id: str, operation: str, source: Path, destination: Path) -> dict:
@@ -479,6 +499,8 @@ def run(codec_id: str, operation: str, source: Path, destination: Path) -> dict:
         else:
             output, detail = _adaptive_decompress(source.read_bytes())
         destination.write_bytes(output)
+    elif codec.implementation == "external-zstd" and zstd_available():
+        detail = _run_zstd_ffi(codec, operation, source, destination)
     elif codec.implementation.startswith("external-"):
         detail = _run_external(codec, operation, source, destination)
     elif operation == "compress":
@@ -502,6 +524,51 @@ def run(codec_id: str, operation: str, source: Path, destination: Path) -> dict:
         "pid": os.getpid(),
         **detail,
     }
+
+
+def _run_batch(
+    codec_id: str,
+    operation: str,
+    source: Path,
+    destination: Path,
+    minimum_duration_ns: int,
+    max_iterations: int,
+) -> dict:
+    if minimum_duration_ns < 0:
+        raise ValueError("minimum batch duration cannot be negative")
+    if max_iterations < 1:
+        raise ValueError("maximum batch iterations must be at least 1")
+
+    results = []
+    total_worker_wall_ns = 0
+    while True:
+        telemetry = run(codec_id, operation, source, destination)
+        results.append(telemetry)
+        total_worker_wall_ns += int(telemetry["wall_ns"])
+        if (
+            total_worker_wall_ns >= minimum_duration_ns
+            or len(results) >= max_iterations
+        ):
+            break
+
+    backends = {str(row.get("selected_backend", "")) for row in results}
+    if len(backends) > 1:
+        raise RuntimeError(f"batched selector was nondeterministic: {sorted(backends)}")
+
+    aggregate = dict(results[-1])
+    iterations = len(results)
+    for field in ("wall_ns", "cpu_ns", "selector_ns"):
+        aggregate[field] = int(
+            sum(int(row.get(field, 0)) for row in results) / iterations
+        )
+    aggregate["peak_rss_bytes"] = max(
+        int(row.get("peak_rss_bytes", 0)) for row in results
+    )
+    aggregate["batch_iterations"] = iterations
+    aggregate["batch_target_ns"] = minimum_duration_ns
+    aggregate["batch_total_worker_wall_ns"] = total_worker_wall_ns
+    aggregate["batch_target_met"] = total_worker_wall_ns >= minimum_duration_ns
+    return aggregate
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -533,11 +600,13 @@ def _serve() -> int:
                 sys.stdout.write(json.dumps(response, sort_keys=True) + "\n")
                 sys.stdout.flush()
                 return 0
-            telemetry = run(
+            telemetry = _run_batch(
                 str(request["codec"]),
                 str(request["operation"]),
                 Path(request["source"]),
                 Path(request["destination"]),
+                int(request.get("minimum_duration_ns", 0)),
+                int(request.get("max_iterations", 1)),
             )
             response = {"request_id": request_id, "telemetry": telemetry}
         except Exception as exc:

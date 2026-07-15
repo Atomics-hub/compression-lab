@@ -13,6 +13,8 @@ Version 0.1 provides:
 - separate cold-process and persistent-worker wall timing modes;
 - deterministic randomized trial order, host-load sampling, per-repetition
   confidence intervals, and repeatability gates;
+- calibrated operation batches with explicit target-completion telemetry;
+- in-process Zstandard baselines using the same `libzstd` path as adaptive-v2;
 - worker CPU telemetry that includes completed external-codec child processes;
 - worker peak-RSS telemetry;
 - compressed size, throughput, expansion, and transfer-time utility at
@@ -88,16 +90,18 @@ version, and settings. The harness records those inputs and follows these rules:
    recorded deterministic seed.
 4. The median trial represents each item × codec pair, while per-repetition
    aggregates retain confidence intervals and coefficients of variation.
-5. Aggregate compression ratios are byte-weighted.
-6. Cold-process mode includes Python worker startup. Persistent-worker mode
+5. Calibrated steady-state trials repeat an operation until its minimum timing
+   duration is reached and fail validation if any batch hits its cap early.
+6. Aggregate compression ratios are byte-weighted.
+7. Cold-process mode includes Python worker startup. Persistent-worker mode
    excludes Python startup but retains IPC, file I/O, and external CLI startup.
-7. CPU time and memory are worker-local telemetry and are not substituted for
+8. CPU time and memory are worker-local telemetry and are not substituted for
    wall time.
-8. Transfer utility is compression time + encoded bytes over the selected link
+9. Transfer utility is compression time + encoded bytes over the selected link
    + decompression time.
-9. Public validation data is for iteration. Private holdout data should live
+10. Public validation data is for iteration. Private holdout data should live
    outside the repository and run only at decision gates.
-10. A benchmark failure, timeout, corrupt round trip, unstable throughput, or
+11. A benchmark failure, timeout, corrupt round trip, unstable throughput, or
     excessive host load remains visible and makes the CLI exit non-zero.
 
 ## Corpus model
@@ -164,8 +168,9 @@ private holdout is opened.
 
 - Workers read each file into memory; streaming and random-access tests come
   with the candidate container.
-- Persistent Python workers remove interpreter startup, but external baseline
-  adapters still include their native CLI process startup.
+- Persistent Python workers remove interpreter startup. Zstandard uses an
+  in-process library binding; LZ4, Brotli, and 7-Zip baselines still include
+  native CLI process startup.
 - Peak RSS is the worker high-water mark, not incremental allocation.
 - Energy, hardware counters, archive metadata, encryption, and malicious-input
   fuzzing are not yet measured.

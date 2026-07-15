@@ -32,7 +32,8 @@ class RunnerTests(unittest.TestCase):
             self.assertTrue((output / "summary.csv").is_file())
             self.assertTrue((output / "report.md").is_file())
             payload = json.loads((output / "results.json").read_text(encoding="utf-8"))
-            self.assertEqual(payload["schema_version"], 2)
+            self.assertEqual(payload["schema_version"], 3)
+            self.assertIn("commit", payload["system"]["git"])
             self.assertEqual(payload["config"]["order_seed"], 20260715)
             self.assertIn("per_codec", payload["stability"])
             self.assertEqual(len(payload["summary"]), 5)
@@ -83,9 +84,24 @@ class RunnerTests(unittest.TestCase):
                 execution_mode="persistent-worker",
                 order_seed=17,
                 bootstrap_samples=100,
+                minimum_trial_time_ms=5.0,
+                max_batch_iterations=4096,
             )
             self.assertFalse(run.failures)
             self.assertEqual(run.config["execution_mode"], "persistent-worker")
+            self.assertEqual(run.config["minimum_trial_time_ms"], 5.0)
+            self.assertTrue(
+                any(row["compression_batch_iterations"] > 1 for row in run.trials)
+            )
+            self.assertTrue(
+                any(row["decompression_batch_iterations"] > 1 for row in run.trials)
+            )
+            self.assertTrue(
+                all(row["compression_batch_target_met"] for row in run.trials)
+            )
+            self.assertTrue(
+                all(row["decompression_batch_target_met"] for row in run.trials)
+            )
             for codec_id in ("store", "gzip-1"):
                 codec_trials = [row for row in run.trials if row["codec_id"] == codec_id]
                 pids = {

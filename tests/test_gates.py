@@ -52,6 +52,7 @@ class GateTests(unittest.TestCase):
     def test_stability_gates_are_enforced(self):
         results = {
             "run_id": "stable-run",
+            "config": {"minimum_trial_time_ms": 5.0},
             "system": {
                 "cpu_count": 8,
                 "state_samples": [
@@ -66,7 +67,12 @@ class GateTests(unittest.TestCase):
                 ],
             },
             "trials": [
-                {"codec_id": "candidate", "roundtrip_ok": True},
+                {
+                    "codec_id": "candidate",
+                    "roundtrip_ok": True,
+                    "compression_batch_target_met": True,
+                    "decompression_batch_target_met": True,
+                },
             ],
             "summary": [
                 {"codec_id": "candidate", "selector_time_percent": 1.0},
@@ -114,6 +120,7 @@ class GateTests(unittest.TestCase):
                 "frontier_tolerance_total_time_percent": 10.0,
                 "target_frontier_coverage_percent": 80.0,
                 "minimum_repetitions": 7,
+                "max_unmet_batch_targets": 0,
                 "max_compression_throughput_cv_percent": 5.0,
                 "max_decompression_throughput_cv_percent": 5.0,
                 "max_frontier_coverage_range_percentage_points": 5.0,

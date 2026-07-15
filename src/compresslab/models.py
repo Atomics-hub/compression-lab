@@ -51,6 +51,12 @@ class TrialResult:
     decompression_peak_rss_bytes: int
     compression_worker_pid: int
     decompression_worker_pid: int
+    compression_batch_iterations: int
+    decompression_batch_iterations: int
+    compression_batch_total_worker_ns: int
+    decompression_batch_total_worker_ns: int
+    compression_batch_target_met: bool
+    decompression_batch_target_met: bool
     roundtrip_ok: bool
     source_sha256: str
     restored_sha256: str

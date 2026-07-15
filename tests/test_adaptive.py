@@ -2,6 +2,8 @@ import unittest
 import struct
 import random
 import hashlib
+import tempfile
+from pathlib import Path
 
 from compresslab.codecs import codec_by_id
 from compresslab.worker import (
@@ -18,12 +20,14 @@ from compresslab.worker import (
     _inverse_delta_transpose,
     _python_delta_transpose,
     _python_inverse_delta_transpose,
+    run as run_codec,
 )
 from compresslab.native import (
     native_available,
     zstd_available,
     zstd_compress,
     zstd_decompress,
+    zstd_frame_content_size,
 )
 
 
@@ -66,7 +70,24 @@ class AdaptiveFrameTests(unittest.TestCase):
             self.skipTest("libzstd is unavailable")
         source = (b"direct-zstd-ffi\n" * 10000) + bytes(range(256))
         encoded = zstd_compress(source, level=3)
+        self.assertEqual(zstd_frame_content_size(encoded), len(source))
         self.assertEqual(zstd_decompress(encoded, len(source)), source)
+        self.assertEqual(zstd_decompress(encoded), source)
+
+    def test_zstd_baseline_uses_in_process_library(self):
+        if not zstd_available() or not codec_by_id("zstd-3").available:
+            self.skipTest("zstd baseline dependencies are unavailable")
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "source"
+            encoded = root / "encoded"
+            restored = root / "restored"
+            source.write_bytes((b"native-baseline\n" * 10000) + bytes(range(256)))
+            compressed = run_codec("zstd-3", "compress", source, encoded)
+            decompressed = run_codec("zstd-3", "decompress", encoded, restored)
+            self.assertEqual(compressed["codec_engine"], "libzstd-ffi")
+            self.assertEqual(decompressed["codec_engine"], "libzstd-ffi")
+            self.assertEqual(restored.read_bytes(), source.read_bytes())
 
     def test_v1_selects_numeric_transform_when_it_wins(self):
         source = b"".join(struct.pack("<I", index) for index in range(100000))
