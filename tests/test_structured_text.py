@@ -1,5 +1,6 @@
 import struct
 import unittest
+from unittest.mock import patch
 
 from compresslab.native import (
     native_available,
@@ -60,6 +61,19 @@ class StructuredTextTransformTests(unittest.TestCase):
         transformed = native_encode(source, len(dictionary))
         self.assertEqual(transformed, expected)
         self.assertEqual(native_decode(transformed, len(source)), source)
+
+    def test_native_candidate_does_not_repeat_python_dictionary_ranking(self):
+        if not native_available():
+            self.skipTest("native library has not been built")
+        source = b"repeated_identifier shared_identifier " * 1000
+        with patch(
+            "compresslab.structured_text._ranked_dictionary",
+            side_effect=AssertionError("unexpected Python ranking pass"),
+        ):
+            candidate = encode_best(
+                source, lambda data: zstd_compress(data, level=3)
+            )
+        self.assertIsNotNone(candidate)
 
     def test_decoder_rejects_truncated_escape_and_duplicate_dictionary(self):
         with self.assertRaises(ValueError):

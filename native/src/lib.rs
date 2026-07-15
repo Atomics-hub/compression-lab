@@ -40,18 +40,42 @@ fn visit_token_ranges<F: FnMut(usize, usize)>(data: &[u8], mut visit: F) {
     }
 }
 
+#[derive(Clone, Copy, Eq, Hash, PartialEq)]
+struct TokenKey(u64, u64);
+
+fn token_key(token: &[u8]) -> TokenKey {
+    let mut first = 0xcbf29ce484222325_u64;
+    let mut second = 0x9e3779b97f4a7c15_u64;
+    for &value in token {
+        first ^= value as u64;
+        first = first.wrapping_mul(0x100000001b3);
+        second ^= (value as u64).wrapping_add(0x9e37);
+        second = second.rotate_left(7).wrapping_mul(0x9ddfea08eb382d69);
+    }
+    TokenKey(first, second)
+}
+
 fn ranked_dictionary(data: &[u8], limit: usize) -> Vec<Vec<u8>> {
-    let mut counts: HashMap<&[u8], usize> = HashMap::new();
+    let mut counts: HashMap<TokenKey, Vec<(Vec<u8>, usize)>> = HashMap::new();
     visit_token_ranges(data, |start, end| {
-        *counts.entry(&data[start..end]).or_default() += 1;
+        let token = &data[start..end];
+        let bucket = counts.entry(token_key(token)).or_default();
+        if let Some((_, count)) = bucket
+            .iter_mut()
+            .find(|(stored, _)| stored.as_slice() == token)
+        {
+            *count += 1;
+        } else {
+            bucket.push((token.to_vec(), 1));
+        }
     });
     let mut ranked: Vec<(usize, usize, Vec<u8>)> = counts
         .into_iter()
+        .flat_map(|(_, bucket)| bucket)
         .filter_map(|(token, count)| {
-            let gain = count * (token.len().saturating_sub(2));
+            let gain = count * token.len().saturating_sub(2);
             let overhead = token.len() + 1;
-            (count >= 2 && gain > overhead)
-                .then_some((gain - overhead, count, token.to_vec()))
+            (count >= 2 && gain > overhead).then_some((gain - overhead, count, token))
         })
         .collect();
     ranked.sort_by(|left, right| {
@@ -70,11 +94,13 @@ fn ranked_dictionary(data: &[u8], limit: usize) -> Vec<Vec<u8>> {
 
 fn encode_structured_text(data: &[u8], limit: usize) -> Vec<u8> {
     let dictionary = ranked_dictionary(data, limit);
-    let codes: HashMap<&[u8], u8> = dictionary
-        .iter()
-        .enumerate()
-        .map(|(code, token)| (token.as_slice(), code as u8))
-        .collect();
+    let mut codes: HashMap<TokenKey, Vec<(&[u8], u8)>> = HashMap::new();
+    for (code, token) in dictionary.iter().enumerate() {
+        codes
+            .entry(token_key(token))
+            .or_default()
+            .push((token, code as u8));
+    }
     let mut output = Vec::with_capacity(data.len() + 6);
     output.extend_from_slice(STX_MAGIC);
     output.extend_from_slice(&(dictionary.len() as u16).to_be_bytes());
@@ -90,7 +116,14 @@ fn encode_structured_text(data: &[u8], limit: usize) -> Vec<u8> {
                 output.push(STX_ESCAPED_MARKER);
             }
         }
-        if let Some(&code) = codes.get(&data[start..end]) {
+        let token = &data[start..end];
+        let code = codes.get(&token_key(token)).and_then(|bucket| {
+            bucket
+                .iter()
+                .find(|(stored, _)| *stored == token)
+                .map(|(_, code)| *code)
+        });
+        if let Some(code) = code {
             output.extend_from_slice(&[STX_MARKER, code]);
         } else {
             output.extend_from_slice(&data[start..end]);

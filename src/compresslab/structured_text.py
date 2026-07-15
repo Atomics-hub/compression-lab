@@ -98,20 +98,20 @@ def encode_best(
 ) -> Optional[Tuple[bytes, Dict[str, int]]]:
     if not is_likely_structured_text(data):
         return None
-    ranked = _ranked_dictionary(data)
-    if not ranked:
+    limit = _dictionary_limit(data)
+    if native_available():
+        transformed = native_encode(data, limit)
+        _, dictionary_size = HEADER.unpack(transformed[:HEADER.size])
+    else:
+        dictionary = _ranked_dictionary(data)[:limit]
+        if not dictionary:
+            return None
+        dictionary_size = len(dictionary)
+        transformed = encode_with_dictionary(data, dictionary)
+    if dictionary_size == 0:
         return None
-
-    dictionary = ranked[:_dictionary_limit(data)]
-    if not dictionary:
-        return None
-    transformed = (
-        native_encode(data, len(dictionary))
-        if native_available()
-        else encode_with_dictionary(data, dictionary)
-    )
     return zstd_encode(transformed), {
-        "dictionary_tokens": len(dictionary),
+        "dictionary_tokens": dictionary_size,
         "transformed_size": len(transformed),
         "candidate_count": 1,
     }
