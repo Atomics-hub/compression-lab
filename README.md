@@ -1,0 +1,125 @@
+# Compression Lab
+
+Compression Lab is the executable measurement foundation for a new adaptive
+lossless-compression system. It is intentionally independent of the eventual
+codec so that every new selector, transform, predictor, and container revision
+is judged by the same contract.
+
+Version 0.1 provides:
+
+- deterministic heterogeneous corpus generation;
+- isolated codec workers for store, gzip/DEFLATE, bzip2/BWT, and LZMA2;
+- SHA-256 round-trip verification for every trial;
+- repeated startup-inclusive wall timing and worker CPU telemetry;
+- worker peak-RSS telemetry;
+- compressed size, throughput, expansion, and transfer-time utility at
+  configurable bandwidths;
+- aggregate and per-file JSON, aggregate CSV, and a Markdown run report;
+- Pareto marking across size, compression speed, and decompression speed;
+- explicit train/validation/holdout split support.
+- an adaptive-v0 self-describing frame that samples content and safely chooses
+  between store and gzip-1, including original-size and SHA-256 verification.
+
+The built-in codecs use Python's standard-library bindings. That keeps the
+harness dependency-free and gives us a working baseline on a clean machine.
+Native Zstd, LZ4, and Brotli adapters are discovered automatically when their
+CLI executables are installed. Unavailable adapters remain visible through
+list-codecs but cannot be selected accidentally. 7z and OpenZL are the next
+adapter expansion.
+
+## Quick start
+
+Use any Python 3.9 or newer:
+
+    cd /path/to/compression-lab
+    export PYTHONPATH="$PWD/src"
+    python3 -m compresslab init-corpus --output corpora/smoke
+    python3 -m compresslab run \
+      --corpus corpora/smoke \
+      --output runs/smoke \
+      --repetitions 3 \
+      --warmups 1
+
+The run writes:
+
+- results.json: canonical complete result, including every trial;
+- summary.csv: aggregate codec comparison;
+- report.md: concise human-readable result.
+
+List the registered codecs:
+
+    python3 -m compresslab list-codecs
+
+Run the tests:
+
+    python3 -m unittest discover -s tests -v
+
+## Measurement contract
+
+Every result is valid only for its exact corpus, machine, interpreter, codec
+version, and settings. The harness records those inputs and follows these rules:
+
+1. Every measured decode must reproduce the source SHA-256 exactly.
+2. Timed trials are preceded by configurable warmups.
+3. The median trial represents each item × codec pair.
+4. Aggregate compression ratios are byte-weighted.
+5. Parent wall time includes process startup. This exposes a real default-tool
+   cost, especially on small files.
+6. CPU time and memory are worker-local telemetry and are not substituted for
+   wall time.
+7. Transfer utility is compression time + encoded bytes over the selected link
+   + decompression time.
+8. Public validation data is for iteration. Private holdout data should live
+   outside the repository and run only at decision gates.
+9. A benchmark failure, timeout, or corrupt round trip remains visible and
+   makes the CLI exit non-zero.
+
+## Corpus model
+
+The smoke corpus includes repetitive text, JSON logs, float32 signals, a
+deterministic source-tree TAR, random bytes, already-compressed bytes, long
+runs, and mixed compressible/incompressible regions. It validates the harness;
+it is not sufficient evidence for a market claim.
+
+Production corpus work should add current, licensed examples of documents,
+source repositories, build artifacts, databases, executables, backups, media,
+scientific arrays, tiny-file directories, and damaged or adversarial inputs.
+Each public family needs a separate private holdout family.
+
+## Planned algorithm seam
+
+The candidate architecture plugs in at three separately measurable layers:
+
+1. **Selector:** cheap sampled features choose store, a proven backend, or a
+   specialized path.
+2. **Transforms:** reversible structure exposure such as numeric delta and
+   transpose, text tokenization, or executable branch normalization.
+3. **Predictor:** a new compact, bounded, deterministic probability model whose
+   residuals feed an entropy coder.
+
+Each layer must be removable. This lets the data tell us whether the genuinely
+new predictor creates value beyond routing and preprocessing.
+
+The adaptive-v0 codec is intentionally only a routing baseline. It proves the
+container and measurement seam; it is not the proposed novel predictor and
+must not be presented as a new compression breakthrough.
+
+Adaptive-v1 adds a reversible 32-bit delta plus byte-transpose transform. Its
+encoder compares raw and transformed samples, while the same version-one
+decoder frame can execute either recipe. This is the first structure-aware
+candidate, still implemented in Python and still expected to fail speed gates
+until the transform is moved into optimized native code.
+
+The first measured transform result and its failed gates are recorded in
+docs/benchmarks/2026-07-15-transform-smoke.md.
+
+## Current limitations
+
+- Workers read each file into memory; streaming and random-access tests come
+  with the candidate container.
+- Startup-inclusive Python wrappers are not substitutes for native-codec
+  implementation benchmarks.
+- Peak RSS is the worker high-water mark, not incremental allocation.
+- Energy, hardware counters, archive metadata, encryption, and malicious-input
+  fuzzing are not yet measured.
+- The generated smoke corpus is deliberately small and synthetic.

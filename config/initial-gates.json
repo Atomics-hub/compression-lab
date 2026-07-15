@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "candidate_mode": "balanced",
+  "baseline_codec": "gzip-6",
+  "requirements": {
+    "roundtrip_failures": 0,
+    "max_expansion_percent_plus_frame": 0.5,
+    "max_frame_overhead_bytes": 65536,
+    "max_selector_time_percent": 5.0,
+    "frontier_tolerance_size_percent": 5.0,
+    "frontier_tolerance_total_time_percent": 10.0,
+    "target_frontier_coverage_percent": 80.0
+  },
+  "notes": [
+    "These are prototype gates, not externally validated product claims.",
+    "The expansion gate applies to the adaptive product, not to every baseline codec.",
+    "Freeze the private holdout before tuning the selector or predictor."
+  ]
+}

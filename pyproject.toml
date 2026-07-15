@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "compression-lab"
+version = "0.1.0"
+description = "Reproducible benchmark harness for adaptive lossless compression research"
+requires-python = ">=3.9"
+dependencies = []
+
+[project.scripts]
+compression-lab = "compresslab.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
