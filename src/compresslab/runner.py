@@ -365,6 +365,10 @@ def _trial(
         sample_ratio=float(cmeta.get("sample_ratio", 0.0)),
         transformed_sample_ratio=float(cmeta.get("transformed_sample_ratio", 0.0)),
         selector_reason=str(cmeta.get("selector_reason", "")),
+        segment_count=int(cmeta.get("segment_count", 0)),
+        candidate_segment_count=int(cmeta.get("candidate_segment_count", 0)),
+        transformed_segments=int(cmeta.get("transformed_segments", 0)),
+        stored_segments=int(cmeta.get("stored_segments", 0)),
         transform_engine=str(cmeta.get("transform_engine", "")),
         codec_engine=str(cmeta.get("codec_engine", "")),
         error=error,
@@ -425,6 +429,10 @@ def _failed_trial(
         sample_ratio=float(cmeta.get("sample_ratio", 0.0)),
         transformed_sample_ratio=float(cmeta.get("transformed_sample_ratio", 0.0)),
         selector_reason=str(cmeta.get("selector_reason", "")),
+        segment_count=int(cmeta.get("segment_count", 0)),
+        candidate_segment_count=int(cmeta.get("candidate_segment_count", 0)),
+        transformed_segments=int(cmeta.get("transformed_segments", 0)),
+        stored_segments=int(cmeta.get("stored_segments", 0)),
         transform_engine=str(cmeta.get("transform_engine", "")),
         codec_engine=str(cmeta.get("codec_engine", "")),
         error=error,
@@ -603,7 +611,7 @@ def run_benchmark(
     ]
 
     run = BenchmarkRun(
-        schema_version=3,
+        schema_version=4,
         run_id=run_id,
         generated_at=datetime.now(timezone.utc).isoformat(),
         system={

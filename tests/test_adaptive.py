@@ -6,15 +6,22 @@ import tempfile
 from pathlib import Path
 
 from compresslab.codecs import codec_by_id
+from compresslab.adaptive_v3 import (
+    FRAME_HEADER as V3_FRAME_HEADER,
+    SEGMENT_COUNT as V3_SEGMENT_COUNT,
+    SEGMENT_HEADER as V3_SEGMENT_HEADER,
+)
 from compresslab.worker import (
     ADAPTIVE_HEADER,
     ADAPTIVE_MAGIC,
     ADAPTIVE_VERSION_V2,
+    ADAPTIVE_VERSION_V3,
     BACKEND_GZIP_1,
     BACKEND_LZ4_1,
     _adaptive_compress,
     _adaptive_decompress,
     _adaptive_v2_compress,
+    _adaptive_v3_compress,
     _codec_filter,
     _delta_transpose,
     _inverse_delta_transpose,
@@ -35,6 +42,10 @@ class AdaptiveFrameTests(unittest.TestCase):
     def require_v2(self):
         if not codec_by_id("adaptive-v2").available:
             self.skipTest("adaptive-v2 native dependencies are unavailable")
+
+    def require_v3(self):
+        if not codec_by_id("adaptive-v3").available:
+            self.skipTest("adaptive-v3 native dependencies are unavailable")
 
     def test_roundtrip_and_corruption_detection(self):
         source = (b"structured-data-" * 10000) + bytes(range(256))
@@ -146,6 +157,61 @@ class AdaptiveFrameTests(unittest.TestCase):
         self.assertEqual(len(invalid[:ADAPTIVE_HEADER.size]), ADAPTIVE_HEADER.size)
         with self.assertRaises(ValueError):
             _adaptive_decompress(bytes(invalid))
+
+    def test_v3_segments_heterogeneous_data_and_roundtrips(self):
+        self.require_v3()
+        rng = random.Random(23)
+        random_block = rng.randbytes(1024 * 1024)
+        numeric_block = b"".join(
+            struct.pack("<I", index) for index in range((1024 * 1024) // 4)
+        )
+        text_row = b"region,type,value\nalpha,compressible,00000001\n"
+        text_block = (text_row * (1024 * 1024 // len(text_row) + 1))[:1024 * 1024]
+        source = random_block + numeric_block + text_block
+
+        encoded, detail = _adaptive_v3_compress(source)
+        restored, decoded = _adaptive_decompress(encoded)
+
+        self.assertEqual(encoded[4], ADAPTIVE_VERSION_V3)
+        self.assertEqual(restored, source)
+        self.assertEqual(detail["candidate_segment_count"], 3)
+        self.assertEqual(detail["segment_count"], 3)
+        self.assertGreaterEqual(detail["transformed_segments"], 1)
+        self.assertGreaterEqual(detail["stored_segments"], 1)
+        self.assertEqual(decoded["selected_backend"], detail["selected_backend"])
+        self.assertEqual(decoded["segment_count"], detail["segment_count"])
+
+        corrupted = bytearray(encoded)
+        first_payload = (
+            V3_FRAME_HEADER.size + V3_SEGMENT_COUNT.size + V3_SEGMENT_HEADER.size
+        )
+        corrupted[first_payload] ^= 0x01
+        with self.assertRaises(ValueError):
+            _adaptive_decompress(bytes(corrupted))
+
+    def test_v3_falls_back_to_whole_stream_for_homogeneous_data(self):
+        self.require_v3()
+        row = b"homogeneous source row with stable repetition\n"
+        source = (row * (3 * 1024 * 1024 // len(row) + 1))[:3 * 1024 * 1024]
+        encoded, detail = _adaptive_v3_compress(source)
+        restored, decoded = _adaptive_decompress(encoded)
+
+        self.assertEqual(restored, source)
+        self.assertEqual(detail["selector_reason"], "whole-zstd-fallback")
+        self.assertEqual(detail["candidate_segment_count"], 3)
+        self.assertEqual(detail["segment_count"], 1)
+        self.assertEqual(decoded["segment_count"], 1)
+        self.assertLessEqual(len(encoded), len(source) + 64)
+
+    def test_v3_stores_incompressible_data_with_bounded_frame_overhead(self):
+        self.require_v3()
+        source = random.Random(29).randbytes(256 * 1024)
+        encoded, detail = _adaptive_v3_compress(source)
+
+        self.assertEqual(detail["selected_backend"], "v3[store=1]")
+        self.assertEqual(detail["stored_segments"], 1)
+        self.assertLessEqual(len(encoded), len(source) + 64)
+        self.assertEqual(_adaptive_decompress(encoded)[0], source)
 
 
 if __name__ == "__main__":

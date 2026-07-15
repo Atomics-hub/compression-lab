@@ -14,7 +14,8 @@ Version 0.1 provides:
 - deterministic randomized trial order, host-load sampling, per-repetition
   confidence intervals, and repeatability gates;
 - calibrated operation batches with explicit target-completion telemetry;
-- in-process Zstandard baselines using the same `libzstd` path as adaptive-v2;
+- in-process Zstandard baselines using the same `libzstd` path as adaptive-v2
+  and adaptive-v3;
 - worker CPU telemetry that includes completed external-codec child processes;
 - worker peak-RSS telemetry;
 - compressed size, throughput, expansion, and transfer-time utility at
@@ -30,6 +31,9 @@ Version 0.1 provides:
 - exact native executable and version capture for Zstd, LZ4, Brotli, and 7-Zip.
 - an adaptive-v2 frame that can route to store, Zstandard, LZ4, or
   delta-transpose plus Zstandard without breaking version-1 decoding.
+- an adaptive-v3 segmented frame with per-segment recipes and CRC32 checks,
+  whole-file SHA-256 verification, and a whole-stream fallback that prevents
+  segmentation from silently worsening compressed size.
 
 The built-in codecs use Python's standard-library bindings. That keeps the
 harness dependency-free and gives us a working baseline on a clean machine.
@@ -178,6 +182,14 @@ frontier, and repeatability gates and remained dominated by direct Zstandard
 level 3. Adaptive-v2 is frozen as a rejected architecture. The next candidate
 must test a genuinely new block- or segment-level compression hypothesis; the
 private holdout remains sealed.
+
+Adaptive-v3 is the first alpha of that segment-level hypothesis. It divides
+input into 1 MiB regions, samples each region, and chooses store, Zstandard
+level 3, or native delta-transpose plus Zstandard independently. The encoder
+also constructs a whole-stream candidate and emits whichever complete frame is
+smaller. Segment counts, transformed segments, and stored segments are retained
+in benchmark schema version 4 so routing behavior is auditable rather than
+inferred from aggregate size.
 
 ## Current limitations
 

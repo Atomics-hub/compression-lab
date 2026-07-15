@@ -11,7 +11,7 @@ from .gates import evaluate_candidate, load_json, write_gate_report
 from .runner import run_benchmark
 
 
-DEFAULT_CODECS = "store,adaptive-v0,adaptive-v1,adaptive-v2,gzip-1,gzip-6,gzip-9,bz2-1,bz2-9,lzma-0,lzma-6,lzma-9"
+DEFAULT_CODECS = "store,adaptive-v0,adaptive-v1,adaptive-v2,adaptive-v3,gzip-1,gzip-6,gzip-9,bz2-1,bz2-9,lzma-0,lzma-6,lzma-9"
 
 
 def _csv_strings(value: str) -> List[str]:

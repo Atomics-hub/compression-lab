@@ -19,7 +19,14 @@ class RunnerTests(unittest.TestCase):
                 corpus,
                 output,
                 resolve_codecs(
-                    ["store", "adaptive-v0", "adaptive-v1", "adaptive-v2", "gzip-1"]
+                    [
+                        "store",
+                        "adaptive-v0",
+                        "adaptive-v1",
+                        "adaptive-v2",
+                        "adaptive-v3",
+                        "gzip-1",
+                    ]
                 ),
                 repetitions=1,
                 warmups=0,
@@ -27,16 +34,16 @@ class RunnerTests(unittest.TestCase):
                 timeout_seconds=30.0,
             )
             self.assertFalse(run.failures)
-            self.assertEqual(len(run.trials), 40)
+            self.assertEqual(len(run.trials), 48)
             self.assertTrue((output / "results.json").is_file())
             self.assertTrue((output / "summary.csv").is_file())
             self.assertTrue((output / "report.md").is_file())
             payload = json.loads((output / "results.json").read_text(encoding="utf-8"))
-            self.assertEqual(payload["schema_version"], 3)
+            self.assertEqual(payload["schema_version"], 4)
             self.assertIn("commit", payload["system"]["git"])
             self.assertEqual(payload["config"]["order_seed"], 20260715)
             self.assertIn("per_codec", payload["stability"])
-            self.assertEqual(len(payload["summary"]), 5)
+            self.assertEqual(len(payload["summary"]), 6)
             adaptive = next(
                 row for row in payload["summary"] if row["codec_id"] == "adaptive-v0"
             )
@@ -66,6 +73,14 @@ class RunnerTests(unittest.TestCase):
             ]
             self.assertEqual(len(adaptive_v2), 8)
             self.assertTrue(all(row["roundtrip_ok"] for row in adaptive_v2))
+            adaptive_v3 = [
+                row for row in payload["medians"] if row["codec_id"] == "adaptive-v3"
+            ]
+            self.assertEqual(len(adaptive_v3), 8)
+            self.assertTrue(all(row["roundtrip_ok"] for row in adaptive_v3))
+            self.assertTrue(
+                any(row["transformed_segments"] > 0 for row in adaptive_v3)
+            )
 
     def test_persistent_workers_and_shuffled_repetition_order(self):
         with tempfile.TemporaryDirectory() as directory:

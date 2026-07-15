@@ -16,6 +16,12 @@ import hashlib
 from pathlib import Path
 from typing import Callable
 
+from .adaptive_v3 import (
+    BACKEND_SEGMENTED as BACKEND_SEGMENTED_V3,
+    VERSION as ADAPTIVE_VERSION_V3,
+    compress as _v3_compress,
+    decompress as _v3_decompress,
+)
 from .codecs import codec_by_id
 from .native import (
     delta_transpose as _native_delta_transpose,
@@ -352,6 +358,26 @@ def _adaptive_v2_compress(data: bytes) -> tuple[bytes, dict]:
     }
 
 
+def _adaptive_v3_compress(data: bytes) -> tuple[bytes, dict]:
+    return _v3_compress(
+        data,
+        zstd_encode=_v2_zstd_compress,
+        delta_transpose=_delta_transpose,
+        transform_engine="rust" if native_available() else "python-fallback",
+        codec_engine="libzstd-ffi" if zstd_available() else "zstd-cli",
+    )
+
+
+def _adaptive_v3_decompress(encoded: bytes) -> tuple[bytes, dict]:
+    return _v3_decompress(
+        encoded,
+        zstd_decode=_v2_zstd_decompress,
+        inverse_delta_transpose=_inverse_delta_transpose,
+        transform_engine="rust" if native_available() else "python-fallback",
+        codec_engine="libzstd-ffi" if zstd_available() else "zstd-cli",
+    )
+
+
 def _adaptive_decompress(encoded: bytes) -> tuple[bytes, dict]:
     if len(encoded) < ADAPTIVE_HEADER.size:
         raise ValueError("adaptive frame is truncated")
@@ -360,6 +386,10 @@ def _adaptive_decompress(encoded: bytes) -> tuple[bytes, dict]:
     )
     if magic != ADAPTIVE_MAGIC:
         raise ValueError("adaptive frame magic mismatch")
+    if version == ADAPTIVE_VERSION_V3:
+        if backend != BACKEND_SEGMENTED_V3:
+            raise ValueError(f"unsupported adaptive-v3 backend: {backend}")
+        return _adaptive_v3_decompress(encoded)
     if version not in {ADAPTIVE_VERSION_V1, ADAPTIVE_VERSION_V2}:
         raise ValueError(f"unsupported adaptive frame version: {version}")
     payload = encoded[ADAPTIVE_HEADER.size:]
@@ -487,9 +517,16 @@ def run(codec_id: str, operation: str, source: Path, destination: Path) -> dict:
     detail = {}
     if codec.implementation == "store":
         _copy(source, destination)
-    elif codec.implementation in {"adaptive-v0", "adaptive-v1", "adaptive-v2"}:
+    elif codec.implementation in {
+        "adaptive-v0",
+        "adaptive-v1",
+        "adaptive-v2",
+        "adaptive-v3",
+    }:
         if operation == "compress":
-            if codec.implementation == "adaptive-v2":
+            if codec.implementation == "adaptive-v3":
+                output, detail = _adaptive_v3_compress(source.read_bytes())
+            elif codec.implementation == "adaptive-v2":
                 output, detail = _adaptive_v2_compress(source.read_bytes())
             else:
                 output, detail = _adaptive_compress(

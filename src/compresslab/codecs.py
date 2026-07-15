@@ -82,6 +82,23 @@ _register(
     )
 )
 
+_v3_dependencies = (_CODECS["zstd-3"],)
+_v3_missing = [codec.id for codec in _v3_dependencies if not codec.available]
+_register(
+    CodecSpec(
+        "adaptive-v3",
+        "Compression Lab",
+        "adaptive-v3",
+        available=not _v3_missing,
+        unavailable_reason=(
+            "missing native dependency: " + ", ".join(_v3_missing)
+            if _v3_missing
+            else ""
+        ),
+        version="frame-v3-alpha",
+    )
+)
+
 
 def all_codecs() -> List[CodecSpec]:
     return list(_CODECS.values())
