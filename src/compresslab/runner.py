@@ -369,6 +369,11 @@ def _trial(
         candidate_segment_count=int(cmeta.get("candidate_segment_count", 0)),
         transformed_segments=int(cmeta.get("transformed_segments", 0)),
         stored_segments=int(cmeta.get("stored_segments", 0)),
+        structured_text_segments=int(cmeta.get("structured_text_segments", 0)),
+        structured_dictionary_tokens=int(
+            cmeta.get("structured_dictionary_tokens", 0)
+        ),
+        structured_candidate_count=int(cmeta.get("structured_candidate_count", 0)),
         transform_engine=str(cmeta.get("transform_engine", "")),
         codec_engine=str(cmeta.get("codec_engine", "")),
         error=error,
@@ -433,6 +438,11 @@ def _failed_trial(
         candidate_segment_count=int(cmeta.get("candidate_segment_count", 0)),
         transformed_segments=int(cmeta.get("transformed_segments", 0)),
         stored_segments=int(cmeta.get("stored_segments", 0)),
+        structured_text_segments=int(cmeta.get("structured_text_segments", 0)),
+        structured_dictionary_tokens=int(
+            cmeta.get("structured_dictionary_tokens", 0)
+        ),
+        structured_candidate_count=int(cmeta.get("structured_candidate_count", 0)),
         transform_engine=str(cmeta.get("transform_engine", "")),
         codec_engine=str(cmeta.get("codec_engine", "")),
         error=error,

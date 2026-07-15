@@ -197,8 +197,8 @@ class AdaptiveFrameTests(unittest.TestCase):
         restored, decoded = _adaptive_decompress(encoded)
 
         self.assertEqual(restored, source)
-        self.assertEqual(detail["selector_reason"], "whole-zstd-fallback")
-        self.assertEqual(detail["candidate_segment_count"], 3)
+        self.assertTrue(detail["selector_reason"].startswith("whole-"))
+        self.assertEqual(detail["candidate_segment_count"], 1)
         self.assertEqual(detail["segment_count"], 1)
         self.assertEqual(decoded["segment_count"], 1)
         self.assertLessEqual(len(encoded), len(source) + 64)
@@ -212,6 +212,35 @@ class AdaptiveFrameTests(unittest.TestCase):
         self.assertEqual(detail["stored_segments"], 1)
         self.assertLessEqual(len(encoded), len(source) + 64)
         self.assertEqual(_adaptive_decompress(encoded)[0], source)
+
+    def test_v3_selects_structured_text_recipe_when_complete_frame_wins(self):
+        self.require_v3()
+        source = b"".join(
+            (
+                b"static int repeated_identifier_name = shared_function_name("
+                + str(index).encode("ascii")
+                + b");\n"
+            )
+            for index in range(20000)
+        )
+        encoded, detail = _adaptive_v3_compress(source)
+        restored, decoded = _adaptive_decompress(encoded)
+
+        self.assertEqual(restored, source)
+        self.assertEqual(detail["selector_reason"], "whole-structured-text-smaller")
+        self.assertEqual(detail["structured_text_segments"], 1)
+        self.assertEqual(detail["transformed_segments"], 1)
+        self.assertGreater(detail["structured_dictionary_tokens"], 0)
+        self.assertEqual(decoded["selected_backend"], detail["selected_backend"])
+        self.assertEqual(decoded["structured_text_segments"], 1)
+
+        corrupted = bytearray(encoded)
+        first_payload = (
+            V3_FRAME_HEADER.size + V3_SEGMENT_COUNT.size + V3_SEGMENT_HEADER.size
+        )
+        corrupted[first_payload] = 0xFF
+        with self.assertRaises(ValueError):
+            _adaptive_decompress(bytes(corrupted))
 
 
 if __name__ == "__main__":

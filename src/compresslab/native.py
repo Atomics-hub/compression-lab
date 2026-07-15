@@ -46,6 +46,22 @@ def _load_library() -> Optional[ctypes.CDLL]:
         function = getattr(library, name)
         function.argtypes = [ctypes.c_void_p, ctypes.c_size_t, ctypes.c_void_p]
         function.restype = ctypes.c_int
+    library.clab_structured_text_encode.argtypes = [
+        ctypes.c_void_p,
+        ctypes.c_size_t,
+        ctypes.c_size_t,
+        ctypes.c_void_p,
+        ctypes.c_size_t,
+        ctypes.POINTER(ctypes.c_size_t),
+    ]
+    library.clab_structured_text_encode.restype = ctypes.c_int
+    library.clab_structured_text_decode.argtypes = [
+        ctypes.c_void_p,
+        ctypes.c_size_t,
+        ctypes.c_void_p,
+        ctypes.c_size_t,
+    ]
+    library.clab_structured_text_decode.restype = ctypes.c_int
     _LIBRARY = library
     return library
 
@@ -74,6 +90,41 @@ def delta_transpose(data: bytes) -> bytes:
 
 def inverse_delta_transpose(data: bytes) -> bytes:
     return _call("clab_inverse_delta_transpose", data)
+
+
+def structured_text_encode(data: bytes, dictionary_limit: int) -> bytes:
+    library = _load_library()
+    if library is None:
+        raise RuntimeError("compression-lab native library is not built")
+    source = ctypes.create_string_buffer(data, max(1, len(data)))
+    capacity = len(data) * 2 + 6 + 254 * 65
+    output = ctypes.create_string_buffer(max(1, capacity))
+    output_len = ctypes.c_size_t()
+    result = library.clab_structured_text_encode(
+        source,
+        len(data),
+        dictionary_limit,
+        output,
+        capacity,
+        ctypes.byref(output_len),
+    )
+    if result != 0:
+        raise RuntimeError(f"native structured-text encode failed with status {result}")
+    return output.raw[:output_len.value]
+
+
+def structured_text_decode(data: bytes, expected_size: int) -> bytes:
+    library = _load_library()
+    if library is None:
+        raise RuntimeError("compression-lab native library is not built")
+    source = ctypes.create_string_buffer(data, max(1, len(data)))
+    output = ctypes.create_string_buffer(max(1, expected_size))
+    result = library.clab_structured_text_decode(
+        source, len(data), output, expected_size
+    )
+    if result != 0:
+        raise ValueError(f"native structured-text decode failed with status {result}")
+    return output.raw[:expected_size]
 
 
 def _load_zstd() -> Optional[ctypes.CDLL]:

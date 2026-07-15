@@ -7,6 +7,12 @@ import time
 from typing import Callable, Dict, List, Tuple
 import zlib
 
+from .structured_text import (
+    MAX_HEADER_SIZE as STRUCTURED_TEXT_MAX_HEADER_SIZE,
+    decode as decode_structured_text,
+    encode_best as encode_structured_text,
+)
+
 
 MAGIC = b"CLAB"
 VERSION = 3
@@ -14,6 +20,7 @@ BACKEND_SEGMENTED = 6
 FRAME_HEADER = struct.Struct(">4sBBQ32s")
 SEGMENT_COUNT = struct.Struct(">I")
 SEGMENT_HEADER = struct.Struct(">BIII")
+TRANSFORMED_SIZE = struct.Struct(">Q")
 SEGMENT_SIZE = 1024 * 1024
 SAMPLE_SIZE = 32 * 1024
 TRANSFORM_SAMPLE_THRESHOLD = 0.97
@@ -21,11 +28,13 @@ TRANSFORM_SAMPLE_THRESHOLD = 0.97
 RECIPE_STORE = 0
 RECIPE_ZSTD_3 = 1
 RECIPE_DELTA_TRANSPOSE_ZSTD_3 = 2
+RECIPE_STRUCTURED_TEXT_ZSTD_3 = 3
 
 _RECIPE_NAMES = {
     RECIPE_STORE: "store",
     RECIPE_ZSTD_3: "zstd-3",
     RECIPE_DELTA_TRANSPOSE_ZSTD_3: "delta-transpose+zstd-3",
+    RECIPE_STRUCTURED_TEXT_ZSTD_3: "structured-text+zstd-3",
 }
 
 Encoder = Callable[[bytes], bytes]
@@ -125,6 +134,60 @@ def compress(
     transform_engine: str,
     codec_engine: str,
 ) -> Tuple[bytes, dict]:
+    structured = encode_structured_text(data, zstd_encode) if data else None
+    if structured is not None:
+        raw_payload = zstd_encode(data)
+        raw_recipe = RECIPE_ZSTD_3
+        if len(raw_payload) >= len(data):
+            raw_recipe = RECIPE_STORE
+            raw_payload = data
+        selected_segments = [(raw_recipe, data, raw_payload)]
+        selected_frame = _pack_frame(data, selected_segments)
+        selector_reason = "whole-zstd-fallback"
+
+        transformed_payload, structured_detail = structured
+        transformed_payload = (
+            TRANSFORMED_SIZE.pack(structured_detail["transformed_size"])
+            + transformed_payload
+        )
+        transformed_segments = [
+            (RECIPE_STRUCTURED_TEXT_ZSTD_3, data, transformed_payload)
+        ]
+        transformed_frame = _pack_frame(data, transformed_segments)
+        structured_dictionary_tokens = 0
+        if len(transformed_frame) < len(selected_frame):
+            selected_segments = transformed_segments
+            selected_frame = transformed_frame
+            selector_reason = "whole-structured-text-smaller"
+            structured_dictionary_tokens = structured_detail["dictionary_tokens"]
+
+        recipe_counts = Counter(recipe for recipe, _, _ in selected_segments)
+        return selected_frame, {
+            "selected_backend": _summarize_recipes(selected_segments),
+            "selector_ns": 0,
+            "sample_ratio": 1.0,
+            "transformed_sample_ratio": 1.0,
+            "selector_stages": 1,
+            "selector_sample_bytes": 0,
+            "selector_reason": selector_reason,
+            "transform_engine": transform_engine,
+            "codec_engine": codec_engine,
+            "frame_overhead_bytes": (
+                FRAME_HEADER.size + SEGMENT_COUNT.size + SEGMENT_HEADER.size
+            ),
+            "segment_count": 1,
+            "candidate_segment_count": 1,
+            "transformed_segments": recipe_counts[
+                RECIPE_STRUCTURED_TEXT_ZSTD_3
+            ],
+            "structured_text_segments": recipe_counts[
+                RECIPE_STRUCTURED_TEXT_ZSTD_3
+            ],
+            "structured_dictionary_tokens": structured_dictionary_tokens,
+            "structured_candidate_count": structured_detail["candidate_count"],
+            "stored_segments": recipe_counts[RECIPE_STORE],
+        }
+
     segmented: List[EncodedSegment] = []
     selector_ns = 0
     sampled_bytes = 0
@@ -146,6 +209,8 @@ def compress(
     segmented_frame = _pack_frame(data, segmented)
     selected_segments = segmented
     selector_reason = "segmented-smaller"
+    structured_dictionary_tokens = 0
+    structured_candidate_count = 0
 
     if data:
         if len(segmented) == 1 and segmented[0][0] == RECIPE_ZSTD_3:
@@ -185,7 +250,13 @@ def compress(
         ),
         "segment_count": len(selected_segments),
         "candidate_segment_count": len(segmented),
-        "transformed_segments": recipe_counts[RECIPE_DELTA_TRANSPOSE_ZSTD_3],
+        "transformed_segments": (
+            recipe_counts[RECIPE_DELTA_TRANSPOSE_ZSTD_3]
+            + recipe_counts[RECIPE_STRUCTURED_TEXT_ZSTD_3]
+        ),
+        "structured_text_segments": recipe_counts[RECIPE_STRUCTURED_TEXT_ZSTD_3],
+        "structured_dictionary_tokens": structured_dictionary_tokens,
+        "structured_candidate_count": structured_candidate_count,
         "stored_segments": recipe_counts[RECIPE_STORE],
     }
 
@@ -246,6 +317,19 @@ def decompress(
         elif recipe == RECIPE_DELTA_TRANSPOSE_ZSTD_3:
             transformed = zstd_decode(payload, segment_size)
             segment = inverse_delta_transpose(transformed, segment_size)
+        elif recipe == RECIPE_STRUCTURED_TEXT_ZSTD_3:
+            if len(payload) < TRANSFORMED_SIZE.size:
+                raise ValueError("structured-text segment payload is truncated")
+            transformed_size = TRANSFORMED_SIZE.unpack(
+                payload[:TRANSFORMED_SIZE.size]
+            )[0]
+            maximum_size = segment_size * 2 + STRUCTURED_TEXT_MAX_HEADER_SIZE
+            if transformed_size > maximum_size:
+                raise ValueError("structured-text transformed size is invalid")
+            transformed = zstd_decode(
+                payload[TRANSFORMED_SIZE.size:], transformed_size
+            )
+            segment = decode_structured_text(transformed, segment_size)
         else:
             raise ValueError(f"unsupported adaptive-v3 segment recipe: {recipe}")
         if len(segment) != segment_size:
@@ -275,6 +359,10 @@ def decompress(
         "transform_engine": transform_engine,
         "codec_engine": codec_engine,
         "segment_count": segment_count,
-        "transformed_segments": recipe_counts[RECIPE_DELTA_TRANSPOSE_ZSTD_3],
+        "transformed_segments": (
+            recipe_counts[RECIPE_DELTA_TRANSPOSE_ZSTD_3]
+            + recipe_counts[RECIPE_STRUCTURED_TEXT_ZSTD_3]
+        ),
+        "structured_text_segments": recipe_counts[RECIPE_STRUCTURED_TEXT_ZSTD_3],
         "stored_segments": recipe_counts[RECIPE_STORE],
     }

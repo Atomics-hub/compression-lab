@@ -32,6 +32,9 @@ def median_trials(trials: Sequence[Dict[str, Any]]) -> List[Dict[str, Any]]:
         "candidate_segment_count",
         "transformed_segments",
         "stored_segments",
+        "structured_text_segments",
+        "structured_dictionary_tokens",
+        "structured_candidate_count",
     )
     for _, group in sorted(grouped.items()):
         base = dict(group[0])

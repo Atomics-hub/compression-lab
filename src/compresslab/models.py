@@ -71,6 +71,9 @@ class TrialResult:
     candidate_segment_count: int = 0
     transformed_segments: int = 0
     stored_segments: int = 0
+    structured_text_segments: int = 0
+    structured_dictionary_tokens: int = 0
+    structured_candidate_count: int = 0
     transform_engine: str = ""
     codec_engine: str = ""
     error: str = ""

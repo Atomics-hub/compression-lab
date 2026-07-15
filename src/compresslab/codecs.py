@@ -95,7 +95,7 @@ _register(
             if _v3_missing
             else ""
         ),
-        version="frame-v3-alpha",
+        version="frame-v3-alpha2",
     )
 )
 
