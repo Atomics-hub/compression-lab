@@ -212,6 +212,13 @@ Python dictionary-ranking pass increased clean aggregate compression throughput
 from 13.16 to 22.49 MB/s without changing encoded size. Adaptive-v3 is closer to
 Zstandard level 9 speed but remains dominated by it on ratio and decode speed.
 
+The bounded-selector follow-up is recorded in
+docs/benchmarks/2026-07-15-sampled-dictionary-ranking.md. Ranking from a
+deterministic 1 MiB sample preserves a 1.64% size win over Zstandard level 3 and
+compresses 34.3% faster than Zstandard level 9 in the clean local run, at a
+5.74% size cost. Adaptive-v3 reaches the measured Pareto frontier for the first
+time, but still requires faster decode, broader data, and isolated repetition.
+
 ## Current limitations
 
 - Workers read each file into memory; streaming and random-access tests come
