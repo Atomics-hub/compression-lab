@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "name": "public-starter-v1",
+  "claim_ceiling": "engineering starter only; not representative or market-grade",
+  "sources": [
+    {
+      "dataset": "sqlite-amalgamation-3.53.3",
+      "url": "https://www.sqlite.org/2026/sqlite-amalgamation-3530300.zip",
+      "digest_algorithm": "sha3_256",
+      "digest": "d45c688a8cb23f68611a894a756a12d7eb6ab6e9e2468ca70adbeab3808b5ab9",
+      "license_spdx": "LicenseRef-SQLite-Public-Domain",
+      "category": "source-code",
+      "split": "validation",
+      "zip_members": [
+        "sqlite-amalgamation-3530300/sqlite3.c",
+        "sqlite-amalgamation-3530300/shell.c",
+        "sqlite-amalgamation-3530300/sqlite3.h",
+        "sqlite-amalgamation-3530300/sqlite3ext.h"
+      ],
+      "also_import_archive_as": "already-compressed"
+    },
+    {
+      "dataset": "chinook-1.4.5-database",
+      "url": "https://github.com/lerocha/chinook-database/releases/download/v1.4.5/Chinook_Sqlite.sqlite",
+      "digest_algorithm": "sha256",
+      "digest": "bdf635be69850bd3be09c9a2dbeef7ddfb80036bd3ef3381383cd03b61e4a61a",
+      "license_spdx": "MIT",
+      "category": "database",
+      "split": "validation"
+    },
+    {
+      "dataset": "chinook-1.4.5-json",
+      "url": "https://github.com/lerocha/chinook-database/releases/download/v1.4.5/ChinookData.json",
+      "digest_algorithm": "sha256",
+      "digest": "2998161de437518e3447e779c7ce7418f081895e388081bff315f3c258752d8c",
+      "license_spdx": "MIT",
+      "category": "structured-text",
+      "split": "validation"
+    },
+    {
+      "dataset": "noaa-data-access-procedural-directive",
+      "url": "https://repository.library.noaa.gov/view/noaa/65782/noaa_65782_DS1.pdf",
+      "digest_algorithm": "sha256",
+      "digest": "e1caf06d4f16381ca9a62401370c68aa3d392bca38e673796ba654335bf6deff",
+      "license_spdx": "CC0-1.0",
+      "category": "document-pdf",
+      "split": "validation"
+    }
+  ]
+}

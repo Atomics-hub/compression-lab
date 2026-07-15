@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "required_families": [
+    "store",
+    "gzip",
+    "lzma2",
+    "zstandard",
+    "lz4",
+    "brotli",
+    "7-zip"
+  ],
+  "required_modes": {
+    "fast": ["gzip-1", "zstd-1", "lz4-1", "brotli-1", "7zip-1"],
+    "balanced": ["gzip-6", "zstd-3", "brotli-6", "7zip-5", "lzma-6"],
+    "dense": ["gzip-9", "zstd-19", "brotli-11", "7zip-9", "lzma-9"]
+  },
+  "notes": [
+    "Every results.json must retain exact executable paths and version strings.",
+    "A missing required native family invalidates cross-market comparisons.",
+    "Archive formats and raw streams have different framing costs; report them by codec id."
+  ]
+}

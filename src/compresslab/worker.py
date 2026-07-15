@@ -17,6 +17,11 @@ from pathlib import Path
 from typing import Callable
 
 from .codecs import codec_by_id
+from .native import (
+    delta_transpose as _native_delta_transpose,
+    inverse_delta_transpose as _native_inverse_delta_transpose,
+    native_available,
+)
 
 
 ADAPTIVE_MAGIC = b"CLAB"
@@ -59,14 +64,16 @@ def _decompressor(implementation: str) -> Callable[[bytes], bytes]:
     raise ValueError(f"Unsupported implementation: {implementation}")
 
 
-def _representative_sample(data: bytes, block_size: int = 64 * 1024) -> bytes:
-    if len(data) <= block_size * 3:
+def _representative_sample(data: bytes, total_size: int = 16 * 1024) -> bytes:
+    if len(data) <= total_size:
         return data
+    block_size = max(1, total_size // 3)
     middle = max(0, len(data) // 2 - block_size // 2)
-    return data[:block_size] + data[middle:middle + block_size] + data[-block_size:]
+    tail_size = total_size - 2 * block_size
+    return data[:block_size] + data[middle:middle + block_size] + data[-tail_size:]
 
 
-def _delta_transpose(data: bytes) -> bytes:
+def _python_delta_transpose(data: bytes) -> bytes:
     word_count = len(data) // 4
     core_size = word_count * 4
     if word_count == 0:
@@ -84,7 +91,7 @@ def _delta_transpose(data: bytes) -> bytes:
     return b"".join(planes) + data[core_size:]
 
 
-def _inverse_delta_transpose(data: bytes, original_size: int) -> bytes:
+def _python_inverse_delta_transpose(data: bytes, original_size: int) -> bytes:
     if len(data) != original_size:
         raise ValueError("transformed payload size mismatch")
     word_count = original_size // 4
@@ -107,14 +114,30 @@ def _inverse_delta_transpose(data: bytes, original_size: int) -> bytes:
     return bytes(output)
 
 
+def _delta_transpose(data: bytes) -> bytes:
+    if native_available():
+        return _native_delta_transpose(data)
+    return _python_delta_transpose(data)
+
+
+def _inverse_delta_transpose(data: bytes, original_size: int) -> bytes:
+    if len(data) != original_size:
+        raise ValueError("transformed payload size mismatch")
+    if native_available():
+        return _native_inverse_delta_transpose(data)
+    return _python_inverse_delta_transpose(data, original_size)
+
+
 def _adaptive_compress(data: bytes, allow_transform: bool = False) -> tuple[bytes, dict]:
     selector_start = time.perf_counter_ns()
-    sample = _representative_sample(data)
+    sample = _representative_sample(data, 16 * 1024)
     sample_compressed = gzip.compress(sample, compresslevel=1, mtime=0)
     sample_ratio = len(sample_compressed) / len(sample) if sample else 1.0
     selected = BACKEND_GZIP_1 if sample_ratio < 0.985 else BACKEND_STORE
     transformed_sample_ratio = 1.0
-    if allow_transform and selected == BACKEND_GZIP_1 and len(sample) >= 16:
+    selector_stages = 1
+    sampled_bytes = len(sample)
+    if allow_transform and len(sample) >= 16:
         transformed_sample = _delta_transpose(sample)
         transformed_compressed = gzip.compress(
             transformed_sample, compresslevel=1, mtime=0
@@ -122,8 +145,24 @@ def _adaptive_compress(data: bytes, allow_transform: bool = False) -> tuple[byte
         transformed_sample_ratio = (
             len(transformed_compressed) / len(sample) if sample else 1.0
         )
-        if len(transformed_compressed) < len(sample_compressed) * 0.97:
+        transform_gain = len(transformed_compressed) / max(1, len(sample_compressed))
+        if transform_gain < 0.94:
             selected = BACKEND_DELTA_TRANSPOSE_GZIP_1
+        elif transform_gain <= 1.03 and len(data) > len(sample):
+            selector_stages = 2
+            sample = _representative_sample(data, 32 * 1024)
+            sampled_bytes += len(sample)
+            sample_compressed = gzip.compress(sample, compresslevel=1, mtime=0)
+            sample_ratio = len(sample_compressed) / len(sample) if sample else 1.0
+            transformed_sample = _delta_transpose(sample)
+            transformed_compressed = gzip.compress(
+                transformed_sample, compresslevel=1, mtime=0
+            )
+            transformed_sample_ratio = len(transformed_compressed) / len(sample)
+            if len(transformed_compressed) < len(sample_compressed) * 0.97:
+                selected = BACKEND_DELTA_TRANSPOSE_GZIP_1
+            else:
+                selected = BACKEND_GZIP_1 if sample_ratio < 0.985 else BACKEND_STORE
     selector_ns = time.perf_counter_ns() - selector_start
 
     if selected == BACKEND_GZIP_1:
@@ -155,6 +194,9 @@ def _adaptive_compress(data: bytes, allow_transform: bool = False) -> tuple[byte
         "selector_ns": selector_ns,
         "sample_ratio": sample_ratio,
         "transformed_sample_ratio": transformed_sample_ratio,
+        "selector_stages": selector_stages,
+        "selector_sample_bytes": sampled_bytes,
+        "transform_engine": "rust" if native_available() else "python-fallback",
         "frame_overhead_bytes": ADAPTIVE_HEADER.size,
     }
 
@@ -186,36 +228,66 @@ def _adaptive_decompress(encoded: bytes) -> tuple[bytes, dict]:
         raise ValueError("adaptive frame original-size mismatch")
     if hashlib.sha256(data).digest() != expected_hash:
         raise ValueError("adaptive frame SHA-256 mismatch")
-    return data, {"selected_backend": selected_backend, "selector_ns": 0}
+    return data, {
+        "selected_backend": selected_backend,
+        "selector_ns": 0,
+        "transform_engine": "rust" if native_available() else "python-fallback",
+    }
 
 
 def _external_command(codec, operation: str, source: Path, destination: Path) -> list[str]:
+    executable = codec.executable or {
+        "external-zstd": "zstd",
+        "external-lz4": "lz4",
+        "external-brotli": "brotli",
+        "external-7zip": "7zz",
+    }.get(codec.implementation, codec.implementation)
     if codec.implementation == "external-zstd":
         if operation == "compress":
-            return ["zstd", "-q", "-f", f"-{codec.level}", str(source), "-o", str(destination)]
-        return ["zstd", "-q", "-d", "-f", str(source), "-o", str(destination)]
+            return [executable, "-q", "-f", f"-{codec.level}", str(source), "-o", str(destination)]
+        return [executable, "-q", "-d", "-f", str(source), "-o", str(destination)]
     if codec.implementation == "external-lz4":
         if operation == "compress":
-            return ["lz4", "-q", "-f", f"-{codec.level}", str(source), str(destination)]
-        return ["lz4", "-q", "-d", "-f", str(source), str(destination)]
+            return [executable, "-q", "-f", f"-{codec.level}", str(source), str(destination)]
+        return [executable, "-q", "-d", "-f", str(source), str(destination)]
     if codec.implementation == "external-brotli":
         if operation == "compress":
             return [
-                "brotli", "-f", "-q", str(codec.level), "-o", str(destination), str(source)
+                executable, "-f", "-q", str(codec.level), "-o", str(destination), str(source)
             ]
-        return ["brotli", "-f", "-d", "-o", str(destination), str(source)]
+        return [executable, "-f", "-d", "-o", str(destination), str(source)]
+    if codec.implementation == "external-7zip":
+        if operation == "compress":
+            return [
+                executable,
+                "a",
+                "-t7z",
+                "-bd",
+                "-bb0",
+                "-y",
+                f"-mx={codec.level}",
+                str(destination),
+                str(source),
+            ]
+        return [executable, "e", "-bd", "-bb0", "-y", "-so", str(source)]
     raise ValueError(f"Unsupported external implementation: {codec.implementation}")
 
 
 def _run_external(codec, operation: str, source: Path, destination: Path) -> dict:
-    completed = subprocess.run(
-        _external_command(codec, operation, source, destination),
-        capture_output=True,
-        text=True,
-        check=False,
-    )
+    command = _external_command(codec, operation, source, destination)
+    if codec.implementation == "external-7zip" and operation == "decompress":
+        with destination.open("wb") as output:
+            completed = subprocess.run(
+                command, stdout=output, stderr=subprocess.PIPE, check=False
+            )
+        stdout = ""
+        stderr = completed.stderr.decode("utf-8", errors="replace")
+    else:
+        completed = subprocess.run(command, capture_output=True, text=True, check=False)
+        stdout = completed.stdout
+        stderr = completed.stderr
     if completed.returncode != 0:
-        detail = completed.stderr.strip() or completed.stdout.strip()
+        detail = stderr.strip() or stdout.strip()
         raise RuntimeError(f"external codec exited {completed.returncode}: {detail}")
     return {"selected_backend": codec.id, "selector_ns": 0}
 

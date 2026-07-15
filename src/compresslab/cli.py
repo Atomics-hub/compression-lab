@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import List
 
 from .codecs import all_codecs, resolve_codecs
-from .corpus import generate_corpus
+from .corpus import freeze_holdout, generate_corpus, import_corpus, verify_holdout
 from .gates import evaluate_candidate, load_json, write_gate_report
 from .runner import run_benchmark
 
@@ -37,6 +37,30 @@ def build_parser() -> argparse.ArgumentParser:
     init.add_argument("--size-scale", type=float, default=1.0)
     init.add_argument("--seed", type=int, default=20260715)
 
+    ingest = subparsers.add_parser(
+        "import-corpus", help="import licensed files with required provenance"
+    )
+    ingest.add_argument("--source", type=Path, required=True)
+    ingest.add_argument("--output", type=Path, required=True)
+    ingest.add_argument("--category", required=True)
+    ingest.add_argument("--split", choices=("train", "validation", "holdout"), required=True)
+    ingest.add_argument("--dataset", required=True)
+    ingest.add_argument("--license-spdx", required=True)
+    ingest.add_argument("--source-url", required=True)
+
+    freeze = subparsers.add_parser(
+        "freeze-holdout", help="write a cryptographic commitment for a private holdout"
+    )
+    freeze.add_argument("--corpus", type=Path, required=True)
+    freeze.add_argument("--output", type=Path, required=True)
+    freeze.add_argument("--overwrite", action="store_true")
+
+    verify = subparsers.add_parser(
+        "verify-holdout", help="verify a private holdout against its frozen commitment"
+    )
+    verify.add_argument("--corpus", type=Path, required=True)
+    verify.add_argument("--lock", type=Path, required=True)
+
     subparsers.add_parser("list-codecs", help="list built-in codec adapters")
 
     run = subparsers.add_parser("run", help="run a benchmark")
@@ -65,6 +89,25 @@ def main(argv=None) -> int:
         manifest = generate_corpus(args.output, args.size_scale, args.seed)
         print(manifest)
         return 0
+    if args.command == "import-corpus":
+        manifest = import_corpus(
+            args.source,
+            args.output,
+            args.category,
+            args.split,
+            args.dataset,
+            args.license_spdx,
+            args.source_url,
+        )
+        print(manifest)
+        return 0
+    if args.command == "freeze-holdout":
+        print(freeze_holdout(args.corpus, args.output, args.overwrite))
+        return 0
+    if args.command == "verify-holdout":
+        valid = verify_holdout(args.corpus, args.lock)
+        print("verified" if valid else "mismatch")
+        return 0 if valid else 2
     if args.command == "list-codecs":
         print(json.dumps([codec.__dict__ for codec in all_codecs()], indent=2))
         return 0

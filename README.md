@@ -19,6 +19,10 @@ Version 0.1 provides:
 - explicit train/validation/holdout split support.
 - an adaptive-v0 self-describing frame that samples content and safely chooses
   between store and gzip-1, including original-size and SHA-256 verification.
+- provenance-required real-corpus intake and cryptographically frozen private
+  holdouts;
+- an optimized Rust delta-transpose library with a verified Python fallback;
+- exact native executable and version capture for Zstd, LZ4, Brotli, and 7-Zip.
 
 The built-in codecs use Python's standard-library bindings. That keeps the
 harness dependency-free and gives us a working baseline on a clean machine.
@@ -52,7 +56,12 @@ List the registered codecs:
 
 Run the tests:
 
+    scripts/build-native.sh
     python3 -m unittest discover -s tests -v
+
+Rebuild the digest-pinned public starter corpus:
+
+    scripts/fetch-public-starter.py
 
 ## Measurement contract
 
@@ -105,13 +114,17 @@ container and measurement seam; it is not the proposed novel predictor and
 must not be presented as a new compression breakthrough.
 
 Adaptive-v1 adds a reversible 32-bit delta plus byte-transpose transform. Its
-encoder compares raw and transformed samples, while the same version-one
-decoder frame can execute either recipe. This is the first structure-aware
-candidate, still implemented in Python and still expected to fail speed gates
-until the transform is moved into optimized native code.
+encoder compares raw and transformed samples using a staged 16–48 KiB probe,
+while the same version-one decoder frame can execute either recipe. The hot
+transform is implemented in a small Rust `cdylib`; the Python reference remains
+available as a portability fallback and a byte-equivalence oracle.
 
 The first measured transform result and its failed gates are recorded in
 docs/benchmarks/2026-07-15-transform-smoke.md.
+
+The first real-file native-baseline integration result is recorded in
+docs/benchmarks/2026-07-15-public-starter-integration.md. Adaptive-v1 passed the
+selector-overhead gate there but remained below the frontier-coverage gate.
 
 ## Current limitations
 

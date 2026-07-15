@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -13,6 +13,10 @@ class CorpusItem:
     split: str
     size_bytes: int
     sha256: str
+    dataset: str = ""
+    license_spdx: str = ""
+    source_url: str = ""
+    provenance: Dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -23,6 +27,8 @@ class CodecSpec:
     level: int = 0
     available: bool = True
     unavailable_reason: str = ""
+    executable: str = ""
+    version: str = ""
 
 
 @dataclass
@@ -47,6 +53,9 @@ class TrialResult:
     restored_sha256: str
     selected_backend: str = ""
     selector_ns: int = 0
+    selector_stages: int = 0
+    selector_sample_bytes: int = 0
+    transform_engine: str = ""
     error: str = ""
 
     def to_dict(self) -> Dict[str, Any]:

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import shutil
+import subprocess
 from typing import Dict, Iterable, List
 
 from .models import CodecSpec
@@ -25,9 +26,29 @@ for level in (0, 6, 9):
 
 
 def _register_external(
-    codec_id: str, family: str, implementation: str, executable: str, level: int
+    codec_id: str,
+    family: str,
+    implementation: str,
+    executables: Iterable[str],
+    level: int,
+    version_args: Iterable[str] = ("--version",),
 ) -> None:
-    path = shutil.which(executable)
+    names = list(executables)
+    path = next((found for name in names if (found := shutil.which(name))), None)
+    version = ""
+    if path:
+        try:
+            completed = subprocess.run(
+                [path, *version_args],
+                capture_output=True,
+                text=True,
+                timeout=5,
+                check=False,
+            )
+            lines = (completed.stdout + "\n" + completed.stderr).strip().splitlines()
+            version = next((line.strip() for line in lines if line.strip()), "")
+        except (OSError, subprocess.SubprocessError):
+            version = "version probe failed"
     _register(
         CodecSpec(
             codec_id,
@@ -35,17 +56,30 @@ def _register_external(
             implementation,
             level,
             available=path is not None,
-            unavailable_reason="" if path else f"{executable} executable not found",
+            unavailable_reason="" if path else f"{' or '.join(names)} executable not found",
+            executable=path or "",
+            version=version,
         )
     )
 
 
 for level in (1, 3, 9, 19):
-    _register_external(f"zstd-{level}", "Zstandard", "external-zstd", "zstd", level)
+    _register_external(f"zstd-{level}", "Zstandard", "external-zstd", ("zstd",), level)
 for level in (1, 9):
-    _register_external(f"lz4-{level}", "LZ4", "external-lz4", "lz4", level)
+    _register_external(f"lz4-{level}", "LZ4", "external-lz4", ("lz4",), level)
 for level in (1, 6, 11):
-    _register_external(f"brotli-{level}", "Brotli", "external-brotli", "brotli", level)
+    _register_external(
+        f"brotli-{level}", "Brotli", "external-brotli", ("brotli",), level
+    )
+for level in (1, 5, 9):
+    _register_external(
+        f"7zip-{level}",
+        "7-Zip",
+        "external-7zip",
+        ("7zz", "7z"),
+        level,
+        version_args=("i",),
+    )
 
 
 def all_codecs() -> List[CodecSpec]:

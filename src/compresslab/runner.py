@@ -150,6 +150,9 @@ def _trial(
         restored_sha256=restored_sha256,
         selected_backend=str(cmeta.get("selected_backend", "")),
         selector_ns=int(cmeta.get("selector_ns", 0)),
+        selector_stages=int(cmeta.get("selector_stages", 0)),
+        selector_sample_bytes=int(cmeta.get("selector_sample_bytes", 0)),
+        transform_engine=str(cmeta.get("transform_engine", "")),
         error=error,
     )
 
@@ -189,6 +192,9 @@ def _failed_trial(
         restored_sha256="",
         selected_backend=str(cmeta.get("selected_backend", "")),
         selector_ns=int(cmeta.get("selector_ns", 0)),
+        selector_stages=int(cmeta.get("selector_stages", 0)),
+        selector_sample_bytes=int(cmeta.get("selector_sample_bytes", 0)),
+        transform_engine=str(cmeta.get("transform_engine", "")),
         error=error,
     )
 
