@@ -206,6 +206,12 @@ to beat direct Zstandard level 3 on aggregate licensed real-file size, saving
 still materially slower and Zstandard level 9 remains smaller. The recipe is
 retained for performance work, not promoted as the default.
 
+The first native performance pass is recorded in
+docs/benchmarks/2026-07-15-structured-text-performance.md. Removing a redundant
+Python dictionary-ranking pass increased clean aggregate compression throughput
+from 13.16 to 22.49 MB/s without changing encoded size. Adaptive-v3 is closer to
+Zstandard level 9 speed but remains dominated by it on ratio and decode speed.
+
 ## Current limitations
 
 - Workers read each file into memory; streaming and random-access tests come
