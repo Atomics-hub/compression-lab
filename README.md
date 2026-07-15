@@ -161,8 +161,15 @@ gate while severe shared-machine contention made that pass unfit for promotion.
 The quiet-window decision rerun is recorded in
 docs/benchmarks/2026-07-15-decision-rerun.md. A valid preflight was not enough:
 the unchanged candidate still missed throughput and frontier repeatability, so
-the next benchmark must use calibrated native in-process baselines before the
-private holdout is opened.
+the next benchmark needed calibrated native in-process baselines before the
+private holdout could be opened.
+
+The calibrated native decision run is recorded in
+docs/benchmarks/2026-07-15-calibrated-native.md. All operation-duration and
+correctness checks passed, but the shared host became heavily contended during
+the run. Adaptive-v2 missed both the 80% product frontier gate and all three
+repeatability gates. The private holdout remains sealed until an identical run
+passes on a dedicated or otherwise isolated machine.
 
 ## Current limitations
 
