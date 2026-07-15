@@ -6,11 +6,35 @@ const OK: i32 = 0;
 const NULL_POINTER: i32 = 1;
 const INVALID_INPUT: i32 = 2;
 const OUTPUT_TOO_SMALL: i32 = 3;
+const ALLOCATION_FAILED: i32 = 4;
+const ZSTD_ERROR: i32 = 5;
 const STX_MAGIC: &[u8; 4] = b"STX1";
 const STX_MARKER: u8 = 0xff;
 const STX_ESCAPED_MARKER: u8 = 0xfe;
 const STX_MAX_DICTIONARY: usize = 254;
 const STX_MAX_TOKEN_SIZE: usize = 64;
+const STX_MAX_STREAM_CHUNK: usize = 16 * 1024 * 1024;
+
+#[repr(C)]
+pub struct ZstdInBuffer {
+    src: *const c_void,
+    size: usize,
+    pos: usize,
+}
+
+#[repr(C)]
+pub struct ZstdOutBuffer {
+    dst: *mut c_void,
+    size: usize,
+    pos: usize,
+}
+
+type ZstdCreateDStream = unsafe extern "C" fn() -> *mut c_void;
+type ZstdFreeDStream = unsafe extern "C" fn(*mut c_void) -> usize;
+type ZstdInitDStream = unsafe extern "C" fn(*mut c_void) -> usize;
+type ZstdDecompressStream =
+    unsafe extern "C" fn(*mut c_void, *mut ZstdOutBuffer, *mut ZstdInBuffer) -> usize;
+type ZstdIsError = unsafe extern "C" fn(usize) -> u32;
 
 fn token_start(value: u8) -> bool {
     value.is_ascii_alphabetic() || value == b'_'
@@ -421,6 +445,127 @@ pub unsafe extern "C" fn clab_structured_text_decoder_finish(decoder: *mut c_voi
 pub unsafe extern "C" fn clab_structured_text_decoder_free(decoder: *mut c_void) {
     if !decoder.is_null() {
         drop(Box::from_raw(decoder as *mut StreamingTextDecoder));
+    }
+}
+
+unsafe fn decode_structured_text_zstd_stream(
+    input: *const u8,
+    len: usize,
+    transformed_size: usize,
+    output: *mut u8,
+    expected_size: usize,
+    chunk_size: usize,
+    stream: *mut c_void,
+    decompress_stream: ZstdDecompressStream,
+    is_error: ZstdIsError,
+) -> i32 {
+    let mut source_buffer = ZstdInBuffer {
+        src: input as *const c_void,
+        size: len,
+        pos: 0,
+    };
+    let destination = slice::from_raw_parts_mut(output, expected_size);
+    let buffer_size = chunk_size.min(transformed_size.max(1));
+    let mut chunk = vec![0_u8; buffer_size];
+    let mut decoder = StreamingTextDecoder::new(expected_size);
+    let mut total_transformed = 0_usize;
+
+    loop {
+        let input_position = source_buffer.pos;
+        let mut chunk_buffer = ZstdOutBuffer {
+            dst: chunk.as_mut_ptr() as *mut c_void,
+            size: chunk.len(),
+            pos: 0,
+        };
+        let remaining = decompress_stream(stream, &mut chunk_buffer, &mut source_buffer);
+        if is_error(remaining) != 0 {
+            return ZSTD_ERROR;
+        }
+        let Some(updated_total) = total_transformed.checked_add(chunk_buffer.pos) else {
+            return INVALID_INPUT;
+        };
+        total_transformed = updated_total;
+        if total_transformed > transformed_size
+            || !decoder.update(&chunk[..chunk_buffer.pos], destination)
+        {
+            return INVALID_INPUT;
+        }
+        if remaining == 0 {
+            if source_buffer.pos != source_buffer.size {
+                return INVALID_INPUT;
+            }
+            break;
+        }
+        if source_buffer.pos == input_position && chunk_buffer.pos == 0 {
+            return INVALID_INPUT;
+        }
+    }
+
+    if total_transformed != transformed_size || !decoder.finish() {
+        INVALID_INPUT
+    } else {
+        OK
+    }
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn clab_structured_text_zstd_decode(
+    input: *const u8,
+    len: usize,
+    transformed_size: usize,
+    output: *mut u8,
+    expected_size: usize,
+    chunk_size: usize,
+    create_stream: Option<ZstdCreateDStream>,
+    free_stream: Option<ZstdFreeDStream>,
+    init_stream: Option<ZstdInitDStream>,
+    decompress_stream: Option<ZstdDecompressStream>,
+    is_error: Option<ZstdIsError>,
+) -> i32 {
+    if input.is_null() || output.is_null() || chunk_size == 0 || chunk_size > STX_MAX_STREAM_CHUNK {
+        return NULL_POINTER;
+    }
+    let (
+        Some(create_stream),
+        Some(free_stream),
+        Some(init_stream),
+        Some(decompress_stream),
+        Some(is_error),
+    ) = (
+        create_stream,
+        free_stream,
+        init_stream,
+        decompress_stream,
+        is_error,
+    )
+    else {
+        return NULL_POINTER;
+    };
+    let stream = create_stream();
+    if stream.is_null() {
+        return ALLOCATION_FAILED;
+    }
+    let init_result = init_stream(stream);
+    let status = if is_error(init_result) != 0 {
+        ZSTD_ERROR
+    } else {
+        decode_structured_text_zstd_stream(
+            input,
+            len,
+            transformed_size,
+            output,
+            expected_size,
+            chunk_size,
+            stream,
+            decompress_stream,
+            is_error,
+        )
+    };
+    let free_result = free_stream(stream);
+    if status == OK && is_error(free_result) != 0 {
+        ZSTD_ERROR
+    } else {
+        status
     }
 }
 

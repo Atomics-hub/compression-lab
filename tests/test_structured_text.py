@@ -122,6 +122,14 @@ class StructuredTextTransformTests(unittest.TestCase):
             structured_text_zstd_stream_decode(
                 payload + b"x", len(transformed), len(source), chunk_size=7
             )
+        invalid_transform = HEADER.pack(MAGIC, 0) + b"\xff\x00"
+        with self.assertRaises(ValueError):
+            structured_text_zstd_stream_decode(
+                zstd_compress(invalid_transform, level=3),
+                len(invalid_transform),
+                1,
+                chunk_size=1,
+            )
 
     def test_decoder_rejects_truncated_escape_and_duplicate_dictionary(self):
         with self.assertRaises(ValueError):

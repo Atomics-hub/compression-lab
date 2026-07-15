@@ -5,7 +5,7 @@ import ctypes.util
 import os
 import sys
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Callable, Optional, Tuple
 
 
 _Transform = Callable[[bytes], bytes]
@@ -13,24 +13,10 @@ _LIBRARY: Optional[ctypes.CDLL] = None
 _LOAD_ATTEMPTED = False
 _ZSTD_LIBRARY: Optional[ctypes.CDLL] = None
 _ZSTD_LOAD_ATTEMPTED = False
+_ZSTD_STREAM_FUNCTIONS: Optional[Tuple[ctypes.c_void_p, ...]] = None
 _ZSTD_CONTENTSIZE_UNKNOWN = (1 << 64) - 1
 _ZSTD_CONTENTSIZE_ERROR = (1 << 64) - 2
-
-
-class _ZstdInBuffer(ctypes.Structure):
-    _fields_ = [
-        ("src", ctypes.c_void_p),
-        ("size", ctypes.c_size_t),
-        ("pos", ctypes.c_size_t),
-    ]
-
-
-class _ZstdOutBuffer(ctypes.Structure):
-    _fields_ = [
-        ("dst", ctypes.c_void_p),
-        ("size", ctypes.c_size_t),
-        ("pos", ctypes.c_size_t),
-    ]
+_STRUCTURED_TEXT_STREAM_CHUNK_SIZE = 4 * 1024 * 1024
 
 
 def _library_filename() -> str:
@@ -93,6 +79,20 @@ def _load_library() -> Optional[ctypes.CDLL]:
     library.clab_structured_text_decoder_finish.restype = ctypes.c_int
     library.clab_structured_text_decoder_free.argtypes = [ctypes.c_void_p]
     library.clab_structured_text_decoder_free.restype = None
+    library.clab_structured_text_zstd_decode.argtypes = [
+        ctypes.c_void_p,
+        ctypes.c_size_t,
+        ctypes.c_size_t,
+        ctypes.c_void_p,
+        ctypes.c_size_t,
+        ctypes.c_size_t,
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+    ]
+    library.clab_structured_text_zstd_decode.restype = ctypes.c_int
     _LIBRARY = library
     return library
 
@@ -162,7 +162,7 @@ def structured_text_decode(data: bytes, expected_size: int) -> bytes:
 
 
 def _load_zstd() -> Optional[ctypes.CDLL]:
-    global _ZSTD_LIBRARY, _ZSTD_LOAD_ATTEMPTED
+    global _ZSTD_LIBRARY, _ZSTD_LOAD_ATTEMPTED, _ZSTD_STREAM_FUNCTIONS
     if _ZSTD_LOAD_ATTEMPTED:
         return _ZSTD_LIBRARY
     _ZSTD_LOAD_ATTEMPTED = True
@@ -221,10 +221,20 @@ def _load_zstd() -> Optional[ctypes.CDLL]:
         library.ZSTD_initDStream.restype = ctypes.c_size_t
         library.ZSTD_decompressStream.argtypes = [
             ctypes.c_void_p,
-            ctypes.POINTER(_ZstdOutBuffer),
-            ctypes.POINTER(_ZstdInBuffer),
+            ctypes.c_void_p,
+            ctypes.c_void_p,
         ]
         library.ZSTD_decompressStream.restype = ctypes.c_size_t
+        _ZSTD_STREAM_FUNCTIONS = tuple(
+            ctypes.cast(function, ctypes.c_void_p)
+            for function in (
+                library.ZSTD_createDStream,
+                library.ZSTD_freeDStream,
+                library.ZSTD_initDStream,
+                library.ZSTD_decompressStream,
+                library.ZSTD_isError,
+            )
+        )
         _ZSTD_LIBRARY = library
         return library
     return None
@@ -286,7 +296,7 @@ def structured_text_zstd_stream_decode(
     data: bytes,
     transformed_size: int,
     expected_size: int,
-    chunk_size: int = 256 * 1024,
+    chunk_size: int = _STRUCTURED_TEXT_STREAM_CHUNK_SIZE,
 ) -> bytes:
     native = _load_library()
     zstd = _load_zstd()
@@ -295,61 +305,26 @@ def structured_text_zstd_stream_decode(
     if chunk_size < 1:
         raise ValueError("streaming decode chunk size must be positive")
 
-    stream = zstd.ZSTD_createDStream()
-    decoder = native.clab_structured_text_decoder_create(expected_size)
-    if not stream or not decoder:
-        if stream:
-            zstd.ZSTD_freeDStream(stream)
-        if decoder:
-            native.clab_structured_text_decoder_free(decoder)
-        raise RuntimeError("failed to allocate streaming structured-text decoder")
-
     source = ctypes.create_string_buffer(data, max(1, len(data)))
-    source_buffer = _ZstdInBuffer(
-        ctypes.cast(source, ctypes.c_void_p), len(data), 0
-    )
     output = ctypes.create_string_buffer(max(1, expected_size))
-    total_transformed = 0
-    try:
-        result = int(zstd.ZSTD_initDStream(stream))
-        _zstd_error(zstd, result)
-        chunk = ctypes.create_string_buffer(chunk_size)
-        while True:
-            chunk_buffer = _ZstdOutBuffer(
-                ctypes.cast(chunk, ctypes.c_void_p), len(chunk), 0
-            )
-            result = int(
-                zstd.ZSTD_decompressStream(
-                    stream, ctypes.byref(chunk_buffer), ctypes.byref(source_buffer)
-                )
-            )
-            _zstd_error(zstd, result)
-            produced = int(chunk_buffer.pos)
-            total_transformed += produced
-            if total_transformed > transformed_size:
-                raise ValueError("structured-text transformed size exceeds declaration")
-            status = native.clab_structured_text_decoder_update(
-                decoder, chunk, produced, output, expected_size
-            )
-            if status != 0:
-                raise ValueError(
-                    f"native streaming structured-text decode failed with status {status}"
-                )
-            if result == 0:
-                if source_buffer.pos != source_buffer.size:
-                    raise ValueError("structured-text zstd payload has trailing data")
-                break
-            if source_buffer.pos == source_buffer.size and produced == 0:
-                raise ValueError("structured-text zstd payload is truncated")
-
-        if total_transformed != transformed_size:
-            raise ValueError("structured-text transformed size mismatch")
-        status = native.clab_structured_text_decoder_finish(decoder)
-        if status != 0:
-            raise ValueError(
-                f"native streaming structured-text finish failed with status {status}"
-            )
-        return output.raw[:expected_size]
-    finally:
-        native.clab_structured_text_decoder_free(decoder)
-        zstd.ZSTD_freeDStream(stream)
+    function_pointers = _ZSTD_STREAM_FUNCTIONS
+    if function_pointers is None:
+        raise RuntimeError("native Zstandard function table is unavailable")
+    status = native.clab_structured_text_zstd_decode(
+        source,
+        len(data),
+        transformed_size,
+        output,
+        expected_size,
+        chunk_size,
+        *function_pointers,
+    )
+    if status == 4:
+        raise RuntimeError("failed to allocate native Zstandard decoder")
+    if status == 5:
+        raise RuntimeError("native Zstandard streaming decode failed")
+    if status != 0:
+        raise ValueError(
+            f"native fused structured-text decode failed with status {status}"
+        )
+    return output.raw[:expected_size]
