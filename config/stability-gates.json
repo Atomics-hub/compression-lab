@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "requirements": {
+    "roundtrip_failures": 0,
+    "max_frame_overhead_bytes": 64,
+    "max_expansion_percent_plus_frame": 0.5,
+    "max_selector_time_percent": 5.0,
+    "frontier_tolerance_size_percent": 5.0,
+    "frontier_tolerance_total_time_percent": 10.0,
+    "target_frontier_coverage_percent": 80.0,
+    "minimum_repetitions": 7,
+    "max_compression_throughput_cv_percent": 5.0,
+    "max_decompression_throughput_cv_percent": 5.0,
+    "max_frontier_coverage_range_percentage_points": 5.0,
+    "max_normalized_host_load_1m": 1.5
+  },
+  "notes": [
+    "Repeatability uses per-repetition aggregate throughput and frontier coverage.",
+    "The host-load ceiling rejects runs collected under severe shared-machine contention.",
+    "Frontier stability is a prerequisite for algorithm tuning, not a market claim."
+  ]
+}

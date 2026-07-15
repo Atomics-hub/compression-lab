@@ -73,7 +73,7 @@ def evaluate_candidate(
         )
     )
 
-    coverage = _frontier_coverage(
+    coverage = frontier_coverage(
         results["medians"],
         candidate_id,
         bandwidth_mbps,
@@ -92,6 +92,97 @@ def evaluate_candidate(
         )
     )
 
+    stability = next(
+        (
+            row
+            for row in results.get("stability", {}).get("per_codec", [])
+            if row["codec_id"] == candidate_id
+        ),
+        None,
+    )
+    stability_requirements = {
+        "minimum_repetitions",
+        "max_compression_throughput_cv_percent",
+        "max_decompression_throughput_cv_percent",
+        "max_frontier_coverage_range_percentage_points",
+        "max_normalized_host_load_1m",
+    }
+    if stability_requirements.intersection(requirements):
+        if stability is None:
+            raise ValueError("Stability gates require stability data in the benchmark results")
+        if "minimum_repetitions" in requirements:
+            checks.append(
+                _check(
+                    "minimum_repetitions",
+                    stability["repetitions"] >= requirements["minimum_repetitions"],
+                    stability["repetitions"],
+                    requirements["minimum_repetitions"],
+                    "repetitions",
+                )
+            )
+        for metric, check_name, requirement_name in (
+            (
+                "compression_mbps",
+                "compression_throughput_repeatability",
+                "max_compression_throughput_cv_percent",
+            ),
+            (
+                "decompression_mbps",
+                "decompression_throughput_repeatability",
+                "max_decompression_throughput_cv_percent",
+            ),
+        ):
+            if requirement_name in requirements:
+                actual = stability["metrics"][metric]["cv_percent"]
+                checks.append(
+                    _check(
+                        check_name,
+                        actual <= requirements[requirement_name],
+                        actual,
+                        requirements[requirement_name],
+                        "percent CV",
+                    )
+                )
+        if "max_frontier_coverage_range_percentage_points" in requirements:
+            bandwidth_key = _bandwidth_key(bandwidth_mbps)
+            frontier = stability["frontier_coverage"][f"{bandwidth_key}mbps"]
+            actual = frontier["range_percentage_points"]
+            checks.append(
+                _check(
+                    "frontier_coverage_repeatability",
+                    actual
+                    <= requirements["max_frontier_coverage_range_percentage_points"],
+                    actual,
+                    requirements["max_frontier_coverage_range_percentage_points"],
+                    "percentage points",
+                    frontier,
+                )
+            )
+        if "max_normalized_host_load_1m" in requirements:
+            cpu_count = int(results.get("system", {}).get("cpu_count") or 0)
+            samples = results.get("system", {}).get("state_samples", [])
+            loads = [
+                float(row["load_average_1m_5m_15m"][0])
+                for row in samples
+                if row.get("load_average_1m_5m_15m")
+            ]
+            available = cpu_count > 0 and bool(loads)
+            actual = max(loads) / cpu_count if available else -1.0
+            checks.append(
+                _check(
+                    "host_load",
+                    available and actual <= requirements["max_normalized_host_load_1m"],
+                    actual,
+                    requirements["max_normalized_host_load_1m"],
+                    "1m load/core",
+                    {
+                        "available": available,
+                        "cpu_count": cpu_count,
+                        "maximum_load_average_1m": max(loads) if loads else None,
+                    },
+                )
+            )
+
     return {
         "schema_version": 1,
         "candidate_id": candidate_id,
@@ -103,7 +194,7 @@ def evaluate_candidate(
     }
 
 
-def _frontier_coverage(
+def frontier_coverage(
     medians: Sequence[Dict[str, Any]],
     candidate_id: str,
     bandwidth_mbps: float,

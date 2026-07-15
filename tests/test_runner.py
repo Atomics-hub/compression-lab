@@ -32,7 +32,9 @@ class RunnerTests(unittest.TestCase):
             self.assertTrue((output / "summary.csv").is_file())
             self.assertTrue((output / "report.md").is_file())
             payload = json.loads((output / "results.json").read_text(encoding="utf-8"))
-            self.assertEqual(payload["schema_version"], 1)
+            self.assertEqual(payload["schema_version"], 2)
+            self.assertEqual(payload["config"]["order_seed"], 20260715)
+            self.assertIn("per_codec", payload["stability"])
             self.assertEqual(len(payload["summary"]), 5)
             adaptive = next(
                 row for row in payload["summary"] if row["codec_id"] == "adaptive-v0"
@@ -63,6 +65,46 @@ class RunnerTests(unittest.TestCase):
             ]
             self.assertEqual(len(adaptive_v2), 8)
             self.assertTrue(all(row["roundtrip_ok"] for row in adaptive_v2))
+
+    def test_persistent_workers_and_shuffled_repetition_order(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            corpus = root / "corpus"
+            output = root / "run"
+            generate_corpus(corpus, size_scale=0.03125)
+            run = run_benchmark(
+                corpus,
+                output,
+                resolve_codecs(["store", "gzip-1"]),
+                repetitions=2,
+                warmups=0,
+                bandwidths_mbps=[100.0],
+                timeout_seconds=30.0,
+                execution_mode="persistent-worker",
+                order_seed=17,
+                bootstrap_samples=100,
+            )
+            self.assertFalse(run.failures)
+            self.assertEqual(run.config["execution_mode"], "persistent-worker")
+            for codec_id in ("store", "gzip-1"):
+                codec_trials = [row for row in run.trials if row["codec_id"] == codec_id]
+                pids = {
+                    row["compression_worker_pid"] for row in codec_trials
+                } | {row["decompression_worker_pid"] for row in codec_trials}
+                self.assertEqual(len(pids), 1)
+                self.assertNotIn(0, pids)
+            orders = []
+            for repetition in (1, 2):
+                rows = sorted(
+                    (row for row in run.trials if row["repetition"] == repetition),
+                    key=lambda row: row["order_index"],
+                )
+                self.assertEqual(
+                    [row["order_index"] for row in rows],
+                    list(range(1, len(rows) + 1)),
+                )
+                orders.append([(row["item_id"], row["codec_id"]) for row in rows])
+            self.assertNotEqual(orders[0], orders[1])
 
 
 if __name__ == "__main__":

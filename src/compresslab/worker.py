@@ -47,6 +47,14 @@ def _rss_bytes(usage: resource.struct_rusage) -> int:
     return value * 1024
 
 
+def _cpu_time_ns() -> int:
+    """CPU consumed by this worker plus completed external codec children."""
+    own = resource.getrusage(resource.RUSAGE_SELF)
+    children = resource.getrusage(resource.RUSAGE_CHILDREN)
+    seconds = own.ru_utime + own.ru_stime + children.ru_utime + children.ru_stime
+    return int(seconds * 1_000_000_000)
+
+
 def _copy(source: Path, destination: Path) -> None:
     shutil.copyfile(source, destination)
 
@@ -454,7 +462,7 @@ def run(codec_id: str, operation: str, source: Path, destination: Path) -> dict:
     codec = codec_by_id(codec_id)
     destination.parent.mkdir(parents=True, exist_ok=True)
     wall_start = time.perf_counter_ns()
-    cpu_start = time.process_time_ns()
+    cpu_start = _cpu_time_ns()
 
     detail = {}
     if codec.implementation == "store":
@@ -484,7 +492,7 @@ def run(codec_id: str, operation: str, source: Path, destination: Path) -> dict:
         "codec_id": codec.id,
         "operation": operation,
         "wall_ns": time.perf_counter_ns() - wall_start,
-        "cpu_ns": time.process_time_ns() - cpu_start,
+        "cpu_ns": _cpu_time_ns() - cpu_start,
         "peak_rss_bytes": max(
             _rss_bytes(resource.getrusage(resource.RUSAGE_SELF)),
             _rss_bytes(resource.getrusage(resource.RUSAGE_CHILDREN)),
@@ -498,16 +506,61 @@ def run(codec_id: str, operation: str, source: Path, destination: Path) -> dict:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--codec", required=True)
-    parser.add_argument("--operation", choices=("compress", "decompress"), required=True)
-    parser.add_argument("--source", type=Path, required=True)
-    parser.add_argument("--destination", type=Path, required=True)
-    parser.add_argument("--telemetry", type=Path, required=True)
+    parser.add_argument(
+        "--server",
+        action="store_true",
+        help="serve newline-delimited JSON requests on stdin/stdout",
+    )
+    parser.add_argument("--codec")
+    parser.add_argument("--operation", choices=("compress", "decompress"))
+    parser.add_argument("--source", type=Path)
+    parser.add_argument("--destination", type=Path)
+    parser.add_argument("--telemetry", type=Path)
     return parser
+
+
+def _serve() -> int:
+    """Run requests without paying Python import/startup cost for every trial."""
+    sys.stdout.write(json.dumps({"ready": True}, sort_keys=True) + "\n")
+    sys.stdout.flush()
+    for line in sys.stdin:
+        request_id = ""
+        try:
+            request = json.loads(line)
+            request_id = str(request.get("request_id", ""))
+            if request.get("command") == "shutdown":
+                response = {"request_id": request_id, "shutdown": True}
+                sys.stdout.write(json.dumps(response, sort_keys=True) + "\n")
+                sys.stdout.flush()
+                return 0
+            telemetry = run(
+                str(request["codec"]),
+                str(request["operation"]),
+                Path(request["source"]),
+                Path(request["destination"]),
+            )
+            response = {"request_id": request_id, "telemetry": telemetry}
+        except Exception as exc:
+            response = {
+                "request_id": request_id,
+                "error": f"{type(exc).__name__}: {exc}",
+            }
+        sys.stdout.write(json.dumps(response, sort_keys=True) + "\n")
+        sys.stdout.flush()
+    return 0
 
 
 def main(argv=None) -> int:
     args = build_parser().parse_args(argv)
+    if args.server:
+        return _serve()
+    missing = [
+        name
+        for name in ("codec", "operation", "source", "destination", "telemetry")
+        if getattr(args, name) is None
+    ]
+    if missing:
+        raise SystemExit(f"missing required arguments: {', '.join(missing)}")
     try:
         telemetry = run(args.codec, args.operation, args.source, args.destination)
         args.telemetry.parent.mkdir(parents=True, exist_ok=True)

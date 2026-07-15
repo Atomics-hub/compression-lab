@@ -73,6 +73,14 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--bandwidths", type=_csv_floats, default=[10.0, 100.0, 1000.0])
     run.add_argument("--timeout", type=float, default=120.0)
     run.add_argument("--keep-work", action="store_true")
+    run.add_argument(
+        "--execution-mode",
+        choices=("cold-process", "persistent-worker"),
+        default="cold-process",
+    )
+    run.add_argument("--order-seed", type=int, default=20260715)
+    run.add_argument("--confidence-level", type=float, default=0.95)
+    run.add_argument("--bootstrap-samples", type=int, default=2000)
 
     evaluate = subparsers.add_parser("evaluate", help="evaluate a candidate against gates")
     evaluate.add_argument("--results", type=Path, required=True)
@@ -128,6 +136,10 @@ def main(argv=None) -> int:
             bandwidths_mbps=args.bandwidths,
             timeout_seconds=args.timeout,
             keep_work=args.keep_work,
+            execution_mode=args.execution_mode,
+            order_seed=args.order_seed,
+            confidence_level=args.confidence_level,
+            bootstrap_samples=args.bootstrap_samples,
         )
         print(args.output / "report.md")
         return 1 if benchmark.failures else 0

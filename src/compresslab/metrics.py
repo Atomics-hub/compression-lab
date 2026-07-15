@@ -38,6 +38,12 @@ def median_trials(trials: Sequence[Dict[str, Any]]) -> List[Dict[str, Any]]:
         )
         base["compression_mbps"] = _throughput(original, base["compression_ns"])
         base["decompression_mbps"] = _throughput(original, base["decompression_ns"])
+        base["compression_cpu_mbps"] = _throughput(
+            original, base["compression_cpu_ns"]
+        )
+        base["decompression_cpu_mbps"] = _throughput(
+            original, base["decompression_cpu_ns"]
+        )
         rows.append(base)
     return rows
 
@@ -65,6 +71,8 @@ def summarize(
         compressed = sum(row["compressed_bytes"] for row in rows)
         compression_ns = sum(row["compression_ns"] for row in rows)
         decompression_ns = sum(row["decompression_ns"] for row in rows)
+        compression_cpu_ns = sum(row["compression_cpu_ns"] for row in rows)
+        decompression_cpu_ns = sum(row["decompression_cpu_ns"] for row in rows)
         item_failures = sum(not row["roundtrip_ok"] for row in rows)
         entry: Dict[str, Any] = {
             "codec_id": codec_id,
@@ -77,6 +85,8 @@ def summarize(
             "savings_percent": 100.0 * (1.0 - compressed / original) if original else 0.0,
             "compression_mbps": _throughput(original, compression_ns),
             "decompression_mbps": _throughput(original, decompression_ns),
+            "compression_cpu_mbps": _throughput(original, compression_cpu_ns),
+            "decompression_cpu_mbps": _throughput(original, decompression_cpu_ns),
             "compression_peak_rss_bytes": max(
                 row["compression_peak_rss_bytes"] for row in rows
             ),

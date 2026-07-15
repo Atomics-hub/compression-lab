@@ -10,7 +10,10 @@ Version 0.1 provides:
 - deterministic heterogeneous corpus generation;
 - isolated codec workers for store, gzip/DEFLATE, bzip2/BWT, and LZMA2;
 - SHA-256 round-trip verification for every trial;
-- repeated startup-inclusive wall timing and worker CPU telemetry;
+- separate cold-process and persistent-worker wall timing modes;
+- deterministic randomized trial order, host-load sampling, per-repetition
+  confidence intervals, and repeatability gates;
+- worker CPU telemetry that includes completed external-codec child processes;
 - worker peak-RSS telemetry;
 - compressed size, throughput, expansion, and transfer-time utility at
   configurable bandwidths;
@@ -28,10 +31,9 @@ Version 0.1 provides:
 
 The built-in codecs use Python's standard-library bindings. That keeps the
 harness dependency-free and gives us a working baseline on a clean machine.
-Native Zstd, LZ4, and Brotli adapters are discovered automatically when their
-CLI executables are installed. Unavailable adapters remain visible through
-list-codecs but cannot be selected accidentally. 7z and OpenZL are the next
-adapter expansion.
+Native Zstd, LZ4, Brotli, and 7-Zip adapters are discovered automatically when
+their CLI executables are installed. Unavailable adapters remain visible
+through list-codecs but cannot be selected accidentally.
 
 ## Quick start
 
@@ -45,6 +47,15 @@ Use any Python 3.9 or newer:
       --output runs/smoke \
       --repetitions 3 \
       --warmups 1
+
+For the exact ten-codec steady-state stability recipe, including corpus and
+native-library verification, randomized order, seven measurements, and both
+gate reports:
+
+    scripts/run-stability.sh
+
+The script exits non-zero when a research gate fails; inspect the generated
+gate reports before treating that as an infrastructure error.
 
 The run writes:
 
@@ -72,18 +83,21 @@ version, and settings. The harness records those inputs and follows these rules:
 
 1. Every measured decode must reproduce the source SHA-256 exactly.
 2. Timed trials are preceded by configurable warmups.
-3. The median trial represents each item × codec pair.
-4. Aggregate compression ratios are byte-weighted.
-5. Parent wall time includes process startup. This exposes a real default-tool
-   cost, especially on small files.
-6. CPU time and memory are worker-local telemetry and are not substituted for
+3. Every warmup and measured repetition block is independently shuffled from a
+   recorded deterministic seed.
+4. The median trial represents each item × codec pair, while per-repetition
+   aggregates retain confidence intervals and coefficients of variation.
+5. Aggregate compression ratios are byte-weighted.
+6. Cold-process mode includes Python worker startup. Persistent-worker mode
+   excludes Python startup but retains IPC, file I/O, and external CLI startup.
+7. CPU time and memory are worker-local telemetry and are not substituted for
    wall time.
-7. Transfer utility is compression time + encoded bytes over the selected link
+8. Transfer utility is compression time + encoded bytes over the selected link
    + decompression time.
-8. Public validation data is for iteration. Private holdout data should live
+9. Public validation data is for iteration. Private holdout data should live
    outside the repository and run only at decision gates.
-9. A benchmark failure, timeout, or corrupt round trip remains visible and
-   makes the CLI exit non-zero.
+10. A benchmark failure, timeout, corrupt round trip, unstable throughput, or
+    excessive host load remains visible and makes the CLI exit non-zero.
 
 ## Corpus model
 
@@ -134,12 +148,17 @@ native numeric transform. Its first repeated results are recorded in
 docs/benchmarks/2026-07-15-adaptive-v2.md. The architecture is retained, but the
 candidate still fails the frontier-coverage product gate.
 
+The first seven-repetition steady-state experiment is recorded in
+docs/benchmarks/2026-07-15-stability.md. It demonstrates why the repeatability
+and host-load gates are required: the median candidate result passed the old
+gate while severe shared-machine contention made that pass unfit for promotion.
+
 ## Current limitations
 
 - Workers read each file into memory; streaming and random-access tests come
   with the candidate container.
-- Startup-inclusive Python wrappers are not substitutes for native-codec
-  implementation benchmarks.
+- Persistent Python workers remove interpreter startup, but external baseline
+  adapters still include their native CLI process startup.
 - Peak RSS is the worker high-water mark, not incremental allocation.
 - Energy, hardware counters, archive metadata, encryption, and malicious-input
   fuzzing are not yet measured.

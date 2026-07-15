@@ -1,14 +1,18 @@
 from __future__ import annotations
 
 import csv
+from collections import deque
 import hashlib
 import json
 import os
 import platform
+import queue
+import random
 import shutil
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 import uuid
 from dataclasses import asdict
@@ -20,6 +24,7 @@ from .corpus import load_corpus
 from .codecs import probe_codec_versions
 from .metrics import add_transfer_metrics, median_trials, selector_oracle, summarize
 from .models import BenchmarkRun, CodecSpec, CorpusItem, TrialResult
+from .stability import analyze_stability
 
 
 def _hash(path: Path) -> str:
@@ -37,6 +42,154 @@ def _worker_environment() -> Dict[str, str]:
     env["PYTHONPATH"] = source_root + (os.pathsep + existing if existing else "")
     env["PYTHONHASHSEED"] = "0"
     return env
+
+
+class _PersistentWorker:
+    def __init__(self, startup_timeout_seconds: float) -> None:
+        self._process = subprocess.Popen(
+            [sys.executable, "-m", "compresslab.worker", "--server"],
+            env=_worker_environment(),
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            bufsize=1,
+        )
+        self._responses: queue.Queue[Optional[str]] = queue.Queue()
+        self._stderr_lines: deque[str] = deque(maxlen=50)
+        self._reader = threading.Thread(target=self._read_stdout, daemon=True)
+        self._stderr_reader = threading.Thread(target=self._read_stderr, daemon=True)
+        self._reader.start()
+        self._stderr_reader.start()
+        try:
+            ready = self._responses.get(timeout=startup_timeout_seconds)
+        except queue.Empty as exc:
+            self.close()
+            raise RuntimeError("persistent worker readiness timed out") from exc
+        if ready is None:
+            self.close()
+            raise RuntimeError("persistent worker exited before readiness")
+        try:
+            payload = json.loads(ready)
+        except json.JSONDecodeError as exc:
+            self.close()
+            raise RuntimeError(f"invalid persistent worker readiness: {exc}") from exc
+        if payload != {"ready": True}:
+            self.close()
+            raise RuntimeError(f"unexpected persistent worker readiness: {payload}")
+
+    def _read_stdout(self) -> None:
+        assert self._process.stdout is not None
+        for line in self._process.stdout:
+            self._responses.put(line)
+        self._responses.put(None)
+
+    def _read_stderr(self) -> None:
+        assert self._process.stderr is not None
+        for line in self._process.stderr:
+            self._stderr_lines.append(line.rstrip())
+
+    def run(
+        self,
+        codec: CodecSpec,
+        operation: str,
+        source: Path,
+        destination: Path,
+        timeout_seconds: float,
+    ) -> Dict[str, Any]:
+        request_id = uuid.uuid4().hex
+        request = {
+            "request_id": request_id,
+            "codec": codec.id,
+            "operation": operation,
+            "source": str(source),
+            "destination": str(destination),
+        }
+        if self._process.poll() is not None or self._process.stdin is None:
+            raise RuntimeError("persistent worker is not running")
+        self._process.stdin.write(json.dumps(request, sort_keys=True) + "\n")
+        self._process.stdin.flush()
+        try:
+            line = self._responses.get(timeout=timeout_seconds)
+        except queue.Empty as exc:
+            raise TimeoutError(f"timeout after {timeout_seconds}s") from exc
+        if line is None:
+            detail = " | ".join(self._stderr_lines)
+            suffix = f": {detail}" if detail else ""
+            raise RuntimeError(f"persistent worker exited without a response{suffix}")
+        response = json.loads(line)
+        if response.get("request_id") != request_id:
+            raise RuntimeError("persistent worker response ID mismatch")
+        return response
+
+    def close(self) -> None:
+        if self._process.poll() is None:
+            try:
+                if self._process.stdin is not None:
+                    self._process.stdin.write(
+                        json.dumps({"request_id": "shutdown", "command": "shutdown"})
+                        + "\n"
+                    )
+                    self._process.stdin.flush()
+                self._process.wait(timeout=1.0)
+            except (BrokenPipeError, OSError, subprocess.TimeoutExpired):
+                self._process.terminate()
+                try:
+                    self._process.wait(timeout=1.0)
+                except subprocess.TimeoutExpired:
+                    self._process.kill()
+                    self._process.wait(timeout=1.0)
+        self._reader.join(timeout=1.0)
+        self._stderr_reader.join(timeout=1.0)
+        for stream in (
+            self._process.stdin,
+            self._process.stdout,
+            self._process.stderr,
+        ):
+            if stream is not None and not stream.closed:
+                stream.close()
+
+
+class _PersistentWorkerPool:
+    def __init__(self, startup_timeout_seconds: float) -> None:
+        self._startup_timeout_seconds = startup_timeout_seconds
+        self._workers: Dict[str, _PersistentWorker] = {}
+
+    def run(
+        self,
+        codec: CodecSpec,
+        operation: str,
+        source: Path,
+        destination: Path,
+        timeout_seconds: float,
+    ) -> Tuple[int, Dict[str, Any], str]:
+        try:
+            worker = self._workers.get(codec.id)
+            if worker is None:
+                worker = _PersistentWorker(self._startup_timeout_seconds)
+                self._workers[codec.id] = worker
+        except (queue.Empty, RuntimeError, OSError) as exc:
+            return 0, {}, f"persistent worker startup failed: {exc}"
+
+        start = time.perf_counter_ns()
+        try:
+            response = worker.run(
+                codec, operation, source, destination, timeout_seconds
+            )
+            elapsed = time.perf_counter_ns() - start
+        except (TimeoutError, RuntimeError, OSError, json.JSONDecodeError) as exc:
+            elapsed = time.perf_counter_ns() - start
+            worker.close()
+            self._workers.pop(codec.id, None)
+            return elapsed, {}, str(exc)
+        telemetry = response.get("telemetry", {})
+        error = str(response.get("error", telemetry.get("error", "")))
+        return elapsed, telemetry, error
+
+    def close(self) -> None:
+        for worker in self._workers.values():
+            worker.close()
+        self._workers.clear()
 
 
 def _run_worker(
@@ -95,8 +248,10 @@ def _trial(
     item: CorpusItem,
     codec: CodecSpec,
     repetition: int,
+    order_index: int,
     work_dir: Path,
     timeout_seconds: float,
+    worker_pool: Optional[_PersistentWorkerPool] = None,
 ) -> TrialResult:
     prefix = f"{item.id}.{codec.id}.r{repetition}"
     compressed = work_dir / f"{prefix}.compressed"
@@ -104,21 +259,34 @@ def _trial(
     compress_telemetry = work_dir / f"{prefix}.compress.json"
     decompress_telemetry = work_dir / f"{prefix}.decompress.json"
 
-    compression_ns, cmeta, error = _run_worker(
-        codec, "compress", item.path, compressed, compress_telemetry, timeout_seconds
-    )
+    if worker_pool is None:
+        compression_ns, cmeta, error = _run_worker(
+            codec, "compress", item.path, compressed, compress_telemetry, timeout_seconds
+        )
+    else:
+        compression_ns, cmeta, error = worker_pool.run(
+            codec, "compress", item.path, compressed, timeout_seconds
+        )
     if error:
-        return _failed_trial(run_id, item, codec, repetition, compression_ns, 0, error)
+        return _failed_trial(
+            run_id, item, codec, repetition, order_index, compression_ns, 0, error
+        )
 
-    decompression_ns, dmeta, error = _run_worker(
-        codec, "decompress", compressed, restored, decompress_telemetry, timeout_seconds
-    )
+    if worker_pool is None:
+        decompression_ns, dmeta, error = _run_worker(
+            codec, "decompress", compressed, restored, decompress_telemetry, timeout_seconds
+        )
+    else:
+        decompression_ns, dmeta, error = worker_pool.run(
+            codec, "decompress", compressed, restored, timeout_seconds
+        )
     if error:
         return _failed_trial(
             run_id,
             item,
             codec,
             repetition,
+            order_index,
             compression_ns,
             decompression_ns,
             error,
@@ -138,6 +306,7 @@ def _trial(
         codec_id=codec.id,
         codec_family=codec.family,
         repetition=repetition,
+        order_index=order_index,
         original_bytes=item.size_bytes,
         compressed_bytes=compressed.stat().st_size,
         compression_ns=compression_ns,
@@ -146,6 +315,8 @@ def _trial(
         decompression_cpu_ns=int(dmeta.get("cpu_ns", 0)),
         compression_peak_rss_bytes=int(cmeta.get("peak_rss_bytes", 0)),
         decompression_peak_rss_bytes=int(dmeta.get("peak_rss_bytes", 0)),
+        compression_worker_pid=int(cmeta.get("pid", 0)),
+        decompression_worker_pid=int(dmeta.get("pid", 0)),
         roundtrip_ok=roundtrip_ok,
         source_sha256=item.sha256,
         restored_sha256=restored_sha256,
@@ -167,6 +338,7 @@ def _failed_trial(
     item: CorpusItem,
     codec: CodecSpec,
     repetition: int,
+    order_index: int,
     compression_ns: int,
     decompression_ns: int,
     error: str,
@@ -184,6 +356,7 @@ def _failed_trial(
         codec_id=codec.id,
         codec_family=codec.family,
         repetition=repetition,
+        order_index=order_index,
         original_bytes=item.size_bytes,
         compressed_bytes=compressed_bytes,
         compression_ns=compression_ns,
@@ -192,6 +365,8 @@ def _failed_trial(
         decompression_cpu_ns=int(dmeta.get("cpu_ns", 0)),
         compression_peak_rss_bytes=int(cmeta.get("peak_rss_bytes", 0)),
         decompression_peak_rss_bytes=int(dmeta.get("peak_rss_bytes", 0)),
+        compression_worker_pid=int(cmeta.get("pid", 0)),
+        decompression_worker_pid=int(dmeta.get("pid", 0)),
         roundtrip_ok=False,
         source_sha256=item.sha256,
         restored_sha256="",
@@ -208,6 +383,30 @@ def _failed_trial(
     )
 
 
+def _system_state(label: str, include_thermal_signal: bool = False) -> Dict[str, Any]:
+    state: Dict[str, Any] = {
+        "label": label,
+        "captured_at": datetime.now(timezone.utc).isoformat(),
+    }
+    try:
+        state["load_average_1m_5m_15m"] = list(os.getloadavg())
+    except (AttributeError, OSError):
+        state["load_average_1m_5m_15m"] = []
+    if include_thermal_signal and sys.platform == "darwin" and shutil.which("pmset"):
+        try:
+            completed = subprocess.run(
+                ["pmset", "-g", "therm"],
+                capture_output=True,
+                text=True,
+                timeout=2.0,
+                check=False,
+            )
+            state["thermal_signal"] = completed.stdout.strip() or completed.stderr.strip()
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            state["thermal_signal"] = f"unavailable: {exc}"
+    return state
+
+
 def run_benchmark(
     corpus_root: Path,
     output_dir: Path,
@@ -218,6 +417,10 @@ def run_benchmark(
     bandwidths_mbps: Sequence[float] = (10.0, 100.0, 1000.0),
     timeout_seconds: float = 120.0,
     keep_work: bool = False,
+    execution_mode: str = "cold-process",
+    order_seed: int = 20260715,
+    confidence_level: float = 0.95,
+    bootstrap_samples: int = 2000,
 ) -> BenchmarkRun:
     if repetitions < 1:
         raise ValueError("repetitions must be at least 1")
@@ -225,6 +428,8 @@ def run_benchmark(
         raise ValueError("warmups cannot be negative")
     if not bandwidths_mbps or any(value <= 0 for value in bandwidths_mbps):
         raise ValueError("bandwidths must be positive")
+    if execution_mode not in {"cold-process", "persistent-worker"}:
+        raise ValueError("execution mode must be cold-process or persistent-worker")
 
     codecs = probe_codec_versions(codecs)
     items = load_corpus(corpus_root, splits)
@@ -232,24 +437,63 @@ def run_benchmark(
     run_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + "-" + uuid.uuid4().hex[:8]
     work_dir = Path(tempfile.mkdtemp(prefix=f"{run_id}-", dir=output_dir))
     trial_rows: List[Dict[str, Any]] = []
+    system_states = [_system_state("run-start", include_thermal_signal=True)]
+    worker_pool = (
+        _PersistentWorkerPool(min(timeout_seconds, 30.0))
+        if execution_mode == "persistent-worker"
+        else None
+    )
+    pairs = [(item, codec) for item in items for codec in codecs]
+    rng = random.Random(order_seed)
 
     try:
-        total = len(items) * len(codecs)
+        for warmup in range(1, warmups + 1):
+            sequence = list(pairs)
+            rng.shuffle(sequence)
+            system_states.append(_system_state(f"warmup-{warmup}-start"))
+            print(f"[warmup {warmup}/{warmups}] {len(sequence)} shuffled pairs", flush=True)
+            for order_index, (item, codec) in enumerate(sequence, start=1):
+                _trial(
+                    run_id,
+                    item,
+                    codec,
+                    -warmup,
+                    order_index,
+                    work_dir,
+                    timeout_seconds,
+                    worker_pool,
+                )
+            system_states.append(_system_state(f"warmup-{warmup}-end"))
+
+        total = len(pairs) * repetitions
         current = 0
-        for item in items:
-            for codec in codecs:
+        for repetition in range(1, repetitions + 1):
+            sequence = list(pairs)
+            rng.shuffle(sequence)
+            system_states.append(_system_state(f"repetition-{repetition}-start"))
+            print(
+                f"[repetition {repetition}/{repetitions}] {len(sequence)} shuffled pairs",
+                flush=True,
+            )
+            for order_index, (item, codec) in enumerate(sequence, start=1):
                 current += 1
                 print(f"[{current}/{total}] {item.id} × {codec.id}", flush=True)
-                for warmup in range(warmups):
-                    _trial(
-                        run_id, item, codec, -(warmup + 1), work_dir, timeout_seconds
-                    )
-                for repetition in range(1, repetitions + 1):
-                    result = _trial(
-                        run_id, item, codec, repetition, work_dir, timeout_seconds
-                    )
-                    trial_rows.append(result.to_dict())
+                result = _trial(
+                    run_id,
+                    item,
+                    codec,
+                    repetition,
+                    order_index,
+                    work_dir,
+                    timeout_seconds,
+                    worker_pool,
+                )
+                trial_rows.append(result.to_dict())
+            system_states.append(_system_state(f"repetition-{repetition}-end"))
     finally:
+        if worker_pool is not None:
+            worker_pool.close()
+        system_states.append(_system_state("run-end", include_thermal_signal=True))
         if not keep_work:
             shutil.rmtree(work_dir, ignore_errors=True)
 
@@ -259,6 +503,12 @@ def run_benchmark(
         add_transfer_metrics(row, bandwidths_mbps)
     summary = summarize(medians, bandwidths_mbps)
     oracle = selector_oracle(medians, summary, bandwidths_mbps)
+    stability = analyze_stability(
+        trial_rows,
+        bandwidths_mbps,
+        confidence_level=confidence_level,
+        bootstrap_samples=bootstrap_samples,
+    )
     failures = [
         {
             "item_id": row["item_id"],
@@ -271,7 +521,7 @@ def run_benchmark(
     ]
 
     run = BenchmarkRun(
-        schema_version=1,
+        schema_version=2,
         run_id=run_id,
         generated_at=datetime.now(timezone.utc).isoformat(),
         system={
@@ -281,6 +531,7 @@ def run_benchmark(
             "python": sys.version,
             "python_executable": sys.executable,
             "cpu_count": os.cpu_count(),
+            "state_samples": system_states,
         },
         config={
             "repetitions": repetitions,
@@ -288,7 +539,16 @@ def run_benchmark(
             "splits": list(splits),
             "bandwidths_mbps": list(bandwidths_mbps),
             "timeout_seconds": timeout_seconds,
-            "timing_scope": "parent wall clock including worker process startup",
+            "execution_mode": execution_mode,
+            "order_seed": order_seed,
+            "trial_order": "deterministic shuffle within every warmup and repetition block",
+            "confidence_level": confidence_level,
+            "bootstrap_samples": bootstrap_samples,
+            "timing_scope": (
+                "parent wall clock including worker process startup"
+                if execution_mode == "cold-process"
+                else "parent wall clock excluding Python worker startup; includes IPC, file I/O, and external codec subprocess startup"
+            ),
             "memory_scope": "worker high-water RSS",
         },
         corpus=[
@@ -300,6 +560,7 @@ def run_benchmark(
         medians=medians,
         summary=summary,
         oracle=oracle,
+        stability=stability,
         failures=failures,
     )
     _write_outputs(run, output_dir)
@@ -358,13 +619,40 @@ def _markdown_report(run: BenchmarkRun) -> str:
             f"{row['best_fixed_total_ms']:.2f} | {row['oracle_total_ms']:.2f} | "
             f"{row['oracle_gain_percent']:.2f}% |"
         )
+    confidence_percent = 100.0 * run.stability["confidence_level"]
+    lines.extend(
+        [
+            "",
+            "## Repeatability",
+            "",
+            f"Intervals are {confidence_percent:g}% deterministic percentile-bootstrap confidence intervals of the per-repetition median.",
+            "",
+            "| Codec | Compress MB/s median (CI) | Compression CV | Decompression CV | Frontier range at 100 Mbps |",
+            "|---|---:|---:|---:|---:|",
+        ]
+    )
+    for row in run.stability["per_codec"]:
+        compression = row["metrics"]["compression_mbps"]
+        decompression = row["metrics"]["decompression_mbps"]
+        frontier = row["frontier_coverage"].get("100mbps")
+        frontier_range = (
+            f"{frontier['range_percentage_points']:.2f} pp"
+            if frontier is not None
+            else "n/a"
+        )
+        lines.append(
+            f"| {row['codec_id']} | {compression['median']:.2f} "
+            f"({compression['ci_low']:.2f}–{compression['ci_high']:.2f}) | "
+            f"{compression['cv_percent']:.2f}% | "
+            f"{decompression['cv_percent']:.2f}% | {frontier_range} |"
+        )
     lines.extend(
         [
             "",
             "## Interpretation guardrails",
             "",
             "- Values are comparable only within this run and machine context.",
-            "- Parent wall time includes Python worker startup, which intentionally exposes small-file overhead.",
+            f"- Timing scope: {run.config['timing_scope']}.",
             "- Aggregate ratios are byte-weighted; the JSON retains every per-file trial.",
             "- A private holdout corpus should be stored outside the repository and run only at decision gates.",
             "",

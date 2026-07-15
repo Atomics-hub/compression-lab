@@ -40,6 +40,7 @@ class TrialResult:
     codec_id: str
     codec_family: str
     repetition: int
+    order_index: int
     original_bytes: int
     compressed_bytes: int
     compression_ns: int
@@ -48,6 +49,8 @@ class TrialResult:
     decompression_cpu_ns: int
     compression_peak_rss_bytes: int
     decompression_peak_rss_bytes: int
+    compression_worker_pid: int
+    decompression_worker_pid: int
     roundtrip_ok: bool
     source_sha256: str
     restored_sha256: str
@@ -78,6 +81,12 @@ class TrialResult:
                 ),
                 "compression_mbps": _throughput(self.original_bytes, self.compression_ns),
                 "decompression_mbps": _throughput(self.original_bytes, self.decompression_ns),
+                "compression_cpu_mbps": _throughput(
+                    self.original_bytes, self.compression_cpu_ns
+                ),
+                "decompression_cpu_mbps": _throughput(
+                    self.original_bytes, self.decompression_cpu_ns
+                ),
             }
         )
         return row
@@ -102,6 +111,7 @@ class BenchmarkRun:
     medians: List[Dict[str, Any]]
     summary: List[Dict[str, Any]]
     oracle: Dict[str, Any]
+    stability: Dict[str, Any]
     failures: List[Dict[str, Any]]
 
     def to_dict(self) -> Dict[str, Any]:
