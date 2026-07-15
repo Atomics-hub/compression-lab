@@ -237,6 +237,15 @@ incremental peak memory. The clean public result preserved all encoded bytes,
 64/64 round trips, and the adaptive-v3 Pareto position; whole-frame decode
 overhead remains the next measured target.
 
+The whole-frame profile is recorded in
+docs/benchmarks/2026-07-15-whole-frame-decode.md. It rejects both a branch-only
+decoder rewrite and per-file raw Zstandard dictionaries with direct A/B
+evidence. The retained change writes fused structured output directly into the
+final frame buffer, reducing large-frame decode peak growth by 22.1% with a
+near-neutral 0.35% paired speed improvement and no integrity compromise. The
+next ratio-preserving speed hypothesis is an isolated STX2 command-stream
+prototype, not more Python bookkeeping work.
+
 ## Current limitations
 
 - Workers read each file into memory; streaming and random-access tests come
