@@ -191,6 +191,13 @@ smaller. Segment counts, transformed segments, and stored segments are retained
 in benchmark schema version 4 so routing behavior is auditable rather than
 inferred from aggregate size.
 
+The clean alpha result is recorded in
+docs/benchmarks/2026-07-15-adaptive-v3-alpha.md. Segmentation preserved large
+numeric-transform gains on the synthetic smoke corpus, but every licensed
+public file selected the whole-stream fallback. The current recipe set is
+therefore rejected for general-purpose promotion while the version-3 frame is
+retained as the substrate for the next independently reversible transform.
+
 ## Current limitations
 
 - Workers read each file into memory; streaming and random-access tests come
