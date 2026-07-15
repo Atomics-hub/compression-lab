@@ -171,6 +171,14 @@ the run. Adaptive-v2 missed both the 80% product frontier gate and all three
 repeatability gates. The private holdout remains sealed until an identical run
 passes on a dedicated or otherwise isolated machine.
 
+The controlling isolated-host result is recorded in
+docs/benchmarks/2026-07-15-isolated-decision.md. A clean ARM64 macOS hosted run
+reduced timing variance but still rejected adaptive-v2: it missed selector,
+frontier, and repeatability gates and remained dominated by direct Zstandard
+level 3. Adaptive-v2 is frozen as a rejected architecture. The next candidate
+must test a genuinely new block- or segment-level compression hypothesis; the
+private holdout remains sealed.
+
 ## Current limitations
 
 - Workers read each file into memory; streaming and random-access tests come
