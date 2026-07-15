@@ -1,0 +1,112 @@
+name: Isolated compression decision
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - agent/native-baseline-milestone
+    paths:
+      - .github/workflows/isolated-decision.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: isolated-compression-decision
+  cancel-in-progress: false
+
+jobs:
+  decision:
+    name: Calibrated public-corpus decision
+    runs-on: macos-15
+    timeout-minutes: 45
+    env:
+      PYTHONUNBUFFERED: "1"
+
+    steps:
+      - name: Check out candidate
+        uses: actions/checkout@v4
+
+      - name: Capture runner provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p isolated-evidence
+          {
+            sw_vers
+            uname -a
+            sysctl -n hw.logicalcpu
+            python3 --version
+            rustc --version
+            git rev-parse HEAD
+            git status --porcelain
+          } | tee isolated-evidence/runner-provenance.txt
+
+      - name: Install native baselines
+        run: scripts/bootstrap-macos-baselines.sh
+
+      - name: Validate benchmark implementation
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m compileall -q src tests scripts/wait-for-quiet-host.py
+          scripts/build-native.sh
+          PYTHONPATH=src python3 -W error::ResourceWarning -m unittest discover -s tests -v
+          cargo test --manifest-path native/Cargo.toml --release --locked
+          bash -n scripts/run-stability.sh
+
+      - name: Run calibrated public decision
+        id: benchmark
+        shell: bash
+        run: |
+          set +e
+          scripts/run-stability.sh runs/isolated-decision 2>&1 | tee isolated-evidence/benchmark.log
+          status=${PIPESTATUS[0]}
+          echo "exit_code=$status" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Publish decision summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## Isolated compression decision"
+            echo
+            echo "Benchmark exit code: ${{ steps.benchmark.outputs.exit_code }}"
+            echo
+            if [[ -f runs/isolated-decision/report.md ]]; then
+              cat runs/isolated-decision/report.md
+            else
+              echo "The benchmark did not produce a report. See benchmark.log in the artifact."
+            fi
+            if [[ -f runs/isolated-decision/gates-initial.md ]]; then
+              echo
+              cat runs/isolated-decision/gates-initial.md
+            fi
+            if [[ -f runs/isolated-decision/gates-stability.md ]]; then
+              echo
+              cat runs/isolated-decision/gates-stability.md
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload complete evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: isolated-compression-decision-${{ github.run_id }}
+          path: |
+            isolated-evidence
+            runs/isolated-decision
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Enforce research gates
+        if: always()
+        shell: bash
+        run: |
+          status="${{ steps.benchmark.outputs.exit_code }}"
+          if [[ -z "$status" ]]; then
+            echo "Benchmark step did not report an exit code" >&2
+            exit 1
+          fi
+          exit "$status"
