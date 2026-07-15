@@ -21,17 +21,18 @@ jobs:
     runs-on: macos-15
     timeout-minutes: 45
     env:
+      EVIDENCE_DIR: ${{ runner.temp }}/compression-lab-evidence
       PYTHONUNBUFFERED: "1"
 
     steps:
       - name: Check out candidate
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Capture runner provenance
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p isolated-evidence
+          mkdir -p "$EVIDENCE_DIR"
           {
             sw_vers
             uname -a
@@ -40,7 +41,7 @@ jobs:
             rustc --version
             git rev-parse HEAD
             git status --porcelain
-          } | tee isolated-evidence/runner-provenance.txt
+          } | tee "$EVIDENCE_DIR/runner-provenance.txt"
 
       - name: Install native baselines
         run: scripts/bootstrap-macos-baselines.sh
@@ -60,8 +61,11 @@ jobs:
         shell: bash
         run: |
           set +e
-          scripts/run-stability.sh runs/isolated-decision 2>&1 | tee isolated-evidence/benchmark.log
+          scripts/run-stability.sh runs/isolated-decision 2>&1 | tee "$EVIDENCE_DIR/benchmark.log"
           status=${PIPESTATUS[0]}
+          if [[ -d runs/isolated-decision ]]; then
+            cp -R runs/isolated-decision "$EVIDENCE_DIR/"
+          fi
           echo "exit_code=$status" >> "$GITHUB_OUTPUT"
           exit 0
 
@@ -91,12 +95,10 @@ jobs:
 
       - name: Upload complete evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: isolated-compression-decision-${{ github.run_id }}
-          path: |
-            isolated-evidence
-            runs/isolated-decision
+          path: ${{ runner.temp }}/compression-lab-evidence
           if-no-files-found: warn
           retention-days: 30
 
