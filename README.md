@@ -229,6 +229,14 @@ decode-time peak-RSS increase by 34.3% while costing 5.1% throughput. The path
 is retained for scaling, but the speed tax must be removed by fusing the stream
 loop behind one native boundary before promotion.
 
+That fusion is recorded in docs/benchmarks/2026-07-15-fused-decode.md. One
+native call now owns the complete Zstandard stream lifecycle and token state
+machine. With a 4 MiB size-capped buffer, the controlled large-file pair was
+2.4% faster than the original two-stage decoder while using 24.8% less
+incremental peak memory. The clean public result preserved all encoded bytes,
+64/64 round trips, and the adaptive-v3 Pareto position; whole-frame decode
+overhead remains the next measured target.
+
 ## Current limitations
 
 - Workers read each file into memory; streaming and random-access tests come

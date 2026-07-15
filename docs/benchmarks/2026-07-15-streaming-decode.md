@@ -99,3 +99,7 @@ state machine behind one native call. The current Python-to-native call per
 chunk and separate library boundary are the most plausible sources of the 5.1%
 tax. Promotion, the private holdout, and a market claim remain blocked on a
 broader corpus, fuzzing, isolated repetitions, and materially faster decode.
+
+That target was completed in
+`docs/benchmarks/2026-07-15-fused-decode.md`; the fused 4 MiB path removed the
+paired speed tax while retaining a lower-memory decode profile.
