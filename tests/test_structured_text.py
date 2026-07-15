@@ -7,6 +7,7 @@ from compresslab.native import (
     structured_text_decode as native_decode,
     structured_text_encode as native_encode,
     structured_text_zstd_stream_decode,
+    structured_text_zstd_stream_decode_into,
     zstd_compress,
     zstd_decompress,
 )
@@ -109,6 +110,26 @@ class StructuredTextTransformTests(unittest.TestCase):
             payload, len(transformed), len(source), chunk_size=7
         )
         self.assertEqual(restored, source)
+        destination = bytearray(b"prefix" + b"\x00" * len(source) + b"suffix")
+        structured_text_zstd_stream_decode_into(
+            payload,
+            len(transformed),
+            destination,
+            len(b"prefix"),
+            len(source),
+            chunk_size=7,
+        )
+        self.assertEqual(destination[:len(b"prefix")], b"prefix")
+        self.assertEqual(destination[len(b"prefix"):-len(b"suffix")], source)
+        self.assertEqual(destination[-len(b"suffix"):], b"suffix")
+        with self.assertRaises(ValueError):
+            structured_text_zstd_stream_decode_into(
+                payload,
+                len(transformed),
+                bytearray(len(source) - 1),
+                0,
+                len(source),
+            )
 
         with self.assertRaises((RuntimeError, ValueError)):
             structured_text_zstd_stream_decode(

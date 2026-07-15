@@ -298,15 +298,39 @@ def structured_text_zstd_stream_decode(
     expected_size: int,
     chunk_size: int = _STRUCTURED_TEXT_STREAM_CHUNK_SIZE,
 ) -> bytes:
+    output = bytearray(expected_size)
+    structured_text_zstd_stream_decode_into(
+        data,
+        transformed_size,
+        output,
+        0,
+        expected_size,
+        chunk_size,
+    )
+    return bytes(output)
+
+
+def structured_text_zstd_stream_decode_into(
+    data: bytes,
+    transformed_size: int,
+    output: bytearray,
+    output_offset: int,
+    expected_size: int,
+    chunk_size: int = _STRUCTURED_TEXT_STREAM_CHUNK_SIZE,
+) -> None:
     native = _load_library()
     zstd = _load_zstd()
     if native is None or zstd is None:
         raise RuntimeError("native streaming structured-text decode is unavailable")
     if chunk_size < 1:
         raise ValueError("streaming decode chunk size must be positive")
+    if output_offset < 0 or expected_size < 1:
+        raise ValueError("streaming decode output range is invalid")
+    if expected_size > len(output) - output_offset:
+        raise ValueError("streaming decode output exceeds destination")
 
-    source = ctypes.create_string_buffer(data, max(1, len(data)))
-    output = ctypes.create_string_buffer(max(1, expected_size))
+    source = ctypes.c_char_p(data)
+    destination = ctypes.c_ubyte.from_buffer(output, output_offset)
     function_pointers = _ZSTD_STREAM_FUNCTIONS
     if function_pointers is None:
         raise RuntimeError("native Zstandard function table is unavailable")
@@ -314,7 +338,7 @@ def structured_text_zstd_stream_decode(
         source,
         len(data),
         transformed_size,
-        output,
+        ctypes.byref(destination),
         expected_size,
         chunk_size,
         *function_pointers,
@@ -327,4 +351,3 @@ def structured_text_zstd_stream_decode(
         raise ValueError(
             f"native fused structured-text decode failed with status {status}"
         )
-    return output.raw[:expected_size]

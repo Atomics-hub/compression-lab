@@ -42,6 +42,7 @@ Decoder = Callable[[bytes, int], bytes]
 Transform = Callable[[bytes], bytes]
 InverseTransform = Callable[[bytes, int], bytes]
 StructuredDecoder = Callable[[bytes, int, int], bytes]
+StructuredDecoderInto = Callable[[bytes, int, bytearray, int, int], None]
 EncodedSegment = Tuple[int, bytes, bytes]
 
 
@@ -268,6 +269,7 @@ def decompress(
     zstd_decode: Decoder,
     inverse_delta_transpose: InverseTransform,
     structured_text_zstd_decode: Optional[StructuredDecoder],
+    structured_text_zstd_decode_into: Optional[StructuredDecoderInto],
     transform_engine: str,
     codec_engine: str,
 ) -> Tuple[bytes, dict]:
@@ -294,7 +296,8 @@ def decompress(
     if original_size > 0 and (segment_count == 0 or segment_count > original_size):
         raise ValueError("adaptive-v3 segment count is invalid")
 
-    output = bytearray()
+    output = bytearray(original_size)
+    output_pos = 0
     recipe_counts: Counter[int] = Counter()
     for _ in range(segment_count):
         if len(encoded) - offset < SEGMENT_HEADER.size:
@@ -305,13 +308,14 @@ def decompress(
         offset += SEGMENT_HEADER.size
         if segment_size == 0:
             raise ValueError("adaptive-v3 segment is empty")
-        if segment_size > original_size - len(output):
+        if segment_size > original_size - output_pos:
             raise ValueError("adaptive-v3 segment exceeds declared original size")
         if payload_size > len(encoded) - offset:
             raise ValueError("adaptive-v3 segment payload is truncated")
         payload = encoded[offset:offset + payload_size]
         offset += payload_size
 
+        segment = None
         if recipe == RECIPE_STORE:
             segment = payload
         elif recipe == RECIPE_ZSTD_3:
@@ -329,7 +333,15 @@ def decompress(
             if transformed_size > maximum_size:
                 raise ValueError("structured-text transformed size is invalid")
             compressed_transform = payload[TRANSFORMED_SIZE.size:]
-            if structured_text_zstd_decode is not None:
+            if structured_text_zstd_decode_into is not None:
+                structured_text_zstd_decode_into(
+                    compressed_transform,
+                    transformed_size,
+                    output,
+                    output_pos,
+                    segment_size,
+                )
+            elif structured_text_zstd_decode is not None:
                 segment = structured_text_zstd_decode(
                     compressed_transform, transformed_size, segment_size
                 )
@@ -338,20 +350,25 @@ def decompress(
                 segment = decode_structured_text(transformed, segment_size)
         else:
             raise ValueError(f"unsupported adaptive-v3 segment recipe: {recipe}")
-        if len(segment) != segment_size:
-            raise ValueError("adaptive-v3 segment size mismatch")
-        if zlib.crc32(segment) != expected_crc:
+        segment_end = output_pos + segment_size
+        if segment is not None:
+            if len(segment) != segment_size:
+                raise ValueError("adaptive-v3 segment size mismatch")
+            output[output_pos:segment_end] = segment
+        segment_view = memoryview(output)[output_pos:segment_end]
+        if zlib.crc32(segment_view) != expected_crc:
             raise ValueError("adaptive-v3 segment CRC mismatch")
-        output.extend(segment)
+        del segment_view
+        output_pos = segment_end
         recipe_counts[recipe] += 1
 
     if offset != len(encoded):
         raise ValueError("adaptive-v3 frame has trailing data")
-    data = bytes(output)
-    if len(data) != original_size:
+    if output_pos != original_size:
         raise ValueError("adaptive-v3 frame original-size mismatch")
-    if hashlib.sha256(data).digest() != expected_hash:
+    if hashlib.sha256(output).digest() != expected_hash:
         raise ValueError("adaptive-v3 frame SHA-256 mismatch")
+    data = bytes(output)
 
     segments = [
         (recipe, b"", b"")

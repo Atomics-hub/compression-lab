@@ -28,6 +28,7 @@ from .native import (
     inverse_delta_transpose as _native_inverse_delta_transpose,
     native_available,
     structured_text_zstd_stream_decode,
+    structured_text_zstd_stream_decode_into,
     zstd_available,
     zstd_compress,
     zstd_decompress,
@@ -376,6 +377,11 @@ def _adaptive_v3_decompress(encoded: bytes) -> tuple[bytes, dict]:
         inverse_delta_transpose=_inverse_delta_transpose,
         structured_text_zstd_decode=(
             structured_text_zstd_stream_decode
+            if native_available() and zstd_available()
+            else None
+        ),
+        structured_text_zstd_decode_into=(
+            structured_text_zstd_stream_decode_into
             if native_available() and zstd_available()
             else None
         ),
