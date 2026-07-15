@@ -198,6 +198,14 @@ public file selected the whole-stream fallback. The current recipe set is
 therefore rejected for general-purpose promotion while the version-3 frame is
 retained as the substrate for the next independently reversible transform.
 
+Adaptive-v3 alpha 2 adds that first transform: a native reversible identifier
+dictionary for structured text. Its clean result is recorded in
+docs/benchmarks/2026-07-15-structured-text-alpha.md. It is the first candidate
+to beat direct Zstandard level 3 on aggregate licensed real-file size, saving
+1.81%, but it remains off the Pareto frontier because encode and decode are
+still materially slower and Zstandard level 9 remains smaller. The recipe is
+retained for performance work, not promoted as the default.
+
 ## Current limitations
 
 - Workers read each file into memory; streaming and random-access tests come
