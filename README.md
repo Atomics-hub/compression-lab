@@ -34,6 +34,8 @@ Version 0.1 provides:
 - an adaptive-v3 segmented frame with per-segment recipes and CRC32 checks,
   whole-file SHA-256 verification, and a whole-stream fallback that prevents
   segmentation from silently worsening compressed size.
+- a stateful native structured-text decoder fed directly from streaming
+  Zstandard output, avoiding a complete transformed-stream allocation.
 
 The built-in codecs use Python's standard-library bindings. That keeps the
 harness dependency-free and gives us a working baseline on a clean machine.
@@ -218,6 +220,14 @@ deterministic 1 MiB sample preserves a 1.64% size win over Zstandard level 3 and
 compresses 34.3% faster than Zstandard level 9 in the clean local run, at a
 5.74% size cost. Adaptive-v3 reaches the measured Pareto frontier for the first
 time, but still requires faster decode, broader data, and isolated repetition.
+
+The bounded-memory decode follow-up is recorded in
+docs/benchmarks/2026-07-15-streaming-decode.md. It incrementally feeds
+Zstandard output into a stateful Rust token decoder and removes the complete
+transformed-stream allocation. A paired large-file measurement reduced the
+decode-time peak-RSS increase by 34.3% while costing 5.1% throughput. The path
+is retained for scaling, but the speed tax must be removed by fusing the stream
+loop behind one native boundary before promotion.
 
 ## Current limitations
 
