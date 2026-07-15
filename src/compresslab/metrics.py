@@ -22,6 +22,8 @@ def median_trials(trials: Sequence[Dict[str, Any]]) -> List[Dict[str, Any]]:
         "selector_ns",
         "selector_stages",
         "selector_sample_bytes",
+        "sample_ratio",
+        "transformed_sample_ratio",
     )
     for _, group in sorted(grouped.items()):
         base = dict(group[0])

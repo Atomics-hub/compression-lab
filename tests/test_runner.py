@@ -18,20 +18,22 @@ class RunnerTests(unittest.TestCase):
             run = run_benchmark(
                 corpus,
                 output,
-                resolve_codecs(["store", "adaptive-v0", "adaptive-v1", "gzip-1"]),
+                resolve_codecs(
+                    ["store", "adaptive-v0", "adaptive-v1", "adaptive-v2", "gzip-1"]
+                ),
                 repetitions=1,
                 warmups=0,
                 bandwidths_mbps=[100.0],
                 timeout_seconds=30.0,
             )
             self.assertFalse(run.failures)
-            self.assertEqual(len(run.trials), 32)
+            self.assertEqual(len(run.trials), 40)
             self.assertTrue((output / "results.json").is_file())
             self.assertTrue((output / "summary.csv").is_file())
             self.assertTrue((output / "report.md").is_file())
             payload = json.loads((output / "results.json").read_text(encoding="utf-8"))
             self.assertEqual(payload["schema_version"], 1)
-            self.assertEqual(len(payload["summary"]), 4)
+            self.assertEqual(len(payload["summary"]), 5)
             adaptive = next(
                 row for row in payload["summary"] if row["codec_id"] == "adaptive-v0"
             )
@@ -56,6 +58,11 @@ class RunnerTests(unittest.TestCase):
                     for row in adaptive_v1
                 )
             )
+            adaptive_v2 = [
+                row for row in payload["medians"] if row["codec_id"] == "adaptive-v2"
+            ]
+            self.assertEqual(len(adaptive_v2), 8)
+            self.assertTrue(all(row["roundtrip_ok"] for row in adaptive_v2))
 
 
 if __name__ == "__main__":

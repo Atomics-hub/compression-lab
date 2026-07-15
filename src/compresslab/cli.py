@@ -5,13 +5,13 @@ import json
 from pathlib import Path
 from typing import List
 
-from .codecs import all_codecs, resolve_codecs
+from .codecs import all_codecs, probe_codec_versions, resolve_codecs
 from .corpus import freeze_holdout, generate_corpus, import_corpus, verify_holdout
 from .gates import evaluate_candidate, load_json, write_gate_report
 from .runner import run_benchmark
 
 
-DEFAULT_CODECS = "store,adaptive-v0,adaptive-v1,gzip-1,gzip-6,gzip-9,bz2-1,bz2-9,lzma-0,lzma-6,lzma-9"
+DEFAULT_CODECS = "store,adaptive-v0,adaptive-v1,adaptive-v2,gzip-1,gzip-6,gzip-9,bz2-1,bz2-9,lzma-0,lzma-6,lzma-9"
 
 
 def _csv_strings(value: str) -> List[str]:
@@ -109,7 +109,12 @@ def main(argv=None) -> int:
         print("verified" if valid else "mismatch")
         return 0 if valid else 2
     if args.command == "list-codecs":
-        print(json.dumps([codec.__dict__ for codec in all_codecs()], indent=2))
+        print(
+            json.dumps(
+                [codec.__dict__ for codec in probe_codec_versions(all_codecs())],
+                indent=2,
+            )
+        )
         return 0
     if args.command == "run":
         codecs = resolve_codecs(_csv_strings(args.codecs))

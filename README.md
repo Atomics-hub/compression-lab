@@ -23,6 +23,8 @@ Version 0.1 provides:
   holdouts;
 - an optimized Rust delta-transpose library with a verified Python fallback;
 - exact native executable and version capture for Zstd, LZ4, Brotli, and 7-Zip.
+- an adaptive-v2 frame that can route to store, Zstandard, LZ4, or
+  delta-transpose plus Zstandard without breaking version-1 decoding.
 
 The built-in codecs use Python's standard-library bindings. That keeps the
 harness dependency-free and gives us a working baseline on a clean machine.
@@ -125,6 +127,12 @@ docs/benchmarks/2026-07-15-transform-smoke.md.
 The first real-file native-baseline integration result is recorded in
 docs/benchmarks/2026-07-15-public-starter-integration.md. Adaptive-v1 passed the
 selector-overhead gate there but remained below the frontier-coverage gate.
+
+Adaptive-v2 replaces gzip as the balanced backend with direct `libzstd` FFI,
+retains LZ4 as a versioned fast-mode recipe, and combines Zstandard with the
+native numeric transform. Its first repeated results are recorded in
+docs/benchmarks/2026-07-15-adaptive-v2.md. The architecture is retained, but the
+candidate still fails the frontier-coverage product gate.
 
 ## Current limitations
 

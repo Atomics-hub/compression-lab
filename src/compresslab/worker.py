@@ -21,15 +21,22 @@ from .native import (
     delta_transpose as _native_delta_transpose,
     inverse_delta_transpose as _native_inverse_delta_transpose,
     native_available,
+    zstd_available,
+    zstd_compress,
+    zstd_decompress,
 )
 
 
 ADAPTIVE_MAGIC = b"CLAB"
-ADAPTIVE_VERSION = 1
+ADAPTIVE_VERSION_V1 = 1
+ADAPTIVE_VERSION_V2 = 2
 ADAPTIVE_HEADER = struct.Struct(">4sBBQ32s")
 BACKEND_STORE = 0
 BACKEND_GZIP_1 = 1
 BACKEND_DELTA_TRANSPOSE_GZIP_1 = 2
+BACKEND_ZSTD_3 = 3
+BACKEND_LZ4_1 = 4
+BACKEND_DELTA_TRANSPOSE_ZSTD_3 = 5
 
 
 def _rss_bytes(usage: resource.struct_rusage) -> int:
@@ -128,6 +135,59 @@ def _inverse_delta_transpose(data: bytes, original_size: int) -> bytes:
     return _python_inverse_delta_transpose(data, original_size)
 
 
+def _codec_filter(codec_id: str, operation: str, data: bytes) -> bytes:
+    codec = codec_by_id(codec_id)
+    if not codec.available or not codec.executable:
+        raise RuntimeError(f"native codec is unavailable: {codec_id}")
+    if codec.implementation == "external-zstd":
+        arguments = (
+            ["-q", f"-{codec.level}", "-c"]
+            if operation == "compress"
+            else ["-q", "-d", "-c"]
+        )
+    elif codec.implementation == "external-lz4":
+        arguments = (
+            ["-q", f"-{codec.level}", "-c"]
+            if operation == "compress"
+            else ["-q", "-d", "-c"]
+        )
+    else:
+        raise ValueError(f"codec does not support filter mode: {codec_id}")
+    completed = subprocess.run(
+        [codec.executable, *arguments],
+        input=data,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if completed.returncode != 0:
+        detail = completed.stderr.decode("utf-8", errors="replace").strip()
+        raise RuntimeError(
+            f"{codec_id} {operation} exited {completed.returncode}: {detail}"
+        )
+    return completed.stdout
+
+
+def _v2_zstd_compress(data: bytes) -> bytes:
+    if zstd_available():
+        return zstd_compress(data, level=3)
+    return _codec_filter("zstd-3", "compress", data)
+
+
+def _v2_zstd_decompress(data: bytes, expected_size: int) -> bytes:
+    if zstd_available():
+        return zstd_decompress(data, expected_size)
+    return _codec_filter("zstd-3", "decompress", data)
+
+
+def _v2_codec_engine(backend: int) -> str:
+    if backend in {BACKEND_ZSTD_3, BACKEND_DELTA_TRANSPOSE_ZSTD_3}:
+        return "libzstd-ffi" if zstd_available() else "zstd-cli"
+    if backend == BACKEND_LZ4_1:
+        return "lz4-cli"
+    return "store"
+
+
 def _adaptive_compress(data: bytes, allow_transform: bool = False) -> tuple[bytes, dict]:
     selector_start = time.perf_counter_ns()
     sample = _representative_sample(data, 16 * 1024)
@@ -180,7 +240,7 @@ def _adaptive_compress(data: bytes, allow_transform: bool = False) -> tuple[byte
 
     header = ADAPTIVE_HEADER.pack(
         ADAPTIVE_MAGIC,
-        ADAPTIVE_VERSION,
+        ADAPTIVE_VERSION_V1,
         selected,
         len(data),
         hashlib.sha256(data).digest(),
@@ -201,6 +261,89 @@ def _adaptive_compress(data: bytes, allow_transform: bool = False) -> tuple[byte
     }
 
 
+def _v2_balanced_backend(sample_ratio: float) -> tuple[int, str]:
+    if sample_ratio >= 0.97:
+        return BACKEND_STORE, "sample-near-incompressible"
+    return BACKEND_ZSTD_3, "compressible-balanced"
+
+
+def _adaptive_v2_compress(data: bytes) -> tuple[bytes, dict]:
+    selector_start = time.perf_counter_ns()
+    sample = _representative_sample(data, 16 * 1024)
+    sample_compressed = gzip.compress(sample, compresslevel=1, mtime=0)
+    sample_ratio = len(sample_compressed) / len(sample) if sample else 1.0
+    selected, selector_reason = _v2_balanced_backend(sample_ratio)
+    transformed_sample_ratio = 1.0
+    selector_stages = 1
+    sampled_bytes = len(sample)
+
+    if len(sample) >= 16:
+        transformed_sample = _delta_transpose(sample)
+        transformed_compressed = gzip.compress(
+            transformed_sample, compresslevel=1, mtime=0
+        )
+        transformed_sample_ratio = len(transformed_compressed) / len(sample)
+        transform_gain = len(transformed_compressed) / max(1, len(sample_compressed))
+        if transform_gain < 0.94:
+            selected = BACKEND_DELTA_TRANSPOSE_ZSTD_3
+            selector_reason = "numeric-transform-clear-win"
+        elif transform_gain <= 1.03 and len(data) > len(sample):
+            selector_stages = 2
+            sample = _representative_sample(data, 32 * 1024)
+            sampled_bytes += len(sample)
+            sample_compressed = gzip.compress(sample, compresslevel=1, mtime=0)
+            sample_ratio = len(sample_compressed) / len(sample) if sample else 1.0
+            transformed_sample = _delta_transpose(sample)
+            transformed_compressed = gzip.compress(
+                transformed_sample, compresslevel=1, mtime=0
+            )
+            transformed_sample_ratio = len(transformed_compressed) / len(sample)
+            if len(transformed_compressed) < len(sample_compressed) * 0.97:
+                selected = BACKEND_DELTA_TRANSPOSE_ZSTD_3
+                selector_reason = "numeric-transform-confirmed"
+            else:
+                selected, selector_reason = _v2_balanced_backend(sample_ratio)
+    selector_ns = time.perf_counter_ns() - selector_start
+
+    if selected == BACKEND_ZSTD_3:
+        payload = _v2_zstd_compress(data)
+    elif selected == BACKEND_LZ4_1:
+        payload = _codec_filter("lz4-1", "compress", data)
+    elif selected == BACKEND_DELTA_TRANSPOSE_ZSTD_3:
+        payload = _v2_zstd_compress(_delta_transpose(data))
+    else:
+        payload = data
+    if selected != BACKEND_STORE and len(payload) >= len(data):
+        selected = BACKEND_STORE
+        payload = data
+        selector_reason = "full-output-expansion-fallback"
+
+    header = ADAPTIVE_HEADER.pack(
+        ADAPTIVE_MAGIC,
+        ADAPTIVE_VERSION_V2,
+        selected,
+        len(data),
+        hashlib.sha256(data).digest(),
+    )
+    return header + payload, {
+        "selected_backend": {
+            BACKEND_STORE: "store",
+            BACKEND_ZSTD_3: "zstd-3",
+            BACKEND_LZ4_1: "lz4-1",
+            BACKEND_DELTA_TRANSPOSE_ZSTD_3: "delta-transpose+zstd-3",
+        }[selected],
+        "selector_ns": selector_ns,
+        "sample_ratio": sample_ratio,
+        "transformed_sample_ratio": transformed_sample_ratio,
+        "selector_stages": selector_stages,
+        "selector_sample_bytes": sampled_bytes,
+        "selector_reason": selector_reason,
+        "transform_engine": "rust" if native_available() else "python-fallback",
+        "codec_engine": _v2_codec_engine(selected),
+        "frame_overhead_bytes": ADAPTIVE_HEADER.size,
+    }
+
+
 def _adaptive_decompress(encoded: bytes) -> tuple[bytes, dict]:
     if len(encoded) < ADAPTIVE_HEADER.size:
         raise ValueError("adaptive frame is truncated")
@@ -209,19 +352,29 @@ def _adaptive_decompress(encoded: bytes) -> tuple[bytes, dict]:
     )
     if magic != ADAPTIVE_MAGIC:
         raise ValueError("adaptive frame magic mismatch")
-    if version != ADAPTIVE_VERSION:
+    if version not in {ADAPTIVE_VERSION_V1, ADAPTIVE_VERSION_V2}:
         raise ValueError(f"unsupported adaptive frame version: {version}")
     payload = encoded[ADAPTIVE_HEADER.size:]
     if backend == BACKEND_STORE:
         data = payload
         selected_backend = "store"
-    elif backend == BACKEND_GZIP_1:
+    elif version == ADAPTIVE_VERSION_V1 and backend == BACKEND_GZIP_1:
         data = gzip.decompress(payload)
         selected_backend = "gzip-1"
-    elif backend == BACKEND_DELTA_TRANSPOSE_GZIP_1:
+    elif version == ADAPTIVE_VERSION_V1 and backend == BACKEND_DELTA_TRANSPOSE_GZIP_1:
         transformed = gzip.decompress(payload)
         data = _inverse_delta_transpose(transformed, original_size)
         selected_backend = "delta-transpose+gzip-1"
+    elif version == ADAPTIVE_VERSION_V2 and backend == BACKEND_ZSTD_3:
+        data = _v2_zstd_decompress(payload, original_size)
+        selected_backend = "zstd-3"
+    elif version == ADAPTIVE_VERSION_V2 and backend == BACKEND_LZ4_1:
+        data = _codec_filter("lz4-1", "decompress", payload)
+        selected_backend = "lz4-1"
+    elif version == ADAPTIVE_VERSION_V2 and backend == BACKEND_DELTA_TRANSPOSE_ZSTD_3:
+        transformed = _v2_zstd_decompress(payload, original_size)
+        data = _inverse_delta_transpose(transformed, original_size)
+        selected_backend = "delta-transpose+zstd-3"
     else:
         raise ValueError(f"unsupported adaptive backend: {backend}")
     if len(data) != original_size:
@@ -232,6 +385,11 @@ def _adaptive_decompress(encoded: bytes) -> tuple[bytes, dict]:
         "selected_backend": selected_backend,
         "selector_ns": 0,
         "transform_engine": "rust" if native_available() else "python-fallback",
+        "codec_engine": (
+            _v2_codec_engine(backend)
+            if version == ADAPTIVE_VERSION_V2
+            else "python-stdlib"
+        ),
     }
 
 
@@ -301,12 +459,15 @@ def run(codec_id: str, operation: str, source: Path, destination: Path) -> dict:
     detail = {}
     if codec.implementation == "store":
         _copy(source, destination)
-    elif codec.implementation in {"adaptive-v0", "adaptive-v1"}:
+    elif codec.implementation in {"adaptive-v0", "adaptive-v1", "adaptive-v2"}:
         if operation == "compress":
-            output, detail = _adaptive_compress(
-                source.read_bytes(),
-                allow_transform=codec.implementation == "adaptive-v1",
-            )
+            if codec.implementation == "adaptive-v2":
+                output, detail = _adaptive_v2_compress(source.read_bytes())
+            else:
+                output, detail = _adaptive_compress(
+                    source.read_bytes(),
+                    allow_transform=codec.implementation == "adaptive-v1",
+                )
         else:
             output, detail = _adaptive_decompress(source.read_bytes())
         destination.write_bytes(output)

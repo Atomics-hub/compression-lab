@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import shutil
 import subprocess
+from dataclasses import replace
 from typing import Dict, Iterable, List
 
 from .models import CodecSpec
@@ -31,24 +32,9 @@ def _register_external(
     implementation: str,
     executables: Iterable[str],
     level: int,
-    version_args: Iterable[str] = ("--version",),
 ) -> None:
     names = list(executables)
     path = next((found for name in names if (found := shutil.which(name))), None)
-    version = ""
-    if path:
-        try:
-            completed = subprocess.run(
-                [path, *version_args],
-                capture_output=True,
-                text=True,
-                timeout=5,
-                check=False,
-            )
-            lines = (completed.stdout + "\n" + completed.stderr).strip().splitlines()
-            version = next((line.strip() for line in lines if line.strip()), "")
-        except (OSError, subprocess.SubprocessError):
-            version = "version probe failed"
     _register(
         CodecSpec(
             codec_id,
@@ -58,7 +44,6 @@ def _register_external(
             available=path is not None,
             unavailable_reason="" if path else f"{' or '.join(names)} executable not found",
             executable=path or "",
-            version=version,
         )
     )
 
@@ -78,12 +63,56 @@ for level in (1, 5, 9):
         "external-7zip",
         ("7zz", "7z"),
         level,
-        version_args=("i",),
     )
+
+_v2_dependencies = (_CODECS["zstd-3"], _CODECS["lz4-1"])
+_v2_missing = [codec.id for codec in _v2_dependencies if not codec.available]
+_register(
+    CodecSpec(
+        "adaptive-v2",
+        "Compression Lab",
+        "adaptive-v2",
+        available=not _v2_missing,
+        unavailable_reason=(
+            "missing native dependency: " + ", ".join(_v2_missing)
+            if _v2_missing
+            else ""
+        ),
+        version="frame-v2",
+    )
+)
 
 
 def all_codecs() -> List[CodecSpec]:
     return list(_CODECS.values())
+
+
+def probe_codec_versions(codecs: Iterable[CodecSpec]) -> List[CodecSpec]:
+    """Capture external versions once in the parent, never in timed workers."""
+    cache: Dict[str, str] = {}
+    probed: List[CodecSpec] = []
+    for codec in codecs:
+        if not codec.implementation.startswith("external-") or not codec.executable:
+            probed.append(codec)
+            continue
+        if codec.executable not in cache:
+            arguments = ("i",) if codec.implementation == "external-7zip" else ("--version",)
+            try:
+                completed = subprocess.run(
+                    [codec.executable, *arguments],
+                    capture_output=True,
+                    text=True,
+                    timeout=5,
+                    check=False,
+                )
+                lines = (completed.stdout + "\n" + completed.stderr).strip().splitlines()
+                cache[codec.executable] = next(
+                    (line.strip() for line in lines if line.strip()), "version unavailable"
+                )
+            except (OSError, subprocess.SubprocessError):
+                cache[codec.executable] = "version probe failed"
+        probed.append(replace(codec, version=cache[codec.executable]))
+    return probed
 
 
 def resolve_codecs(codec_ids: Iterable[str]) -> List[CodecSpec]:

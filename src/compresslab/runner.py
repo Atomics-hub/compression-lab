@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 from .corpus import load_corpus
+from .codecs import probe_codec_versions
 from .metrics import add_transfer_metrics, median_trials, selector_oracle, summarize
 from .models import BenchmarkRun, CodecSpec, CorpusItem, TrialResult
 
@@ -152,7 +153,11 @@ def _trial(
         selector_ns=int(cmeta.get("selector_ns", 0)),
         selector_stages=int(cmeta.get("selector_stages", 0)),
         selector_sample_bytes=int(cmeta.get("selector_sample_bytes", 0)),
+        sample_ratio=float(cmeta.get("sample_ratio", 0.0)),
+        transformed_sample_ratio=float(cmeta.get("transformed_sample_ratio", 0.0)),
+        selector_reason=str(cmeta.get("selector_reason", "")),
         transform_engine=str(cmeta.get("transform_engine", "")),
+        codec_engine=str(cmeta.get("codec_engine", "")),
         error=error,
     )
 
@@ -194,7 +199,11 @@ def _failed_trial(
         selector_ns=int(cmeta.get("selector_ns", 0)),
         selector_stages=int(cmeta.get("selector_stages", 0)),
         selector_sample_bytes=int(cmeta.get("selector_sample_bytes", 0)),
+        sample_ratio=float(cmeta.get("sample_ratio", 0.0)),
+        transformed_sample_ratio=float(cmeta.get("transformed_sample_ratio", 0.0)),
+        selector_reason=str(cmeta.get("selector_reason", "")),
         transform_engine=str(cmeta.get("transform_engine", "")),
+        codec_engine=str(cmeta.get("codec_engine", "")),
         error=error,
     )
 
@@ -217,6 +226,7 @@ def run_benchmark(
     if not bandwidths_mbps or any(value <= 0 for value in bandwidths_mbps):
         raise ValueError("bandwidths must be positive")
 
+    codecs = probe_codec_versions(codecs)
     items = load_corpus(corpus_root, splits)
     output_dir.mkdir(parents=True, exist_ok=True)
     run_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + "-" + uuid.uuid4().hex[:8]

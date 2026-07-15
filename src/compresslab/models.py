@@ -55,7 +55,11 @@ class TrialResult:
     selector_ns: int = 0
     selector_stages: int = 0
     selector_sample_bytes: int = 0
+    sample_ratio: float = 0.0
+    transformed_sample_ratio: float = 0.0
+    selector_reason: str = ""
     transform_engine: str = ""
+    codec_engine: str = ""
     error: str = ""
 
     def to_dict(self) -> Dict[str, Any]:
