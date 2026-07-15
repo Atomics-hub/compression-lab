@@ -54,7 +54,7 @@ The new stability gates rejected that apparent pass:
 | Compression throughput CV | 40.19% | at most 5% | FAIL |
 | Decompression throughput CV | 41.13% | at most 5% | FAIL |
 | Frontier coverage range | 50.0 pp | at most 5 pp | FAIL |
-| Maximum normalized 1-minute host load | 28.96/core | at most 1.5/core | FAIL |
+| Preflight normalized 1-minute host load | 5.82/core | at most 1.5/core | FAIL |
 
 Adaptive-v2's per-repetition frontier coverage at 100 Mbps was 87.5%, 87.5%,
 87.5%, 100%, 87.5%, 100%, and 50%. Its aggregate compression-throughput
@@ -62,10 +62,12 @@ median was 38.65 MB/s with a 95% bootstrap interval of 35.28–44.88 MB/s, but
 one repetition fell to 5.06 MB/s. Decompression had the same contamination
 pattern, with a 13.61 MB/s minimum versus a 116.14 MB/s median.
 
-Recorded one-minute load average rose from 58.16 at run start to 289.64 at run
-end on a 10-logical-CPU host. macOS reported no thermal or CPU-power warning,
-so shared-machine contention—not a reported thermal throttle—is the supported
-explanation.
+Recorded one-minute load average was already 58.16 at run start on a
+10-logical-CPU host and rose to 289.64 by run end. macOS reported no thermal or
+CPU-power warning, so shared-machine contention—not a reported thermal
+throttle—is the supported explanation. The host gate now evaluates only the
+preflight sample because during-run load average also includes the benchmark's
+own codec work; throughput and frontier CVs detect interference during the run.
 
 CPU telemetry in this specific run should not be used to compare external
 codecs: the worker then counted only its own CPU time. The harness now measures

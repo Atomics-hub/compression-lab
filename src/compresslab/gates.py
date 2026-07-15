@@ -105,7 +105,7 @@ def evaluate_candidate(
         "max_compression_throughput_cv_percent",
         "max_decompression_throughput_cv_percent",
         "max_frontier_coverage_range_percentage_points",
-        "max_normalized_host_load_1m",
+        "max_normalized_preflight_load_1m",
     }
     if stability_requirements.intersection(requirements):
         if stability is None:
@@ -158,27 +158,29 @@ def evaluate_candidate(
                     frontier,
                 )
             )
-        if "max_normalized_host_load_1m" in requirements:
+        if "max_normalized_preflight_load_1m" in requirements:
             cpu_count = int(results.get("system", {}).get("cpu_count") or 0)
             samples = results.get("system", {}).get("state_samples", [])
-            loads = [
-                float(row["load_average_1m_5m_15m"][0])
-                for row in samples
-                if row.get("load_average_1m_5m_15m")
-            ]
-            available = cpu_count > 0 and bool(loads)
-            actual = max(loads) / cpu_count if available else -1.0
+            preflight = next(
+                (row for row in samples if row.get("label") == "run-start"),
+                samples[0] if samples else {},
+            )
+            load = preflight.get("load_average_1m_5m_15m", [])
+            available = cpu_count > 0 and bool(load)
+            actual = float(load[0]) / cpu_count if available else -1.0
             checks.append(
                 _check(
-                    "host_load",
-                    available and actual <= requirements["max_normalized_host_load_1m"],
+                    "preflight_host_load",
+                    available
+                    and actual <= requirements["max_normalized_preflight_load_1m"],
                     actual,
-                    requirements["max_normalized_host_load_1m"],
+                    requirements["max_normalized_preflight_load_1m"],
                     "1m load/core",
                     {
                         "available": available,
                         "cpu_count": cpu_count,
-                        "maximum_load_average_1m": max(loads) if loads else None,
+                        "sample_label": preflight.get("label"),
+                        "load_average_1m": float(load[0]) if load else None,
                     },
                 )
             )

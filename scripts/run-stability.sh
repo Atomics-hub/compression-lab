@@ -5,6 +5,9 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 OUTPUT="${1:-$ROOT/runs/adaptive-v2-public-stability}"
 
 cd "$ROOT"
+scripts/wait-for-quiet-host.py \
+  --gates config/stability-gates.json \
+  --timeout "${COMPRESSION_LAB_PREFLIGHT_TIMEOUT:-600}"
 scripts/fetch-public-starter.py
 scripts/build-native.sh
 

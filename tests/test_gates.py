@@ -55,7 +55,14 @@ class GateTests(unittest.TestCase):
             "system": {
                 "cpu_count": 8,
                 "state_samples": [
-                    {"load_average_1m_5m_15m": [4.0, 3.0, 2.0]}
+                    {
+                        "label": "run-start",
+                        "load_average_1m_5m_15m": [4.0, 3.0, 2.0],
+                    },
+                    {
+                        "label": "run-end",
+                        "load_average_1m_5m_15m": [80.0, 20.0, 10.0],
+                    },
                 ],
             },
             "trials": [
@@ -110,7 +117,7 @@ class GateTests(unittest.TestCase):
                 "max_compression_throughput_cv_percent": 5.0,
                 "max_decompression_throughput_cv_percent": 5.0,
                 "max_frontier_coverage_range_percentage_points": 5.0,
-                "max_normalized_host_load_1m": 1.5,
+                "max_normalized_preflight_load_1m": 1.5,
             }
         }
         report = evaluate_candidate(results, gates, "candidate", 100.0)

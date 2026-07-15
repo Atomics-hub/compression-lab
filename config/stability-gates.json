@@ -12,11 +12,12 @@
     "max_compression_throughput_cv_percent": 5.0,
     "max_decompression_throughput_cv_percent": 5.0,
     "max_frontier_coverage_range_percentage_points": 5.0,
-    "max_normalized_host_load_1m": 1.5
+    "max_normalized_preflight_load_1m": 1.5
   },
   "notes": [
     "Repeatability uses per-repetition aggregate throughput and frontier coverage.",
-    "The host-load ceiling rejects runs collected under severe shared-machine contention.",
+    "The preflight host-load ceiling rejects runs that begin under severe shared-machine contention.",
+    "During-run interference is judged by throughput and frontier repeatability because load average includes the benchmark itself.",
     "Frontier stability is a prerequisite for algorithm tuning, not a market claim."
   ]
 }

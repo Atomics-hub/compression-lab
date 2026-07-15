@@ -54,8 +54,9 @@ gate reports:
 
     scripts/run-stability.sh
 
-The script exits non-zero when a research gate fails; inspect the generated
-gate reports before treating that as an infrastructure error.
+The script waits for three qualifying preflight samples and exits non-zero when
+the quiet window times out or a research gate fails. Inspect the generated gate
+reports before treating that as an infrastructure error.
 
 The run writes:
 
@@ -152,6 +153,12 @@ The first seven-repetition steady-state experiment is recorded in
 docs/benchmarks/2026-07-15-stability.md. It demonstrates why the repeatability
 and host-load gates are required: the median candidate result passed the old
 gate while severe shared-machine contention made that pass unfit for promotion.
+
+The quiet-window decision rerun is recorded in
+docs/benchmarks/2026-07-15-decision-rerun.md. A valid preflight was not enough:
+the unchanged candidate still missed throughput and frontier repeatability, so
+the next benchmark must use calibrated native in-process baselines before the
+private holdout is opened.
 
 ## Current limitations
 
