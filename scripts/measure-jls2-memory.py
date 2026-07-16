@@ -20,6 +20,10 @@ from compresslab.experimental import (  # noqa: E402
     compress_json_log_file,
     decompress_json_log_file,
 )
+from compresslab.json_log_codec import (  # noqa: E402
+    MAX_COMPRESSION_SEGMENT_WORKERS,
+    MAX_DECOMPRESSION_SEGMENT_WORKERS,
+)
 
 
 MAX_RSS_PATTERN = re.compile(r"^\s*(\d+)\s+maximum resident set size\s*$")
@@ -203,6 +207,14 @@ def main() -> int:
     repository = git_state()
     if requirements["require_clean_commit"] and repository["dirty"]:
         raise SystemExit("memory measurement requires a clean commit")
+    compression_workers_passed = (
+        MAX_COMPRESSION_SEGMENT_WORKERS
+        <= requirements["maximum_compression_segment_workers"]
+    )
+    decompression_workers_passed = (
+        MAX_DECOMPRESSION_SEGMENT_WORKERS
+        <= requirements["maximum_decompression_segment_workers"]
+    )
 
     rows = []
     with tempfile.TemporaryDirectory(
@@ -285,11 +297,29 @@ def main() -> int:
         "gates_sha256": sha256_file(gates_path),
         "git": repository,
         "measurement_tool": "/usr/bin/time -l",
+        "pipeline_limits": {
+            "compression_segment_workers": (
+                MAX_COMPRESSION_SEGMENT_WORKERS
+            ),
+            "compression_segment_workers_gate_passed": (
+                compression_workers_passed
+            ),
+            "decompression_segment_workers": (
+                MAX_DECOMPRESSION_SEGMENT_WORKERS
+            ),
+            "decompression_segment_workers_gate_passed": (
+                decompression_workers_passed
+            ),
+        },
         "rows": rows,
-        "all_families_passed": all(
-            row[operation]["gate_passed"]
-            for row in rows
-            for operation in ("compression", "decompression")
+        "all_families_passed": (
+            compression_workers_passed
+            and decompression_workers_passed
+            and all(
+                row[operation]["gate_passed"]
+                for row in rows
+                for operation in ("compression", "decompression")
+            )
         ),
     }
     write_output(output_path, payload)

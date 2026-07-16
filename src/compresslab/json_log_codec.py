@@ -27,6 +27,8 @@ STREAM_HEADER = struct.Struct(">4sBBHQ32s32sI")
 SEGMENT_HEADER = struct.Struct(">QQ")
 DEFAULT_SEGMENT_SIZE = 16 * 1024 * 1024
 ZSTD_LEVEL = 6
+MAX_COMPRESSION_SEGMENT_WORKERS = 2
+MAX_DECOMPRESSION_SEGMENT_WORKERS = 2
 
 TelemetryValue = Union[str, int, float, bool]
 
@@ -554,11 +556,18 @@ def _temporary_output_path(destination_path: Path) -> Path:
 
 
 def _compression_worker_count() -> int:
-    return min(2, max(1, os.cpu_count() or 1))
+    return min(
+        MAX_COMPRESSION_SEGMENT_WORKERS,
+        max(1, os.cpu_count() or 1),
+    )
 
 
 def _decompression_worker_count(segment_count: int) -> int:
-    return min(max(1, segment_count), 2, max(1, os.cpu_count() or 1))
+    return min(
+        max(1, segment_count),
+        MAX_DECOMPRESSION_SEGMENT_WORKERS,
+        max(1, os.cpu_count() or 1),
+    )
 
 
 def decompress_file(
