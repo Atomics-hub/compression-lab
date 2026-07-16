@@ -253,6 +253,15 @@ prototype round-tripped every structured file, but its best per-file policy was
 every file. It was rejected before native or frame integration, leaving
 production code and the private holdout untouched.
 
+The first predictor-seam experiment is recorded in
+docs/benchmarks/2026-07-15-context-xor-predictor.md. A bounded dual-context
+native model produced 69–87% correct top predictions on structured files, but
+XOR residuals grew aggregate output by 26.72%. Separating a bit-packed success
+mask from unchanged miss bytes still lost by 11.38%. The prototype was removed:
+future predictor work must send calibrated distributions directly to an
+arithmetic or ANS coder instead of wrapping top-one predictions around
+Zstandard.
+
 ## Current limitations
 
 - Workers read each file into memory; streaming and random-access tests come
