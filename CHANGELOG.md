@@ -23,6 +23,9 @@ this project uses [Semantic Versioning](https://semver.org/).
   integrity-checked nested frames, exact direct-Zstandard fallback, metadata
   inspection, safe file APIs, and `json-compress`, `json-decompress`, and
   `json-info` commands.
+- Bounded two-segment compression and decompression pipelines, concurrent
+  JSON-column stream compression, a single-segment decode fast path, and a
+  checksummed hosted complete-product benchmark workflow.
 
 ### Security
 

@@ -95,10 +95,13 @@ restored = decompress_json_logs(frame)
 Development-corpus results are promising but are not a public superiority
 claim. The frozen five-family LogTrie training run produced a complete JLS2
 payload 28.90% smaller than zstd-9 and 6.45% smaller than Brotli-11. Blind
-validation, an eligible quiet-host speed run, and independent competitor
-reproduction remain required before promotion. The full protocol and exact
-limits are recorded in
-`docs/benchmarks/2026-07-16-jlc2-native-development-decision.md`.
+validation and independent competitor reproduction remain required before
+promotion. A checksummed hosted development run passed every frozen
+complete-product speed gate at 183.66 MB/s aggregate compression and
+564.59 MB/s aggregate decompression while preserving the exact accepted bytes.
+These rates are reproducibility evidence for the recorded runner, not general
+market claims. The controlling evidence and exact limits are recorded in
+`docs/benchmarks/2026-07-16-jls2-complete-product-speed-decision.md`.
 
 The format contract is in `docs/file-format.md`; security boundaries are in
 `SECURITY.md`. Dependency and benchmark-tool licenses are summarized in

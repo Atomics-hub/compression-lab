@@ -2,11 +2,15 @@
 
 ## Decision
 
-Fail the complete-product speed gate. Keep the accepted JLS2 representation,
-decode optimizations, and frozen thresholds. Do not open blind validation.
+Pass the complete-product development speed and memory gates on the accepted
+JLS2 representation. Keep blind validation sealed until the independent
+log-specific competitor gate is resolved.
 
-Two eligible development runs are retained because they answer different
-questions. Neither is a public throughput claim.
+The earlier failed local runs remain part of the record. They established the
+need for byte-stable scheduling changes and showed that laptop load averages
+were not sufficient to identify macOS background contention. The controlling
+pass came from a fresh hosted runner and remains development evidence, not a
+public throughput or state-of-the-art claim.
 
 ## Frozen gate
 
@@ -68,6 +72,23 @@ A same-host alternating diagnostic showed that two-segment file decode was:
 This diagnostic establishes the direction of the change, not a publishable
 rate.
 
+## Compression scheduling and single-segment decode
+
+Commit `799db691f25ecb37c03a3713dac12465ae9aba5c` additionally:
+
+- compressed the JSON-column skeleton and all value channels in one bounded
+  stream batch;
+- compressed at most two independent JLS2 segments concurrently while
+  preserving source order;
+- retained the complete direct-Zstandard fallback comparison for every
+  segment;
+- avoided thread-pool creation for a one-segment file decode;
+- froze both compression and decompression pipelines at two in-flight
+  segments.
+
+The frame representation did not change. Every accepted encoded size and
+SHA-256 remained exact.
+
 ## Optimized eligible run
 
 Evidence: `runs/jls2-complete-product-quiet-optimized-v2.json`
@@ -93,19 +114,57 @@ times on the same operation varied by up to several multiples across local
 runs even under acceptable reported load. The result remains valid for this
 host and run; it is not evidence that the optimization regressed universally.
 
+## Controlling hosted pass
+
+Evidence: `runs/jls2-complete-product-hosted-development.json`
+
+Workflow:
+`https://github.com/Atomics-hub/compression-lab/actions/runs/29534867956`
+
+The result JSON SHA-256 is
+`7410c415541373950cda7cd9183e3261bf0b1673c9e16f6bee37e81aea6bc88b`.
+The downloaded artifact matched its checksummed files.
+
+The runner was macOS 15.7.7 on a three-logical-CPU Apple M1 virtual machine,
+Python 3.12.10, libzstd 1.5.7, and the native Rust transform. The sustained
+preflight passed at 0.498 normalized load; the run stayed at or below 0.672.
+
+| Family | Compression MB/s | Decompression MB/s |
+| --- | ---: | ---: |
+| Apache | 145.29 | 354.41 |
+| HealthApp | 198.41 | 647.74 |
+| HPC | 188.96 | 623.18 |
+| Mac | 190.74 | 583.84 |
+| ZooKeeper | 153.41 | 413.27 |
+
+Aggregate compression was 183.66 MB/s and aggregate decompression was
+564.59 MB/s. Every speed, integrity, determinism, accepted-byte, clean-commit,
+and repetition gate passed.
+
+Cross-platform CI for the same commit also passed on Linux, macOS, Windows,
+Python 3.9 through 3.14, native wheel installation, packaging, Rust tests, and
+the hostile-frame smoke:
+`https://github.com/Atomics-hub/compression-lab/actions/runs/29534867841`.
+
+## Memory gate
+
+The final bounded-pipeline memory run passed on every family:
+
+`runs/jls2-complete-product-memory-parallel-development.json`
+
+The maximum compression resident set was 386,433,024 bytes on HPC. The maximum
+decompression resident set was 171,409,408 bytes on HPC. Both are below the
+536,870,912-byte ceiling. The evidence also verifies the two-worker
+compression and decompression bounds.
+
 ## Next gate
 
-The post-pipeline memory run passed on every family:
-
-`runs/jls2-complete-product-memory-development.json`
-
-The maximum compression resident set was 307,773,440 bytes on HPC. The maximum
-decompression resident set was 201,621,504 bytes on HPC. Both are below the
-536,870,912-byte ceiling.
-
-1. Obtain a sustained, isolated benchmark host or a long cool window with no
-   unrelated build activity.
-2. Repeat the unchanged five-repetition protocol.
-3. Do not relax thresholds or select only favorable families.
-4. Keep validation sealed until one complete run passes every speed and memory
-   gate and an eligible byte-exact log-specific competitor is reproduced.
+1. Reproduce at least one eligible byte-exact log-specific competitor under
+   its license and official build instructions, or formally establish that no
+   currently auditable candidate satisfies the frozen eligibility rules.
+2. Keep validation sealed until that independent competitor decision is
+   complete.
+3. If the competitor gate passes, freeze this exact candidate and open the
+   three-family public validation split once.
+4. Do not use this development pass as a world-best, market-leading, or public
+   absolute-throughput claim.

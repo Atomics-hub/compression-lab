@@ -1,0 +1,99 @@
+{
+  "accepted_path": "runs/json-log-jlf2-jls2-16m-development.json",
+  "accepted_sha256": "0e289ebeab04b34815522f3cba22fd4cc64ebac8072d90c5ef4d695b79c6182d",
+  "all_families_passed": true,
+  "claim_ceiling": "local complete-product peak-memory development evidence only; validation remains sealed",
+  "gates_path": "config/jls2-memory-gates.json",
+  "gates_sha256": "c9488e0ede2bfe6411dac08a6d5057f17752d5e7a3e9a04cf072376a26439e00",
+  "git": {
+    "commit": "e7f54b6e83624010b63675046bf6c511c8a1083c",
+    "dirty": false
+  },
+  "manifest_path": "corpora/logtrie-train-v1/manifest.json",
+  "manifest_sha256": "d6c71d91cd2995e3efae46353d5d8d94c00f8ee988cc74bdb5c2e45c4d6cbe9f",
+  "measurement_tool": "/usr/bin/time -l",
+  "pipeline_limits": {
+    "compression_segment_workers": 2,
+    "compression_segment_workers_gate_passed": true,
+    "decompression_segment_workers": 2,
+    "decompression_segment_workers_gate_passed": true
+  },
+  "rows": [
+    {
+      "compression": {
+        "gate_passed": true,
+        "maximum_resident_set_bytes": 152813568,
+        "peak_memory_footprint_bytes": 141558456
+      },
+      "decompression": {
+        "gate_passed": true,
+        "maximum_resident_set_bytes": 71696384,
+        "peak_memory_footprint_bytes": 60375520
+      },
+      "encoded_bytes": 178101,
+      "family": "apache",
+      "original_bytes": 8987867
+    },
+    {
+      "compression": {
+        "gate_passed": true,
+        "maximum_resident_set_bytes": 370622464,
+        "peak_memory_footprint_bytes": 359433128
+      },
+      "decompression": {
+        "gate_passed": true,
+        "maximum_resident_set_bytes": 162103296,
+        "peak_memory_footprint_bytes": 150897264
+      },
+      "encoded_bytes": 1005536,
+      "family": "healthapp",
+      "original_bytes": 31769372
+    },
+    {
+      "compression": {
+        "gate_passed": true,
+        "maximum_resident_set_bytes": 386433024,
+        "peak_memory_footprint_bytes": 375276384
+      },
+      "decompression": {
+        "gate_passed": true,
+        "maximum_resident_set_bytes": 171409408,
+        "peak_memory_footprint_bytes": 160219784
+      },
+      "encoded_bytes": 624163,
+      "family": "hpc",
+      "original_bytes": 49307346
+    },
+    {
+      "compression": {
+        "gate_passed": true,
+        "maximum_resident_set_bytes": 289177600,
+        "peak_memory_footprint_bytes": 277971736
+      },
+      "decompression": {
+        "gate_passed": true,
+        "maximum_resident_set_bytes": 133447680,
+        "peak_memory_footprint_bytes": 122208832
+      },
+      "encoded_bytes": 687763,
+      "family": "mac",
+      "original_bytes": 23216852
+    },
+    {
+      "compression": {
+        "gate_passed": true,
+        "maximum_resident_set_bytes": 179011584,
+        "peak_memory_footprint_bytes": 167756472
+      },
+      "decompression": {
+        "gate_passed": true,
+        "maximum_resident_set_bytes": 82919424,
+        "peak_memory_footprint_bytes": 71614968
+      },
+      "encoded_bytes": 197750,
+      "family": "zookeeper",
+      "original_bytes": 11333428
+    }
+  ],
+  "schema_version": 1
+}
