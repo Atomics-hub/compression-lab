@@ -81,3 +81,28 @@ jobs:
           name: compression-lab-distributions
           path: dist/*
           if-no-files-found: error
+
+  wheel-smoke:
+    name: Install native wheel / ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-15, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: python -m pip install cibuildwheel==3.4.1
+      - name: Build and test one native wheel
+        run: python -m cibuildwheel --output-dir wheelhouse
+        env:
+          CIBW_ARCHS: native
+          CIBW_BUILD: cp312-*
+      - uses: actions/upload-artifact@v7
+        with:
+          name: wheel-smoke-${{ runner.os }}
+          path: wheelhouse/*.whl
+          if-no-files-found: error

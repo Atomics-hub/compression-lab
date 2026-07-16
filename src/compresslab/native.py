@@ -37,7 +37,18 @@ def _library_path() -> Path:
     if packaged.is_file():
         return packaged
     repository = Path(__file__).resolve().parents[2]
-    return repository / "native" / "target" / "release" / _library_filename()
+    target = repository / "native" / "target"
+    default = target / "release" / _library_filename()
+    if default.is_file() or sys.platform != "darwin":
+        return default
+    machine = os.uname().machine.lower()
+    triple = (
+        "aarch64-apple-darwin"
+        if machine in {"arm64", "aarch64"}
+        else "x86_64-apple-darwin"
+    )
+    cross_compiled = target / triple / "release" / _library_filename()
+    return cross_compiled if cross_compiled.is_file() else default
 
 
 def _load_library() -> Optional[ctypes.CDLL]:
