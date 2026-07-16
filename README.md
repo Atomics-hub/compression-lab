@@ -262,6 +262,14 @@ future predictor work must send calibrated distributions directly to an
 arithmetic or ANS coder instead of wrapping top-one predictions around
 Zstandard.
 
+The calibrated-distribution follow-up is recorded in
+docs/benchmarks/2026-07-15-multi-order-probability-model.md. A normalized,
+bounded order-0-through-8 model projected 0.92% fewer bytes than direct zstd-3
+on the five structured files, but remained 2.78% larger than STX1, grew the
+complete public corpus by 1.66%, and scanned at only about 1.50 MB/s. It failed
+the predeclared integration gate, so no arithmetic or ANS format was added and
+the temporary prototype was removed.
+
 ## Current limitations
 
 - Workers read each file into memory; streaming and random-access tests come
