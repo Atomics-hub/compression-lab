@@ -71,6 +71,9 @@ class PublicApiTests(unittest.TestCase):
         self.assertEqual(compresslab.inspect_frame(encoded).version, 1)
         self.assertEqual(compresslab.decompress(encoded), source)
 
+        with self.assertRaisesRegex(ValueError, "invalid compression-lab payload"):
+            compresslab.decompress(encoded[:-1])
+
     def test_file_helpers_are_atomic_and_refuse_implicit_overwrite(self):
         self.require_v3()
         with tempfile.TemporaryDirectory() as directory:

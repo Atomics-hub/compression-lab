@@ -28,3 +28,8 @@ expected object size.
 The current 0.x file API reads complete files into memory. Do not use it as an
 archive extractor or assume that it sanitizes paths inside another container.
 The format provides integrity detection, not encryption or authenticity.
+
+Every pull request runs deterministic truncation, bit-mutation, plausible-frame,
+and allocation-limit tests plus a 5,000-case mutational fuzz smoke. A scheduled
+workflow expands that to 100,000 hostile frames against valid version 1, 2, and
+3 seeds. These checks reduce risk but are not a security proof.

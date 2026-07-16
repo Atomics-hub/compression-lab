@@ -12,6 +12,7 @@ import os
 from pathlib import Path
 import tempfile
 from typing import Any, Optional, Union
+import zlib
 
 from .adaptive_v3 import (
     BACKEND_SEGMENTED,
@@ -154,7 +155,10 @@ def decompress(
     _validate_output_limit(0, max_output_size)
     info = inspect_frame(frame)
     _validate_output_limit(info.original_size, max_output_size)
-    restored, _ = _adaptive_decompress(frame, max_output_size=max_output_size)
+    try:
+        restored, _ = _adaptive_decompress(frame, max_output_size=max_output_size)
+    except (EOFError, OSError, zlib.error) as error:
+        raise ValueError(f"invalid compression-lab payload: {error}") from error
     return restored
 
 

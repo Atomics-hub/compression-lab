@@ -45,6 +45,9 @@ jobs:
         run: cargo test --manifest-path native/Cargo.toml --release --locked
       - name: Test Python package
         run: python -W error::ResourceWarning -m unittest discover -s tests -v
+      - name: Run hostile-frame fuzz smoke
+        if: matrix.os == 'ubuntu-latest'
+        run: python scripts/fuzz_frames.py --iterations 5000 --seed 20260716
 
   python-compatibility:
     name: Python ${{ matrix.python }} compatibility
