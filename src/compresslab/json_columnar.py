@@ -360,14 +360,14 @@ def _worker_count(stream_count: int) -> int:
     return min(stream_count, max(1, os.cpu_count() or 1))
 
 
-def _compress_channels(channels: List[bytes], level: int) -> List[bytes]:
-    if len(channels) < 2:
-        return [zstd_compress(channel, level=level) for channel in channels]
-    with ThreadPoolExecutor(max_workers=_worker_count(len(channels))) as executor:
+def _compress_streams(streams: List[bytes], level: int) -> List[bytes]:
+    if len(streams) < 2:
+        return [zstd_compress(stream, level=level) for stream in streams]
+    with ThreadPoolExecutor(max_workers=_worker_count(len(streams))) as executor:
         return list(
             executor.map(
-                lambda channel: zstd_compress(channel, level=level),
-                channels,
+                lambda stream: zstd_compress(stream, level=level),
+                streams,
             )
         )
 
@@ -396,8 +396,9 @@ def compress(
     level: int = 3,
 ) -> Tuple[bytes, Dict[str, TelemetryValue]]:
     skeleton, channels, telemetry = transform(data)
-    skeleton_payload = zstd_compress(skeleton, level=level)
-    channel_payloads = _compress_channels(channels, level)
+    compressed_streams = _compress_streams([skeleton, *channels], level)
+    skeleton_payload = compressed_streams[0]
+    channel_payloads = compressed_streams[1:]
     output = bytearray(
         HEADER.pack(
             MAGIC,
@@ -420,6 +421,7 @@ def compress(
         "skeleton_payload_bytes": len(skeleton_payload),
         "channel_payload_bytes": sum(len(payload) for payload in channel_payloads),
         "channel_workers": _worker_count(len(channels)),
+        "stream_workers": _worker_count(1 + len(channels)),
         "zstd_level": level,
     }
 

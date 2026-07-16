@@ -301,11 +301,16 @@ def compress_file(
                     0,
                 )
             )
-            for segment in _file_segments(source, segment_size):
-                digest.update(segment)
-                original_size += len(segment)
-                encoded, detail = compress_frame(segment)
-                segment_header = SEGMENT_HEADER.pack(len(segment), len(encoded))
+
+            pending: deque[Tuple[int, Future[Tuple[bytes, Dict[str, TelemetryValue]]]]] = (
+                deque()
+            )
+
+            def write_next() -> None:
+                nonlocal segment_count, direct_segments
+                source_size, future = pending.popleft()
+                encoded, detail = future.result()
+                segment_header = SEGMENT_HEADER.pack(source_size, len(encoded))
                 output.write(segment_header)
                 output.write(encoded)
                 encoded_digest.update(segment_header)
@@ -313,6 +318,22 @@ def compress_file(
                 segment_count += 1
                 if detail["selected_mode"] == "direct":
                     direct_segments += 1
+
+            workers = _compression_worker_count()
+            with ThreadPoolExecutor(max_workers=workers) as executor:
+                for segment in _file_segments(source, segment_size):
+                    digest.update(segment)
+                    original_size += len(segment)
+                    pending.append(
+                        (
+                            len(segment),
+                            executor.submit(compress_frame, segment),
+                        )
+                    )
+                    if len(pending) >= workers:
+                        write_next()
+                while pending:
+                    write_next()
             output.seek(0)
             output.write(
                 STREAM_HEADER.pack(
@@ -530,6 +551,10 @@ def _temporary_output_path(destination_path: Path) -> Path:
     )
     os.close(descriptor)
     return Path(temporary_name)
+
+
+def _compression_worker_count() -> int:
+    return min(2, max(1, os.cpu_count() or 1))
 
 
 def _decompression_worker_count(segment_count: int) -> int:
