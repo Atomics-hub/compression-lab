@@ -12,11 +12,13 @@ from compresslab.native import (
     zstd_decompress,
 )
 from compresslab.structured_text import (
+    CHANNEL_HEADER,
     DICTIONARY_SAMPLE_BYTES,
     HEADER,
     MAGIC,
     _ranked_dictionary,
     decode,
+    decode_channelized,
     encode_best,
     encode_with_dictionary,
 )
@@ -49,6 +51,42 @@ class StructuredTextTransformTests(unittest.TestCase):
         transformed = zstd_decompress(payload, detail["transformed_size"])
         self.assertEqual(decode(transformed, len(source)), source)
         self.assertGreater(detail["dictionary_tokens"], 0)
+
+    def test_json_channel_candidate_is_smaller_and_rejects_corruption(self):
+        if not native_available():
+            self.skipTest("native library has not been built")
+        rows = (
+            (
+                '  {\n    "TrackId": %d,\n'
+                '    "Name": "Track number %d unique title %08x",\n'
+                '    "Composer": "Composer %d",\n'
+                '    "Milliseconds": %d,\n    "Bytes": %d,\n'
+                '    "UnitPrice": %.2f\n  }'
+                % (index, index, index * 2654435761 & 0xFFFFFFFF,
+                   index % 997, 180000 + index * 17,
+                   1000000 + index * 7919, 0.49 + (index % 10) * 0.1)
+            ).encode("ascii")
+            for index in range(5000)
+        )
+        source = b"[\n" + b",\n".join(rows) + b"\n]"
+        candidate = encode_best(source, lambda data: zstd_compress(data, level=3))
+        self.assertIsNotNone(candidate)
+        payload, detail = candidate
+        self.assertEqual(detail["representation"], "channelized")
+        transformed = native_encode(
+            source, detail["dictionary_tokens"], DICTIONARY_SAMPLE_BYTES
+        )
+        interleaved_size = 8 + len(zstd_compress(transformed, level=3))
+        self.assertLess(len(payload), interleaved_size)
+        self.assertEqual(
+            decode_channelized(payload, len(source), zstd_decompress), source
+        )
+        with self.assertRaises(ValueError):
+            decode_channelized(payload[: CHANNEL_HEADER.size - 1], len(source), zstd_decompress)
+        malformed = bytearray(payload)
+        malformed[8:12] = (len(transformed) + 1).to_bytes(4, "big")
+        with self.assertRaises(ValueError):
+            decode_channelized(bytes(malformed), len(source), zstd_decompress)
 
     def test_native_transform_matches_python_reference(self):
         if not native_available():

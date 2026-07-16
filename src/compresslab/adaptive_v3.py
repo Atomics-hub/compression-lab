@@ -9,6 +9,7 @@ import zlib
 
 from .structured_text import (
     MAX_HEADER_SIZE as STRUCTURED_TEXT_MAX_HEADER_SIZE,
+    decode_channelized as decode_structured_text_channelized,
     decode as decode_structured_text,
     encode_best as encode_structured_text,
 )
@@ -29,12 +30,14 @@ RECIPE_STORE = 0
 RECIPE_ZSTD_3 = 1
 RECIPE_DELTA_TRANSPOSE_ZSTD_3 = 2
 RECIPE_STRUCTURED_TEXT_ZSTD_3 = 3
+RECIPE_STRUCTURED_TEXT_CHANNEL_ZSTD_3 = 4
 
 _RECIPE_NAMES = {
     RECIPE_STORE: "store",
     RECIPE_ZSTD_3: "zstd-3",
     RECIPE_DELTA_TRANSPOSE_ZSTD_3: "delta-transpose+zstd-3",
     RECIPE_STRUCTURED_TEXT_ZSTD_3: "structured-text+zstd-3",
+    RECIPE_STRUCTURED_TEXT_CHANNEL_ZSTD_3: "structured-text-channel+zstd-3",
 }
 
 Encoder = Callable[[bytes], bytes]
@@ -148,12 +151,16 @@ def compress(
         selector_reason = "whole-zstd-fallback"
 
         transformed_payload, structured_detail = structured
-        transformed_payload = (
-            TRANSFORMED_SIZE.pack(structured_detail["transformed_size"])
-            + transformed_payload
-        )
+        if structured_detail["representation"] == "channelized":
+            structured_recipe = RECIPE_STRUCTURED_TEXT_CHANNEL_ZSTD_3
+        else:
+            structured_recipe = RECIPE_STRUCTURED_TEXT_ZSTD_3
+            transformed_payload = (
+                TRANSFORMED_SIZE.pack(structured_detail["transformed_size"])
+                + transformed_payload
+            )
         transformed_segments = [
-            (RECIPE_STRUCTURED_TEXT_ZSTD_3, data, transformed_payload)
+            (structured_recipe, data, transformed_payload)
         ]
         transformed_frame = _pack_frame(data, transformed_segments)
         structured_dictionary_tokens = 0
@@ -181,9 +188,13 @@ def compress(
             "candidate_segment_count": 1,
             "transformed_segments": recipe_counts[
                 RECIPE_STRUCTURED_TEXT_ZSTD_3
-            ],
-            "structured_text_segments": recipe_counts[
-                RECIPE_STRUCTURED_TEXT_ZSTD_3
+            ] + recipe_counts[RECIPE_STRUCTURED_TEXT_CHANNEL_ZSTD_3],
+            "structured_text_segments": (
+                recipe_counts[RECIPE_STRUCTURED_TEXT_ZSTD_3]
+                + recipe_counts[RECIPE_STRUCTURED_TEXT_CHANNEL_ZSTD_3]
+            ),
+            "structured_channel_segments": recipe_counts[
+                RECIPE_STRUCTURED_TEXT_CHANNEL_ZSTD_3
             ],
             "structured_dictionary_tokens": structured_dictionary_tokens,
             "structured_candidate_count": structured_detail["candidate_count"],
@@ -255,8 +266,15 @@ def compress(
         "transformed_segments": (
             recipe_counts[RECIPE_DELTA_TRANSPOSE_ZSTD_3]
             + recipe_counts[RECIPE_STRUCTURED_TEXT_ZSTD_3]
+            + recipe_counts[RECIPE_STRUCTURED_TEXT_CHANNEL_ZSTD_3]
         ),
-        "structured_text_segments": recipe_counts[RECIPE_STRUCTURED_TEXT_ZSTD_3],
+        "structured_text_segments": (
+            recipe_counts[RECIPE_STRUCTURED_TEXT_ZSTD_3]
+            + recipe_counts[RECIPE_STRUCTURED_TEXT_CHANNEL_ZSTD_3]
+        ),
+        "structured_channel_segments": recipe_counts[
+            RECIPE_STRUCTURED_TEXT_CHANNEL_ZSTD_3
+        ],
         "structured_dictionary_tokens": structured_dictionary_tokens,
         "structured_candidate_count": structured_candidate_count,
         "stored_segments": recipe_counts[RECIPE_STORE],
@@ -348,6 +366,10 @@ def decompress(
             else:
                 transformed = zstd_decode(compressed_transform, transformed_size)
                 segment = decode_structured_text(transformed, segment_size)
+        elif recipe == RECIPE_STRUCTURED_TEXT_CHANNEL_ZSTD_3:
+            segment = decode_structured_text_channelized(
+                payload, segment_size, zstd_decode
+            )
         else:
             raise ValueError(f"unsupported adaptive-v3 segment recipe: {recipe}")
         segment_end = output_pos + segment_size
@@ -385,7 +407,14 @@ def decompress(
         "transformed_segments": (
             recipe_counts[RECIPE_DELTA_TRANSPOSE_ZSTD_3]
             + recipe_counts[RECIPE_STRUCTURED_TEXT_ZSTD_3]
+            + recipe_counts[RECIPE_STRUCTURED_TEXT_CHANNEL_ZSTD_3]
         ),
-        "structured_text_segments": recipe_counts[RECIPE_STRUCTURED_TEXT_ZSTD_3],
+        "structured_text_segments": (
+            recipe_counts[RECIPE_STRUCTURED_TEXT_ZSTD_3]
+            + recipe_counts[RECIPE_STRUCTURED_TEXT_CHANNEL_ZSTD_3]
+        ),
+        "structured_channel_segments": recipe_counts[
+            RECIPE_STRUCTURED_TEXT_CHANNEL_ZSTD_3
+        ],
         "stored_segments": recipe_counts[RECIPE_STORE],
     }

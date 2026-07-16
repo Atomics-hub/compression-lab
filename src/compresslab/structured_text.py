@@ -8,12 +8,15 @@ from typing import Callable, Dict, List, Optional, Tuple
 from .native import (
     native_available,
     structured_text_decode as native_decode,
+    structured_text_decode_channels as native_decode_channels,
     structured_text_encode as native_encode,
+    structured_text_split_channels as native_split_channels,
 )
 
 
 MAGIC = b"STX1"
 HEADER = struct.Struct(">4sH")
+CHANNEL_HEADER = struct.Struct(">QII")
 TOKEN = re.compile(rb"[A-Za-z_][A-Za-z0-9_]{2,63}")
 MARKER = 0xFF
 ESCAPED_MARKER = 0xFE
@@ -25,6 +28,7 @@ JSON_DICTIONARY_TOKENS = 128
 DICTIONARY_SAMPLE_BYTES = 1024 * 1024
 
 Encoder = Callable[[bytes], bytes]
+TRANSFORMED_SIZE = struct.Struct(">Q")
 
 
 def _token_continue(value: int) -> bool:
@@ -99,6 +103,57 @@ def _dictionary_limit(data: bytes) -> int:
     return MAX_DICTIONARY_TOKENS
 
 
+def _is_json_document(data: bytes) -> bool:
+    return data[:4096].lstrip()[:1] in {b"[", b"{"}
+
+
+def encode_channelized(
+    transformed: bytes,
+    zstd_encode: Encoder,
+) -> bytes:
+    if not native_available():
+        raise RuntimeError("channelized structured text requires the native library")
+    skeleton, side = native_split_channels(transformed)
+    if not side or len(skeleton) + len(side) != len(transformed):
+        raise ValueError("structured-text channels are inconsistent")
+    skeleton_payload = zstd_encode(skeleton)
+    side_payload = zstd_encode(side)
+    return (
+        CHANNEL_HEADER.pack(
+            len(transformed), len(skeleton), len(skeleton_payload)
+        )
+        + skeleton_payload
+        + side_payload
+    )
+
+
+def decode_channelized(
+    data: bytes,
+    expected_size: int,
+    zstd_decode: Callable[[bytes, int], bytes],
+) -> bytes:
+    if not native_available():
+        raise RuntimeError("channelized structured text requires the native library")
+    if len(data) < CHANNEL_HEADER.size:
+        raise ValueError("structured-text channel header is truncated")
+    transformed_size, skeleton_size, skeleton_payload_size = (
+        CHANNEL_HEADER.unpack(data[: CHANNEL_HEADER.size])
+    )
+    maximum_size = expected_size * 2 + MAX_HEADER_SIZE
+    if transformed_size > maximum_size or skeleton_size > transformed_size:
+        raise ValueError("structured-text channel size is invalid")
+    side_size = transformed_size - skeleton_size
+    if side_size == 0 or skeleton_payload_size == 0:
+        raise ValueError("structured-text channel is empty")
+    payload_offset = CHANNEL_HEADER.size
+    payload_end = payload_offset + skeleton_payload_size
+    if payload_end >= len(data):
+        raise ValueError("structured-text channel boundary is invalid")
+    skeleton = zstd_decode(data[payload_offset:payload_end], skeleton_size)
+    side = zstd_decode(data[payload_end:], side_size)
+    return native_decode_channels(skeleton, side, expected_size)
+
+
 def encode_with_dictionary(data: bytes, dictionary: List[bytes]) -> bytes:
     if len(dictionary) > MAX_DICTIONARY_TOKENS:
         raise ValueError("structured-text dictionary is too large")
@@ -133,7 +188,7 @@ def encode_with_dictionary(data: bytes, dictionary: List[bytes]) -> bytes:
 def encode_best(
     data: bytes,
     zstd_encode: Encoder,
-) -> Optional[Tuple[bytes, Dict[str, int]]]:
+) -> Optional[Tuple[bytes, Dict[str, object]]]:
     if not is_likely_structured_text(data):
         return None
     limit = _dictionary_limit(data)
@@ -148,10 +203,29 @@ def encode_best(
         transformed = encode_with_dictionary(data, dictionary)
     if dictionary_size == 0:
         return None
-    return zstd_encode(transformed), {
+    interleaved_payload = zstd_encode(transformed)
+    representation = "interleaved"
+    payload = interleaved_payload
+    candidate_count = 1
+    skeleton_size = 0
+    side_size = 0
+    if _is_json_document(data) and native_available():
+        candidate_count += 1
+        channel_payload = encode_channelized(transformed, zstd_encode)
+        if len(channel_payload) < TRANSFORMED_SIZE.size + len(interleaved_payload):
+            payload = channel_payload
+            representation = "channelized"
+            _, skeleton_size, _ = CHANNEL_HEADER.unpack(
+                channel_payload[: CHANNEL_HEADER.size]
+            )
+            side_size = len(transformed) - skeleton_size
+    return payload, {
         "dictionary_tokens": dictionary_size,
         "transformed_size": len(transformed),
-        "candidate_count": 1,
+        "candidate_count": candidate_count,
+        "representation": representation,
+        "skeleton_size": skeleton_size,
+        "side_size": side_size,
     }
 
 

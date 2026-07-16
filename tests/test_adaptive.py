@@ -242,6 +242,38 @@ class AdaptiveFrameTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             _adaptive_decompress(bytes(corrupted))
 
+    def test_v3_selects_channelized_structured_text_for_json(self):
+        self.require_v3()
+        rows = (
+            (
+                '  {\n    "TrackId": %d,\n'
+                '    "Name": "Track number %d unique title %08x",\n'
+                '    "Composer": "Composer %d",\n'
+                '    "Milliseconds": %d,\n    "Bytes": %d,\n'
+                '    "UnitPrice": %.2f\n  }'
+                % (index, index, index * 2654435761 & 0xFFFFFFFF,
+                   index % 997, 180000 + index * 17,
+                   1000000 + index * 7919, 0.49 + (index % 10) * 0.1)
+            ).encode("ascii")
+            for index in range(5000)
+        )
+        source = b"[\n" + b",\n".join(rows) + b"\n]"
+        encoded, detail = _adaptive_v3_compress(source)
+        restored, decoded = _adaptive_decompress(encoded)
+
+        self.assertEqual(restored, source)
+        self.assertEqual(detail["selector_reason"], "whole-structured-text-smaller")
+        self.assertEqual(detail["structured_channel_segments"], 1)
+        self.assertEqual(decoded["structured_channel_segments"], 1)
+
+        corrupted = bytearray(encoded)
+        first_payload = (
+            V3_FRAME_HEADER.size + V3_SEGMENT_COUNT.size + V3_SEGMENT_HEADER.size
+        )
+        corrupted[first_payload] = 0xFF
+        with self.assertRaises(ValueError):
+            _adaptive_decompress(bytes(corrupted))
+
 
 if __name__ == "__main__":
     unittest.main()

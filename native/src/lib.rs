@@ -250,6 +250,119 @@ fn decode_structured_text(data: &[u8], expected_size: usize) -> Option<Vec<u8>> 
     (output.len() == expected_size).then_some(output)
 }
 
+fn structured_text_dictionary_end(data: &[u8]) -> Option<(usize, usize)> {
+    if data.len() < 6 || &data[..4] != STX_MAGIC {
+        return None;
+    }
+    let count = u16::from_be_bytes([data[4], data[5]]) as usize;
+    if count > STX_MAX_DICTIONARY {
+        return None;
+    }
+    let mut offset = 6;
+    let mut dictionary: Vec<&[u8]> = Vec::with_capacity(count);
+    for _ in 0..count {
+        let size = *data.get(offset)? as usize;
+        offset += 1;
+        let token = data.get(offset..offset.checked_add(size)?)?;
+        offset += size;
+        if !valid_dictionary_token(token) || dictionary.contains(&token) {
+            return None;
+        }
+        dictionary.push(token);
+    }
+    Some((offset, count))
+}
+
+fn split_structured_text_channels(data: &[u8]) -> Option<(Vec<u8>, Vec<u8>)> {
+    let (body_start, dictionary_count) = structured_text_dictionary_end(data)?;
+    let mut skeleton = Vec::with_capacity(data.len());
+    skeleton.extend_from_slice(&data[..body_start]);
+    let mut side = Vec::new();
+    let mut offset = body_start;
+    while offset < data.len() {
+        let value = data[offset];
+        offset += 1;
+        skeleton.push(value);
+        if value != STX_MARKER {
+            continue;
+        }
+        let code = *data.get(offset)?;
+        offset += 1;
+        if code != STX_ESCAPED_MARKER && code as usize >= dictionary_count {
+            return None;
+        }
+        side.push(code);
+    }
+    Some((skeleton, side))
+}
+
+#[cfg(test)]
+fn join_structured_text_channels(
+    skeleton: &[u8],
+    side: &[u8],
+    expected_size: usize,
+) -> Option<Vec<u8>> {
+    let (body_start, dictionary_count) = structured_text_dictionary_end(skeleton)?;
+    if skeleton.len().checked_add(side.len())? != expected_size {
+        return None;
+    }
+    let mut transformed = Vec::with_capacity(expected_size);
+    transformed.extend_from_slice(&skeleton[..body_start]);
+    let mut side_offset = 0;
+    for &value in &skeleton[body_start..] {
+        transformed.push(value);
+        if value != STX_MARKER {
+            continue;
+        }
+        let code = *side.get(side_offset)?;
+        side_offset += 1;
+        if code != STX_ESCAPED_MARKER && code as usize >= dictionary_count {
+            return None;
+        }
+        transformed.push(code);
+    }
+    (side_offset == side.len()).then_some(transformed)
+}
+
+fn decode_structured_text_channels(
+    skeleton: &[u8],
+    side: &[u8],
+    expected_size: usize,
+) -> Option<Vec<u8>> {
+    let (body_start, dictionary_count) = structured_text_dictionary_end(skeleton)?;
+    let mut dictionary: Vec<&[u8]> = Vec::with_capacity(dictionary_count);
+    let mut offset = 6;
+    for _ in 0..dictionary_count {
+        let size = skeleton[offset] as usize;
+        offset += 1;
+        dictionary.push(&skeleton[offset..offset + size]);
+        offset += size;
+    }
+    let mut output = Vec::with_capacity(expected_size);
+    let mut side_offset = 0;
+    for &value in &skeleton[body_start..] {
+        if value != STX_MARKER {
+            if output.len() == expected_size {
+                return None;
+            }
+            output.push(value);
+            continue;
+        }
+        let code = *side.get(side_offset)?;
+        side_offset += 1;
+        let token = if code == STX_ESCAPED_MARKER {
+            &[STX_MARKER][..]
+        } else {
+            *dictionary.get(code as usize)?
+        };
+        if token.len() > expected_size.saturating_sub(output.len()) {
+            return None;
+        }
+        output.extend_from_slice(token);
+    }
+    (side_offset == side.len() && output.len() == expected_size).then_some(output)
+}
+
 struct StreamingTextDecoder {
     expected_size: usize,
     output_pos: usize,
@@ -611,6 +724,64 @@ pub unsafe extern "C" fn clab_structured_text_decode(
 }
 
 #[no_mangle]
+pub unsafe extern "C" fn clab_structured_text_split_channels(
+    input: *const u8,
+    len: usize,
+    skeleton_output: *mut u8,
+    skeleton_capacity: usize,
+    skeleton_len: *mut usize,
+    side_output: *mut u8,
+    side_capacity: usize,
+    side_len: *mut usize,
+) -> i32 {
+    if ((input.is_null() || skeleton_output.is_null() || side_output.is_null()) && len != 0)
+        || skeleton_len.is_null()
+        || side_len.is_null()
+    {
+        return NULL_POINTER;
+    }
+    let source = slice::from_raw_parts(input, len);
+    let Some((skeleton, side)) = split_structured_text_channels(source) else {
+        return INVALID_INPUT;
+    };
+    if skeleton.len() > skeleton_capacity || side.len() > side_capacity {
+        return OUTPUT_TOO_SMALL;
+    }
+    slice::from_raw_parts_mut(skeleton_output, skeleton_capacity)[..skeleton.len()]
+        .copy_from_slice(&skeleton);
+    slice::from_raw_parts_mut(side_output, side_capacity)[..side.len()].copy_from_slice(&side);
+    *skeleton_len = skeleton.len();
+    *side_len = side.len();
+    OK
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn clab_structured_text_decode_channels(
+    skeleton: *const u8,
+    skeleton_len: usize,
+    side: *const u8,
+    side_len: usize,
+    output: *mut u8,
+    expected_size: usize,
+) -> i32 {
+    if ((skeleton.is_null() || output.is_null()) && skeleton_len != 0)
+        || (side.is_null() && side_len != 0)
+        || (output.is_null() && expected_size != 0)
+    {
+        return NULL_POINTER;
+    }
+    let skeleton_source = slice::from_raw_parts(skeleton, skeleton_len);
+    let side_source = slice::from_raw_parts(side, side_len);
+    let Some(decoded) =
+        decode_structured_text_channels(skeleton_source, side_source, expected_size)
+    else {
+        return INVALID_INPUT;
+    };
+    slice::from_raw_parts_mut(output, expected_size).copy_from_slice(&decoded);
+    OK
+}
+
+#[no_mangle]
 pub unsafe extern "C" fn clab_delta_transpose(
     input: *const u8,
     len: usize,
@@ -723,5 +894,31 @@ mod tests {
         }
         assert!(decoder.finish());
         assert_eq!(output, source);
+    }
+
+    #[test]
+    fn structured_text_channels_round_trip_and_reject_invalid_side_data() {
+        let source = b"alpha_token beta_token alpha_token \xff tail";
+        let transformed = encode_structured_text(source, 16, usize::MAX);
+        let (skeleton, side) = split_structured_text_channels(&transformed).unwrap();
+        assert!(skeleton.len() < transformed.len());
+        assert_eq!(
+            join_structured_text_channels(&skeleton, &side, transformed.len()).unwrap(),
+            transformed
+        );
+        assert_eq!(
+            decode_structured_text_channels(&skeleton, &side, source.len()).unwrap(),
+            source
+        );
+        assert!(join_structured_text_channels(
+            &skeleton,
+            &side[..side.len() - 1],
+            transformed.len()
+        )
+        .is_none());
+        let mut invalid = side.clone();
+        invalid[0] = 0xff;
+        assert!(join_structured_text_channels(&skeleton, &invalid, transformed.len()).is_none());
+        assert!(decode_structured_text_channels(&skeleton, &invalid, source.len()).is_none());
     }
 }

@@ -65,6 +65,26 @@ def _load_library() -> Optional[ctypes.CDLL]:
         ctypes.c_size_t,
     ]
     library.clab_structured_text_decode.restype = ctypes.c_int
+    library.clab_structured_text_split_channels.argtypes = [
+        ctypes.c_void_p,
+        ctypes.c_size_t,
+        ctypes.c_void_p,
+        ctypes.c_size_t,
+        ctypes.POINTER(ctypes.c_size_t),
+        ctypes.c_void_p,
+        ctypes.c_size_t,
+        ctypes.POINTER(ctypes.c_size_t),
+    ]
+    library.clab_structured_text_split_channels.restype = ctypes.c_int
+    library.clab_structured_text_decode_channels.argtypes = [
+        ctypes.c_void_p,
+        ctypes.c_size_t,
+        ctypes.c_void_p,
+        ctypes.c_size_t,
+        ctypes.c_void_p,
+        ctypes.c_size_t,
+    ]
+    library.clab_structured_text_decode_channels.restype = ctypes.c_int
     library.clab_structured_text_decoder_create.argtypes = [ctypes.c_size_t]
     library.clab_structured_text_decoder_create.restype = ctypes.c_void_p
     library.clab_structured_text_decoder_update.argtypes = [
@@ -158,6 +178,61 @@ def structured_text_decode(data: bytes, expected_size: int) -> bytes:
     )
     if result != 0:
         raise ValueError(f"native structured-text decode failed with status {result}")
+    return output.raw[:expected_size]
+
+
+def structured_text_split_channels(data: bytes) -> Tuple[bytes, bytes]:
+    library = _load_library()
+    if library is None:
+        raise RuntimeError("native compression library is unavailable")
+    source = ctypes.create_string_buffer(data, max(1, len(data)))
+    skeleton = ctypes.create_string_buffer(max(1, len(data)))
+    side = ctypes.create_string_buffer(max(1, len(data)))
+    skeleton_len = ctypes.c_size_t()
+    side_len = ctypes.c_size_t()
+    result = library.clab_structured_text_split_channels(
+        source,
+        len(data),
+        skeleton,
+        len(data),
+        ctypes.byref(skeleton_len),
+        side,
+        len(data),
+        ctypes.byref(side_len),
+    )
+    if result != 0:
+        raise ValueError(
+            f"native structured-text channel split failed with status {result}"
+        )
+    return (
+        skeleton.raw[: skeleton_len.value],
+        side.raw[: side_len.value],
+    )
+
+
+def structured_text_decode_channels(
+    skeleton: bytes, side: bytes, expected_size: int
+) -> bytes:
+    library = _load_library()
+    if library is None:
+        raise RuntimeError("native compression library is unavailable")
+    skeleton_source = ctypes.create_string_buffer(
+        skeleton, max(1, len(skeleton))
+    )
+    side_source = ctypes.create_string_buffer(side, max(1, len(side)))
+    output = ctypes.create_string_buffer(max(1, expected_size))
+    result = library.clab_structured_text_decode_channels(
+        skeleton_source,
+        len(skeleton),
+        side_source,
+        len(side),
+        output,
+        expected_size,
+    )
+    if result != 0:
+        raise ValueError(
+            f"native structured-text channel decode failed with status {result}"
+        )
     return output.raw[:expected_size]
 
 
