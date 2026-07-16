@@ -604,59 +604,71 @@ def decompress_file(
             encoded_digest = hashlib.sha256()
             with temporary_path.open("wb") as output:
                 workers = _decompression_worker_count(segment_count)
-                pending: deque[Tuple[int, Future[bytes]]] = deque()
 
-                def write_next() -> None:
+                def read_next_segment() -> Tuple[int, bytes]:
+                    nonlocal declared_size
+                    segment_header = source.read(SEGMENT_HEADER.size)
+                    if len(segment_header) != SEGMENT_HEADER.size:
+                        raise ValueError("JLS2 segment header is truncated")
+                    encoded_digest.update(segment_header)
+                    segment_size, frame_size = SEGMENT_HEADER.unpack(
+                        segment_header
+                    )
+                    if segment_size > original_size - declared_size:
+                        raise ValueError(
+                            "JLS2 segment exceeds declared output size"
+                        )
+                    declared_size += segment_size
+                    if frame_size > encoded_size - source.tell():
+                        raise ValueError("JLS2 segment frame is truncated")
+                    frame = source.read(frame_size)
+                    if len(frame) != frame_size:
+                        raise ValueError("JLS2 segment frame is truncated")
+                    encoded_digest.update(frame)
+                    return segment_size, frame
+
+                def write_restored(segment_size: int, restored: bytes) -> None:
                     nonlocal restored_size
-                    segment_size, future = pending.popleft()
-                    restored = future.result()
                     if len(restored) != segment_size:
                         raise ValueError("JLS2 segment size mismatch")
                     output.write(restored)
                     digest.update(restored)
                     restored_size += len(restored)
 
-                with ThreadPoolExecutor(max_workers=workers) as executor:
+                if workers == 1:
                     for _ in range(segment_count):
-                        segment_header = source.read(SEGMENT_HEADER.size)
-                        if len(segment_header) != SEGMENT_HEADER.size:
-                            raise ValueError(
-                                "JLS2 segment header is truncated"
-                            )
-                        encoded_digest.update(segment_header)
-                        segment_size, frame_size = SEGMENT_HEADER.unpack(
-                            segment_header
+                        segment_size, frame = read_next_segment()
+                        restored = decompress_frame(
+                            frame,
+                            max_output_size=segment_size,
+                            _verify_original_sha=False,
                         )
-                        if segment_size > original_size - declared_size:
-                            raise ValueError(
-                                "JLS2 segment exceeds declared output size"
+                        write_restored(segment_size, restored)
+                else:
+                    pending: deque[Tuple[int, Future[bytes]]] = deque()
+
+                    def write_next() -> None:
+                        segment_size, future = pending.popleft()
+                        write_restored(segment_size, future.result())
+
+                    with ThreadPoolExecutor(max_workers=workers) as executor:
+                        for _ in range(segment_count):
+                            segment_size, frame = read_next_segment()
+                            pending.append(
+                                (
+                                    segment_size,
+                                    executor.submit(
+                                        decompress_frame,
+                                        frame,
+                                        max_output_size=segment_size,
+                                        _verify_original_sha=False,
+                                    ),
+                                )
                             )
-                        declared_size += segment_size
-                        if frame_size > encoded_size - source.tell():
-                            raise ValueError(
-                                "JLS2 segment frame is truncated"
-                            )
-                        frame = source.read(frame_size)
-                        if len(frame) != frame_size:
-                            raise ValueError(
-                                "JLS2 segment frame is truncated"
-                            )
-                        encoded_digest.update(frame)
-                        pending.append(
-                            (
-                                segment_size,
-                                executor.submit(
-                                    decompress_frame,
-                                    frame,
-                                    max_output_size=segment_size,
-                                    _verify_original_sha=False,
-                                ),
-                            )
-                        )
-                        if len(pending) >= workers:
+                            if len(pending) >= workers:
+                                write_next()
+                        while pending:
                             write_next()
-                    while pending:
-                        write_next()
                 if source.read(1):
                     raise ValueError("JLS2 stream has trailing data")
             if declared_size != original_size:
