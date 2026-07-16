@@ -41,7 +41,9 @@ jobs:
         run: cargo fmt --manifest-path native/Cargo.toml --all -- --check
       - name: Lint Rust library
         run: cargo clippy --manifest-path native/Cargo.toml --all-targets --locked -- -D warnings
-      - name: Test Rust library
+      - name: Test Rust library (debug)
+        run: cargo test --manifest-path native/Cargo.toml --locked
+      - name: Test Rust library (release)
         run: cargo test --manifest-path native/Cargo.toml --release --locked
       - name: Test Python package
         run: python -W error::ResourceWarning -m unittest discover -s tests -v

@@ -9,7 +9,8 @@ this project uses [Semantic Versioning](https://semver.org/).
 
 - Stable Python byte and file APIs for version-3 compression and version-1 to
   version-3 decompression.
-- `compression-lab compress`, `decompress`, and `info` commands.
+- `clab` and `compression-lab` commands with `compress`, `decompress`, and
+  `info` operations.
 - Atomic no-clobber file writes and a configurable decompression output limit.
 - Platform-wheel build hooks for the Rust transform library and a portable
   `python-zstandard` backend.

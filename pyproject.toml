@@ -51,6 +51,7 @@ Changelog = "https://github.com/Atomics-hub/compression-lab/blob/main/CHANGELOG.
 
 [project.scripts]
 compression-lab = "compresslab.cli:main"
+clab = "compresslab.cli:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

@@ -13,13 +13,15 @@ portable Zstandard backend.
 
 ## Status: 0.1 release candidate
 
-This is alpha software, not yet a universal compression winner. On the pinned
-mixed public starter corpus, the retained adaptive-v3 milestone produced
-6,747,896 bytes versus 6,866,359 for zstd-3, a 1.73% reduction, while retaining
-a measured size/speed Pareto position. On the expanded JSON study it remained
-larger than zstd-9, Brotli-11, LZMA-9, and 7-Zip-9. Those limits are part of the
-result: see `docs/benchmarks/` for protocols, full payload sizes, negative
-experiments, and host-scoped timing evidence.
+This is alpha software, not a universal compression winner. In the frozen
+seven-repetition release comparison on the pinned mixed public starter corpus,
+adaptive-v3 produced 6,747,896 bytes versus 6,866,359 for zstd-3 (1.73%
+smaller) and 6,927,807 for gzip-9 (2.60% smaller). However, zstd-9 produced
+6,386,970 bytes and was faster in both directions on that host, so adaptive-v3
+was not Pareto-optimal. The expanded JSON study also remained larger than
+zstd-9, Brotli-11, LZMA-9, and 7-Zip-9. Those limits are part of the result: see
+`docs/benchmarks/2026-07-16-release-candidate.md` and `docs/benchmarks/` for
+protocols, negative experiments, and host-scoped evidence.
 
 Do not describe Compression Lab as state of the art on all data. Its strongest
 current claim is an evidence-backed adaptive research candidate with a usable,
@@ -40,9 +42,12 @@ Until then, use Python 3.9 or newer and Rust stable for a source checkout:
 
 Compress, inspect, and restore a file:
 
-    compression-lab compress report.json
-    compression-lab info report.json.clab
-    compression-lab decompress report.json.clab -o restored.json
+    clab compress report.json
+    clab info report.json.clab
+    clab decompress report.json.clab -o restored.json
+
+`compression-lab` is the equivalent descriptive command; both entry points use
+the same CLI and version.
 
 Compression refuses to overwrite an output unless `--force` is supplied. The
 decoder rejects a declared output above 2 GiB by default; change the bound with
@@ -50,8 +55,8 @@ decoder rejects a declared output above 2 GiB by default; change the bound with
 
 Standard input and output use `-`:
 
-    printf 'hello\n' | compression-lab compress - -o - > hello.clab
-    compression-lab decompress hello.clab -o -
+    printf 'hello\n' | clab compress - -o - > hello.clab
+    clab decompress hello.clab -o -
 
 Python applications use the stable byte or file API:
 

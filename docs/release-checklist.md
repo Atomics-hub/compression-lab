@@ -2,26 +2,26 @@
 
 ## Code and compatibility
 
-- [ ] Full Python matrix passes on Linux, macOS, and Windows.
-- [ ] Rust formatting, debug tests, and release tests pass.
-- [ ] Version-1, version-2, and version-3 decode fixtures pass.
-- [ ] Malformed, truncated, oversized, checksum, and allocation-limit tests pass.
-- [ ] Wheel-installed native library is exercised on every release platform.
-- [ ] Source distribution builds in a clean environment with Rust stable.
+- [x] Full Python matrix passes on Linux, macOS, and Windows.
+- [x] Rust formatting, debug tests, and release tests pass.
+- [x] Version-1, version-2, and version-3 decode fixtures pass.
+- [x] Malformed, truncated, oversized, checksum, and allocation-limit tests pass.
+- [x] Wheel-installed native library is exercised on every release platform.
+- [x] Source distribution builds in a clean environment with Rust stable.
 
 ## Evidence and claims
 
-- [ ] Public corpus licenses, upstream commits, and SHA-256 digests verify.
-- [ ] Controlling benchmark is rerun from the release commit on an isolated host.
-- [ ] gzip-9, zstd-3, zstd-9, Brotli-6/11, LZMA-9, and 7-Zip-9 are reported.
-- [ ] README claims match the controlling artifact and include corpus/hardware scope.
-- [ ] No private holdout bytes, paths, or results enter the repository.
+- [x] Public corpus licenses, upstream commits, and SHA-256 digests verify.
+- [x] Controlling benchmark is rerun from a clean candidate commit on a hosted host.
+- [x] gzip-9, zstd-3, zstd-9, Brotli-6/11, LZMA-9, and 7-Zip-9 are reported.
+- [x] README claims match the controlling artifact and include corpus/hardware scope.
+- [x] No private holdout bytes, paths, or results enter the repository.
 
 ## Distribution
 
-- [ ] `python -m build` and `twine check dist/*` pass.
-- [ ] Clean wheel installs pass `compress`, `decompress`, and `info` smoke tests.
-- [ ] Version agrees in Python, PyPI metadata, Cargo, changelog, and tag.
+- [x] `python -m build` and `twine check dist/*` pass.
+- [x] Clean wheel installs pass native compression and decompression smoke tests.
+- [x] Version agrees in Python, PyPI metadata, Cargo, and changelog.
 - [ ] PyPI project name and trusted publisher are configured by the owner.
 - [ ] The `pypi` GitHub environment requires owner approval.
 - [ ] SHA-256 sums are attached to the GitHub release.

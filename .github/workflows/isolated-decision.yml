@@ -16,6 +16,10 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  release-artifacts:
+    name: Complete sdist and wheel set
+    uses: ./.github/workflows/release.yml
+
   decision:
     name: Frozen adaptive-v3 market comparison
     runs-on: macos-15
