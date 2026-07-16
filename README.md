@@ -270,6 +270,16 @@ complete public corpus by 1.66%, and scanned at only about 1.50 MB/s. It failed
 the predeclared integration gate, so no arithmetic or ANS format was added and
 the temporary prototype was removed.
 
+The first retained representation-specific successor is recorded in
+docs/benchmarks/2026-07-15-token-side-channel.md. For JSON only, adaptive-v3 can
+remove every marker-following token byte from the STX1 skeleton and compress
+that ordered side channel separately. Exact complete-payload comparison keeps
+STX1 for C/source files. The new recipe reduced the licensed JSON frame by
+5,915 bytes, moved aggregate adaptive-v3 output to 6,747,896 bytes, or 1.73%
+below direct zstd-3, passed all 64 public benchmark round trips, and retained a
+within-run Pareto position. The result is a one-file JSON-family signal, not a
+general or market-leading claim.
+
 ## Current limitations
 
 - Workers read each file into memory; streaming and random-access tests come
