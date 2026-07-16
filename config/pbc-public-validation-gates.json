@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "name": "pbc-only-logtrie-public-validation-v1",
+  "source": {
+    "repository": "https://github.com/antgroup/pbc",
+    "commit": "bac1f86d29624cb585bb4475235d22a28e60ffea",
+    "license_spdx": "Apache-2.0",
+    "license_sha256": "bacacee63139034e9acba4de0c513eeb93cc6277ae52054a30eebf4be644e7ed",
+    "recommended_environment": "Ubuntu 22.04"
+  },
+  "settings": {
+    "methods": [
+      "pbc_only"
+    ],
+    "pattern_size": 100,
+    "train_data_number": 2000,
+    "train_thread_num": 64,
+    "input_type": "newline-delimited record"
+  },
+  "requirements": {
+    "expected_families": [
+      "hadoop",
+      "openssh",
+      "openstack"
+    ],
+    "minimum_repetitions": 5,
+    "minimum_training_repetitions": 2,
+    "maximum_record_bytes": 1048576,
+    "max_normalized_preflight_load_1m": 1.0,
+    "require_clean_tracked_source": true,
+    "require_exact_source_commit": true,
+    "require_exact_license": true,
+    "require_deterministic_payload_for_fixed_pattern": true,
+    "require_byte_exact_roundtrip": true,
+    "require_complete_archive_accounting": true
+  },
+  "claim_ceiling": "fixed PBC-only comparator for one-time unseen public LogTrie validation; no broad superiority claim"
+}
