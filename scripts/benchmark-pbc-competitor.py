@@ -14,6 +14,9 @@ import time
 from typing import Any, Sequence
 
 
+REPOSITORY = Path(__file__).resolve().parents[1]
+
+
 def sha256_file(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as source:
@@ -85,6 +88,18 @@ def source_state(repository: Path) -> dict[str, Any]:
             "config",
             "--get",
             "remote.origin.url",
+        ),
+    }
+
+
+def benchmark_source_state() -> dict[str, Any]:
+    return {
+        "commit": git_text(REPOSITORY, "rev-parse", "HEAD"),
+        "tracked_status": git_text(
+            REPOSITORY,
+            "status",
+            "--porcelain",
+            "--untracked-files=no",
         ),
     }
 
@@ -246,6 +261,7 @@ def main() -> int:
         "gates_sha256": sha256_file(args.gates),
         "repetitions": args.repetitions,
         "training_repetitions": args.training_repetitions,
+        "benchmark_source": benchmark_source_state(),
         "pbc": {
             **source,
             "license_path": str(license_path),

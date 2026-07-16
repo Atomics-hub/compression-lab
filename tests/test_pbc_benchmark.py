@@ -1,5 +1,6 @@
 import hashlib
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -17,6 +18,7 @@ def sha256(path: Path) -> str:
 
 
 class PBCBenchmarkTests(unittest.TestCase):
+    @unittest.skipIf(os.name == "nt", "official PBC artifact targets Ubuntu")
     def test_complete_archive_accounting_and_roundtrip(self):
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)
