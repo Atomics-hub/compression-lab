@@ -39,6 +39,18 @@ the artifact, then restores the PBC checkout and requires clean tracked source
 before official tests and measurement. No PBC compression, training, CLI, or
 test code is modified.
 
+### Named-output compatibility
+
+The release build's unit suite passes, but the first official integration
+attempt exposed an upstream CLI defect: named compression and decompression
+outputs are opened with `O_CREAT` without the required mode argument. Fresh
+output paths can therefore fail nondeterministically.
+
+The workflow and benchmark pre-create every named output with mode `0600`.
+They then run the unmodified PBC CLI and official integration script. The
+integration script's original byte-for-byte `cmp` checks must still pass. The
+complete upstream `testresult` tree is retained in the evidence artifact.
+
 ## Official settings
 
 The reproduction tests all four methods exposed by the official CLI:

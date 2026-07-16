@@ -134,6 +134,22 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          capture_pbc_testresult() {
+            if [[ -d "$PBC_DIR/testresult" ]]; then
+              cp -a "$PBC_DIR/testresult" "$EVIDENCE_DIR/pbc-testresult"
+            fi
+          }
+          trap capture_pbc_testresult EXIT
+          integration_dir="$PBC_DIR/testresult/integration_test"
+          mkdir -p "$integration_dir"
+          touch \
+            "$integration_dir/test_data_2000_100_pbc_only_compress" \
+            "$integration_dir/test_data_2000_100_pbc_only_decompress" \
+            "$integration_dir/test_data_2000_100_pbc_only_decompress2"
+          chmod 600 \
+            "$integration_dir/test_data_2000_100_pbc_only_compress" \
+            "$integration_dir/test_data_2000_100_pbc_only_decompress" \
+            "$integration_dir/test_data_2000_100_pbc_only_decompress2"
           bash "$PBC_DIR/run_tests.sh" --pbc-integration-test 2>&1 | \
             tee "$EVIDENCE_DIR/pbc-tests.log"
 

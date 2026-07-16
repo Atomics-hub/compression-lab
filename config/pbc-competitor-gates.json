@@ -21,7 +21,12 @@
         "replacement_url": "https://codeload.github.com/adrian-thurston/colm-suite/tar.gz/e88bda068d4a25f2afa7f48821e0f539405c8c6a",
         "replacement_sha256": "6f11b349722797165f5b71bac5dd71a2ade3cff1c45a9c0ae5522f0f71902ee1"
       }
-    ]
+    ],
+    "cli_output_workaround": {
+      "reason": "the pinned CLI calls open with O_CREAT but omits the required mode argument",
+      "scope": "pre-create named integration and benchmark output files with mode 0600; do not modify PBC source",
+      "required_postcondition": "the unmodified official integration script and its byte-for-byte cmp checks pass"
+    }
   },
   "settings": {
     "methods": [
