@@ -5,6 +5,9 @@
 Do not report a direct CLP, LogLite, or DeLog win yet. None is currently
 eligible for the same byte-exact local benchmark, for different reasons.
 
+PBC was found after the initial audit and is eligible for a frozen hosted
+reproduction. Its result is still pending.
+
 This is an eligibility audit, not a comparative result. Blind validation
 remains sealed.
 
@@ -26,6 +29,28 @@ A compressor enters the primary leaderboard only when it:
 
 Semantically transformed or non-order-preserving systems may be reported
 separately, but never as if they satisfy the exact-file contract.
+
+## PBC
+
+Pinned source:
+
+- repository: <https://github.com/antgroup/pbc>;
+- commit: `bac1f86d29624cb585bb4475235d22a28e60ffea`;
+- license: Apache-2.0;
+- paper: <https://doi.org/10.1145/3626732>.
+
+PBC directly targets high-ratio compression for machine-generated data and
+has an official SIGMOD reproducibility artifact. It exposes four lossless
+methods: PBC-only, PBC-FSE, PBC-FSST, and PBC-Zstd.
+
+The frozen hosted protocol builds the unmodified pinned source on Ubuntu 22.04,
+runs the official unit and integration tests, and compares all four methods on
+the identical LogTrie development bytes. Pattern files are required decoder
+artifacts, so their bytes are included in every complete archive. Pattern
+training time is reported separately and included in complete compression
+time.
+
+See `docs/benchmarks/2026-07-16-pbc-competitor-protocol.md`.
 
 ## CLP JSON
 
@@ -103,10 +128,12 @@ external environment after license clarification.
 
 ## Next action
 
-1. Preserve zstd-9 and Brotli-11 as the current exact, reproducible baselines.
-2. Add CLP only as a separate semantic-log comparison if Docker becomes
+1. Complete the pinned official PBC hosted reproduction before opening
+   validation.
+2. Preserve zstd-9 and Brotli-11 as the current exact, reproducible baselines.
+3. Add CLP only as a separate semantic-log comparison if Docker becomes
    available.
-3. Seek a licensed, byte-exact LogLite or DeLog execution path on suitable
+4. Seek a licensed, byte-exact LogLite or DeLog execution path on suitable
    Linux hardware before opening validation.
-4. Keep every unavailable or ineligible competitor visible; absence is not a
+5. Keep every unavailable or ineligible competitor visible; absence is not a
    win.

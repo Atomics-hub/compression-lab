@@ -1,0 +1,76 @@
+# Official PBC competitor reproduction protocol
+
+## Status
+
+This protocol is frozen before the first comparative score is produced. It is
+development-corpus evidence only. Blind validation remains sealed.
+
+PBC is directly relevant because its official scope is high-ratio lossless
+compression for machine-generated data. Its source is Apache-2.0 licensed and
+its SIGMOD artifact has independent reproducibility badges.
+
+## Pinned artifact
+
+- repository: <https://github.com/antgroup/pbc>
+- commit: `bac1f86d29624cb585bb4475235d22a28e60ffea`
+- license: Apache-2.0
+- license SHA-256:
+  `bacacee63139034e9acba4de0c513eeb93cc6277ae52054a30eebf4be644e7ed`
+- environment: Ubuntu 22.04, as recommended by the official README
+
+The benchmark clones and builds this pinned external repository. PBC source,
+dependencies, and binaries are not vendored into Compression Lab.
+
+## Official settings
+
+The reproduction tests all four methods exposed by the official CLI:
+
+- `pbc_only`
+- `pbc_fse`
+- `pbc_fsst`
+- `pbc_zstd`
+
+Pattern training uses the settings in PBC's official integration test:
+
+- pattern size: 100
+- training records: 2,000
+- training threads: 64
+- input type: newline-delimited records
+
+The workflow builds PBC in release mode and runs its official unit and
+integration tests before measuring the LogTrie development corpus.
+
+## Exact-file contract
+
+Each method and family must:
+
+1. receive the same source path whose size and SHA-256 are fixed by the
+   LogTrie manifest;
+2. accept every record under PBC's documented 1 MiB record limit;
+3. reconstruct the exact source size and SHA-256;
+4. use at least two pattern-training repetitions and five online compression
+   and decompression repetitions;
+5. report the full pattern-file size and compressed-payload size;
+6. count `pattern bytes + payload bytes` as the complete archive;
+7. report pattern training, online compression, complete compression, and
+   decompression wall times separately;
+8. retain a pinned, clean tracked PBC source tree.
+
+The complete compression rate includes the median pattern-training time plus
+the median online file-compression time. Online compression is also reported
+because PBC explicitly separates offline pattern extraction from per-record
+compression.
+
+## Ranking and claims
+
+The primary PBC score is the smallest aggregate complete-archive size achieved
+by one fixed official method across all five families. This is compared with
+the accepted JLS2 frame bytes and zstd-9 bytes for the identical inputs.
+
+A best-method-per-family oracle is reported only as diagnostic context. It is
+not eligible for the primary comparison because it selects a codec after
+observing each family.
+
+Passing this gate means the PBC artifact was reproduced with complete,
+byte-exact accounting. It does not itself mean Compression Lab beat PBC, nor
+does it authorize a world-best or state-of-the-art claim.

@@ -14,6 +14,18 @@
   },
   "competitors": [
     {
+      "name": "PBC",
+      "repository": "https://github.com/antgroup/pbc",
+      "version": "pinned commit",
+      "commit": "bac1f86d29624cb585bb4475235d22a28e60ffea",
+      "license_spdx": "Apache-2.0",
+      "official_build": "Ubuntu 22.04 release build plus official unit and integration tests",
+      "local_status": "eligible through the frozen hosted reproduction workflow",
+      "roundtrip_status": "pending byte-exact LogTrie development reproduction",
+      "reason": "directly targets high-ratio compression for machine-generated data and exposes four official lossless methods",
+      "comparison_role": "primary eligible machine-generated-data competitor"
+    },
+    {
       "name": "CLP JSON",
       "repository": "https://github.com/y-scope/clp",
       "version": "v0.12.0",
