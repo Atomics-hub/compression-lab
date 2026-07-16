@@ -27,7 +27,11 @@ integrity-checked file format.
 
 ## Quick start
 
-Use Python 3.9 or newer and Rust stable for a source checkout:
+After the owner publishes version 0.1.0, install the native wheel from PyPI:
+
+    python -m pip install compression-lab
+
+Until then, use Python 3.9 or newer and Rust stable for a source checkout:
 
     cd /path/to/compression-lab
     python3 -m venv .venv
@@ -76,15 +80,15 @@ Generate the deterministic smoke corpus and run the default comparison:
       --repetitions 3 \
       --warmups 1
 
-For the exact ten-codec steady-state stability recipe, including corpus and
-native-library verification, randomized order, seven measurements, and both
-gate reports:
+For the frozen release comparison against gzip-9, zstd-3/9, Brotli-6/11,
+LZMA-9, and 7-Zip-9, including public-corpus verification, randomized order,
+seven measurements, and machine-checked evidence completeness:
 
-    scripts/run-stability.sh
+    scripts/run-release-benchmark.sh
 
 The script waits for three qualifying preflight samples and exits non-zero when
-the quiet window times out or a research gate fails. Inspect the generated gate
-reports before treating that as an infrastructure error.
+the quiet window times out, a codec is absent, a round trip fails, the commit is
+dirty or wrong, or the frozen trial matrix is incomplete.
 
 The run writes:
 
@@ -328,10 +332,13 @@ representation or entropy model rather than further tune STX1 channel routing.
 
 - Workers read each file into memory; streaming and random-access tests come
   with the candidate container.
+- `.clab` stores one byte stream. It does not preserve directory trees,
+  filenames, permissions, timestamps, links, or other archive metadata.
 - Persistent Python workers remove interpreter startup. Zstandard uses an
   in-process library binding; LZ4, Brotli, and 7-Zip baselines still include
   native CLI process startup.
 - Peak RSS is the worker high-water mark, not incremental allocation.
-- Energy, hardware counters, archive metadata, encryption, and malicious-input
-  fuzzing are not yet measured.
+- Energy, hardware counters, archive metadata, encryption, and coverage-guided
+  native sanitizers are not yet measured. CI does run deterministic hostile-frame
+  tests and seeded mutational fuzzing; that is not a security proof.
 - The generated smoke corpus is deliberately small and synthetic.

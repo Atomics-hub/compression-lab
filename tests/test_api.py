@@ -1,13 +1,16 @@
 import base64
 import contextlib
+from concurrent.futures import ThreadPoolExecutor
 import io
 import json
 from pathlib import Path
 import re
 import tempfile
+import threading
 import unittest
 
 import compresslab
+from compresslab.api import _atomic_write
 from compresslab.cli import main as cli_main
 from compresslab.codecs import codec_by_id
 from compresslab.worker import _adaptive_compress
@@ -88,6 +91,30 @@ class PublicApiTests(unittest.TestCase):
             self.assertEqual(restored.read_bytes(), b"file-helper\n" * 20_000)
             with self.assertRaises(FileExistsError):
                 compresslab.decompress_file(encoded)
+
+    def test_no_clobber_write_is_atomic_under_contention(self):
+        with tempfile.TemporaryDirectory() as directory:
+            destination = Path(directory) / "winner"
+            workers = 8
+            barrier = threading.Barrier(workers)
+
+            def attempt(index):
+                payload = f"writer-{index}".encode("ascii")
+                barrier.wait()
+                try:
+                    _atomic_write(destination, payload, overwrite=False)
+                except FileExistsError:
+                    return None
+                return payload
+
+            with ThreadPoolExecutor(max_workers=workers) as executor:
+                winners = [
+                    result
+                    for result in executor.map(attempt, range(workers))
+                    if result is not None
+                ]
+            self.assertEqual(len(winners), 1)
+            self.assertEqual(destination.read_bytes(), winners[0])
 
     def test_cli_compress_decompress_and_info(self):
         self.require_v3()

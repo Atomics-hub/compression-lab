@@ -193,9 +193,16 @@ def _atomic_write(destination: Path, data: bytes, overwrite: bool) -> None:
             handle.write(data)
             handle.flush()
             os.fsync(handle.fileno())
-        if destination.exists() and not overwrite:
-            raise FileExistsError(f"destination already exists: {destination}")
-        os.replace(temporary_name, destination)
+        if overwrite:
+            os.replace(temporary_name, destination)
+        else:
+            try:
+                os.link(temporary_name, destination)
+            except FileExistsError as error:
+                raise FileExistsError(
+                    f"destination already exists: {destination}"
+                ) from error
+            Path(temporary_name).unlink()
         temporary_name = ""
     finally:
         if temporary_name:
