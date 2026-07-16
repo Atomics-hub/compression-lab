@@ -20,6 +20,11 @@ const LWX2_MAX_RECORD_SIZE: usize = 32 * 1024;
 const LWX2_MAX_RUN: usize = 128;
 const LWX2_MODE_RAW: u8 = 0;
 const LWX2_MODE_REFERENCE: u8 = 1;
+const JCT1_MAGIC: &[u8; 4] = b"JCT1";
+const JCT1_MARKER: u8 = 0xff;
+const JCT1_MARKER_CHANNEL: u8 = 0x00;
+const JCT1_MARKER_LITERAL: u8 = 0xfe;
+const JCT1_MAX_CHANNELS: usize = 256;
 
 #[repr(C)]
 pub struct ZstdInBuffer {
@@ -247,6 +252,401 @@ fn decode_log_recent(transformed: &[u8], expected_size: usize) -> Option<Vec<u8>
         }
     }
     if offset != transformed.len() || output.len() != expected_size {
+        return None;
+    }
+    Some(output)
+}
+
+#[derive(Clone, Copy)]
+struct JsonField {
+    key_start: usize,
+    key_end: usize,
+    value_start: usize,
+    value_end: usize,
+}
+
+fn json_skip_whitespace(data: &[u8], mut offset: usize, limit: usize) -> usize {
+    while offset < limit && matches!(data[offset], b' ' | b'\t' | b'\r' | b'\n') {
+        offset += 1;
+    }
+    offset
+}
+
+fn json_string_end(data: &[u8], mut offset: usize, limit: usize) -> Option<usize> {
+    if offset >= limit || data[offset] != b'"' {
+        return None;
+    }
+    offset += 1;
+    while offset < limit {
+        let value = data[offset];
+        offset += 1;
+        if value == b'"' {
+            return Some(offset);
+        }
+        if value == b'\\' {
+            if offset >= limit {
+                return None;
+            }
+            offset += 1;
+        }
+    }
+    None
+}
+
+fn json_compound_end(data: &[u8], mut offset: usize, limit: usize) -> Option<usize> {
+    let closing = if *data.get(offset)? == b'{' {
+        b'}'
+    } else {
+        b']'
+    };
+    let mut stack = vec![closing];
+    offset += 1;
+    while offset < limit {
+        let value = data[offset];
+        if value == b'"' {
+            offset = json_string_end(data, offset, limit)?;
+            continue;
+        }
+        if value == b'{' {
+            stack.push(b'}');
+        } else if value == b'[' {
+            stack.push(b']');
+        } else if value == b'}' || value == b']' {
+            if stack.pop()? != value {
+                return None;
+            }
+            if stack.is_empty() {
+                return Some(offset + 1);
+            }
+        }
+        offset += 1;
+    }
+    None
+}
+
+fn valid_json_number(data: &[u8]) -> bool {
+    if data.is_empty() {
+        return false;
+    }
+    let mut offset = 0;
+    if data[offset] == b'-' {
+        offset += 1;
+        if offset == data.len() {
+            return false;
+        }
+    }
+    if data[offset] == b'0' {
+        offset += 1;
+    } else if data[offset].is_ascii_digit() && data[offset] != b'0' {
+        offset += 1;
+        while offset < data.len() && data[offset].is_ascii_digit() {
+            offset += 1;
+        }
+    } else {
+        return false;
+    }
+    if offset < data.len() && data[offset] == b'.' {
+        offset += 1;
+        let start = offset;
+        while offset < data.len() && data[offset].is_ascii_digit() {
+            offset += 1;
+        }
+        if offset == start {
+            return false;
+        }
+    }
+    if offset < data.len() && matches!(data[offset], b'e' | b'E') {
+        offset += 1;
+        if offset < data.len() && matches!(data[offset], b'+' | b'-') {
+            offset += 1;
+        }
+        let start = offset;
+        while offset < data.len() && data[offset].is_ascii_digit() {
+            offset += 1;
+        }
+        if offset == start {
+            return false;
+        }
+    }
+    offset == data.len()
+}
+
+fn json_value_end(data: &[u8], offset: usize, limit: usize) -> Option<usize> {
+    let value = *data.get(offset)?;
+    if value == b'"' {
+        return json_string_end(data, offset, limit);
+    }
+    if value == b'{' || value == b'[' {
+        return json_compound_end(data, offset, limit);
+    }
+    let mut end = offset;
+    while end < limit && !matches!(data[end], b',' | b'}' | b' ' | b'\t' | b'\r' | b'\n') {
+        end += 1;
+    }
+    if end == offset {
+        return None;
+    }
+    let token = &data[offset..end];
+    if matches!(token, b"true" | b"false" | b"null") || valid_json_number(token) {
+        Some(end)
+    } else {
+        None
+    }
+}
+
+fn json_top_level_fields(record: &[u8]) -> Option<Vec<JsonField>> {
+    let mut content_limit = record.len();
+    if record.ends_with(b"\r\n") {
+        content_limit = content_limit.checked_sub(2)?;
+    } else if record.ends_with(b"\n") {
+        content_limit = content_limit.checked_sub(1)?;
+    }
+    let mut offset = json_skip_whitespace(record, 0, content_limit);
+    if offset >= content_limit || record[offset] != b'{' {
+        return None;
+    }
+    offset += 1;
+    let mut fields = Vec::new();
+    offset = json_skip_whitespace(record, offset, content_limit);
+    if offset < content_limit && record[offset] == b'}' {
+        offset += 1;
+    } else {
+        loop {
+            offset = json_skip_whitespace(record, offset, content_limit);
+            let key_start = offset;
+            let key_end = json_string_end(record, offset, content_limit)?;
+            offset = json_skip_whitespace(record, key_end, content_limit);
+            if offset >= content_limit || record[offset] != b':' {
+                return None;
+            }
+            offset = json_skip_whitespace(record, offset + 1, content_limit);
+            let value_start = offset;
+            let value_end = json_value_end(record, value_start, content_limit)?;
+            fields.push(JsonField {
+                key_start,
+                key_end,
+                value_start,
+                value_end,
+            });
+            offset = json_skip_whitespace(record, value_end, content_limit);
+            if offset >= content_limit {
+                return None;
+            }
+            if record[offset] == b',' {
+                offset += 1;
+                continue;
+            }
+            if record[offset] == b'}' {
+                offset += 1;
+                break;
+            }
+            return None;
+        }
+    }
+    offset = json_skip_whitespace(record, offset, content_limit);
+    if offset == content_limit {
+        Some(fields)
+    } else {
+        None
+    }
+}
+
+fn append_json_literal(output: &mut Vec<u8>, data: &[u8]) {
+    for &value in data {
+        output.push(value);
+        if value == JCT1_MARKER {
+            output.push(JCT1_MARKER_LITERAL);
+        }
+    }
+}
+
+struct JsonColumnTransform {
+    skeleton: Vec<u8>,
+    channels: Vec<Vec<u8>>,
+    record_count: u64,
+    extracted_records: u64,
+    extracted_values: u64,
+}
+
+fn transform_json_columns(data: &[u8]) -> Option<JsonColumnTransform> {
+    let mut skeleton = Vec::with_capacity(data.len());
+    let mut channels: Vec<Vec<u8>> = Vec::new();
+    let mut channel_by_key: HashMap<Vec<u8>, usize> = HashMap::new();
+    let mut record_count = 0_u64;
+    let mut extracted_records = 0_u64;
+    let mut extracted_values = 0_u64;
+    let mut offset = 0;
+    while offset < data.len() {
+        let record_end = data[offset..]
+            .iter()
+            .position(|&value| value == b'\n')
+            .map_or(data.len(), |relative| offset + relative + 1);
+        let record = &data[offset..record_end];
+        record_count = record_count.checked_add(1)?;
+        let mut fields = json_top_level_fields(record);
+        if let Some(candidate_fields) = &fields {
+            let mut pending: Vec<Vec<u8>> = Vec::new();
+            for field in candidate_fields {
+                let key = &record[field.key_start..field.key_end];
+                if !channel_by_key.contains_key(key)
+                    && !pending.iter().any(|stored| stored.as_slice() == key)
+                {
+                    pending.push(key.to_vec());
+                }
+            }
+            if channel_by_key.len().checked_add(pending.len())? > JCT1_MAX_CHANNELS {
+                fields = None;
+            } else {
+                for key in pending {
+                    let channel = channels.len();
+                    channel_by_key.insert(key, channel);
+                    channels.push(Vec::new());
+                }
+            }
+        }
+        if let Some(fields) = fields {
+            let mut record_offset = 0;
+            for field in fields {
+                append_json_literal(&mut skeleton, &record[record_offset..field.value_start]);
+                let key = &record[field.key_start..field.key_end];
+                let channel = *channel_by_key.get(key)?;
+                skeleton.extend_from_slice(&[JCT1_MARKER, JCT1_MARKER_CHANNEL]);
+                encode_varint(channel, &mut skeleton);
+                let value = &record[field.value_start..field.value_end];
+                encode_varint(value.len(), &mut channels[channel]);
+                channels[channel].extend_from_slice(value);
+                extracted_values = extracted_values.checked_add(1)?;
+                record_offset = field.value_end;
+            }
+            append_json_literal(&mut skeleton, &record[record_offset..]);
+            extracted_records = extracted_records.checked_add(1)?;
+        } else {
+            append_json_literal(&mut skeleton, record);
+        }
+        offset = record_end;
+    }
+    Some(JsonColumnTransform {
+        skeleton,
+        channels,
+        record_count,
+        extracted_records,
+        extracted_values,
+    })
+}
+
+fn pack_json_column_transform(transformed: JsonColumnTransform) -> Option<Vec<u8>> {
+    let channel_count = u32::try_from(transformed.channels.len()).ok()?;
+    let skeleton_size = u64::try_from(transformed.skeleton.len()).ok()?;
+    let mut output = Vec::with_capacity(
+        40_usize
+            .checked_add(transformed.channels.len().checked_mul(8)?)?
+            .checked_add(transformed.skeleton.len())?
+            .checked_add(transformed.channels.iter().map(Vec::len).sum())?,
+    );
+    output.extend_from_slice(JCT1_MAGIC);
+    output.extend_from_slice(&channel_count.to_be_bytes());
+    output.extend_from_slice(&skeleton_size.to_be_bytes());
+    output.extend_from_slice(&transformed.record_count.to_be_bytes());
+    output.extend_from_slice(&transformed.extracted_records.to_be_bytes());
+    output.extend_from_slice(&transformed.extracted_values.to_be_bytes());
+    for channel in &transformed.channels {
+        output.extend_from_slice(&u64::try_from(channel.len()).ok()?.to_be_bytes());
+    }
+    output.extend_from_slice(&transformed.skeleton);
+    for channel in transformed.channels {
+        output.extend_from_slice(&channel);
+    }
+    Some(output)
+}
+
+fn encode_json_column_transform(data: &[u8]) -> Option<Vec<u8>> {
+    pack_json_column_transform(transform_json_columns(data)?)
+}
+
+fn decode_json_column_transform(transformed: &[u8], expected_size: usize) -> Option<Vec<u8>> {
+    if transformed.get(..4)? != JCT1_MAGIC {
+        return None;
+    }
+    let channel_count = u32::from_be_bytes(transformed.get(4..8)?.try_into().ok()?) as usize;
+    if channel_count > JCT1_MAX_CHANNELS {
+        return None;
+    }
+    let skeleton_size =
+        usize::try_from(u64::from_be_bytes(transformed.get(8..16)?.try_into().ok()?)).ok()?;
+    let record_count = u64::from_be_bytes(transformed.get(16..24)?.try_into().ok()?);
+    let extracted_records = u64::from_be_bytes(transformed.get(24..32)?.try_into().ok()?);
+    let _extracted_values = u64::from_be_bytes(transformed.get(32..40)?.try_into().ok()?);
+    if extracted_records > record_count {
+        return None;
+    }
+    let mut offset = 40_usize;
+    let mut channel_sizes = Vec::with_capacity(channel_count);
+    for _ in 0..channel_count {
+        let end = offset.checked_add(8)?;
+        channel_sizes.push(
+            usize::try_from(u64::from_be_bytes(
+                transformed.get(offset..end)?.try_into().ok()?,
+            ))
+            .ok()?,
+        );
+        offset = end;
+    }
+    let skeleton_end = offset.checked_add(skeleton_size)?;
+    let skeleton = transformed.get(offset..skeleton_end)?;
+    offset = skeleton_end;
+    let mut channels = Vec::with_capacity(channel_count);
+    for size in channel_sizes {
+        let end = offset.checked_add(size)?;
+        channels.push(transformed.get(offset..end)?);
+        offset = end;
+    }
+    if offset != transformed.len() {
+        return None;
+    }
+
+    let mut channel_offsets = vec![0_usize; channel_count];
+    let mut output = Vec::with_capacity(expected_size);
+    offset = 0;
+    while offset < skeleton.len() {
+        let value = skeleton[offset];
+        offset += 1;
+        if value != JCT1_MARKER {
+            if output.len() >= expected_size {
+                return None;
+            }
+            output.push(value);
+            continue;
+        }
+        let tag = *skeleton.get(offset)?;
+        offset += 1;
+        if tag == JCT1_MARKER_LITERAL {
+            if output.len() >= expected_size {
+                return None;
+            }
+            output.push(JCT1_MARKER);
+            continue;
+        }
+        if tag != JCT1_MARKER_CHANNEL {
+            return None;
+        }
+        let channel = decode_varint(skeleton, &mut offset)?;
+        let channel_data = *channels.get(channel)?;
+        let channel_offset = channel_offsets.get_mut(channel)?;
+        let value_size = decode_varint(channel_data, channel_offset)?;
+        let value_end = channel_offset.checked_add(value_size)?;
+        let value = channel_data.get(*channel_offset..value_end)?;
+        if value.len() > expected_size.checked_sub(output.len())? {
+            return None;
+        }
+        output.extend_from_slice(value);
+        *channel_offset = value_end;
+    }
+    if output.len() != expected_size
+        || channels
+            .iter()
+            .zip(channel_offsets)
+            .any(|(channel, consumed)| channel.len() != consumed)
+    {
         return None;
     }
     Some(output)
@@ -983,6 +1383,60 @@ pub unsafe extern "C" fn clab_log_transform_decode(
 }
 
 #[no_mangle]
+/// Split newline-delimited flat JSON objects into a JCT1 skeleton and channels.
+///
+/// # Safety
+///
+/// `input`, `output`, and `output_len` must be non-null. The input must be
+/// readable for `len` bytes, the output writable for `output_capacity` bytes,
+/// and `output_len` writable for one `usize`. Input and output must not alias.
+pub unsafe extern "C" fn clab_json_columnar_transform(
+    input: *const u8,
+    len: usize,
+    output: *mut u8,
+    output_capacity: usize,
+    output_len: *mut usize,
+) -> i32 {
+    if input.is_null() || output.is_null() || output_len.is_null() {
+        return NULL_POINTER;
+    }
+    let source = slice::from_raw_parts(input, len);
+    let Some(encoded) = encode_json_column_transform(source) else {
+        return INVALID_INPUT;
+    };
+    if encoded.len() > output_capacity {
+        return OUTPUT_TOO_SMALL;
+    }
+    slice::from_raw_parts_mut(output, output_capacity)[..encoded.len()].copy_from_slice(&encoded);
+    *output_len = encoded.len();
+    OK
+}
+
+#[no_mangle]
+/// Reassemble a complete JCT1 skeleton and channel transform.
+///
+/// # Safety
+///
+/// `input` and `output` must be non-null and valid for reads of `len` bytes and
+/// writes of `expected_size` bytes respectively. The regions must not alias.
+pub unsafe extern "C" fn clab_json_columnar_reassemble(
+    input: *const u8,
+    len: usize,
+    output: *mut u8,
+    expected_size: usize,
+) -> i32 {
+    if input.is_null() || output.is_null() {
+        return NULL_POINTER;
+    }
+    let source = slice::from_raw_parts(input, len);
+    let Some(decoded) = decode_json_column_transform(source, expected_size) else {
+        return INVALID_INPUT;
+    };
+    slice::from_raw_parts_mut(output, expected_size).copy_from_slice(&decoded);
+    OK
+}
+
+#[no_mangle]
 /// Encode bytes with the STX1 transform.
 ///
 /// # Safety
@@ -1222,6 +1676,14 @@ mod tests {
                 clab_log_transform_decode(ptr::null(), 0, ptr::null_mut(), 0),
                 NULL_POINTER
             );
+            assert_eq!(
+                clab_json_columnar_transform(ptr::null(), 0, ptr::null_mut(), 0, &mut output_len,),
+                NULL_POINTER
+            );
+            assert_eq!(
+                clab_json_columnar_reassemble(ptr::null(), 0, ptr::null_mut(), 0),
+                NULL_POINTER
+            );
         }
     }
 
@@ -1326,5 +1788,35 @@ mod tests {
         let mut trailing = transformed.clone();
         trailing.push(0);
         assert_eq!(decode_log_recent(&trailing, source.len()), None);
+    }
+
+    #[test]
+    fn json_columnar_transform_round_trips_and_rejects_corruption() {
+        let source = b"{\"id\":1,\"event\":\"tick\",\"nested\":{\"ok\":true}}\r\n\
+{\"event\":\"tock\",\"id\":2,\"nested\":[1,2,3]}\n\
+not-json\xff\n\
+{\"id\":3,\"event\":\"final\"}";
+        let transformed = encode_json_column_transform(source).unwrap();
+        assert_eq!(
+            decode_json_column_transform(&transformed, source.len()),
+            Some(source.to_vec())
+        );
+        assert_eq!(
+            decode_json_column_transform(&transformed[..39], source.len()),
+            None
+        );
+        assert_eq!(
+            decode_json_column_transform(&transformed[..transformed.len() - 1], source.len()),
+            None
+        );
+        let mut trailing = transformed.clone();
+        trailing.push(0);
+        assert_eq!(decode_json_column_transform(&trailing, source.len()), None);
+        let mut invalid_magic = transformed;
+        invalid_magic[0] ^= 1;
+        assert_eq!(
+            decode_json_column_transform(&invalid_magic, source.len()),
+            None
+        );
     }
 }

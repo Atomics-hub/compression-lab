@@ -1,15 +1,24 @@
 from __future__ import annotations
 
+from concurrent.futures import ThreadPoolExecutor
 import hashlib
+import os
 import re
 import struct
 from typing import Dict, List, Optional, Tuple, Union
 
-from .native import zstd_compress, zstd_decompress
+from .native import (
+    json_columnar_reassemble as native_reassemble,
+    json_columnar_transform as native_transform,
+    native_available,
+    zstd_compress,
+    zstd_decompress,
+)
 
 
 MAGIC = b"JLC1"
 VERSION = 1
+TRANSFORM_MAGIC = b"JCT1"
 MARKER = 0xFF
 MARKER_CHANNEL = 0x00
 MARKER_LITERAL = 0xFE
@@ -18,6 +27,8 @@ MAX_RAW_EXPANSION = 4
 MAX_RAW_OVERHEAD = 4096
 HEADER = struct.Struct(">4sB3xQ32sIQQ")
 CHANNEL_HEADER = struct.Struct(">QQ")
+TRANSFORM_HEADER = struct.Struct(">4sIQQQQ")
+TRANSFORM_CHANNEL_HEADER = struct.Struct(">Q")
 NUMBER = re.compile(
     rb"-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?\Z"
 )
@@ -174,13 +185,21 @@ def _append_literal(output: bytearray, data: bytes) -> None:
 def _split_records(data: bytes) -> List[bytes]:
     if not data:
         return []
-    records = data.splitlines(keepends=True)
+    records = []
+    offset = 0
+    while offset < len(data):
+        newline = data.find(b"\n", offset)
+        end = len(data) if newline < 0 else newline + 1
+        records.append(data[offset:end])
+        offset = end
     if b"".join(records) != data:
         raise AssertionError("line splitting changed JSON-log bytes")
     return records
 
 
-def transform(data: bytes) -> Tuple[bytes, List[bytes], Dict[str, TelemetryValue]]:
+def _transform_components(
+    data: bytes,
+) -> Tuple[bytes, List[bytes], Dict[str, TelemetryValue]]:
     skeleton = bytearray()
     channels: List[bytearray] = []
     channel_by_key: Dict[bytes, int] = {}
@@ -229,6 +248,148 @@ def transform(data: bytes) -> Tuple[bytes, List[bytes], Dict[str, TelemetryValue
     }
 
 
+def _telemetry_int(
+    telemetry: Dict[str, TelemetryValue],
+    key: str,
+) -> int:
+    value = telemetry.get(key)
+    if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+        raise ValueError(f"JSON-column telemetry {key} is invalid")
+    return value
+
+
+def pack_transform(
+    skeleton: bytes,
+    channels: List[bytes],
+    telemetry: Dict[str, TelemetryValue],
+) -> bytes:
+    if len(channels) > MAX_CHANNELS:
+        raise ValueError("JSON-column transform has too many channels")
+    record_count = _telemetry_int(telemetry, "record_count")
+    extracted_records = _telemetry_int(telemetry, "extracted_records")
+    extracted_values = _telemetry_int(telemetry, "extracted_values")
+    if extracted_records > record_count:
+        raise ValueError("JSON-column extracted record count is invalid")
+    output = bytearray(
+        TRANSFORM_HEADER.pack(
+            TRANSFORM_MAGIC,
+            len(channels),
+            len(skeleton),
+            record_count,
+            extracted_records,
+            extracted_values,
+        )
+    )
+    for channel in channels:
+        output.extend(TRANSFORM_CHANNEL_HEADER.pack(len(channel)))
+    output.extend(skeleton)
+    for channel in channels:
+        output.extend(channel)
+    return bytes(output)
+
+
+def unpack_transform(
+    data: bytes,
+) -> Tuple[bytes, List[bytes], Dict[str, TelemetryValue]]:
+    if len(data) < TRANSFORM_HEADER.size:
+        raise ValueError("JSON-column raw transform is truncated")
+    (
+        magic,
+        channel_count,
+        skeleton_size,
+        record_count,
+        extracted_records,
+        extracted_values,
+    ) = TRANSFORM_HEADER.unpack_from(data)
+    if magic != TRANSFORM_MAGIC:
+        raise ValueError("JSON-column raw transform magic mismatch")
+    if channel_count > MAX_CHANNELS:
+        raise ValueError("JSON-column raw transform has too many channels")
+    if extracted_records > record_count:
+        raise ValueError("JSON-column raw transform telemetry is invalid")
+    table_end = (
+        TRANSFORM_HEADER.size
+        + channel_count * TRANSFORM_CHANNEL_HEADER.size
+    )
+    if table_end > len(data):
+        raise ValueError("JSON-column raw channel table is truncated")
+    channel_sizes = []
+    offset = TRANSFORM_HEADER.size
+    for _ in range(channel_count):
+        (size,) = TRANSFORM_CHANNEL_HEADER.unpack_from(data, offset)
+        channel_sizes.append(size)
+        offset += TRANSFORM_CHANNEL_HEADER.size
+    skeleton_end = table_end + skeleton_size
+    if skeleton_end > len(data):
+        raise ValueError("JSON-column raw skeleton is truncated")
+    skeleton = data[table_end:skeleton_end]
+    channels = []
+    offset = skeleton_end
+    for size in channel_sizes:
+        end = offset + size
+        if end > len(data):
+            raise ValueError("JSON-column raw channel is truncated")
+        channels.append(data[offset:end])
+        offset = end
+    if offset != len(data):
+        raise ValueError("JSON-column raw transform has trailing data")
+    return skeleton, channels, {
+        "record_count": record_count,
+        "extracted_records": extracted_records,
+        "literal_records": record_count - extracted_records,
+        "extracted_values": extracted_values,
+        "channel_count": channel_count,
+        "skeleton_bytes": len(skeleton),
+        "channel_bytes": sum(len(channel) for channel in channels),
+    }
+
+
+def transform_reference(
+    data: bytes,
+) -> Tuple[bytes, List[bytes], Dict[str, TelemetryValue]]:
+    return _transform_components(data)
+
+
+def transform(data: bytes) -> Tuple[bytes, List[bytes], Dict[str, TelemetryValue]]:
+    if native_available():
+        return unpack_transform(native_transform(data))
+    return transform_reference(data)
+
+
+def _worker_count(stream_count: int) -> int:
+    return min(stream_count, max(1, os.cpu_count() or 1))
+
+
+def _compress_channels(channels: List[bytes], level: int) -> List[bytes]:
+    if len(channels) < 2:
+        return [zstd_compress(channel, level=level) for channel in channels]
+    with ThreadPoolExecutor(max_workers=_worker_count(len(channels))) as executor:
+        return list(
+            executor.map(
+                lambda channel: zstd_compress(channel, level=level),
+                channels,
+            )
+        )
+
+
+def _decompress_channel(
+    item: Tuple[bytes, int],
+) -> bytes:
+    payload, raw_size = item
+    return zstd_decompress(payload, raw_size)
+
+
+def _decompress_channels(
+    payloads: List[bytes],
+    raw_sizes: List[int],
+) -> List[bytes]:
+    items = list(zip(payloads, raw_sizes))
+    if len(items) < 2:
+        return [_decompress_channel(item) for item in items]
+    with ThreadPoolExecutor(max_workers=_worker_count(len(items))) as executor:
+        return list(executor.map(_decompress_channel, items))
+
+
 def compress(
     data: bytes,
     *,
@@ -236,9 +397,7 @@ def compress(
 ) -> Tuple[bytes, Dict[str, TelemetryValue]]:
     skeleton, channels, telemetry = transform(data)
     skeleton_payload = zstd_compress(skeleton, level=level)
-    channel_payloads = [
-        zstd_compress(channel, level=level) for channel in channels
-    ]
+    channel_payloads = _compress_channels(channels, level)
     output = bytearray(
         HEADER.pack(
             MAGIC,
@@ -260,8 +419,65 @@ def compress(
         "encoded_bytes": len(output),
         "skeleton_payload_bytes": len(skeleton_payload),
         "channel_payload_bytes": sum(len(payload) for payload in channel_payloads),
+        "channel_workers": _worker_count(len(channels)),
         "zstd_level": level,
     }
+
+
+def _reassemble_python(
+    skeleton: bytes,
+    channels: List[bytes],
+    original_size: int,
+) -> bytes:
+    channel_offsets = [0] * len(channels)
+    output = bytearray()
+    offset = 0
+    while offset < len(skeleton):
+        marker = skeleton.find(bytes((MARKER,)), offset)
+        if marker < 0:
+            literal = skeleton[offset:]
+            if len(literal) > original_size - len(output):
+                raise ValueError("JSON-column output exceeds declared size")
+            output.extend(literal)
+            break
+        literal = skeleton[offset:marker]
+        if len(literal) > original_size - len(output):
+            raise ValueError("JSON-column output exceeds declared size")
+        output.extend(literal)
+        offset = marker + 1
+        if offset >= len(skeleton):
+            raise ValueError("JSON-column marker is truncated")
+        tag = skeleton[offset]
+        offset += 1
+        if tag == MARKER_LITERAL:
+            if len(output) >= original_size:
+                raise ValueError("JSON-column output exceeds declared size")
+            output.append(MARKER)
+            continue
+        if tag != MARKER_CHANNEL:
+            raise ValueError("JSON-column marker tag is invalid")
+        channel_id, offset = _decode_varint(skeleton, offset)
+        if channel_id >= len(channels):
+            raise ValueError("JSON-column channel reference is invalid")
+        channel = channels[channel_id]
+        channel_offset = channel_offsets[channel_id]
+        value_size, value_offset = _decode_varint(channel, channel_offset)
+        value_end = value_offset + value_size
+        if value_end > len(channel):
+            raise ValueError("JSON-column value is truncated")
+        value = channel[value_offset:value_end]
+        if len(value) > original_size - len(output):
+            raise ValueError("JSON-column output exceeds declared size")
+        output.extend(value)
+        channel_offsets[channel_id] = value_end
+    if any(
+        channel_offsets[index] != len(channel)
+        for index, channel in enumerate(channels)
+    ):
+        raise ValueError("JSON-column channel has unconsumed values")
+    if len(output) != original_size:
+        raise ValueError("JSON-column output size mismatch")
+    return bytes(output)
 
 
 def decompress(
@@ -314,68 +530,35 @@ def decompress(
             frame[header_end:skeleton_end],
             skeleton_size,
         )
-        channels = []
+        channel_payloads = []
+        raw_sizes = []
         offset = skeleton_end
         for raw_size, payload_size in channel_sizes:
             end = offset + payload_size
             if end > len(frame):
                 raise ValueError("JSON-column channel payload is truncated")
-            channels.append(zstd_decompress(frame[offset:end], raw_size))
+            channel_payloads.append(frame[offset:end])
+            raw_sizes.append(raw_size)
             offset = end
+        channels = _decompress_channels(channel_payloads, raw_sizes)
     except RuntimeError as error:
         raise ValueError(f"invalid JSON-column payload: {error}") from error
     if offset != len(frame):
         raise ValueError("JSON-column frame has trailing data")
 
-    channel_offsets = [0] * channel_count
-    output = bytearray()
-    offset = 0
-    while offset < len(skeleton):
-        marker = skeleton.find(bytes((MARKER,)), offset)
-        if marker < 0:
-            literal = skeleton[offset:]
-            if len(literal) > original_size - len(output):
-                raise ValueError("JSON-column output exceeds declared size")
-            output.extend(literal)
-            break
-        literal = skeleton[offset:marker]
-        if len(literal) > original_size - len(output):
-            raise ValueError("JSON-column output exceeds declared size")
-        output.extend(literal)
-        offset = marker + 1
-        if offset >= len(skeleton):
-            raise ValueError("JSON-column marker is truncated")
-        tag = skeleton[offset]
-        offset += 1
-        if tag == MARKER_LITERAL:
-            if len(output) >= original_size:
-                raise ValueError("JSON-column output exceeds declared size")
-            output.append(MARKER)
-            continue
-        if tag != MARKER_CHANNEL:
-            raise ValueError("JSON-column marker tag is invalid")
-        channel_id, offset = _decode_varint(skeleton, offset)
-        if channel_id >= channel_count:
-            raise ValueError("JSON-column channel reference is invalid")
-        channel = channels[channel_id]
-        channel_offset = channel_offsets[channel_id]
-        value_size, value_offset = _decode_varint(channel, channel_offset)
-        value_end = value_offset + value_size
-        if value_end > len(channel):
-            raise ValueError("JSON-column value is truncated")
-        value = channel[value_offset:value_end]
-        if len(value) > original_size - len(output):
-            raise ValueError("JSON-column output exceeds declared size")
-        output.extend(value)
-        channel_offsets[channel_id] = value_end
-    if any(
-        channel_offsets[index] != len(channel)
-        for index, channel in enumerate(channels)
-    ):
-        raise ValueError("JSON-column channel has unconsumed values")
-    if len(output) != original_size:
-        raise ValueError("JSON-column output size mismatch")
-    restored = bytes(output)
+    if native_available():
+        raw_transform = pack_transform(
+            skeleton,
+            channels,
+            {
+                "record_count": 0,
+                "extracted_records": 0,
+                "extracted_values": 0,
+            },
+        )
+        restored = native_reassemble(raw_transform, original_size)
+    else:
+        restored = _reassemble_python(skeleton, channels, original_size)
     if hashlib.sha256(restored).digest() != expected_sha256:
         raise ValueError("JSON-column frame SHA-256 mismatch")
     return restored

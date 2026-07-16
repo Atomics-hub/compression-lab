@@ -79,6 +79,21 @@ def _load_library() -> Optional[ctypes.CDLL]:
         ctypes.c_size_t,
     ]
     library.clab_log_transform_decode.restype = ctypes.c_int
+    library.clab_json_columnar_transform.argtypes = [
+        ctypes.c_void_p,
+        ctypes.c_size_t,
+        ctypes.c_void_p,
+        ctypes.c_size_t,
+        ctypes.POINTER(ctypes.c_size_t),
+    ]
+    library.clab_json_columnar_transform.restype = ctypes.c_int
+    library.clab_json_columnar_reassemble.argtypes = [
+        ctypes.c_void_p,
+        ctypes.c_size_t,
+        ctypes.c_void_p,
+        ctypes.c_size_t,
+    ]
+    library.clab_json_columnar_reassemble.restype = ctypes.c_int
     library.clab_structured_text_encode.argtypes = [
         ctypes.c_void_p,
         ctypes.c_size_t,
@@ -208,6 +223,47 @@ def log_transform_decode(data: bytes, expected_size: int) -> bytes:
     )
     if result != 0:
         raise ValueError(f"native log transform decode failed with status {result}")
+    return output.raw[:expected_size]
+
+
+def json_columnar_transform(data: bytes) -> bytes:
+    library = _load_library()
+    if library is None:
+        raise RuntimeError("compression-lab native library is not built")
+    source = ctypes.c_char_p(data)
+    capacity = len(data) * 2 + 40 + 256 * 8 + 4096
+    output = ctypes.create_string_buffer(max(1, capacity))
+    output_len = ctypes.c_size_t()
+    result = library.clab_json_columnar_transform(
+        source,
+        len(data),
+        output,
+        capacity,
+        ctypes.byref(output_len),
+    )
+    if result != 0:
+        raise RuntimeError(
+            f"native JSON-column transform failed with status {result}"
+        )
+    return output.raw[:output_len.value]
+
+
+def json_columnar_reassemble(data: bytes, expected_size: int) -> bytes:
+    library = _load_library()
+    if library is None:
+        raise RuntimeError("compression-lab native library is not built")
+    source = ctypes.c_char_p(data)
+    output = ctypes.create_string_buffer(max(1, expected_size))
+    result = library.clab_json_columnar_reassemble(
+        source,
+        len(data),
+        output,
+        expected_size,
+    )
+    if result != 0:
+        raise ValueError(
+            f"native JSON-column reassembly failed with status {result}"
+        )
     return output.raw[:expected_size]
 
 
@@ -430,7 +486,7 @@ def zstd_compress(data: bytes, level: int = 3) -> bytes:
             return module.ZstdCompressor(level=level).compress(data)
         except module.ZstdError as error:
             raise RuntimeError(f"python-zstandard compression failed: {error}") from error
-    source = ctypes.create_string_buffer(data, max(1, len(data)))
+    source = ctypes.c_char_p(data)
     capacity = int(library.ZSTD_compressBound(len(data)))
     output = ctypes.create_string_buffer(max(1, capacity))
     result = int(library.ZSTD_compress(output, capacity, source, len(data), level))
@@ -451,7 +507,7 @@ def zstd_frame_content_size(data: bytes) -> int:
         if result < 0:
             raise ValueError("Zstandard frame content size is invalid or unknown")
         return result
-    source = ctypes.create_string_buffer(data, max(1, len(data)))
+    source = ctypes.c_char_p(data)
     result = int(library.ZSTD_getFrameContentSize(source, len(data)))
     if result == _ZSTD_CONTENTSIZE_ERROR:
         raise ValueError("libzstd frame content size is invalid")
@@ -482,7 +538,7 @@ def zstd_decompress(data: bytes, expected_size: Optional[int] = None) -> bytes:
         return result
     if expected_size is None:
         expected_size = zstd_frame_content_size(data)
-    source = ctypes.create_string_buffer(data, max(1, len(data)))
+    source = ctypes.c_char_p(data)
     output = ctypes.create_string_buffer(max(1, expected_size))
     result = int(library.ZSTD_decompress(output, expected_size, source, len(data)))
     _zstd_error(library, result)
