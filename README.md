@@ -62,7 +62,8 @@ restored_path = compresslab.decompress_file(compressed_path, "report.copy.json")
 ```
 
 The format contract is in `docs/file-format.md`; security boundaries are in
-`SECURITY.md`.
+`SECURITY.md`. Dependency and benchmark-tool licenses are summarized in
+`THIRD_PARTY_NOTICES.md`.
 
 ## Reproduce the research harness
 

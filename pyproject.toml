@@ -71,10 +71,12 @@ target-version = "py39"
 [tool.cibuildwheel]
 build = "cp312-*"
 skip = "*-musllinux_* *-win32"
-test-command = "python -c \"import compresslab; data=b'wheel-test'*10000; assert compresslab.decompress(compresslab.compress(data)) == data\""
+test-command = "python -c \"import compresslab, compresslab.native as native; assert native.native_available(); assert '_native' in str(native._library_path()); data=b'wheel-test'*10000; assert compresslab.decompress(compresslab.compress(data)) == data\""
 
 [tool.cibuildwheel.linux]
 archs = ["x86_64", "aarch64"]
+before-all = "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain 1.96.0"
+environment = { PATH = "$HOME/.cargo/bin:$PATH" }
 
 [tool.cibuildwheel.macos]
 archs = ["x86_64", "arm64"]

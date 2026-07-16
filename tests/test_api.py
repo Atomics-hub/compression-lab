@@ -3,6 +3,7 @@ import contextlib
 import io
 import json
 from pathlib import Path
+import re
 import tempfile
 import unittest
 
@@ -119,6 +120,23 @@ class PublicApiTests(unittest.TestCase):
             compresslab.inspect_frame(encoded[:20])
         with self.assertRaisesRegex(ValueError, "trailing data"):
             compresslab.inspect_frame(encoded + b"x")
+
+    def test_release_versions_are_consistent(self):
+        repository = Path(__file__).resolve().parents[1]
+        pyproject = (repository / "pyproject.toml").read_text(encoding="utf-8")
+        cargo = (repository / "native" / "Cargo.toml").read_text(encoding="utf-8")
+        pyproject_version = re.search(
+            r'^version = "([^"]+)"$', pyproject, flags=re.MULTILINE
+        )
+        cargo_version = re.search(
+            r'^version = "([^"]+)"$', cargo, flags=re.MULTILINE
+        )
+        self.assertIsNotNone(pyproject_version)
+        self.assertIsNotNone(cargo_version)
+        self.assertEqual(pyproject_version.group(1), compresslab.__version__)
+        self.assertEqual(cargo_version.group(1), compresslab.__version__)
+        changelog = (repository / "CHANGELOG.md").read_text(encoding="utf-8")
+        self.assertIn(f"## [{compresslab.__version__}]", changelog)
 
 
 if __name__ == "__main__":

@@ -374,7 +374,10 @@ def zstd_compress(data: bytes, level: int = 3) -> bytes:
         module = _load_python_zstd()
         if module is None:
             raise RuntimeError("Zstandard is unavailable")
-        return module.ZstdCompressor(level=level).compress(data)
+        try:
+            return module.ZstdCompressor(level=level).compress(data)
+        except module.ZstdError as error:
+            raise RuntimeError(f"python-zstandard compression failed: {error}") from error
     source = ctypes.create_string_buffer(data, max(1, len(data)))
     capacity = int(library.ZSTD_compressBound(len(data)))
     output = ctypes.create_string_buffer(max(1, capacity))
@@ -389,7 +392,10 @@ def zstd_frame_content_size(data: bytes) -> int:
         module = _load_python_zstd()
         if module is None:
             raise RuntimeError("Zstandard is unavailable")
-        result = int(module.frame_content_size(data))
+        try:
+            result = int(module.frame_content_size(data))
+        except module.ZstdError as error:
+            raise ValueError(f"invalid Zstandard frame: {error}") from error
         if result < 0:
             raise ValueError("Zstandard frame content size is invalid or unknown")
         return result
@@ -410,9 +416,12 @@ def zstd_decompress(data: bytes, expected_size: Optional[int] = None) -> bytes:
             raise RuntimeError("Zstandard is unavailable")
         if expected_size is None:
             expected_size = zstd_frame_content_size(data)
-        result = module.ZstdDecompressor().decompress(
-            data, max_output_size=max(1, expected_size)
-        )
+        try:
+            result = module.ZstdDecompressor().decompress(
+                data, max_output_size=max(1, expected_size)
+            )
+        except module.ZstdError as error:
+            raise ValueError(f"invalid Zstandard payload: {error}") from error
         if len(result) != expected_size:
             raise ValueError(
                 f"Zstandard output size mismatch: expected {expected_size}, "

@@ -4,6 +4,7 @@ import random
 import hashlib
 import tempfile
 from pathlib import Path
+from unittest.mock import patch
 
 from compresslab.codecs import codec_by_id
 from compresslab.adaptive_v3 import (
@@ -34,6 +35,7 @@ from compresslab.native import (
     zstd_available,
     zstd_compress,
     zstd_decompress,
+    zstd_engine,
     zstd_frame_content_size,
 )
 
@@ -85,6 +87,17 @@ class AdaptiveFrameTests(unittest.TestCase):
         self.assertEqual(zstd_decompress(encoded, len(source)), source)
         self.assertEqual(zstd_decompress(encoded), source)
 
+    def test_python_zstandard_fallback_normalizes_corruption_errors(self):
+        source = (b"portable-zstandard\n" * 1000) + bytes(range(256))
+        with patch("compresslab.native._load_zstd", return_value=None):
+            encoded = zstd_compress(source, level=3)
+            self.assertEqual(zstd_engine(), "python-zstandard")
+            self.assertEqual(zstd_decompress(encoded, len(source)), source)
+            corrupted = bytearray(encoded)
+            corrupted[-1] ^= 0x01
+            with self.assertRaisesRegex(ValueError, "invalid Zstandard payload"):
+                zstd_decompress(bytes(corrupted), len(source))
+
     def test_zstd_baseline_uses_in_process_library(self):
         if not zstd_available() or not codec_by_id("zstd-3").available:
             self.skipTest("zstd baseline dependencies are unavailable")
@@ -96,8 +109,8 @@ class AdaptiveFrameTests(unittest.TestCase):
             source.write_bytes((b"native-baseline\n" * 10000) + bytes(range(256)))
             compressed = run_codec("zstd-3", "compress", source, encoded)
             decompressed = run_codec("zstd-3", "decompress", encoded, restored)
-            self.assertEqual(compressed["codec_engine"], "libzstd-ffi")
-            self.assertEqual(decompressed["codec_engine"], "libzstd-ffi")
+            self.assertEqual(compressed["codec_engine"], zstd_engine())
+            self.assertEqual(decompressed["codec_engine"], zstd_engine())
             self.assertEqual(restored.read_bytes(), source.read_bytes())
 
     def test_v1_selects_numeric_transform_when_it_wins(self):
@@ -128,7 +141,7 @@ class AdaptiveFrameTests(unittest.TestCase):
             self.assertEqual(decoded["selected_backend"], expected_backend)
             self.assertLessEqual(detail["selector_sample_bytes"], 48 * 1024)
             if "zstd" in expected_backend:
-                self.assertEqual(detail["codec_engine"], "libzstd-ffi")
+                self.assertEqual(detail["codec_engine"], zstd_engine())
 
         v1_encoded, _ = _adaptive_compress(cases[0][0], allow_transform=True)
         self.assertEqual(v1_encoded[4], 1)

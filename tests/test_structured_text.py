@@ -8,6 +8,7 @@ from compresslab.native import (
     structured_text_encode as native_encode,
     structured_text_zstd_stream_decode,
     structured_text_zstd_stream_decode_into,
+    zstd_ffi_available,
     zstd_compress,
     zstd_decompress,
 )
@@ -137,8 +138,8 @@ class StructuredTextTransformTests(unittest.TestCase):
         self.assertEqual(native_decode(transformed, len(source)), source)
 
     def test_streaming_zstd_decode_handles_tiny_chunks_and_corruption(self):
-        if not native_available():
-            self.skipTest("native library has not been built")
+        if not native_available() or not zstd_ffi_available():
+            self.skipTest("native streaming Zstandard dependencies are unavailable")
         source = (
             b"streaming_identifier shared_identifier value\n" * 10000
         ) + b"\xfftail"
