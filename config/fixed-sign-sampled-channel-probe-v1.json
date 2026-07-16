@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "name": "fixed-sign-sampled-channel-probe-v1",
+  "status": "frozen_before_blind_validation",
+  "frozen_on": "2026-07-15",
+  "protocol": {
+    "path": "docs/benchmarks/2026-07-15-fixed-sign-sampled-probe-protocol.md",
+    "sha256": "022a8b80d9c7d214dc2fd5a158e66eb99bf98d66315b9e26378b1f748c861169"
+  },
+  "sampling_implementation": {
+    "path": "scripts/train-sampled-channel-probe.py",
+    "sha256": "71c1dbdede22e4baacb872cbf05e8d93facc8a2243ced0ed0003a71492b220a9"
+  },
+  "training": {
+    "config_path": "config/public-json-estimator-train-v1.json",
+    "config_sha256": "9522b0219b003fd39a7289c43c0b5bdfe77c7fa12dd10b0522dca37d905ce7ca",
+    "first_run_path": "runs/sampled-channel-probe-training.json",
+    "first_run_sha256": "ae73a67655ac5ce9a290e11fe05bcada6c3a8cbde75fefd92e16c6a2e0637205",
+    "repeat_run_path": "runs/sampled-channel-probe-training-repeat.json",
+    "repeat_run_sha256": "a2fee0497a1f786f2e4c044e890c123425b17fc187b877a1b8f5649235b776f7"
+  },
+  "validation": {
+    "config_path": "config/public-json-estimator-validation-v1.json",
+    "config_sha256": "625c7286f6a990624b40dede8e80812813c8af7c504c0d50b3b82f26df412433",
+    "corpus_path": "corpora/public-json-estimator-validation-v1"
+  },
+  "model": {
+    "body_budget_bytes": 24576,
+    "sample_layout": [
+      "first",
+      "centered",
+      "last"
+    ],
+    "compression": "zstd-3",
+    "score": "complete_sampled_channel_bytes_minus_complete_sampled_interleaved_bytes",
+    "operator": "lt",
+    "threshold_bytes": 0,
+    "tie_decision": "skip_full_channel",
+    "positive_decision": "attempt_full_channel_then_keep_exact_smaller_payload"
+  },
+  "training_evidence": {
+    "families": 10,
+    "winner_families": 2,
+    "loser_families": 8,
+    "predicted_attempts": 2,
+    "available_savings_bytes": 14159,
+    "captured_savings_bytes": 14159,
+    "savings_capture_percent": 100.0,
+    "avoided_losing_attempts_percent": 100.0,
+    "payload_regret_bytes": 0,
+    "payload_regret_percent_of_stx1": 0.0,
+    "first_run_route_time_improvement_percent": 73.624,
+    "repeat_run_route_time_improvement_percent": 62.598,
+    "winner_score_range_bytes": [-356, -26],
+    "loser_score_range_bytes": [36, 413],
+    "repeatability": "exact_except_timing"
+  },
+  "blind_gates": {
+    "minimum_savings_capture_percent": 75.0,
+    "minimum_winner_family_capture_percent_when_at_least_three_winners": 67.0,
+    "minimum_avoided_losing_attempts_percent": 50.0,
+    "maximum_payload_regret_percent_of_stx1": 0.25,
+    "minimum_route_time_improvement_percent": 10.0,
+    "require_exact_interleaved_fallback": true,
+    "require_sample_bound": true,
+    "require_within_run_repeatability": true
+  }
+}

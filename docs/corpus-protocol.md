@@ -56,6 +56,13 @@ beforehand, but transforms, features, compression labels, and benchmarks must
 wait until a complete estimator is serialized. A failed training gate does not
 consume that validation set. Neither corpus replaces the private holdout.
 
+The six-family validation set was opened once on 2026-07-15 only after the
+fixed-sign sampled model and protocol were serialized. That model failed its
+predeclared savings-capture gate, so this validation set is now consumed for
+STX1 channel-routing hypotheses and may not be used to tune a successor. See
+`docs/benchmarks/2026-07-15-fixed-sign-sampled-probe-decision.md`. The private
+holdout remains sealed.
+
 ## Importing additional licensed data
 
     PYTHONPATH="$PWD/src" python3 -m compresslab import-corpus \

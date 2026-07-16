@@ -1,0 +1,804 @@
+{
+  "budgets": [
+    24576,
+    49152,
+    98304,
+    196608
+  ],
+  "final_model": {
+    "mode": "never"
+  },
+  "final_training_metrics": {
+    "available_savings_bytes": 14159,
+    "avoided_losing_attempts": 8,
+    "avoided_losing_attempts_percent": 100.0,
+    "captured_savings_bytes": 0,
+    "families": 10,
+    "generic_channel_attempt_seconds": 0.2596399590000009,
+    "loser_families": 8,
+    "payload_regret_bytes": 14159,
+    "payload_regret_percent_of_stx1": 1.2474746985276821,
+    "predicted_attempts": 0,
+    "probe_routed_seconds": 0.0,
+    "route_time_improvement_percent": 100.0,
+    "savings_capture_percent": 0.0,
+    "winner_families": 2
+  },
+  "leave_one_family_out": {
+    "folds": [
+      {
+        "channel_wins": true,
+        "decision": false,
+        "holdout_family": "chinook",
+        "model": {
+          "mode": "never"
+        }
+      },
+      {
+        "channel_wins": false,
+        "decision": false,
+        "holdout_family": "chrome-devtools-protocol",
+        "model": {
+          "mode": "never"
+        }
+      },
+      {
+        "channel_wins": false,
+        "decision": false,
+        "holdout_family": "kubernetes",
+        "model": {
+          "mode": "never"
+        }
+      },
+      {
+        "channel_wins": true,
+        "decision": false,
+        "holdout_family": "natural-earth",
+        "model": {
+          "mode": "never"
+        }
+      },
+      {
+        "channel_wins": false,
+        "decision": false,
+        "holdout_family": "schemastore",
+        "model": {
+          "mode": "never"
+        }
+      },
+      {
+        "channel_wins": false,
+        "decision": false,
+        "holdout_family": "simdjson",
+        "model": {
+          "mode": "never"
+        }
+      },
+      {
+        "channel_wins": false,
+        "decision": false,
+        "holdout_family": "typescript",
+        "model": {
+          "mode": "never"
+        }
+      },
+      {
+        "channel_wins": false,
+        "decision": false,
+        "holdout_family": "unicode-cldr",
+        "model": {
+          "mode": "never"
+        }
+      },
+      {
+        "channel_wins": false,
+        "decision": false,
+        "holdout_family": "vega",
+        "model": {
+          "mode": "never"
+        }
+      },
+      {
+        "channel_wins": false,
+        "decision": false,
+        "holdout_family": "webpack",
+        "model": {
+          "mode": "never"
+        }
+      }
+    ],
+    "gates": {
+      "avoided_losing_attempts": true,
+      "payload_regret": false,
+      "route_time": true,
+      "savings_capture": false
+    },
+    "metrics": {
+      "available_savings_bytes": 14159,
+      "avoided_losing_attempts": 8,
+      "avoided_losing_attempts_percent": 100.0,
+      "captured_savings_bytes": 0,
+      "families": 10,
+      "generic_channel_attempt_seconds": 0.2596399590000009,
+      "loser_families": 8,
+      "payload_regret_bytes": 14159,
+      "payload_regret_percent_of_stx1": 1.2474746985276821,
+      "predicted_attempts": 0,
+      "probe_routed_seconds": 0.0,
+      "route_time_improvement_percent": 100.0,
+      "savings_capture_percent": 0.0,
+      "winner_families": 2
+    },
+    "passed": false
+  },
+  "protocol": "sampled-token-channel-probe-v1",
+  "rows": [
+    {
+      "available_savings_bytes": 5915,
+      "channel_attempt_seconds": 0.0611897079999999,
+      "channel_bytes": 164515,
+      "channel_delta_bytes": -5915,
+      "channel_wins": true,
+      "dataset": "chinook-json-1.4.5",
+      "false_positive_cost_bytes": 764871.3499999987,
+      "family": "chinook",
+      "features": {
+        "dictionary_utilization": 1.0,
+        "entropy": 0.6242167916725226,
+        "mean_code": 0.08166731277086058,
+        "repeat_rate": 0.001302630473149004,
+        "side_density": 0.04887253301351756,
+        "top1_share": 0.2025071783738357,
+        "top4_share": 0.45919182015547305
+      },
+      "input_bytes": 1897482,
+      "interleaved_bytes": 170430,
+      "path": "2998161de437-00-chinookdata.json",
+      "samples": {
+        "196608": {
+          "budget_bytes": 196608,
+          "channel_bytes": 32185,
+          "interleaved_bytes": 33003,
+          "normalized": -4138.335761696616,
+          "probe_seconds": 0.005535624999999822,
+          "raw": -818.0,
+          "sample_bytes": 197664,
+          "sample_sha256": "3fdc367300fed3cb089e9cd44ceb3a22d46d55fa5548e58546559671fe328871"
+        },
+        "24576": {
+          "budget_bytes": 24576,
+          "channel_bytes": 5364,
+          "interleaved_bytes": 5390,
+          "normalized": -1014.3570536828964,
+          "probe_seconds": 0.0004094580000000292,
+          "raw": -26.0,
+          "sample_bytes": 25632,
+          "sample_sha256": "17b369c3f34366cba49ed7623ff754f46a048c0f05a14a9c2e30995ca94e6128"
+        },
+        "49152": {
+          "budget_bytes": 49152,
+          "channel_bytes": 9868,
+          "interleaved_bytes": 9942,
+          "normalized": -1473.8687061822816,
+          "probe_seconds": 0.0006787500000000612,
+          "raw": -74.0,
+          "sample_bytes": 50208,
+          "sample_sha256": "6686383b098e0e98c607fe70393effd6edb20e3f1c83d040ad65c6d95caa88b7"
+        },
+        "98304": {
+          "budget_bytes": 98304,
+          "channel_bytes": 17829,
+          "interleaved_bytes": 18090,
+          "normalized": -2626.8115942028985,
+          "probe_seconds": 0.0016974160000002847,
+          "raw": -261.0,
+          "sample_bytes": 99360,
+          "sample_sha256": "0fd2c43d0e417fcc91011bbaf1d31acacea5a337a81a10f8d7aa77aaf6b28ac5"
+        }
+      },
+      "sha256": "2998161de437518e3447e779c7ce7418f081895e388081bff315f3c258752d8c",
+      "transformed_bytes": 1460841
+    },
+    {
+      "available_savings_bytes": 0,
+      "channel_attempt_seconds": 0.12081979200000026,
+      "channel_bytes": 163828,
+      "channel_delta_bytes": 7291,
+      "channel_wins": false,
+      "dataset": "chrome-devtools-protocol-2c7c583a",
+      "false_positive_cost_bytes": 1510247.4000000032,
+      "family": "chrome-devtools-protocol",
+      "features": {
+        "dictionary_utilization": 1.0,
+        "entropy": 0.741766431839091,
+        "mean_code": 0.15386567314653168,
+        "repeat_rate": 0.015954679461240535,
+        "side_density": 0.026795111377176876,
+        "top1_share": 0.13352987080551462,
+        "top4_share": 0.40790196248446486
+      },
+      "input_bytes": 1426498,
+      "interleaved_bytes": 156537,
+      "path": "59ec7922ec52-05-browser_protocol.json",
+      "samples": {
+        "196608": {
+          "budget_bytes": 196608,
+          "channel_bytes": 28736,
+          "interleaved_bytes": 27855,
+          "normalized": 4454.061487282415,
+          "probe_seconds": 0.003144458000000405,
+          "raw": 881.0,
+          "sample_bytes": 197797,
+          "sample_sha256": "9cff548b8a3392c1938f4cb13242aba76f1f12634c2903dc2b3d92224492dda0"
+        },
+        "24576": {
+          "budget_bytes": 24576,
+          "channel_bytes": 4575,
+          "interleaved_bytes": 4470,
+          "normalized": 4075.4541220307406,
+          "probe_seconds": 0.0005335000000004086,
+          "raw": 105.0,
+          "sample_bytes": 25764,
+          "sample_sha256": "bfa78b7f0e3f9a1ef352511af5563982a14c351780248a2aa8c81ac70427102b"
+        },
+        "49152": {
+          "budget_bytes": 49152,
+          "channel_bytes": 8086,
+          "interleaved_bytes": 7823,
+          "normalized": 5224.369797977792,
+          "probe_seconds": 0.017689332999999863,
+          "raw": 263.0,
+          "sample_bytes": 50341,
+          "sample_sha256": "34291a61b2afb1db12559a64dda3f24713692f6acc3858b3fccbf81cd037b14c"
+        },
+        "98304": {
+          "budget_bytes": 98304,
+          "channel_bytes": 14753,
+          "interleaved_bytes": 14306,
+          "normalized": 4492.778386419145,
+          "probe_seconds": 0.011378499999999292,
+          "raw": 447.0,
+          "sample_bytes": 99493,
+          "sample_sha256": "d9fe3ce9bd77447d7a07d5b29824f342ce5211d38c1139e49521c0f1c5e52140"
+        }
+      },
+      "sha256": "59ec7922ec52c2ee7878d80c9bbb1112cbcb0b6546ae37b6d8668192b91c8e34",
+      "transformed_bytes": 1291243
+    },
+    {
+      "available_savings_bytes": 0,
+      "channel_attempt_seconds": 0.020566417000000392,
+      "channel_bytes": 251665,
+      "channel_delta_bytes": 15360,
+      "channel_wins": false,
+      "dataset": "kubernetes-openapi-1b4e48f5",
+      "false_positive_cost_bytes": 257080.2125000049,
+      "family": "kubernetes",
+      "features": {
+        "dictionary_utilization": 1.0,
+        "entropy": 0.8772626015861541,
+        "mean_code": 0.3306266263896709,
+        "repeat_rate": 0.014727028775170924,
+        "side_density": 0.058571212088953904,
+        "top1_share": 0.07976607937050975,
+        "top4_share": 0.22109134450906603
+      },
+      "input_bytes": 4066190,
+      "interleaved_bytes": 236305,
+      "path": "6938670a70e2-01-swagger.json",
+      "samples": {
+        "196608": {
+          "budget_bytes": 196608,
+          "channel_bytes": 18747,
+          "interleaved_bytes": 17930,
+          "normalized": 4126.429350680836,
+          "probe_seconds": 0.002539417000000377,
+          "raw": 817.0,
+          "sample_bytes": 197992,
+          "sample_sha256": "f8d4ff77e7ec0592b1413c5d3bfa1c3edd76cf0d07eff3a48038670b83c76690"
+        },
+        "24576": {
+          "budget_bytes": 24576,
+          "channel_bytes": 5550,
+          "interleaved_bytes": 5423,
+          "normalized": 4892.141756548536,
+          "probe_seconds": 0.0005097090000001359,
+          "raw": 127.0,
+          "sample_bytes": 25960,
+          "sample_sha256": "44c23e0b24aba8e55cfde81d605536c8181f287adfd2aa38a5ce6ff36e7de72a"
+        },
+        "49152": {
+          "budget_bytes": 49152,
+          "channel_bytes": 8187,
+          "interleaved_bytes": 7993,
+          "normalized": 3838.923518353616,
+          "probe_seconds": 0.0013364169999992015,
+          "raw": 194.0,
+          "sample_bytes": 50535,
+          "sample_sha256": "e3de3242702067f60822fe7d153d7409c2c5557cf10434f5134130526bbb6e22"
+        },
+        "98304": {
+          "budget_bytes": 98304,
+          "channel_bytes": 12700,
+          "interleaved_bytes": 12353,
+          "normalized": 3480.8602840863496,
+          "probe_seconds": 0.00497558400000031,
+          "raw": 347.0,
+          "sample_bytes": 99688,
+          "sample_sha256": "98026ce0f8397c540078238a644c208a97aee2b3887b26235426ca97f8b6b356"
+        }
+      },
+      "sha256": "6938670a70e28085394cbf6f20a446285c099b0bd4e9110c9d6739d53b08640b",
+      "transformed_bytes": 3193924
+    },
+    {
+      "available_savings_bytes": 8244,
+      "channel_attempt_seconds": 0.009397791999999683,
+      "channel_bytes": 175890,
+      "channel_delta_bytes": -8244,
+      "channel_wins": true,
+      "dataset": "natural-earth-admin0-ca96624a",
+      "false_positive_cost_bytes": 117472.39999999604,
+      "family": "natural-earth",
+      "features": {
+        "dictionary_utilization": 1.0,
+        "entropy": 0.8822560291673481,
+        "mean_code": 0.37693807661729695,
+        "repeat_rate": 0.0001990247785849338,
+        "side_density": 0.04538775608522323,
+        "top1_share": 0.21842244925036486,
+        "top4_share": 0.2729865994427491
+      },
+      "input_bytes": 838726,
+      "interleaved_bytes": 184134,
+      "path": "6866c877d39c-04-ne_110m_admin_0_countries.geojson",
+      "samples": {
+        "196608": {
+          "budget_bytes": 196608,
+          "channel_bytes": 60850,
+          "interleaved_bytes": 62947,
+          "normalized": -10596.689103147171,
+          "probe_seconds": 0.006431624999999386,
+          "raw": -2097.0,
+          "sample_bytes": 197892,
+          "sample_sha256": "149479818189588e498f837afb672a8c08b39b8a46a374d35f5fe67989ba430e"
+        },
+        "24576": {
+          "budget_bytes": 24576,
+          "channel_bytes": 8641,
+          "interleaved_bytes": 8997,
+          "normalized": -13765.902323962722,
+          "probe_seconds": 0.002792874999999917,
+          "raw": -356.0,
+          "sample_bytes": 25861,
+          "sample_sha256": "58762016121af318f355c88775a7430de9bb5124edae92043caf9d36a7a142de"
+        },
+        "49152": {
+          "budget_bytes": 49152,
+          "channel_bytes": 15951,
+          "interleaved_bytes": 16636,
+          "normalized": -13581.568720755016,
+          "probe_seconds": 0.0012871250000001666,
+          "raw": -685.0,
+          "sample_bytes": 50436,
+          "sample_sha256": "cf79500db448dbf0b11973c0100720067ffe677c2e2f380978958fee4eee1a29"
+        },
+        "98304": {
+          "budget_bytes": 98304,
+          "channel_bytes": 30090,
+          "interleaved_bytes": 31448,
+          "normalized": -13636.181065991886,
+          "probe_seconds": 0.003525916999999268,
+          "raw": -1358.0,
+          "sample_bytes": 99588,
+          "sample_sha256": "2048f6069c15a7be1fe9ec2446c5252f91bdc7fcea724f5fd52a1281a2b42e54"
+        }
+      },
+      "sha256": "6866c877d39cba9c357620878839b336d569f8c662d3cfab4cb1dbe2d39c977f",
+      "transformed_bytes": 664232
+    },
+    {
+      "available_savings_bytes": 0,
+      "channel_attempt_seconds": 0.0025714579999993603,
+      "channel_bytes": 72407,
+      "channel_delta_bytes": 2182,
+      "channel_wins": false,
+      "dataset": "schemastore-catalog-773fe876",
+      "false_positive_cost_bytes": 32143.224999992002,
+      "family": "schemastore",
+      "features": {
+        "dictionary_utilization": 1.0,
+        "entropy": 0.7660549048781469,
+        "mean_code": 0.15389307820328635,
+        "repeat_rate": 0.017288378766140602,
+        "side_density": 0.08221379538109505,
+        "top1_share": 0.11172483052975145,
+        "top4_share": 0.2879380223090994
+      },
+      "input_bytes": 452258,
+      "interleaved_bytes": 70225,
+      "path": "dbf2758deca0-06-catalog.json",
+      "samples": {
+        "196608": {
+          "budget_bytes": 196608,
+          "channel_bytes": 44572,
+          "interleaved_bytes": 43231,
+          "normalized": 6778.787097556907,
+          "probe_seconds": 0.005963666999999617,
+          "raw": 1341.0,
+          "sample_bytes": 197823,
+          "sample_sha256": "5195e6a56b7186998a7c27315b62a3843b646ab1b728861e7970fa8ac0d49b59"
+        },
+        "24576": {
+          "budget_bytes": 24576,
+          "channel_bytes": 7018,
+          "interleaved_bytes": 6833,
+          "normalized": 7173.04486061029,
+          "probe_seconds": 0.00056016599999964,
+          "raw": 185.0,
+          "sample_bytes": 25791,
+          "sample_sha256": "26016114e88186cb2970fce070edb3286692c4279a4fc262fe273755e4591b51"
+        },
+        "49152": {
+          "budget_bytes": 49152,
+          "channel_bytes": 12011,
+          "interleaved_bytes": 11662,
+          "normalized": 6929.277687328753,
+          "probe_seconds": 0.0008501659999993194,
+          "raw": 349.0,
+          "sample_bytes": 50366,
+          "sample_sha256": "d3fbf61f04ed0a8b7f6f5a75e55982ad550b7a3ec4129a02bfe99bb8d5fa7ce9"
+        },
+        "98304": {
+          "budget_bytes": 98304,
+          "channel_bytes": 22680,
+          "interleaved_bytes": 22038,
+          "normalized": 6451.094274402621,
+          "probe_seconds": 0.0021280839999997525,
+          "raw": 642.0,
+          "sample_bytes": 99518,
+          "sample_sha256": "54827c0e29c60b844adf5792303a1fe508968fca9734a41cc396afdf7e22d59b"
+        }
+      },
+      "sha256": "dbf2758deca0d62e48e294e5d1495f25643f836c374f3aed689f51ea87327e99",
+      "transformed_bytes": 339128
+    },
+    {
+      "available_savings_bytes": 0,
+      "channel_attempt_seconds": 0.009449166000000453,
+      "channel_bytes": 17221,
+      "channel_delta_bytes": 1550,
+      "channel_wins": false,
+      "dataset": "simdjson-citm-8e6bac94",
+      "false_positive_cost_bytes": 118114.57500000566,
+      "family": "simdjson",
+      "features": {
+        "dictionary_utilization": 1.0,
+        "entropy": 0.4509371783023179,
+        "mean_code": 0.033831641717809696,
+        "repeat_rate": 0.00043680838672102506,
+        "side_density": 0.017531242661548044,
+        "top1_share": 0.31612856258872346,
+        "top4_share": 0.7442579987624213
+      },
+      "input_bytes": 1727204,
+      "interleaved_bytes": 15671,
+      "path": "a73e7a883f6e-07-citm_catalog.json",
+      "samples": {
+        "196608": {
+          "budget_bytes": 196608,
+          "channel_bytes": 7537,
+          "interleaved_bytes": 7087,
+          "normalized": 2265.781165819936,
+          "probe_seconds": 0.005288791999999987,
+          "raw": 450.0,
+          "sample_bytes": 198607,
+          "sample_sha256": "f341bf300ade76be950cc00502bebb89f94b8c90567d6d62b4f9e165865a0a8f"
+        },
+        "24576": {
+          "budget_bytes": 24576,
+          "channel_bytes": 2905,
+          "interleaved_bytes": 2869,
+          "normalized": 1354.656632173095,
+          "probe_seconds": 0.015191125000000305,
+          "raw": 36.0,
+          "sample_bytes": 26575,
+          "sample_sha256": "6298047abea21d2b0ba2646776c5b4f6299ff646c33ab1a416a3866ac2b804e6"
+        },
+        "49152": {
+          "budget_bytes": 49152,
+          "channel_bytes": 3602,
+          "interleaved_bytes": 3477,
+          "normalized": 2443.74499032277,
+          "probe_seconds": 0.0014351249999995375,
+          "raw": 125.0,
+          "sample_bytes": 51151,
+          "sample_sha256": "6b978d03447004bc7f973268af712041ee0c19c55480f4ca131bcd5dc7a39bbf"
+        },
+        "98304": {
+          "budget_bytes": 98304,
+          "channel_bytes": 5032,
+          "interleaved_bytes": 4842,
+          "normalized": 1894.2603910152238,
+          "probe_seconds": 0.007029042000000096,
+          "raw": 190.0,
+          "sample_bytes": 100303,
+          "sample_sha256": "040159d484628e29f790cfc9a63ca01021d721e81a0f415107b36b3bd4b98222"
+        }
+      },
+      "sha256": "a73e7a883f6ea8de113dff59702975e60119b4b58d451d518a929f31c92e2059",
+      "transformed_bytes": 1567088
+    },
+    {
+      "available_savings_bytes": 0,
+      "channel_attempt_seconds": 0.0018060829999999584,
+      "channel_bytes": 51140,
+      "channel_delta_bytes": 1914,
+      "channel_wins": false,
+      "dataset": "typescript-lock-637d5746",
+      "false_positive_cost_bytes": 22576.03749999948,
+      "family": "typescript",
+      "features": {
+        "dictionary_utilization": 1.0,
+        "entropy": 0.7968195484917988,
+        "mean_code": 0.18231506858298488,
+        "repeat_rate": 0.021847770374167092,
+        "side_density": 0.05131990360051422,
+        "top1_share": 0.05900442052661926,
+        "top4_share": 0.2174386571849574
+      },
+      "input_bytes": 369177,
+      "interleaved_bytes": 49226,
+      "path": "fee046e932f0-08-package-lock.json",
+      "samples": {
+        "196608": {
+          "budget_bytes": 196608,
+          "channel_bytes": 40636,
+          "interleaved_bytes": 39576,
+          "normalized": 5348.268119781023,
+          "probe_seconds": 0.0036484999999997214,
+          "raw": 1060.0,
+          "sample_bytes": 198195,
+          "sample_sha256": "db972d87a4bd11b8e22f91b546f0b5c1f594b0953997e431a998fd12bc75ba45"
+        },
+        "24576": {
+          "budget_bytes": 24576,
+          "channel_bytes": 7659,
+          "interleaved_bytes": 7554,
+          "normalized": 4013.301226923518,
+          "probe_seconds": 0.0014670419999998074,
+          "raw": 105.0,
+          "sample_bytes": 26163,
+          "sample_sha256": "d4da67bfc7aeea264199c54ce5e2d6d070a885f5c4871c820b5bb5c026e2abb6"
+        },
+        "49152": {
+          "budget_bytes": 49152,
+          "channel_bytes": 12300,
+          "interleaved_bytes": 12165,
+          "normalized": 2660.675220244782,
+          "probe_seconds": 0.0015330410000000683,
+          "raw": 135.0,
+          "sample_bytes": 50739,
+          "sample_sha256": "fb7b305b7d91f7a64fea3321bfb6759fe6e183ecad62d1ce95c97a6e2f33fb79"
+        },
+        "98304": {
+          "budget_bytes": 98304,
+          "channel_bytes": 21251,
+          "interleaved_bytes": 20856,
+          "normalized": 3954.310198115946,
+          "probe_seconds": 0.003003958999999945,
+          "raw": 395.0,
+          "sample_bytes": 99891,
+          "sample_sha256": "c770075d97a1ae0ab66a331ddeed1e866910f1aba26316fe1f709d32631557d0"
+        }
+      },
+      "sha256": "fee046e932f0ee95acc905e43fbb4b3655a314ada796286c70bb34f507717226",
+      "transformed_bytes": 304151
+    },
+    {
+      "available_savings_bytes": 0,
+      "channel_attempt_seconds": 0.001886333999999934,
+      "channel_bytes": 45040,
+      "channel_delta_bytes": 569,
+      "channel_wins": false,
+      "dataset": "unicode-cldr-likely-subtags-a79b4999",
+      "false_positive_cost_bytes": 23579.174999999173,
+      "family": "unicode-cldr",
+      "features": {
+        "dictionary_utilization": 1.0,
+        "entropy": 0.28936031051004735,
+        "mean_code": 0.03662116744523344,
+        "repeat_rate": 0.6824079485680888,
+        "side_density": 0.04189989275272893,
+        "top1_share": 0.7510518934081346,
+        "top4_share": 0.8674614305750351
+      },
+      "input_bytes": 220093,
+      "interleaved_bytes": 44471,
+      "path": "38345946ad45-02-likelysubtags.json",
+      "samples": {
+        "196608": {
+          "budget_bytes": 196608,
+          "channel_bytes": 43503,
+          "interleaved_bytes": 42872,
+          "normalized": 3199.1806852634886,
+          "probe_seconds": 0.00840920799999978,
+          "raw": 631.0,
+          "sample_bytes": 197238,
+          "sample_sha256": "3934361a83bf0c04ee8390f6f9adda31dcb52d83cf37e5c723d5c0ea2b688938"
+        },
+        "24576": {
+          "budget_bytes": 24576,
+          "channel_bytes": 5943,
+          "interleaved_bytes": 5868,
+          "normalized": 2975.4820280885506,
+          "probe_seconds": 0.0006702089999999217,
+          "raw": 75.0,
+          "sample_bytes": 25206,
+          "sample_sha256": "11fd14c39a9cf25c4161f693436effca14493c5db03731791e08da00168a54df"
+        },
+        "49152": {
+          "budget_bytes": 49152,
+          "channel_bytes": 11045,
+          "interleaved_bytes": 10898,
+          "normalized": 2952.874532963722,
+          "probe_seconds": 0.0008800829999993098,
+          "raw": 147.0,
+          "sample_bytes": 49782,
+          "sample_sha256": "18ec3a6dffb0f00b4ea7d1ee3059304a22579490eeddf1687967649b170feb61"
+        },
+        "98304": {
+          "budget_bytes": 98304,
+          "channel_bytes": 21977,
+          "interleaved_bytes": 21675,
+          "normalized": 3052.5400772231997,
+          "probe_seconds": 0.002016375000000181,
+          "raw": 302.0,
+          "sample_bytes": 98934,
+          "sample_sha256": "4f7f0a0e9d5891ae0d041aeda1894668e86700c3a54a5fc413f877bcc68ad82b"
+        }
+      },
+      "sha256": "38345946ad457213fb39e9645ab50f36b61681bf674b2eef2979a3b58d04afc8",
+      "transformed_bytes": 204201
+    },
+    {
+      "available_savings_bytes": 0,
+      "channel_attempt_seconds": 0.030390417000000447,
+      "channel_bytes": 186576,
+      "channel_delta_bytes": 14661,
+      "channel_wins": false,
+      "dataset": "vega-movies-cad85578",
+      "false_positive_cost_bytes": 379880.2125000056,
+      "family": "vega",
+      "features": {
+        "dictionary_utilization": 1.0,
+        "entropy": 0.7890783199265403,
+        "mean_code": 0.1516761346645376,
+        "repeat_rate": 0.0001567742137773179,
+        "side_density": 0.13922000652595487,
+        "top1_share": 0.07527454868976978,
+        "top4_share": 0.24779537990013561
+      },
+      "input_bytes": 1399981,
+      "interleaved_bytes": 171915,
+      "path": "e63c499759e3-03-movies.json",
+      "samples": {
+        "196608": {
+          "budget_bytes": 196608,
+          "channel_bytes": 43674,
+          "interleaved_bytes": 40613,
+          "normalized": 15494.968311498977,
+          "probe_seconds": 0.00853062499999968,
+          "raw": 3061.0,
+          "sample_bytes": 197548,
+          "sample_sha256": "bb1c1fae317e3431c4c53c1085a5f95908229e2bdae27a95a15b54cdb8aa5f45"
+        },
+        "24576": {
+          "budget_bytes": 24576,
+          "channel_bytes": 6726,
+          "interleaved_bytes": 6313,
+          "normalized": 16186.556927297666,
+          "probe_seconds": 0.0031787909999998476,
+          "raw": 413.0,
+          "sample_bytes": 25515,
+          "sample_sha256": "4775024ef49df6adac2dcc5cb0a1f6fac883558cd9e0aaad1a9aa648ee06d600"
+        },
+        "49152": {
+          "budget_bytes": 49152,
+          "channel_bytes": 12163,
+          "interleaved_bytes": 11341,
+          "normalized": 16410.46116989419,
+          "probe_seconds": 0.0033187080000001146,
+          "raw": 822.0,
+          "sample_bytes": 50090,
+          "sample_sha256": "5ebab05b8697627f2266a171a22e182fbd9028b7c6262151f5c4c565152486ff"
+        },
+        "98304": {
+          "budget_bytes": 98304,
+          "channel_bytes": 22711,
+          "interleaved_bytes": 21184,
+          "normalized": 15386.630660405875,
+          "probe_seconds": 0.003042666999999888,
+          "raw": 1527.0,
+          "sample_bytes": 99242,
+          "sample_sha256": "6fff4e4a070268c3cc754cc8d38951064e349eff6dd1adcd4ea27f84bfbdac11"
+        }
+      },
+      "sha256": "e63c499759e3b07b49563e036f55290f87feb56def8703ec049ca305ab1523d3",
+      "transformed_bytes": 916341
+    },
+    {
+      "available_savings_bytes": 0,
+      "channel_attempt_seconds": 0.0015627920000005346,
+      "channel_bytes": 37330,
+      "channel_delta_bytes": 1231,
+      "channel_wins": false,
+      "dataset": "webpack-options-805ae584",
+      "false_positive_cost_bytes": 19534.900000006684,
+      "family": "webpack",
+      "features": {
+        "dictionary_utilization": 1.0,
+        "entropy": 0.848103208854449,
+        "mean_code": 0.24806053788730953,
+        "repeat_rate": 0.00997506234413965,
+        "side_density": 0.04927381909213308,
+        "top1_share": 0.09838961038961039,
+        "top4_share": 0.2847792207792208
+      },
+      "input_bytes": 238539,
+      "interleaved_bytes": 36099,
+      "path": "4b49a0b8a0c3-09-webpackoptions.json",
+      "samples": {
+        "196608": {
+          "budget_bytes": 196608,
+          "channel_bytes": 37330,
+          "interleaved_bytes": 36099,
+          "normalized": 6301.929485965281,
+          "probe_seconds": 0.005072667000000308,
+          "raw": 1231.0,
+          "sample_bytes": 195337,
+          "sample_sha256": "6d640eed59524795b2f2e172805ed77736aad9e594d6d39f59ecd4fb074fadb1"
+        },
+        "24576": {
+          "budget_bytes": 24576,
+          "channel_bytes": 6690,
+          "interleaved_bytes": 6637,
+          "normalized": 2055.7775105697997,
+          "probe_seconds": 0.0012105829999997653,
+          "raw": 53.0,
+          "sample_bytes": 25781,
+          "sample_sha256": "5847009abfef61bba04f017fb26066c5d64561b0e2160462ab060214053a667c"
+        },
+        "49152": {
+          "budget_bytes": 49152,
+          "channel_bytes": 10752,
+          "interleaved_bytes": 10549,
+          "normalized": 4031.2171098357726,
+          "probe_seconds": 0.0010386250000005148,
+          "raw": 203.0,
+          "sample_bytes": 50357,
+          "sample_sha256": "fd6749a7f34bcaa4faf512275b093740110644339fde7b85d332a536b0611ac4"
+        },
+        "98304": {
+          "budget_bytes": 98304,
+          "channel_bytes": 19753,
+          "interleaved_bytes": 19223,
+          "normalized": 5326.151403390649,
+          "probe_seconds": 0.003933707999999925,
+          "raw": 530.0,
+          "sample_bytes": 99509,
+          "sample_sha256": "2ae650a5106cdca009fe68e943d52748b39c516b39c280009cde25f80d5c4f62"
+        }
+      },
+      "sha256": "4b49a0b8a0c3798a277053fc666d94da3a2c4b645bea40b9fa57cbe82eb4f4f0",
+      "transformed_bytes": 195337
+    }
+  ],
+  "schema_version": 1,
+  "scores": [
+    "raw",
+    "normalized"
+  ],
+  "training_config": "config/public-json-estimator-train-v1.json",
+  "training_config_sha256": "9522b0219b003fd39a7289c43c0b5bdfe77c7fa12dd10b0522dca37d905ce7ca"
+}

@@ -2,7 +2,10 @@ import importlib.util
 from pathlib import Path
 import unittest
 
-from compresslab.native import structured_text_encode
+from compresslab.native import (
+    structured_text_encode,
+    structured_text_split_channels,
+)
 from compresslab.structured_text import DICTIONARY_SAMPLE_BYTES, _dictionary_limit
 
 
@@ -11,6 +14,18 @@ SPEC = importlib.util.spec_from_file_location("token_channel_estimator", SCRIPT)
 assert SPEC is not None and SPEC.loader is not None
 ESTIMATOR = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(ESTIMATOR)
+
+SAMPLED_SCRIPT = (
+    Path(__file__).resolve().parents[1]
+    / "scripts"
+    / "train-sampled-channel-probe.py"
+)
+SAMPLED_SPEC = importlib.util.spec_from_file_location(
+    "sampled_channel_probe", SAMPLED_SCRIPT
+)
+assert SAMPLED_SPEC is not None and SAMPLED_SPEC.loader is not None
+SAMPLED = importlib.util.module_from_spec(SAMPLED_SPEC)
+SAMPLED_SPEC.loader.exec_module(SAMPLED)
 
 
 def row(side_density, top1_share, wins, savings=0, false_positive_cost=1000.0):
@@ -57,6 +72,27 @@ class ChannelEstimatorResearchTests(unittest.TestCase):
         for value in first.values():
             self.assertGreaterEqual(value, 0.0)
             self.assertLessEqual(value, 1.0)
+
+    def test_representative_sample_is_bounded_valid_and_deterministic(self):
+        source = (
+            b'{"shared_identifier":"alpha","other_identifier":"beta"}\n'
+            * 5_000
+        )
+        transformed = structured_text_encode(
+            source,
+            _dictionary_limit(source),
+            DICTIONARY_SAMPLE_BYTES,
+        )
+        budget = 24 * 1024
+        first = SAMPLED.sampled_transform(transformed, budget)
+        second = SAMPLED.sampled_transform(transformed, budget)
+        dictionary_end = SAMPLED.dictionary_end(transformed)
+        self.assertEqual(first, second)
+        self.assertEqual(first[:dictionary_end], transformed[:dictionary_end])
+        self.assertLessEqual(len(first) - dictionary_end, budget)
+        skeleton, side = structured_text_split_channels(first)
+        self.assertGreater(len(skeleton), 0)
+        self.assertGreater(len(side), 0)
 
 
 if __name__ == "__main__":

@@ -293,9 +293,16 @@ The first cheap-benefit estimator is rejected in
 docs/benchmarks/2026-07-15-json-estimator-training-decision.md. Ten public
 training families show that a two-threshold rule can perfectly isolate the two
 winners in-sample, but family-level leave-one-out captures 0% of available
-savings and incurs 1.247% payload regret. The separately frozen six-family
-public validation corpus remains compression-unscored, no native selector was
-integrated, and the private holdout remains sealed.
+savings and incurs 1.247% payload regret.
+
+The bounded real-compression follow-up is rejected in
+docs/benchmarks/2026-07-15-fixed-sign-sampled-probe-decision.md. Its original
+100 Mbps objective also selected `never`. A separately frozen 24 KiB sign rule
+then separated all ten training families but failed the one-time six-family
+blind validation: it skipped both small winners and captured 0 of 420 available
+bytes. No sampled selector was integrated or tuned on the consumed validation
+set, and the private holdout remains sealed. New ratio work must change the
+representation or entropy model rather than further tune STX1 channel routing.
 
 ## Current limitations
 
