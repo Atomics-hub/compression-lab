@@ -43,6 +43,19 @@ external validity. It does not replace the sealed private holdout or support a
 general market-lead claim. Its frozen decision protocol is documented in
 `docs/benchmarks/2026-07-15-expanded-json-protocol.md`.
 
+## JSON estimator train and validation corpora
+
+`config/public-json-estimator-train-v1.json` freezes ten repository-separated
+training families. `config/public-json-estimator-validation-v1.json` freezes
+six additional families with no repository overlap. Rebuild either with the
+generic digest-checking fetcher and the matching cache/output names.
+
+The training corpus may be compression-labeled freely. The estimator
+validation corpus is public but blind: integrity and JSON syntax may be checked
+beforehand, but transforms, features, compression labels, and benchmarks must
+wait until a complete estimator is serialized. A failed training gate does not
+consume that validation set. Neither corpus replaces the private holdout.
+
 ## Importing additional licensed data
 
     PYTHONPATH="$PWD/src" python3 -m compresslab import-corpus \

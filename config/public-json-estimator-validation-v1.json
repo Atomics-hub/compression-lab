@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "name": "public-json-estimator-validation-v1",
+  "claim_ceiling": "blind public estimator validation only; private holdout remains sealed",
+  "sources": [
+    {
+      "dataset": "gemoji-0eca75db",
+      "family": "gemoji",
+      "url": "https://raw.githubusercontent.com/github/gemoji/0eca75db9301421efc8710baf7a7576793ae452a/db/emoji.json",
+      "upstream_commit": "0eca75db9301421efc8710baf7a7576793ae452a",
+      "digest_algorithm": "sha256",
+      "digest": "b174ae2aeb321b52f64adb9ff412f966a7f338839d780784dd15dcad702c2dd6",
+      "license_spdx": "MIT",
+      "license_url": "https://github.com/github/gemoji/blob/0eca75db9301421efc8710baf7a7576793ae452a/LICENSE",
+      "category": "structured-text",
+      "split": "validation"
+    },
+    {
+      "dataset": "countries-09b28e3d",
+      "family": "countries",
+      "url": "https://raw.githubusercontent.com/mledoze/countries/09b28e3d03e6ca3fbbac996d716a50d929781e8c/countries.json",
+      "upstream_commit": "09b28e3d03e6ca3fbbac996d716a50d929781e8c",
+      "digest_algorithm": "sha256",
+      "digest": "2e7584a7f48a13b35d4c4a98cd7d0bafcc6bda3322a9e6ff4c4edbbdad8ec1ec",
+      "license_spdx": "ODbL-1.0",
+      "license_url": "https://github.com/mledoze/countries/blob/09b28e3d03e6ca3fbbac996d716a50d929781e8c/LICENSE",
+      "category": "structured-text",
+      "split": "validation"
+    },
+    {
+      "dataset": "openfootball-en2-2023-24-a5dd38b3",
+      "family": "openfootball",
+      "url": "https://raw.githubusercontent.com/openfootball/football.json/a5dd38b3bcbe3aa2477cf400f569264253d51431/2023-24/en.2.json",
+      "upstream_commit": "a5dd38b3bcbe3aa2477cf400f569264253d51431",
+      "digest_algorithm": "sha256",
+      "digest": "630878e082701dc51e36dc48dfe07250c09bdd0a319bef299a278e9d651c55f6",
+      "license_spdx": "CC0-1.0",
+      "license_url": "https://github.com/openfootball/football.json/blob/a5dd38b3bcbe3aa2477cf400f569264253d51431/LICENSE.md",
+      "category": "structured-text",
+      "split": "validation"
+    },
+    {
+      "dataset": "mdn-bcd-element-cc062133",
+      "family": "mdn-browser-compat-data",
+      "url": "https://raw.githubusercontent.com/mdn/browser-compat-data/cc0621335538f2d773b22e2242b2c3aa63908699/api/Element.json",
+      "upstream_commit": "cc0621335538f2d773b22e2242b2c3aa63908699",
+      "digest_algorithm": "sha256",
+      "digest": "f786f1d8a042760b76ad7ca6ec3376dabec2b8c4d23572d881c12de769233138",
+      "license_spdx": "CC0-1.0",
+      "license_url": "https://github.com/mdn/browser-compat-data/blob/cc0621335538f2d773b22e2242b2c3aa63908699/LICENSE",
+      "category": "structured-text",
+      "split": "validation"
+    },
+    {
+      "dataset": "jupyter-example-113a7b06",
+      "family": "jupyter-notebook",
+      "url": "https://raw.githubusercontent.com/jupyter/notebook/113a7b062fc693dac71aae5c20992cfaf6cebe17/binder/example.ipynb",
+      "upstream_commit": "113a7b062fc693dac71aae5c20992cfaf6cebe17",
+      "digest_algorithm": "sha256",
+      "digest": "c18df66d6ac68fd3788d821cd2af51f6335dddd4b70413ca438ebc1e691ac87d",
+      "license_spdx": "BSD-3-Clause",
+      "license_url": "https://github.com/jupyter/notebook/blob/113a7b062fc693dac71aae5c20992cfaf6cebe17/LICENSE",
+      "category": "structured-text",
+      "split": "validation"
+    },
+    {
+      "dataset": "aws-sdk-dynamodb-9d3c66ec",
+      "family": "aws-sdk-js",
+      "url": "https://raw.githubusercontent.com/aws/aws-sdk-js/9d3c66eca8c4416a9d347d0703f27b65775d65ef/apis/dynamodb-2012-08-10.normal.json",
+      "upstream_commit": "9d3c66eca8c4416a9d347d0703f27b65775d65ef",
+      "digest_algorithm": "sha256",
+      "digest": "3babda200e7431fa6bf1fca0aca7200d355a144b055888dd062596e89db66f4c",
+      "license_spdx": "Apache-2.0",
+      "license_url": "https://github.com/aws/aws-sdk-js/blob/9d3c66eca8c4416a9d347d0703f27b65775d65ef/LICENSE.txt",
+      "category": "structured-text",
+      "split": "validation"
+    }
+  ]
+}

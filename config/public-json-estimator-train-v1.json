@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "name": "public-json-estimator-train-v1",
+  "claim_ceiling": "public estimator training only; never a holdout or market claim",
+  "sources": [
+    {
+      "dataset": "chinook-json-1.4.5",
+      "family": "chinook",
+      "url": "https://github.com/lerocha/chinook-database/releases/download/v1.4.5/ChinookData.json",
+      "digest_algorithm": "sha256",
+      "digest": "2998161de437518e3447e779c7ce7418f081895e388081bff315f3c258752d8c",
+      "license_spdx": "MIT",
+      "license_url": "https://github.com/lerocha/chinook-database/blob/v1.4.5/LICENSE.md",
+      "category": "structured-text",
+      "split": "train"
+    },
+    {
+      "dataset": "kubernetes-openapi-1b4e48f5",
+      "family": "kubernetes",
+      "url": "https://raw.githubusercontent.com/kubernetes/kubernetes/1b4e48f52199bcfb28ef6efd60522a082c3e78d0/api/openapi-spec/swagger.json",
+      "upstream_commit": "1b4e48f52199bcfb28ef6efd60522a082c3e78d0",
+      "digest_algorithm": "sha256",
+      "digest": "6938670a70e28085394cbf6f20a446285c099b0bd4e9110c9d6739d53b08640b",
+      "license_spdx": "Apache-2.0",
+      "license_url": "https://github.com/kubernetes/kubernetes/blob/1b4e48f52199bcfb28ef6efd60522a082c3e78d0/LICENSE",
+      "category": "structured-text",
+      "split": "train"
+    },
+    {
+      "dataset": "unicode-cldr-likely-subtags-a79b4999",
+      "family": "unicode-cldr",
+      "url": "https://raw.githubusercontent.com/unicode-org/cldr-json/a79b499916d486dca4b0f74fe423ea457705fdd9/cldr-json/cldr-core/supplemental/likelySubtags.json",
+      "upstream_commit": "a79b499916d486dca4b0f74fe423ea457705fdd9",
+      "digest_algorithm": "sha256",
+      "digest": "38345946ad457213fb39e9645ab50f36b61681bf674b2eef2979a3b58d04afc8",
+      "license_spdx": "Unicode-3.0",
+      "license_url": "https://github.com/unicode-org/cldr-json/blob/a79b499916d486dca4b0f74fe423ea457705fdd9/LICENSE",
+      "category": "structured-text",
+      "split": "train"
+    },
+    {
+      "dataset": "vega-movies-cad85578",
+      "family": "vega",
+      "url": "https://raw.githubusercontent.com/vega/vega-datasets/cad85578e232704bb0453544742440038038c6a2/data/movies.json",
+      "upstream_commit": "cad85578e232704bb0453544742440038038c6a2",
+      "digest_algorithm": "sha256",
+      "digest": "e63c499759e3b07b49563e036f55290f87feb56def8703ec049ca305ab1523d3",
+      "license_spdx": "BSD-3-Clause",
+      "license_url": "https://github.com/vega/vega-datasets/blob/cad85578e232704bb0453544742440038038c6a2/package.json",
+      "category": "structured-text",
+      "split": "train"
+    },
+    {
+      "dataset": "natural-earth-admin0-ca96624a",
+      "family": "natural-earth",
+      "url": "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/ca96624a56bd078437bca8184e78163e5039ad19/geojson/ne_110m_admin_0_countries.geojson",
+      "upstream_commit": "ca96624a56bd078437bca8184e78163e5039ad19",
+      "digest_algorithm": "sha256",
+      "digest": "6866c877d39cba9c357620878839b336d569f8c662d3cfab4cb1dbe2d39c977f",
+      "license_spdx": "LicenseRef-Natural-Earth-Public-Domain",
+      "license_url": "https://github.com/nvkelso/natural-earth-vector/blob/ca96624a56bd078437bca8184e78163e5039ad19/LICENSE.md",
+      "category": "structured-text",
+      "split": "train"
+    },
+    {
+      "dataset": "chrome-devtools-protocol-2c7c583a",
+      "family": "chrome-devtools-protocol",
+      "url": "https://raw.githubusercontent.com/ChromeDevTools/devtools-protocol/2c7c583a5eb689b731fea6697b7b7b17d9ffedaa/json/browser_protocol.json",
+      "upstream_commit": "2c7c583a5eb689b731fea6697b7b7b17d9ffedaa",
+      "digest_algorithm": "sha256",
+      "digest": "59ec7922ec52c2ee7878d80c9bbb1112cbcb0b6546ae37b6d8668192b91c8e34",
+      "license_spdx": "BSD-3-Clause",
+      "license_url": "https://github.com/ChromeDevTools/devtools-protocol/blob/2c7c583a5eb689b731fea6697b7b7b17d9ffedaa/LICENSE",
+      "category": "structured-text",
+      "split": "train"
+    },
+    {
+      "dataset": "schemastore-catalog-773fe876",
+      "family": "schemastore",
+      "url": "https://raw.githubusercontent.com/SchemaStore/schemastore/773fe876b57bb3d35693177b626164570a6bac49/src/api/json/catalog.json",
+      "upstream_commit": "773fe876b57bb3d35693177b626164570a6bac49",
+      "digest_algorithm": "sha256",
+      "digest": "dbf2758deca0d62e48e294e5d1495f25643f836c374f3aed689f51ea87327e99",
+      "license_spdx": "Apache-2.0",
+      "license_url": "https://github.com/SchemaStore/schemastore/blob/773fe876b57bb3d35693177b626164570a6bac49/LICENSE",
+      "category": "structured-text",
+      "split": "train"
+    },
+    {
+      "dataset": "simdjson-citm-8e6bac94",
+      "family": "simdjson",
+      "url": "https://raw.githubusercontent.com/simdjson/simdjson/8e6bac94877f2d3d026000d36ce81e0aaf38d26f/jsonexamples/citm_catalog.json",
+      "upstream_commit": "8e6bac94877f2d3d026000d36ce81e0aaf38d26f",
+      "digest_algorithm": "sha256",
+      "digest": "a73e7a883f6ea8de113dff59702975e60119b4b58d451d518a929f31c92e2059",
+      "license_spdx": "Apache-2.0",
+      "license_url": "https://github.com/simdjson/simdjson/blob/8e6bac94877f2d3d026000d36ce81e0aaf38d26f/LICENSE",
+      "category": "structured-text",
+      "split": "train"
+    },
+    {
+      "dataset": "typescript-lock-637d5746",
+      "family": "typescript",
+      "url": "https://raw.githubusercontent.com/microsoft/TypeScript/637d5746b70257028fb95aad32ddec6b26ab0a14/package-lock.json",
+      "upstream_commit": "637d5746b70257028fb95aad32ddec6b26ab0a14",
+      "digest_algorithm": "sha256",
+      "digest": "fee046e932f0ee95acc905e43fbb4b3655a314ada796286c70bb34f507717226",
+      "license_spdx": "Apache-2.0",
+      "license_url": "https://github.com/microsoft/TypeScript/blob/637d5746b70257028fb95aad32ddec6b26ab0a14/LICENSE.txt",
+      "category": "structured-text",
+      "split": "train"
+    },
+    {
+      "dataset": "webpack-options-805ae584",
+      "family": "webpack",
+      "url": "https://raw.githubusercontent.com/webpack/webpack/805ae584b87f12e773d477e6984c60ccdd179975/schemas/WebpackOptions.json",
+      "upstream_commit": "805ae584b87f12e773d477e6984c60ccdd179975",
+      "digest_algorithm": "sha256",
+      "digest": "4b49a0b8a0c3798a277053fc666d94da3a2c4b645bea40b9fa57cbe82eb4f4f0",
+      "license_spdx": "MIT",
+      "license_url": "https://github.com/webpack/webpack/blob/805ae584b87f12e773d477e6984c60ccdd179975/LICENSE",
+      "category": "structured-text",
+      "split": "train"
+    }
+  ]
+}

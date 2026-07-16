@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "name": "token-channel-estimator-v1",
+  "status": "rejected_training_gate",
+  "decision": "do_not_integrate_or_score_blind_validation",
+  "protocol": "docs/benchmarks/2026-07-15-json-estimator-protocol.md",
+  "training_config": "config/public-json-estimator-train-v1.json",
+  "training_config_sha256": "9522b0219b003fd39a7289c43c0b5bdfe77c7fa12dd10b0522dca37d905ce7ca",
+  "blind_validation_config": "config/public-json-estimator-validation-v1.json",
+  "blind_validation_config_sha256": "625c7286f6a990624b40dede8e80812813c8af7c504c0d50b3b82f26df412433",
+  "blind_validation_status": "sealed_unscored",
+  "features": [
+    "side_density",
+    "dictionary_utilization",
+    "mean_code",
+    "entropy",
+    "top1_share",
+    "top4_share",
+    "repeat_rate"
+  ],
+  "model": {
+    "mode": "and",
+    "predicates": [
+      {
+        "feature": "side_density",
+        "op": "gt",
+        "threshold": 0.04364382441897608
+      },
+      {
+        "feature": "top1_share",
+        "op": "gt",
+        "threshold": 0.12262735066763303
+      }
+    ]
+  },
+  "training_in_sample": {
+    "winner_families": 2,
+    "loser_families": 8,
+    "savings_capture_percent": 100.0,
+    "avoided_losing_attempts_percent": 100.0,
+    "payload_regret_percent_of_stx1": 0.0
+  },
+  "leave_one_family_out": {
+    "winner_families": 2,
+    "loser_families": 8,
+    "available_savings_bytes": 14159,
+    "captured_savings_bytes": 0,
+    "savings_capture_percent": 0.0,
+    "avoided_losing_attempts_percent": 50.0,
+    "payload_regret_bytes": 14159,
+    "payload_regret_percent_of_stx1": 1.2474746985276821
+  }
+}
