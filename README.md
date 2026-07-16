@@ -280,6 +280,15 @@ below direct zstd-3, passed all 64 public benchmark round trips, and retained a
 within-run Pareto position. The result is a one-file JSON-family signal, not a
 general or market-leading claim.
 
+The external-validity follow-up is recorded in
+docs/benchmarks/2026-07-15-expanded-json-decision.md. Four independently
+sourced JSON families reject broad generalization: the raw channel won only
+Natural Earth GeoJSON and was 3.51% larger than STX1 in aggregate. Integrated
+adaptive-v3 still beat zstd-3 by 5.52% through exact per-file representation
+selection, but lost to zstd-9, Brotli, LZMA, and 7-Zip on ratio and was not
+Pareto. The generic-benefit hypothesis is rejected; the private holdout remains
+sealed and no validation-tuned selector was added.
+
 ## Current limitations
 
 - Workers read each file into memory; streaming and random-access tests come
