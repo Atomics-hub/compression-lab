@@ -526,25 +526,23 @@ def decompress(
     if skeleton_end > len(frame):
         raise ValueError("JSON-column skeleton payload is truncated")
     try:
-        skeleton = zstd_decompress(
-            frame[header_end:skeleton_end],
-            skeleton_size,
-        )
-        channel_payloads = []
-        raw_sizes = []
+        payloads = [frame[header_end:skeleton_end]]
+        raw_sizes = [skeleton_size]
         offset = skeleton_end
         for raw_size, payload_size in channel_sizes:
             end = offset + payload_size
             if end > len(frame):
                 raise ValueError("JSON-column channel payload is truncated")
-            channel_payloads.append(frame[offset:end])
+            payloads.append(frame[offset:end])
             raw_sizes.append(raw_size)
             offset = end
-        channels = _decompress_channels(channel_payloads, raw_sizes)
+        if offset != len(frame):
+            raise ValueError("JSON-column frame has trailing data")
+        decoded_streams = _decompress_channels(payloads, raw_sizes)
+        skeleton = decoded_streams[0]
+        channels = decoded_streams[1:]
     except RuntimeError as error:
         raise ValueError(f"invalid JSON-column payload: {error}") from error
-    if offset != len(frame):
-        raise ValueError("JSON-column frame has trailing data")
 
     if native_available():
         raw_transform = pack_transform(

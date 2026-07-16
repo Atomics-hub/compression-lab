@@ -1,0 +1,281 @@
+{
+  "accepted_path": "runs/json-log-jlf2-jls2-16m-development.json",
+  "accepted_sha256": "0e289ebeab04b34815522f3cba22fd4cc64ebac8072d90c5ef4d695b79c6182d",
+  "aggregate": {
+    "compression_mbps": 65.49939547917384,
+    "compression_seconds": 1.9025345820118673,
+    "decompression_mbps": 229.14031190109944,
+    "decompression_seconds": 0.543836498982273,
+    "encoded_bytes": 2693313,
+    "original_bytes": 124614865
+  },
+  "claim_ceiling": "quiet-host complete-product development evidence only; validation remains sealed",
+  "gate_results": {
+    "clean_commit": true,
+    "compression_aggregate": false,
+    "compression_per_family": false,
+    "decompression_per_family": false,
+    "deterministic_frames": true,
+    "exact_accepted_bytes": true,
+    "preflight_load": true,
+    "repetitions": true,
+    "roundtrip": true
+  },
+  "gates_path": "config/jls2-product-gates.json",
+  "gates_sha256": "465512490ac7c0b29dfae5d6363d1f6ca45ccb7c35857c9f8d683dd04774c5ef",
+  "git": {
+    "commit": "0855477b2bd48bd6c1a79ccd0cf963f3da126a4a",
+    "dirty": false
+  },
+  "manifest_path": "corpora/logtrie-train-v1/manifest.json",
+  "manifest_sha256": "d6c71d91cd2995e3efae46353d5d8d94c00f8ee988cc74bdb5c2e45c4d6cbe9f",
+  "passed": false,
+  "repetitions": 5,
+  "rows": [
+    {
+      "accepted_encoded_bytes": 178101,
+      "accepted_encoded_sha256": "c50c523af0eef6a5698ce0f790728316c9287e6623a7be66bd6377343a71af4c",
+      "columnar_segments": 1,
+      "compression_mbps": 73.06238755790908,
+      "compression_samples": [
+        0.13040337496204302,
+        0.11871529201744124,
+        0.12184924999019131,
+        0.12301633303286508,
+        0.2037674999446608
+      ],
+      "compression_seconds": 0.12301633303286508,
+      "decompression_mbps": 172.93103263745817,
+      "decompression_samples": [
+        0.05830766697181389,
+        0.045727332995738834,
+        0.05297874996904284,
+        0.05197370803216472,
+        0.05171933298697695
+      ],
+      "decompression_seconds": 0.05197370803216472,
+      "deterministic_frame": true,
+      "direct_segments": 0,
+      "encoded_bytes": 178101,
+      "encoded_sha256": "c50c523af0eef6a5698ce0f790728316c9287e6623a7be66bd6377343a71af4c",
+      "exact_accepted_bytes": true,
+      "family": "apache",
+      "maximum_segment_size": 8987867,
+      "original_bytes": 8987867,
+      "roundtrip_verified": true,
+      "segment_count": 1
+    },
+    {
+      "accepted_encoded_bytes": 1005536,
+      "accepted_encoded_sha256": "2a7511b6b5af0f98fa7a8d4857bd3b1c8d12fc6fbdebdecd1802b7bce911e9f2",
+      "columnar_segments": 2,
+      "compression_mbps": 59.22553121312811,
+      "compression_samples": [
+        0.5898568340344355,
+        0.5364134580013342,
+        0.5822350000380538,
+        0.47948816599091515,
+        0.5218959170160815
+      ],
+      "compression_seconds": 0.5364134580013342,
+      "decompression_mbps": 254.63249756124148,
+      "decompression_samples": [
+        0.1616612909710966,
+        0.10352133400738239,
+        0.10816908301785588,
+        0.1390482920105569,
+        0.1247655829647556
+      ],
+      "decompression_seconds": 0.1247655829647556,
+      "deterministic_frame": true,
+      "direct_segments": 0,
+      "encoded_bytes": 1005536,
+      "encoded_sha256": "2a7511b6b5af0f98fa7a8d4857bd3b1c8d12fc6fbdebdecd1802b7bce911e9f2",
+      "exact_accepted_bytes": true,
+      "family": "healthapp",
+      "maximum_segment_size": 16777141,
+      "original_bytes": 31769372,
+      "roundtrip_verified": true,
+      "segment_count": 2
+    },
+    {
+      "accepted_encoded_bytes": 624163,
+      "accepted_encoded_sha256": "0a40aea6aa7170b1c4c0914c51d58eb486986db79941b489d28310b942364062",
+      "columnar_segments": 3,
+      "compression_mbps": 79.41021233241847,
+      "compression_samples": [
+        0.6412762080435641,
+        0.6200187500216998,
+        0.6181745000067167,
+        0.641103416972328,
+        0.6209194579860196
+      ],
+      "compression_seconds": 0.6209194579860196,
+      "decompression_mbps": 273.4478120414362,
+      "decompression_samples": [
+        0.17718599998624995,
+        0.17923683300614357,
+        0.18133637501159683,
+        0.18031720799626783,
+        0.19831787497969344
+      ],
+      "decompression_seconds": 0.18031720799626783,
+      "deterministic_frame": true,
+      "direct_segments": 0,
+      "encoded_bytes": 624163,
+      "encoded_sha256": "0a40aea6aa7170b1c4c0914c51d58eb486986db79941b489d28310b942364062",
+      "exact_accepted_bytes": true,
+      "family": "hpc",
+      "maximum_segment_size": 16777168,
+      "original_bytes": 49307346,
+      "roundtrip_verified": true,
+      "segment_count": 3
+    },
+    {
+      "accepted_encoded_bytes": 687763,
+      "accepted_encoded_sha256": "5c997e7be09b7050da02ed3029cb5a7fe2ea967ef39e303870535b8e44d37207",
+      "columnar_segments": 2,
+      "compression_mbps": 68.30468907931987,
+      "compression_samples": [
+        0.33491183299338445,
+        0.339901291008573,
+        0.33493337500840425,
+        0.38637762499274686,
+        0.62661641696468
+      ],
+      "compression_seconds": 0.339901291008573,
+      "decompression_mbps": 174.61137311261803,
+      "decompression_samples": [
+        0.21135816699825227,
+        0.13296299998182803,
+        0.11637483298545703,
+        0.16244358295807615,
+        0.1251620830153115
+      ],
+      "decompression_seconds": 0.13296299998182803,
+      "deterministic_frame": true,
+      "direct_segments": 0,
+      "encoded_bytes": 687763,
+      "encoded_sha256": "5c997e7be09b7050da02ed3029cb5a7fe2ea967ef39e303870535b8e44d37207",
+      "exact_accepted_bytes": true,
+      "family": "mac",
+      "maximum_segment_size": 16777164,
+      "original_bytes": 23216852,
+      "roundtrip_verified": true,
+      "segment_count": 2
+    },
+    {
+      "accepted_encoded_bytes": 197750,
+      "accepted_encoded_sha256": "760dcebddfb48e2356ffe6a385c5ed3c15add9a521fc1598de8f61bb0c7cd447",
+      "columnar_segments": 1,
+      "compression_mbps": 40.149021249594774,
+      "compression_samples": [
+        0.2656206249957904,
+        0.28228404198307544,
+        0.47865745797753334,
+        0.18588866700883955,
+        0.32368462497834116
+      ],
+      "compression_seconds": 0.28228404198307544,
+      "decompression_mbps": 210.59196905200517,
+      "decompression_samples": [
+        0.053817000007256866,
+        0.06921395903918892,
+        0.04731429199455306,
+        0.05875591601943597,
+        0.05116687505505979
+      ],
+      "decompression_seconds": 0.053817000007256866,
+      "deterministic_frame": true,
+      "direct_segments": 0,
+      "encoded_bytes": 197750,
+      "encoded_sha256": "760dcebddfb48e2356ffe6a385c5ed3c15add9a521fc1598de8f61bb0c7cd447",
+      "exact_accepted_bytes": true,
+      "family": "zookeeper",
+      "maximum_segment_size": 11333428,
+      "original_bytes": 11333428,
+      "roundtrip_verified": true,
+      "segment_count": 1
+    }
+  ],
+  "runtime": {
+    "native_available": true,
+    "platform": "macOS-26.5.2-arm64-arm-64bit",
+    "python": "3.12.12 (main, Oct 28 2025, 11:52:25) [Clang 20.1.4 ]",
+    "zstd_engine": "libzstd-ffi"
+  },
+  "schema_version": 1,
+  "segment_target_bytes": 16777216,
+  "system_states": [
+    {
+      "label": "run-start",
+      "load_average_1m_5m_15m": [
+        6.44384765625,
+        11.349609375,
+        19.0439453125
+      ],
+      "logical_cpus": 10,
+      "normalized_load_1m": 0.644384765625
+    },
+    {
+      "label": "checkpoint-apache",
+      "load_average_1m_5m_15m": [
+        6.44384765625,
+        11.349609375,
+        19.0439453125
+      ],
+      "logical_cpus": 10,
+      "normalized_load_1m": 0.644384765625
+    },
+    {
+      "label": "checkpoint-healthapp",
+      "load_average_1m_5m_15m": [
+        6.248046875,
+        11.2275390625,
+        18.95556640625
+      ],
+      "logical_cpus": 10,
+      "normalized_load_1m": 0.6248046875
+    },
+    {
+      "label": "checkpoint-hpc",
+      "load_average_1m_5m_15m": [
+        6.06787109375,
+        11.107421875,
+        18.86767578125
+      ],
+      "logical_cpus": 10,
+      "normalized_load_1m": 0.606787109375
+    },
+    {
+      "label": "checkpoint-mac",
+      "load_average_1m_5m_15m": [
+        7.66357421875,
+        11.3544921875,
+        18.9091796875
+      ],
+      "logical_cpus": 10,
+      "normalized_load_1m": 0.766357421875
+    },
+    {
+      "label": "checkpoint-zookeeper",
+      "load_average_1m_5m_15m": [
+        7.66357421875,
+        11.3544921875,
+        18.9091796875
+      ],
+      "logical_cpus": 10,
+      "normalized_load_1m": 0.766357421875
+    },
+    {
+      "label": "run-end",
+      "load_average_1m_5m_15m": [
+        7.66357421875,
+        11.3544921875,
+        18.9091796875
+      ],
+      "logical_cpus": 10,
+      "normalized_load_1m": 0.766357421875
+    }
+  ]
+}

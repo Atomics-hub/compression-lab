@@ -75,6 +75,7 @@ def main() -> int:
             "family": family,
             "original_bytes": len(source),
             "encoded_bytes": len(encoded),
+            "encoded_sha256": hashlib.sha256(encoded).hexdigest(),
             "zstd9_bytes": zstd9_bytes,
             "brotli11_bytes": brotli11_bytes,
             "gain_vs_zstd9_percent": 100.0

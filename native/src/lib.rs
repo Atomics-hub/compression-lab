@@ -563,7 +563,7 @@ fn encode_json_column_transform(data: &[u8]) -> Option<Vec<u8>> {
     pack_json_column_transform(transform_json_columns(data)?)
 }
 
-fn decode_json_column_transform(transformed: &[u8], expected_size: usize) -> Option<Vec<u8>> {
+fn decode_json_column_transform_into(transformed: &[u8], output: &mut [u8]) -> Option<()> {
     if transformed.get(..4)? != JCT1_MAGIC {
         return None;
     }
@@ -605,25 +605,21 @@ fn decode_json_column_transform(transformed: &[u8], expected_size: usize) -> Opt
     }
 
     let mut channel_offsets = vec![0_usize; channel_count];
-    let mut output = Vec::with_capacity(expected_size);
+    let mut output_offset = 0_usize;
     offset = 0;
     while offset < skeleton.len() {
         let value = skeleton[offset];
         offset += 1;
         if value != JCT1_MARKER {
-            if output.len() >= expected_size {
-                return None;
-            }
-            output.push(value);
+            *output.get_mut(output_offset)? = value;
+            output_offset += 1;
             continue;
         }
         let tag = *skeleton.get(offset)?;
         offset += 1;
         if tag == JCT1_MARKER_LITERAL {
-            if output.len() >= expected_size {
-                return None;
-            }
-            output.push(JCT1_MARKER);
+            *output.get_mut(output_offset)? = JCT1_MARKER;
+            output_offset += 1;
             continue;
         }
         if tag != JCT1_MARKER_CHANNEL {
@@ -635,13 +631,14 @@ fn decode_json_column_transform(transformed: &[u8], expected_size: usize) -> Opt
         let value_size = decode_varint(channel_data, channel_offset)?;
         let value_end = channel_offset.checked_add(value_size)?;
         let value = channel_data.get(*channel_offset..value_end)?;
-        if value.len() > expected_size.checked_sub(output.len())? {
-            return None;
-        }
-        output.extend_from_slice(value);
+        let output_end = output_offset.checked_add(value.len())?;
+        output
+            .get_mut(output_offset..output_end)?
+            .copy_from_slice(value);
+        output_offset = output_end;
         *channel_offset = value_end;
     }
-    if output.len() != expected_size
+    if output_offset != output.len()
         || channels
             .iter()
             .zip(channel_offsets)
@@ -649,6 +646,13 @@ fn decode_json_column_transform(transformed: &[u8], expected_size: usize) -> Opt
     {
         return None;
     }
+    Some(())
+}
+
+#[cfg(test)]
+fn decode_json_column_transform(transformed: &[u8], expected_size: usize) -> Option<Vec<u8>> {
+    let mut output = vec![0_u8; expected_size];
+    decode_json_column_transform_into(transformed, &mut output)?;
     Some(output)
 }
 
@@ -1429,10 +1433,10 @@ pub unsafe extern "C" fn clab_json_columnar_reassemble(
         return NULL_POINTER;
     }
     let source = slice::from_raw_parts(input, len);
-    let Some(decoded) = decode_json_column_transform(source, expected_size) else {
+    let destination = slice::from_raw_parts_mut(output, expected_size);
+    if decode_json_column_transform_into(source, destination).is_none() {
         return INVALID_INPUT;
-    };
-    slice::from_raw_parts_mut(output, expected_size).copy_from_slice(&decoded);
+    }
     OK
 }
 

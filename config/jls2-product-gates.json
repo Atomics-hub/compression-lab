@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "name": "jls2-complete-product-development-gates",
+  "requirements": {
+    "max_normalized_preflight_load_1m": 1.0,
+    "minimum_repetitions": 5,
+    "segment_target_bytes": 16777216,
+    "minimum_compression_mbps_per_family": 75.0,
+    "minimum_aggregate_compression_mbps": 100.0,
+    "minimum_decompression_mbps_per_family": 250.0,
+    "require_exact_accepted_bytes": true,
+    "require_deterministic_frames": true,
+    "require_clean_commit": true
+  },
+  "notes": [
+    "This gate measures the complete JLS2 file API, including file I/O, hashing, framing, selector work, atomic publication, and exact decode.",
+    "Rates are development evidence only and are valid only after the quiet-host preflight passes.",
+    "The accepted development payload must remain byte-identical; a representation change requires a new frozen protocol.",
+    "Blind validation remains sealed until this gate and the independent competitor-baseline gate pass."
+  ]
+}
