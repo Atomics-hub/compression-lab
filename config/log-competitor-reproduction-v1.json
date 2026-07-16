@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "name": "log-competitor-reproduction-v1",
+  "claim_ceiling": "competitor eligibility audit only; no comparative result",
+  "direct_comparison_requirements": {
+    "same_input_bytes": true,
+    "byte_exact_roundtrip": true,
+    "preserve_record_order": true,
+    "preserve_timezone_text": true,
+    "complete_archive_size": true,
+    "complete_wall_time": true,
+    "pinned_source_or_image_digest": true,
+    "documented_software_license": true
+  },
+  "competitors": [
+    {
+      "name": "CLP JSON",
+      "repository": "https://github.com/y-scope/clp",
+      "version": "v0.12.0",
+      "commit": "d3daf16517c51f8e6fc09960be821a93a3efe06b",
+      "license_spdx": "Apache-2.0",
+      "official_container": "ghcr.io/y-scope/clp/clp-core-x86-ubuntu-jammy",
+      "local_status": "docker CLI installed; Docker daemon unavailable",
+      "roundtrip_status": "ineligible for byte-exact comparison",
+      "reason": "official JSON documentation says timezone information and event order are not preserved",
+      "comparison_role": "context-only semantic log compressor"
+    },
+    {
+      "name": "LogLite",
+      "repository": "https://github.com/benzhaotang/LogLite",
+      "version": "master",
+      "commit": "68f851ef673ac6fa45f26513df08613151624bd2",
+      "license_spdx": null,
+      "official_build": "g++-9 -Ofast -march=native -mavx512f",
+      "local_status": "blocked on Apple ARM64, AVX-512 requirement, and case-colliding LogLite-B/LogLite-b paths",
+      "roundtrip_status": "not yet independently verified",
+      "reason": "no top-level software license was found; do not vendor or patch",
+      "comparison_role": "pending licensed x86-64 AVX-512 reproduction host"
+    },
+    {
+      "name": "DeLog",
+      "repository": "https://github.com/gaiusyu/Delog",
+      "version": "main",
+      "commit": "64a074f6b6559fbfcd809f201fc3540442151749",
+      "license_spdx": null,
+      "official_images": [
+        "anonymous4d3a/delog-compressor:latest",
+        "anonymous4d3a/delog-decompressor:latest"
+      ],
+      "local_status": "Docker daemon unavailable; source build lacks libarchive headers; bundled binaries are Linux x86-64",
+      "roundtrip_status": "authors document full-file SHA-256 verification",
+      "reason": "no top-level software license was found; do not vendor or patch",
+      "comparison_role": "pending license clarification and pinned container digests"
+    }
+  ]
+}
