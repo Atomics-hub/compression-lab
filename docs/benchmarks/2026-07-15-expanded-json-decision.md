@@ -137,4 +137,3 @@ ratio experiment should train a cheap representation-benefit estimator on a
 new public training corpus and validate it on a separately frozen corpus. It
 must predict channel benefit before paying for the second compression path and
 must compete against zstd-9 and Brotli, not only zstd-3.
-
