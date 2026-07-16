@@ -526,7 +526,9 @@ def zstd_decompress(data: bytes, expected_size: Optional[int] = None) -> bytes:
             expected_size = zstd_frame_content_size(data)
         try:
             result = module.ZstdDecompressor().decompress(
-                data, max_output_size=max(1, expected_size)
+                data,
+                max_output_size=max(1, expected_size),
+                allow_extra_data=False,
             )
         except module.ZstdError as error:
             raise ValueError(f"invalid Zstandard payload: {error}") from error

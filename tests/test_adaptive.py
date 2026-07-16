@@ -93,6 +93,8 @@ class AdaptiveFrameTests(unittest.TestCase):
             encoded = zstd_compress(source, level=3)
             self.assertEqual(zstd_engine(), "python-zstandard")
             self.assertEqual(zstd_decompress(encoded, len(source)), source)
+            with self.assertRaisesRegex(ValueError, "invalid Zstandard payload"):
+                zstd_decompress(encoded + b"\0", len(source))
             corrupted = bytearray(encoded)
             corrupted[-1] ^= 0x01
             with self.assertRaisesRegex(ValueError, "invalid Zstandard payload"):
