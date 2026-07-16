@@ -14,6 +14,12 @@ const STX_ESCAPED_MARKER: u8 = 0xfe;
 const STX_MAX_DICTIONARY: usize = 254;
 const STX_MAX_TOKEN_SIZE: usize = 64;
 const STX_MAX_STREAM_CHUNK: usize = 16 * 1024 * 1024;
+const LWX2_MAGIC: &[u8; 4] = b"LWX2";
+const LWX2_SLOT_COUNT: usize = 1024;
+const LWX2_MAX_RECORD_SIZE: usize = 32 * 1024;
+const LWX2_MAX_RUN: usize = 128;
+const LWX2_MODE_RAW: u8 = 0;
+const LWX2_MODE_REFERENCE: u8 = 1;
 
 #[repr(C)]
 pub struct ZstdInBuffer {
@@ -35,6 +41,216 @@ type ZstdInitDStream = unsafe extern "C" fn(*mut c_void) -> usize;
 type ZstdDecompressStream =
     unsafe extern "C" fn(*mut c_void, *mut ZstdOutBuffer, *mut ZstdInBuffer) -> usize;
 type ZstdIsError = unsafe extern "C" fn(usize) -> u32;
+
+fn encode_varint(mut value: usize, output: &mut Vec<u8>) {
+    while value >= 0x80 {
+        output.push(((value & 0x7f) as u8) | 0x80);
+        value >>= 7;
+    }
+    output.push(value as u8);
+}
+
+fn decode_varint(data: &[u8], offset: &mut usize) -> Option<usize> {
+    let mut value = 0_usize;
+    let mut shift = 0_u32;
+    for _ in 0..10 {
+        let byte = *data.get(*offset)?;
+        *offset += 1;
+        value |= ((byte & 0x7f) as usize).checked_shl(shift)?;
+        if byte < 0x80 {
+            return Some(value);
+        }
+        shift += 7;
+        if shift >= usize::BITS {
+            return None;
+        }
+    }
+    None
+}
+
+fn log_slot(size: usize) -> usize {
+    size % LWX2_SLOT_COUNT
+}
+
+fn matching_run(record: &[u8], reference: &[u8], offset: usize) -> usize {
+    let limit = record.len().min(offset + LWX2_MAX_RUN);
+    let mut end = offset;
+    while end < limit && record[end] == reference[end] {
+        end += 1;
+    }
+    end - offset
+}
+
+fn encode_log_residual(record: &[u8], reference: &[u8], output: &mut Vec<u8>) {
+    output.clear();
+    output.reserve(record.len() / 4);
+    let mut offset = 0;
+    while offset < record.len() {
+        let matching = matching_run(record, reference, offset);
+        if matching >= 2 {
+            output.push(0x80 | ((matching - 1) as u8));
+            offset += matching;
+            continue;
+        }
+
+        let literal_start = offset;
+        offset += matching.max(1);
+        while offset < record.len() && offset - literal_start < LWX2_MAX_RUN {
+            let matching = matching_run(record, reference, offset);
+            if matching >= 2 {
+                break;
+            }
+            offset += matching.max(1);
+        }
+        let literal_size = offset - literal_start;
+        output.push((literal_size - 1) as u8);
+        output.extend(
+            record[literal_start..offset]
+                .iter()
+                .zip(&reference[literal_start..offset])
+                .map(|(&actual, &predicted)| actual ^ predicted),
+        );
+    }
+}
+
+#[derive(Default)]
+struct LogHistoryEntry {
+    length: usize,
+    valid: bool,
+    record: Vec<u8>,
+}
+
+fn log_history() -> Vec<LogHistoryEntry> {
+    std::iter::repeat_with(LogHistoryEntry::default)
+        .take(LWX2_SLOT_COUNT)
+        .collect()
+}
+
+fn decode_log_residual(
+    transformed: &[u8],
+    offset: &mut usize,
+    reference: &[u8],
+) -> Option<Vec<u8>> {
+    let mut output = Vec::with_capacity(reference.len());
+    while output.len() < reference.len() {
+        let command = *transformed.get(*offset)?;
+        *offset += 1;
+        let size = ((command & 0x7f) as usize) + 1;
+        if size > reference.len() - output.len() {
+            return None;
+        }
+        let start = output.len();
+        if command & 0x80 != 0 {
+            output.extend_from_slice(&reference[start..start + size]);
+            continue;
+        }
+        let residual = transformed.get(*offset..offset.checked_add(size)?)?;
+        output.extend(
+            residual
+                .iter()
+                .zip(&reference[start..start + size])
+                .map(|(&value, &predicted)| value ^ predicted),
+        );
+        *offset += size;
+    }
+    Some(output)
+}
+
+fn encode_log_recent(data: &[u8]) -> Option<Vec<u8>> {
+    let mut output = Vec::with_capacity(data.len() / 2 + 8);
+    output.extend_from_slice(LWX2_MAGIC);
+    output.extend_from_slice(&0_u32.to_be_bytes());
+    let mut record_count = 0_u32;
+    let mut history = log_history();
+    let mut residual = Vec::new();
+    let mut offset = 0;
+    while offset < data.len() {
+        let record_end = data[offset..]
+            .iter()
+            .position(|&value| value == b'\n')
+            .map_or(data.len(), |relative| offset + relative + 1);
+        let record = &data[offset..record_end];
+        record_count = record_count.checked_add(1)?;
+        encode_varint(record.len(), &mut output);
+        let slot = log_slot(record.len());
+        let use_reference = if record.len() <= LWX2_MAX_RECORD_SIZE {
+            let entry = &history[slot];
+            if entry.valid && entry.length == record.len() {
+                encode_log_residual(record, &entry.record, &mut residual);
+                residual.len() < record.len()
+            } else {
+                false
+            }
+        } else {
+            false
+        };
+        if use_reference {
+            output.push(LWX2_MODE_REFERENCE);
+            output.extend_from_slice(&residual);
+        } else {
+            output.push(LWX2_MODE_RAW);
+            output.extend_from_slice(record);
+        }
+        if record.len() <= LWX2_MAX_RECORD_SIZE {
+            let entry = &mut history[slot];
+            entry.length = record.len();
+            entry.valid = true;
+            entry.record.clear();
+            entry.record.extend_from_slice(record);
+        }
+        offset = record_end;
+    }
+    output[4..8].copy_from_slice(&record_count.to_be_bytes());
+    Some(output)
+}
+
+fn decode_log_recent(transformed: &[u8], expected_size: usize) -> Option<Vec<u8>> {
+    if transformed.get(..4)? != LWX2_MAGIC {
+        return None;
+    }
+    let record_count = u32::from_be_bytes(transformed.get(4..8)?.try_into().ok()?);
+    let mut history = log_history();
+    let mut output = Vec::with_capacity(expected_size);
+    let mut offset = 8;
+    for _ in 0..record_count {
+        let size = decode_varint(transformed, &mut offset)?;
+        if size > expected_size.checked_sub(output.len())? {
+            return None;
+        }
+        let mode = *transformed.get(offset)?;
+        offset += 1;
+        let slot = log_slot(size);
+        let record = if mode == LWX2_MODE_RAW {
+            let end = offset.checked_add(size)?;
+            let raw = transformed.get(offset..end)?.to_vec();
+            offset = end;
+            raw
+        } else if mode == LWX2_MODE_REFERENCE {
+            if size > LWX2_MAX_RECORD_SIZE {
+                return None;
+            }
+            let entry = &history[slot];
+            if !entry.valid || entry.length != size {
+                return None;
+            }
+            decode_log_residual(transformed, &mut offset, &entry.record)?
+        } else {
+            return None;
+        };
+        output.extend_from_slice(&record);
+        if size <= LWX2_MAX_RECORD_SIZE {
+            let entry = &mut history[slot];
+            entry.length = size;
+            entry.valid = true;
+            entry.record.clear();
+            entry.record.extend_from_slice(&record);
+        }
+    }
+    if offset != transformed.len() || output.len() != expected_size {
+        return None;
+    }
+    Some(output)
+}
 
 fn token_start(value: u8) -> bool {
     value.is_ascii_alphabetic() || value == b'_'
@@ -713,6 +929,60 @@ pub unsafe extern "C" fn clab_structured_text_zstd_decode(
 }
 
 #[no_mangle]
+/// Encode bytes with the bounded LWX2 same-length log transform.
+///
+/// # Safety
+///
+/// `input`, `output`, and `output_len` must be non-null. The input must be
+/// readable for `len` bytes, the output writable for `output_capacity` bytes,
+/// and `output_len` writable for one `usize`. Input and output must not alias.
+pub unsafe extern "C" fn clab_log_transform_encode(
+    input: *const u8,
+    len: usize,
+    output: *mut u8,
+    output_capacity: usize,
+    output_len: *mut usize,
+) -> i32 {
+    if input.is_null() || output.is_null() || output_len.is_null() {
+        return NULL_POINTER;
+    }
+    let source = slice::from_raw_parts(input, len);
+    let Some(encoded) = encode_log_recent(source) else {
+        return INVALID_INPUT;
+    };
+    if encoded.len() > output_capacity {
+        return OUTPUT_TOO_SMALL;
+    }
+    slice::from_raw_parts_mut(output, output_capacity)[..encoded.len()].copy_from_slice(&encoded);
+    *output_len = encoded.len();
+    OK
+}
+
+#[no_mangle]
+/// Decode a complete LWX2 transform.
+///
+/// # Safety
+///
+/// `input` and `output` must be non-null and valid for reads of `len` bytes and
+/// writes of `expected_size` bytes respectively. The regions must not alias.
+pub unsafe extern "C" fn clab_log_transform_decode(
+    input: *const u8,
+    len: usize,
+    output: *mut u8,
+    expected_size: usize,
+) -> i32 {
+    if input.is_null() || output.is_null() {
+        return NULL_POINTER;
+    }
+    let source = slice::from_raw_parts(input, len);
+    let Some(decoded) = decode_log_recent(source, expected_size) else {
+        return INVALID_INPUT;
+    };
+    slice::from_raw_parts_mut(output, expected_size).copy_from_slice(&decoded);
+    OK
+}
+
+#[no_mangle]
 /// Encode bytes with the STX1 transform.
 ///
 /// # Safety
@@ -944,6 +1214,14 @@ mod tests {
                 clab_structured_text_decode(ptr::null(), 0, ptr::null_mut(), 0),
                 NULL_POINTER
             );
+            assert_eq!(
+                clab_log_transform_encode(ptr::null(), 0, ptr::null_mut(), 0, &mut output_len,),
+                NULL_POINTER
+            );
+            assert_eq!(
+                clab_log_transform_decode(ptr::null(), 0, ptr::null_mut(), 0),
+                NULL_POINTER
+            );
         }
     }
 
@@ -1020,5 +1298,33 @@ mod tests {
         invalid[0] = 0xff;
         assert!(join_structured_text_channels(&skeleton, &invalid, transformed.len()).is_none());
         assert!(decode_structured_text_channels(&skeleton, &invalid, source.len()).is_none());
+    }
+
+    #[test]
+    fn recent_log_transform_round_trips_and_rejects_corruption() {
+        let mut source = Vec::new();
+        for index in 0..10_000 {
+            source.extend_from_slice(
+                format!(
+                    "{{\"event\":\"tick\",\"sequence\":{index:08},\"worker\":{}}}\n",
+                    index % 8
+                )
+                .as_bytes(),
+            );
+        }
+        let transformed = encode_log_recent(&source).unwrap();
+        assert!(transformed.len() < source.len());
+        assert_eq!(
+            decode_log_recent(&transformed, source.len()),
+            Some(source.clone())
+        );
+        assert_eq!(decode_log_recent(&transformed[..7], source.len()), None);
+        assert_eq!(
+            decode_log_recent(&transformed[..transformed.len() - 1], source.len()),
+            None
+        );
+        let mut trailing = transformed.clone();
+        trailing.push(0);
+        assert_eq!(decode_log_recent(&trailing, source.len()), None);
     }
 }

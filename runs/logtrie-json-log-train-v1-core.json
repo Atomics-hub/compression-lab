@@ -1,0 +1,515 @@
+{
+  "baseline_set": "core",
+  "claim_ceiling": "public development corpus only; never blind validation or market evidence",
+  "manifest_path": "corpora/logtrie-train-v1/manifest.json",
+  "manifest_sha256": "d6c71d91cd2995e3efae46353d5d8d94c00f8ee988cc74bdb5c2e45c4d6cbe9f",
+  "repetitions": 3,
+  "rows": [
+    {
+      "codec": "zstd-3",
+      "compression_mbps": 533.6315463975264,
+      "compression_samples": [
+        0.01807774999178946,
+        0.01526891702087596,
+        0.016842832963448018
+      ],
+      "compression_seconds": 0.016842832963448018,
+      "decompression_mbps": 1769.062119410157,
+      "decompression_samples": [
+        0.006875291001051664,
+        0.004838833003304899,
+        0.005080583039671183
+      ],
+      "decompression_seconds": 0.005080583039671183,
+      "encoded_bytes": 321730,
+      "encoded_percent": 3.579603481003891,
+      "family": "apache",
+      "original_bytes": 8987867
+    },
+    {
+      "codec": "zstd-9",
+      "compression_mbps": 99.59365784422805,
+      "compression_samples": [
+        0.08636270801071078,
+        0.0902453750022687,
+        0.13131916604470462
+      ],
+      "compression_seconds": 0.0902453750022687,
+      "decompression_mbps": 1721.8136042297492,
+      "decompression_samples": [
+        0.004548166994936764,
+        0.00562533299671486,
+        0.005219999991822988
+      ],
+      "decompression_seconds": 0.005219999991822988,
+      "encoded_bytes": 243342,
+      "encoded_percent": 2.707449943351409,
+      "family": "apache",
+      "original_bytes": 8987867
+    },
+    {
+      "codec": "clg1",
+      "compression_mbps": 35.59249984828115,
+      "compression_samples": [
+        0.18953020800836384,
+        0.2525213749613613,
+        0.4725510409916751
+      ],
+      "compression_seconds": 0.2525213749613613,
+      "decompression_mbps": 315.46014158070227,
+      "decompression_samples": [
+        0.015265208028722554,
+        0.05582037498243153,
+        0.028491291974205524
+      ],
+      "decompression_seconds": 0.028491291974205524,
+      "direct_frame_bytes": 243398,
+      "direct_payload_bytes": 243342,
+      "encoded_bytes": 202364,
+      "encoded_percent": 2.2515241936713126,
+      "family": "apache",
+      "frame_overhead_bytes": 56,
+      "no_expansion_vs_direct_frame": true,
+      "original_bytes": 8987867,
+      "selected_bytes": 202364,
+      "selected_mode": "transformed",
+      "transformed_bytes": 734901,
+      "transformed_frame_bytes": 202364,
+      "transformed_payload_bytes": 202308,
+      "zstd_level": 9
+    },
+    {
+      "codec": "brotli-11",
+      "compression_mbps": 0.09313905460890055,
+      "compression_samples": [
+        96.49944416701328
+      ],
+      "compression_seconds": 96.49944416701328,
+      "decompression_mbps": 8987866999.999998,
+      "decompression_samples": [],
+      "decompression_seconds": 0.0,
+      "encoded_bytes": 189311,
+      "encoded_percent": 2.1062950753499132,
+      "family": "apache",
+      "original_bytes": 8987867
+    },
+    {
+      "codec": "zstd-3",
+      "compression_mbps": 139.1845233306439,
+      "compression_samples": [
+        0.45112770795822144,
+        0.22825362504227087,
+        0.1790531249716878
+      ],
+      "compression_seconds": 0.22825362504227087,
+      "decompression_mbps": 505.8370886747419,
+      "decompression_samples": [
+        0.06280554097611457,
+        0.07669991598231718,
+        0.05713795899646357
+      ],
+      "decompression_seconds": 0.06280554097611457,
+      "encoded_bytes": 1953845,
+      "encoded_percent": 6.1500900930619595,
+      "family": "healthapp",
+      "original_bytes": 31769372
+    },
+    {
+      "codec": "zstd-9",
+      "compression_mbps": 24.898585536084592,
+      "compression_samples": [
+        1.0588712919852696,
+        1.7252814590465277,
+        1.275950874958653
+      ],
+      "compression_seconds": 1.275950874958653,
+      "decompression_mbps": 622.1252837327867,
+      "decompression_samples": [
+        0.05106587504269555,
+        0.06525162496836856,
+        0.03897179203340784
+      ],
+      "decompression_seconds": 0.05106587504269555,
+      "encoded_bytes": 1363620,
+      "encoded_percent": 4.292247262552121,
+      "family": "healthapp",
+      "original_bytes": 31769372
+    },
+    {
+      "codec": "clg1",
+      "compression_mbps": 11.486309402104851,
+      "compression_samples": [
+        1.9846908340114169,
+        2.765846790978685,
+        3.501751250005327
+      ],
+      "compression_seconds": 2.765846790978685,
+      "decompression_mbps": 88.36941566838254,
+      "decompression_samples": [
+        0.3595064170076512,
+        0.17944212502334267,
+        0.38303775002714247
+      ],
+      "decompression_seconds": 0.3595064170076512,
+      "direct_frame_bytes": 1363676,
+      "direct_payload_bytes": 1363620,
+      "encoded_bytes": 1041927,
+      "encoded_percent": 3.279658785826802,
+      "family": "healthapp",
+      "frame_overhead_bytes": 56,
+      "no_expansion_vs_direct_frame": true,
+      "original_bytes": 31769372,
+      "selected_bytes": 1041927,
+      "selected_mode": "transformed",
+      "transformed_bytes": 4761487,
+      "transformed_frame_bytes": 1041927,
+      "transformed_payload_bytes": 1041871,
+      "zstd_level": 9
+    },
+    {
+      "codec": "brotli-11",
+      "compression_mbps": 0.2840033815039012,
+      "compression_samples": [
+        111.86265399999684
+      ],
+      "compression_seconds": 111.86265399999684,
+      "decompression_mbps": 31769372000.0,
+      "decompression_samples": [],
+      "decompression_seconds": 0.0,
+      "encoded_bytes": 983579,
+      "encoded_percent": 3.0959976168241536,
+      "family": "healthapp",
+      "original_bytes": 31769372
+    },
+    {
+      "codec": "zstd-3",
+      "compression_mbps": 1008.1008361256954,
+      "compression_samples": [
+        0.055457083974033594,
+        0.04259075003210455,
+        0.04891112499171868
+      ],
+      "compression_seconds": 0.04891112499171868,
+      "decompression_mbps": 2084.4475402110406,
+      "decompression_samples": [
+        0.024690166988875717,
+        0.023426792002283037,
+        0.02365487499628216
+      ],
+      "decompression_seconds": 0.02365487499628216,
+      "encoded_bytes": 1265682,
+      "encoded_percent": 2.566923800765914,
+      "family": "hpc",
+      "original_bytes": 49307346
+    },
+    {
+      "codec": "zstd-9",
+      "compression_mbps": 161.4661184403574,
+      "compression_samples": [
+        0.29954733297927305,
+        0.34008841699687764,
+        0.3053727090009488
+      ],
+      "compression_seconds": 0.3053727090009488,
+      "decompression_mbps": 2951.585703951519,
+      "decompression_samples": [
+        0.018067291006445885,
+        0.016705374990124255,
+        0.01647908298764378
+      ],
+      "decompression_seconds": 0.016705374990124255,
+      "encoded_bytes": 1113188,
+      "encoded_percent": 2.2576514258139144,
+      "family": "hpc",
+      "original_bytes": 49307346
+    },
+    {
+      "codec": "clg1",
+      "compression_mbps": 82.45743293407048,
+      "compression_samples": [
+        0.5979733329731971,
+        0.5397037909715436,
+        0.6111319169867784
+      ],
+      "compression_seconds": 0.5979733329731971,
+      "decompression_mbps": 589.5701166901046,
+      "decompression_samples": [
+        0.08473066700389609,
+        0.08363270899280906,
+        0.08029079099651426
+      ],
+      "decompression_seconds": 0.08363270899280906,
+      "direct_frame_bytes": 1113244,
+      "direct_payload_bytes": 1113188,
+      "encoded_bytes": 469457,
+      "encoded_percent": 0.9521035668802779,
+      "family": "hpc",
+      "frame_overhead_bytes": 56,
+      "no_expansion_vs_direct_frame": true,
+      "original_bytes": 49307346,
+      "selected_bytes": 469457,
+      "selected_mode": "transformed",
+      "transformed_bytes": 4363211,
+      "transformed_frame_bytes": 469457,
+      "transformed_payload_bytes": 469401,
+      "zstd_level": 9
+    },
+    {
+      "codec": "brotli-11",
+      "compression_mbps": 0.24717813816413198,
+      "compression_samples": [
+        199.48101545800455
+      ],
+      "compression_seconds": 199.48101545800455,
+      "decompression_mbps": 49307346000.0,
+      "decompression_samples": [],
+      "decompression_seconds": 0.0,
+      "encoded_bytes": 902430,
+      "encoded_percent": 1.8302141023773617,
+      "family": "hpc",
+      "original_bytes": 49307346
+    },
+    {
+      "codec": "zstd-3",
+      "compression_mbps": 720.6686654686736,
+      "compression_samples": [
+        0.03683254198404029,
+        0.02949554199585691,
+        0.03221570898313075
+      ],
+      "compression_seconds": 0.03221570898313075,
+      "decompression_mbps": 2010.7481357380789,
+      "decompression_samples": [
+        0.012334915983956307,
+        0.011546374997124076,
+        0.01130508299684152
+      ],
+      "decompression_seconds": 0.011546374997124076,
+      "encoded_bytes": 1041563,
+      "encoded_percent": 4.486236979931646,
+      "family": "mac",
+      "original_bytes": 23216852
+    },
+    {
+      "codec": "zstd-9",
+      "compression_mbps": 78.28780494809425,
+      "compression_samples": [
+        0.31038949999492615,
+        0.29655770800309256,
+        0.2900166669860482
+      ],
+      "compression_seconds": 0.29655770800309256,
+      "decompression_mbps": 550.8895964658924,
+      "decompression_samples": [
+        0.026356375019531697,
+        0.04654004197800532,
+        0.042144291976001114
+      ],
+      "decompression_seconds": 0.042144291976001114,
+      "encoded_bytes": 798518,
+      "encoded_percent": 3.4393896295673505,
+      "family": "mac",
+      "original_bytes": 23216852
+    },
+    {
+      "codec": "clg1",
+      "compression_mbps": 24.567407362505882,
+      "compression_samples": [
+        1.0832728339591995,
+        0.9450265409541316,
+        0.7292456669965759
+      ],
+      "compression_seconds": 0.9450265409541316,
+      "decompression_mbps": 411.3667212261229,
+      "decompression_samples": [
+        0.05519612500211224,
+        0.05729020800208673,
+        0.05643833300564438
+      ],
+      "decompression_seconds": 0.05643833300564438,
+      "direct_frame_bytes": 798574,
+      "direct_payload_bytes": 798518,
+      "encoded_bytes": 798574,
+      "encoded_percent": 3.439630833672024,
+      "family": "mac",
+      "frame_overhead_bytes": 56,
+      "no_expansion_vs_direct_frame": true,
+      "original_bytes": 23216852,
+      "selected_bytes": 798574,
+      "selected_mode": "direct",
+      "transformed_bytes": 5454228,
+      "transformed_frame_bytes": 957433,
+      "transformed_payload_bytes": 957377,
+      "zstd_level": 9
+    },
+    {
+      "codec": "brotli-11",
+      "compression_mbps": 0.33913812123598835,
+      "compression_samples": [
+        68.45839658303885
+      ],
+      "compression_seconds": 68.45839658303885,
+      "decompression_mbps": 23216852000.0,
+      "decompression_samples": [],
+      "decompression_seconds": 0.0,
+      "encoded_bytes": 584191,
+      "encoded_percent": 2.5162369127390742,
+      "family": "mac",
+      "original_bytes": 23216852
+    },
+    {
+      "codec": "zstd-3",
+      "compression_mbps": 327.63463878776844,
+      "compression_samples": [
+        0.023633917036931962,
+        0.0345916660153307,
+        0.03863287501735613
+      ],
+      "compression_seconds": 0.0345916660153307,
+      "decompression_mbps": 1280.8363589020996,
+      "decompression_samples": [
+        0.008848458994179964,
+        0.00781325000571087,
+        0.013424583012238145
+      ],
+      "decompression_seconds": 0.008848458994179964,
+      "encoded_bytes": 369537,
+      "encoded_percent": 3.260593352690819,
+      "family": "zookeeper",
+      "original_bytes": 11333428
+    },
+    {
+      "codec": "zstd-9",
+      "compression_mbps": 102.75947321134328,
+      "compression_samples": [
+        0.14369487500516698,
+        0.08972945797722787,
+        0.11029083398170769
+      ],
+      "compression_seconds": 0.11029083398170769,
+      "decompression_mbps": 2151.5080576659434,
+      "decompression_samples": [
+        0.005231250019278377,
+        0.005413791979663074,
+        0.005267667002044618
+      ],
+      "decompression_seconds": 0.005267667002044618,
+      "encoded_bytes": 269207,
+      "encoded_percent": 2.375336041310714,
+      "family": "zookeeper",
+      "original_bytes": 11333428
+    },
+    {
+      "codec": "clg1",
+      "compression_mbps": 63.06493302650367,
+      "compression_samples": [
+        0.20135770802153274,
+        0.17971045803278685,
+        0.14613266597734764
+      ],
+      "compression_seconds": 0.17971045803278685,
+      "decompression_mbps": 599.6813701145495,
+      "decompression_samples": [
+        0.018312667030841112,
+        0.018899083021096885,
+        0.020774584030732512
+      ],
+      "decompression_seconds": 0.018899083021096885,
+      "direct_frame_bytes": 269263,
+      "direct_payload_bytes": 269207,
+      "encoded_bytes": 136275,
+      "encoded_percent": 1.202416426874552,
+      "family": "zookeeper",
+      "frame_overhead_bytes": 56,
+      "no_expansion_vs_direct_frame": true,
+      "original_bytes": 11333428,
+      "selected_bytes": 136275,
+      "selected_mode": "transformed",
+      "transformed_bytes": 850775,
+      "transformed_frame_bytes": 136275,
+      "transformed_payload_bytes": 136219,
+      "zstd_level": 9
+    },
+    {
+      "codec": "brotli-11",
+      "compression_mbps": 0.3275155131515484,
+      "compression_samples": [
+        34.60424787498778
+      ],
+      "compression_seconds": 34.60424787498778,
+      "decompression_mbps": 11333428000.0,
+      "decompression_samples": [],
+      "decompression_seconds": 0.0,
+      "encoded_bytes": 219618,
+      "encoded_percent": 1.9377896961095973,
+      "family": "zookeeper",
+      "original_bytes": 11333428
+    }
+  ],
+  "schema_version": 1,
+  "system_states": [
+    {
+      "label": "run-start",
+      "load_average_1m_5m_15m": [
+        39.21240234375,
+        66.63427734375,
+        59.61767578125
+      ],
+      "logical_cpus": 10
+    },
+    {
+      "label": "checkpoint-apache",
+      "load_average_1m_5m_15m": [
+        33.533203125,
+        56.36865234375,
+        56.35791015625
+      ],
+      "logical_cpus": 10
+    },
+    {
+      "label": "checkpoint-healthapp",
+      "load_average_1m_5m_15m": [
+        12.4296875,
+        41.75341796875,
+        50.62841796875
+      ],
+      "logical_cpus": 10
+    },
+    {
+      "label": "checkpoint-hpc",
+      "load_average_1m_5m_15m": [
+        18.65771484375,
+        28.98876953125,
+        43.14501953125
+      ],
+      "logical_cpus": 10
+    },
+    {
+      "label": "checkpoint-mac",
+      "load_average_1m_5m_15m": [
+        12.43212890625,
+        24.9765625,
+        40.5107421875
+      ],
+      "logical_cpus": 10
+    },
+    {
+      "label": "checkpoint-zookeeper",
+      "load_average_1m_5m_15m": [
+        9.9736328125,
+        22.9716796875,
+        39.15283203125
+      ],
+      "logical_cpus": 10
+    },
+    {
+      "label": "run-end",
+      "load_average_1m_5m_15m": [
+        9.9736328125,
+        22.9716796875,
+        39.15283203125
+      ],
+      "logical_cpus": 10
+    }
+  ]
+}

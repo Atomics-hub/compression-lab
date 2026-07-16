@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "name": "logtrie-json-log-train-v1",
+  "claim_ceiling": "public development corpus only; never blind validation or market evidence",
+  "source_record": {
+    "title": "LogTrie datasets",
+    "doi": "10.5281/zenodo.18522101",
+    "record_url": "https://zenodo.org/records/18522101",
+    "published": "2026-02-08",
+    "license_spdx": "CC-BY-4.0",
+    "creator": "Ying Chu"
+  },
+  "sources": [
+    {
+      "dataset": "logtrie-apache-full-v1",
+      "family": "apache",
+      "filename": "apache-full.json",
+      "url": "https://zenodo.org/records/18522101/files/apache-full.json?download=1",
+      "publisher_digest_algorithm": "md5",
+      "publisher_digest": "dd4c4b9732f978a54fd73f5b621f86c5",
+      "sha256": "3189bd0b54c0a10cfb05b61f03cbcba8c9faba15534bd0bc5e1d08c74c4b9891",
+      "category": "json-log",
+      "split": "train"
+    },
+    {
+      "dataset": "logtrie-healthapp-full-v1",
+      "family": "healthapp",
+      "filename": "healthapp-full.json",
+      "url": "https://zenodo.org/records/18522101/files/healthapp-full.json?download=1",
+      "publisher_digest_algorithm": "md5",
+      "publisher_digest": "04b634e64d74ae8f26a3f4448cb6747a",
+      "sha256": "69a113e59540c38031bfd3e6e699d6981863844ef9802e34338e3127747821ae",
+      "category": "json-log",
+      "split": "train"
+    },
+    {
+      "dataset": "logtrie-hpc-full-v1",
+      "family": "hpc",
+      "filename": "hpc-full.json",
+      "url": "https://zenodo.org/records/18522101/files/hpc-full.json?download=1",
+      "publisher_digest_algorithm": "md5",
+      "publisher_digest": "fef9e45add36630fe0314a3f16ce9c8d",
+      "sha256": "5f1bf45e973144c8b260f0fc3f0b8521b7a1f6076c7a4305a264244f546a06f7",
+      "category": "json-log",
+      "split": "train"
+    },
+    {
+      "dataset": "logtrie-mac-full-v1",
+      "family": "mac",
+      "filename": "mac-full.json",
+      "url": "https://zenodo.org/records/18522101/files/mac-full.json?download=1",
+      "publisher_digest_algorithm": "md5",
+      "publisher_digest": "7f0e4edc0f85e752ededd9e2b1104d38",
+      "sha256": "7479ac2947bf03bdb178d210ef265f05109e9b4a4c47dc170dfc7b2858e476b7",
+      "category": "json-log",
+      "split": "train"
+    },
+    {
+      "dataset": "logtrie-zookeeper-full-v1",
+      "family": "zookeeper",
+      "filename": "zookeeper-full.json",
+      "url": "https://zenodo.org/records/18522101/files/zookeeper-full.json?download=1",
+      "publisher_digest_algorithm": "md5",
+      "publisher_digest": "af1edb620544c1c08d6a3fd296bd8c8e",
+      "sha256": "9fd35b852b66fb735e25cb3977c3b3e3c93ec81582f307d2d1eb27ef77ef6b76",
+      "category": "json-log",
+      "split": "train"
+    }
+  ]
+}
