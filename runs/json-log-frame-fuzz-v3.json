@@ -1,0 +1,12 @@
+{
+  "claim_ceiling": "deterministic local fuzz evidence only",
+  "mutations_rejected": 2000,
+  "random_frames_rejected": 2000,
+  "random_raw_transforms_rejected": 2000,
+  "random_roundtrips": 250,
+  "schema_version": 1,
+  "seed": 20260716,
+  "single_bit_mutations_rejected": 17080,
+  "truncations_rejected": 2135,
+  "valid_frame_bytes": 2135
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "name": "jlc2-native-development-gates",
+  "requirements": {
+    "max_normalized_preflight_load_1m": 1.0,
+    "minimum_repetitions": 5,
+    "minimum_transform_mbps_per_family": 250.0,
+    "minimum_compression_mbps_per_family": 75.0,
+    "minimum_aggregate_compression_mbps": 100.0,
+    "minimum_decompression_mbps_per_family": 250.0,
+    "maximum_channels": 256
+  },
+  "notes": [
+    "These are development promotion gates, not public throughput claims.",
+    "Absolute rates are valid only after the quiet-host preflight passes.",
+    "Blind validation remains sealed until selector, fallback, memory, streaming, and corruption gates also pass."
+  ]
+}

@@ -20,7 +20,8 @@ python -m unittest discover -s tests -v
 ```
 
 Run `ruff check src tests scripts setup.py`,
-`mypy src/compresslab/api.py src/compresslab/cli.py`,
+`mypy src/compresslab/api.py src/compresslab/experimental.py
+src/compresslab/json_log_codec.py src/compresslab/cli.py`,
 `cargo fmt --manifest-path native/Cargo.toml --all -- --check`, and
 `python -m compileall -q src tests scripts` before opening a pull request.
 

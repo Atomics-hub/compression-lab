@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "name": "logtrie-json-log-validation-v1",
+  "claim_ceiling": "blind public validation only; do not download or score before the candidate and gates are frozen",
+  "source_record": {
+    "title": "LogTrie datasets",
+    "doi": "10.5281/zenodo.18522101",
+    "record_url": "https://zenodo.org/records/18522101",
+    "published": "2026-02-08",
+    "license_spdx": "CC-BY-4.0",
+    "creator": "Ying Chu"
+  },
+  "sources": [
+    {
+      "dataset": "logtrie-hadoop-full-v1",
+      "family": "hadoop",
+      "filename": "hadoop-full.json",
+      "url": "https://zenodo.org/records/18522101/files/hadoop-full.json?download=1",
+      "publisher_digest_algorithm": "md5",
+      "publisher_digest": "4d29af5742a7fda1dad5a01f1b864a48",
+      "category": "json-log",
+      "split": "validation"
+    },
+    {
+      "dataset": "logtrie-openssh-full-v1",
+      "family": "openssh",
+      "filename": "openssh-full.json",
+      "url": "https://zenodo.org/records/18522101/files/openssh-full.json?download=1",
+      "publisher_digest_algorithm": "md5",
+      "publisher_digest": "66741ad3419cd17d14bd476270148a96",
+      "category": "json-log",
+      "split": "validation"
+    },
+    {
+      "dataset": "logtrie-openstack-full-v1",
+      "family": "openstack",
+      "filename": "openstack-full.json",
+      "url": "https://zenodo.org/records/18522101/files/openstack-full.json?download=1",
+      "publisher_digest_algorithm": "md5",
+      "publisher_digest": "d582423a5aca8b68e0c61b0f54bf8a78",
+      "category": "json-log",
+      "split": "validation"
+    }
+  ]
+}
