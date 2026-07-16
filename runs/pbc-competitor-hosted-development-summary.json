@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "name": "official-pbc-hosted-development-summary",
+  "claim_ceiling": "exact public development-corpus comparison only; supports opening the frozen validation split but not a public superiority or state-of-the-art claim",
+  "source_result": {
+    "github_run_id": 29537587012,
+    "github_run_url": "https://github.com/Atomics-hub/compression-lab/actions/runs/29537587012",
+    "artifact_name": "pbc-competitor-benchmark-29537587012",
+    "result_sha256": "7f88a0d98d17dc2c8b4fe9990544caac5dffb35cc6e218f3f9b138eee5d50dab",
+    "benchmark_commit": "921d858843afe35ac8b624164ddb70de147b6daa",
+    "pbc_commit": "bac1f86d29624cb585bb4475235d22a28e60ffea",
+    "pbc_binary_sha256": "c96e0dbf5268899314a51238d5bed8bfa58c00bc032e196a2a1dddbff0bfc720",
+    "runner": "Ubuntu 22.04.5 x86_64, 4 logical CPUs, AMD EPYC 9V74",
+    "conclusion": "success"
+  },
+  "contract": {
+    "families": [
+      "apache",
+      "healthapp",
+      "hpc",
+      "mac",
+      "zookeeper"
+    ],
+    "methods": [
+      "pbc_only",
+      "pbc_fse",
+      "pbc_fsst",
+      "pbc_zstd"
+    ],
+    "original_bytes": 124614865,
+    "pattern_size": 100,
+    "train_data_number": 2000,
+    "train_thread_num": 64,
+    "training_repetitions": 2,
+    "online_repetitions": 5,
+    "archive_accounting": "pattern bytes plus compressed payload bytes",
+    "complete_compression_accounting": "median pattern training plus median online file compression"
+  },
+  "gate_results": {
+    "byte_exact_roundtrip": true,
+    "clean_tracked_source": true,
+    "complete_archive_accounting": true,
+    "deterministic_payload_for_fixed_pattern": true,
+    "exact_license": true,
+    "exact_source_commit": true,
+    "expected_families": true,
+    "expected_methods": true,
+    "record_size_eligible": true,
+    "repetitions": true,
+    "training_repetitions": true
+  },
+  "aggregates": {
+    "pbc_only": {
+      "archive_bytes": 35380846,
+      "pattern_bytes": 79654,
+      "payload_bytes": 35301192,
+      "pattern_training_seconds": 517.1426624025,
+      "online_compression_seconds": 4.271723278999616,
+      "complete_compression_mbps": 0.23899391428781877,
+      "online_compression_mbps": 29.172035935151502,
+      "decompression_mbps": 36.375112189055066
+    },
+    "pbc_fse": {
+      "archive_bytes": 35381182,
+      "pattern_bytes": 80797,
+      "payload_bytes": 35300385
+    },
+    "pbc_fsst": {
+      "archive_bytes": 44087556,
+      "pattern_bytes": 8786364,
+      "payload_bytes": 35301192
+    },
+    "pbc_zstd": {
+      "archive_bytes": 35524438,
+      "pattern_bytes": 224053,
+      "payload_bytes": 35300385
+    },
+    "jls2": {
+      "archive_bytes": 2693313
+    },
+    "zstd9": {
+      "archive_bytes": 3787875
+    }
+  },
+  "decision": {
+    "reproduction_passed": true,
+    "primary_fixed_pbc_method": "pbc_only",
+    "jls2_smaller_than_primary_pbc_percent": 92.38765234726156,
+    "jls2_smaller_than_primary_pbc_multiple": 13.136551897235858,
+    "zstd9_smaller_than_primary_pbc_percent": 89.29399540078833,
+    "jls2_wins_every_family": true,
+    "pbc_oracle_archive_bytes": 35380239,
+    "competitor_gate": "pass",
+    "next_action": "freeze JLS2 and pbc_only, then open the three-family public validation split exactly once"
+  },
+  "primary_family_rows": [
+    {
+      "family": "apache",
+      "pbc_archive_bytes": 1058053,
+      "jls2_bytes": 178101,
+      "zstd9_bytes": 243342,
+      "jls2_smaller_than_pbc_percent": 83.16710032484195
+    },
+    {
+      "family": "healthapp",
+      "pbc_archive_bytes": 5692757,
+      "jls2_bytes": 1005536,
+      "zstd9_bytes": 1363620,
+      "jls2_smaller_than_pbc_percent": 82.3365725956685
+    },
+    {
+      "family": "hpc",
+      "pbc_archive_bytes": 6030433,
+      "jls2_bytes": 624163,
+      "zstd9_bytes": 1113188,
+      "jls2_smaller_than_pbc_percent": 89.64978136727495
+    },
+    {
+      "family": "mac",
+      "pbc_archive_bytes": 21238935,
+      "jls2_bytes": 687763,
+      "zstd9_bytes": 798518,
+      "jls2_smaller_than_pbc_percent": 96.76178207617284
+    },
+    {
+      "family": "zookeeper",
+      "pbc_archive_bytes": 1360668,
+      "jls2_bytes": 197750,
+      "zstd9_bytes": 269207,
+      "jls2_smaller_than_pbc_percent": 85.46669723988512
+    }
+  ]
+}

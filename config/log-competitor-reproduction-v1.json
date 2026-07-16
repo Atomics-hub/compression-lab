@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "name": "log-competitor-reproduction-v1",
-  "claim_ceiling": "competitor eligibility audit only; no comparative result",
+  "claim_ceiling": "PBC exact development comparison plus eligibility audit; no validation or public superiority claim",
   "direct_comparison_requirements": {
     "same_input_bytes": true,
     "byte_exact_roundtrip": true,
@@ -13,6 +13,18 @@
     "documented_software_license": true
   },
   "competitors": [
+    {
+      "name": "PBC",
+      "repository": "https://github.com/antgroup/pbc",
+      "version": "pinned commit",
+      "commit": "bac1f86d29624cb585bb4475235d22a28e60ffea",
+      "license_spdx": "Apache-2.0",
+      "official_build": "Ubuntu 22.04 release build plus official unit and integration tests",
+      "local_status": "reproduced successfully in hosted run 29537587012",
+      "roundtrip_status": "byte-exact on all five LogTrie development families for all four official methods",
+      "reason": "directly targets high-ratio compression for machine-generated data and exposes four official lossless methods",
+      "comparison_role": "primary eligible machine-generated-data competitor"
+    },
     {
       "name": "CLP JSON",
       "repository": "https://github.com/y-scope/clp",

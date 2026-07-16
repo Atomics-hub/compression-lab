@@ -1,0 +1,234 @@
+name: Official PBC competitor benchmark
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - agent/pbc-reproduction
+    paths:
+      - .github/workflows/pbc-competitor-benchmark.yml
+      - config/pbc-competitor-gates.json
+      - config/logtrie-json-log-train-v1.json
+      - docs/benchmarks/2026-07-16-pbc-competitor-protocol.md
+      - scripts/benchmark-pbc-competitor.py
+      - scripts/fetch-log-corpus.py
+      - scripts/wait-for-quiet-host.py
+      - tests/test_pbc_benchmark.py
+      - runs/json-log-jlf2-jls2-16m-development.json
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pbc-competitor-benchmark-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  reproduce:
+    name: Frozen official PBC development comparison
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+    env:
+      PYTHONUNBUFFERED: "1"
+      PBC_COMMIT: bac1f86d29624cb585bb4475235d22a28e60ffea
+      ACI_JOB_NAME: github-actions
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Initialize evidence directory
+        run: |
+          echo "EVIDENCE_DIR=$RUNNER_TEMP/compression-lab-pbc-evidence" >> "$GITHUB_ENV"
+          echo "PBC_DIR=$RUNNER_TEMP/pbc" >> "$GITHUB_ENV"
+          mkdir -p "$RUNNER_TEMP/compression-lab-pbc-evidence"
+
+      - name: Install official PBC build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            cmake \
+            clang \
+            lldb \
+            llvm-dev \
+            lld \
+            libboost-all-dev
+
+      - name: Clone the pinned official PBC artifact
+        run: |
+          git clone https://github.com/antgroup/pbc "$PBC_DIR"
+          git -C "$PBC_DIR" checkout --detach "$PBC_COMMIT"
+          test "$(git -C "$PBC_DIR" rev-parse HEAD)" = "$PBC_COMMIT"
+          test -z "$(git -C "$PBC_DIR" status --porcelain --untracked-files=no)"
+          test "$(sha256sum "$PBC_DIR/LICENSE" | cut -d' ' -f1)" = \
+            "bacacee63139034e9acba4de0c513eeb93cc6277ae52054a30eebf4be644e7ed"
+
+      - name: Capture runner and source provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            lsb_release -a
+            uname -a
+            nproc
+            lscpu
+            python --version
+            clang --version
+            cmake --version
+            git -C "$PBC_DIR" remote -v
+            git -C "$PBC_DIR" rev-parse HEAD
+            git -C "$PBC_DIR" status --porcelain --untracked-files=no
+            sha256sum "$PBC_DIR/LICENSE"
+            git rev-parse HEAD
+            git status --porcelain
+          } | tee "$EVIDENCE_DIR/runner-provenance.txt"
+
+      - name: Build the official release artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          sed -i \
+            's#https://boostorg.jfrog.io/artifactory/main/release/1.67.0/source/boost_1_67_0.tar.gz#https://archives.boost.io/release/1.67.0/source/boost_1_67_0.tar.gz#' \
+            "$PBC_DIR/third-party/externals/boost.cmake"
+          sed -i \
+            's#https://github.com/adrian-thurston/colm/archive/refs/tags/0.14.7.tar.gz#https://codeload.github.com/adrian-thurston/colm-suite/tar.gz/e88bda068d4a25f2afa7f48821e0f539405c8c6a#' \
+            "$PBC_DIR/third-party/externals/colm.cmake"
+          sed -i \
+            's#URL_HASH MD5=213a9ddf207c5732f04941852ca8db62#URL_HASH SHA256=6f11b349722797165f5b71bac5dd71a2ade3cff1c45a9c0ae5522f0f71902ee1#' \
+            "$PBC_DIR/third-party/externals/colm.cmake"
+          grep -F \
+            'https://archives.boost.io/release/1.67.0/source/boost_1_67_0.tar.gz' \
+            "$PBC_DIR/third-party/externals/boost.cmake"
+          grep -F \
+            'https://codeload.github.com/adrian-thurston/colm-suite/tar.gz/e88bda068d4a25f2afa7f48821e0f539405c8c6a' \
+            "$PBC_DIR/third-party/externals/colm.cmake"
+          grep -F \
+            'URL_HASH SHA256=6f11b349722797165f5b71bac5dd71a2ade3cff1c45a9c0ae5522f0f71902ee1' \
+            "$PBC_DIR/third-party/externals/colm.cmake"
+          git -C "$PBC_DIR" diff --check
+          git -C "$PBC_DIR" diff -- \
+            third-party/externals/boost.cmake \
+            third-party/externals/colm.cmake | \
+            tee "$EVIDENCE_DIR/pbc-build-dependency-repair.patch"
+          export PBC_MAKE_JOBS="$(nproc)"
+          (
+            cd "$PBC_DIR"
+            bash ./build.sh -r
+          ) 2>&1 | tee "$EVIDENCE_DIR/pbc-build.log"
+          md5sum \
+            "$PBC_DIR/third-party/downloads/boost_1_67_0.tar.gz" | \
+            tee "$EVIDENCE_DIR/boost-1.67.0-digest.txt"
+          find "$PBC_DIR/third-party/downloads" -maxdepth 1 -type f \
+            -exec sha256sum {} + | sort | \
+            tee "$EVIDENCE_DIR/pbc-third-party-downloads-sha256.txt"
+          git -C "$PBC_DIR" checkout -- \
+            third-party/externals/boost.cmake \
+            third-party/externals/colm.cmake
+          test -z "$(git -C "$PBC_DIR" status --porcelain --untracked-files=no)"
+
+      - name: Run official unit and integration tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          capture_pbc_testresult() {
+            if [[ -d "$PBC_DIR/testresult" ]]; then
+              cp -a "$PBC_DIR/testresult" "$EVIDENCE_DIR/pbc-testresult"
+            fi
+          }
+          trap capture_pbc_testresult EXIT
+          integration_dir="$PBC_DIR/testresult/integration_test"
+          mkdir -p "$integration_dir"
+          touch \
+            "$integration_dir/test_data_2000_100_pbc_only_compress" \
+            "$integration_dir/test_data_2000_100_pbc_only_decompress" \
+            "$integration_dir/test_data_2000_100_pbc_only_decompress2"
+          chmod 600 \
+            "$integration_dir/test_data_2000_100_pbc_only_compress" \
+            "$integration_dir/test_data_2000_100_pbc_only_decompress" \
+            "$integration_dir/test_data_2000_100_pbc_only_decompress2"
+          bash "$PBC_DIR/run_tests.sh" --pbc-integration-test 2>&1 | \
+            tee "$EVIDENCE_DIR/pbc-tests.log"
+
+      - name: Verify local benchmark harness
+        run: |
+          python -m compileall -q scripts
+          python -m pip install "ruff>=0.12,<1"
+          ruff check scripts/benchmark-pbc-competitor.py tests/test_pbc_benchmark.py
+          python -m unittest tests.test_pbc_benchmark -v
+
+      - name: Fetch and verify licensed development corpus
+        run: |
+          python scripts/fetch-log-corpus.py \
+            --config config/logtrie-json-log-train-v1.json \
+            --output corpora/logtrie-train-v1 \
+            --cache "$RUNNER_TEMP/logtrie-cache"
+
+      - name: Require a sustained quiet-host window
+        run: |
+          python scripts/wait-for-quiet-host.py \
+            --gates config/pbc-competitor-gates.json \
+            --consecutive 3 \
+            --interval 5 \
+            --timeout 180 | tee "$EVIDENCE_DIR/quiet-host.log"
+
+      - name: Run frozen PBC reproduction
+        id: benchmark
+        shell: bash
+        run: |
+          set +e
+          python scripts/benchmark-pbc-competitor.py \
+            --pbc-binary "$PBC_DIR/bin/pbc" \
+            --pbc-repository "$PBC_DIR" \
+            --manifest corpora/logtrie-train-v1/manifest.json \
+            --accepted runs/json-log-jlf2-jls2-16m-development.json \
+            --gates config/pbc-competitor-gates.json \
+            --output "$EVIDENCE_DIR/pbc-competitor-result.json" \
+            --repetitions 5 \
+            --training-repetitions 2 2>&1 | \
+            tee "$EVIDENCE_DIR/pbc-competitor.log"
+          status=${PIPESTATUS[0]}
+          echo "exit_code=$status" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Publish benchmark summary
+        if: always()
+        run: |
+          if [[ -f "$EVIDENCE_DIR/pbc-competitor-result.json" ]]; then
+            python -c "import json, os; p=json.load(open(os.path.join(os.environ['EVIDENCE_DIR'], 'pbc-competitor-result.json'))); d=p.get('decision', {}); q=d.get('primary', {}); print('## Official PBC development reproduction'); print(); print(f\"Reproduction passed: {p.get('passed')}\"); print(f\"Primary fixed method: {d.get('primary_method')}\"); print(f\"Archive bytes: {q.get('archive_bytes')}\"); print(f\"PBC gain vs JLS2: {q.get('pbc_gain_vs_jls2_percent', 0):.2f}%\"); print(f\"PBC gain vs zstd-9: {q.get('pbc_gain_vs_zstd9_percent', 0):.2f}%\"); print(f\"Complete compression: {q.get('complete_compression_mbps', 0):.2f} MB/s\"); print(f\"Online compression: {q.get('online_compression_mbps', 0):.2f} MB/s\"); print(f\"Decompression: {q.get('decompression_mbps', 0):.2f} MB/s\")" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Benchmark did not produce a result file." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Seal evidence checksums
+        if: always()
+        run: |
+          if compgen -G "$EVIDENCE_DIR/*" > /dev/null; then
+            (
+              cd "$EVIDENCE_DIR"
+              find . -maxdepth 1 -type f ! -name SHA256SUMS \
+                -printf '%P\0' | sort -z | xargs -0 sha256sum
+            ) > "$EVIDENCE_DIR/SHA256SUMS"
+          fi
+
+      - name: Upload complete reproduction evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: pbc-competitor-benchmark-${{ github.run_id }}
+          path: ${{ runner.temp }}/compression-lab-pbc-evidence
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Enforce frozen reproduction result
+        if: always()
+        run: |
+          status="${{ steps.benchmark.outputs.exit_code }}"
+          if [[ -z "$status" ]]; then
+            echo "Benchmark did not report an exit code" >&2
+            exit 1
+          fi
+          exit "$status"

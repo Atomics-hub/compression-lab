@@ -5,8 +5,12 @@
 Do not report a direct CLP, LogLite, or DeLog win yet. None is currently
 eligible for the same byte-exact local benchmark, for different reasons.
 
-This is an eligibility audit, not a comparative result. Blind validation
-remains sealed.
+PBC was found after the initial audit and passed the frozen hosted
+reproduction. JLS2 was 92.39% smaller than the best fixed PBC method on the
+five exposed development families.
+
+The PBC result is a comparative development result. The remaining entries are
+eligibility findings. No public superiority claim follows from either.
 
 The machine-readable record is
 `config/log-competitor-reproduction-v1.json`.
@@ -26,6 +30,31 @@ A compressor enters the primary leaderboard only when it:
 
 Semantically transformed or non-order-preserving systems may be reported
 separately, but never as if they satisfy the exact-file contract.
+
+## PBC
+
+Pinned source:
+
+- repository: <https://github.com/antgroup/pbc>;
+- commit: `bac1f86d29624cb585bb4475235d22a28e60ffea`;
+- license: Apache-2.0;
+- paper: <https://doi.org/10.1145/3626732>.
+
+PBC directly targets high-ratio compression for machine-generated data and
+has an official SIGMOD reproducibility artifact. It exposes four lossless
+methods: PBC-only, PBC-FSE, PBC-FSST, and PBC-Zstd.
+
+The frozen hosted protocol builds the unmodified pinned source on Ubuntu 22.04,
+runs the official unit and integration tests, and compares all four methods on
+the identical LogTrie development bytes. Pattern files are required decoder
+artifacts, so their bytes are included in every complete archive. Pattern
+training time is reported separately and included in complete compression
+time.
+
+The reproduction passed every exactness and accounting gate. PBC-only was the
+best fixed method at 35,380,846 complete bytes versus 2,693,313 for JLS2 and
+3,787,875 for zstd-9. See
+`docs/benchmarks/2026-07-16-pbc-competitor-development-decision.md`.
 
 ## CLP JSON
 
@@ -103,10 +132,12 @@ external environment after license clarification.
 
 ## Next action
 
-1. Preserve zstd-9 and Brotli-11 as the current exact, reproducible baselines.
-2. Add CLP only as a separate semantic-log comparison if Docker becomes
+1. Freeze JLS2 and PBC-only, then open the three-family public validation split
+   exactly once.
+2. Preserve zstd-9 and Brotli-11 as exact validation baselines.
+3. Add CLP only as a separate semantic-log comparison if Docker becomes
    available.
-3. Seek a licensed, byte-exact LogLite or DeLog execution path on suitable
+4. Seek a licensed, byte-exact LogLite or DeLog execution path on suitable
    Linux hardware before opening validation.
-4. Keep every unavailable or ineligible competitor visible; absence is not a
+5. Keep every unavailable or ineligible competitor visible; absence is not a
    win.

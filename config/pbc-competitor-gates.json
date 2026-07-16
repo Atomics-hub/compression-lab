@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "name": "pbc-official-development-reproduction-v1",
+  "source": {
+    "repository": "https://github.com/antgroup/pbc",
+    "commit": "bac1f86d29624cb585bb4475235d22a28e60ffea",
+    "license_spdx": "Apache-2.0",
+    "license_sha256": "bacacee63139034e9acba4de0c513eeb93cc6277ae52054a30eebf4be644e7ed",
+    "recommended_environment": "Ubuntu 22.04",
+    "build_dependency_repairs": [
+      {
+        "dependency": "Boost 1.67.0",
+        "reason": "the upstream JFrog URL was retired after the PBC commit",
+        "replacement_url": "https://archives.boost.io/release/1.67.0/source/boost_1_67_0.tar.gz",
+        "preserved_upstream_md5": "4850fceb3f2222ee011d4f3ea304d2cb"
+      },
+      {
+        "dependency": "Colm 0.14.7",
+        "reason": "the repository was renamed and GitHub regenerated the tag archive",
+        "tag_commit": "e88bda068d4a25f2afa7f48821e0f539405c8c6a",
+        "replacement_url": "https://codeload.github.com/adrian-thurston/colm-suite/tar.gz/e88bda068d4a25f2afa7f48821e0f539405c8c6a",
+        "replacement_sha256": "6f11b349722797165f5b71bac5dd71a2ade3cff1c45a9c0ae5522f0f71902ee1"
+      }
+    ],
+    "cli_output_workaround": {
+      "reason": "the pinned CLI calls open with O_CREAT but omits the required mode argument",
+      "scope": "pre-create named integration and benchmark output files with mode 0600; do not modify PBC source",
+      "required_postcondition": "the unmodified official integration script and its byte-for-byte cmp checks pass"
+    }
+  },
+  "settings": {
+    "methods": [
+      "pbc_only",
+      "pbc_fse",
+      "pbc_fsst",
+      "pbc_zstd"
+    ],
+    "pattern_size": 100,
+    "train_data_number": 2000,
+    "train_thread_num": 64,
+    "input_type": "newline-delimited record"
+  },
+  "requirements": {
+    "expected_families": [
+      "apache",
+      "healthapp",
+      "hpc",
+      "mac",
+      "zookeeper"
+    ],
+    "minimum_repetitions": 5,
+    "minimum_training_repetitions": 2,
+    "maximum_record_bytes": 1048576,
+    "max_normalized_preflight_load_1m": 1.0,
+    "require_clean_tracked_source": true,
+    "require_exact_source_commit": true,
+    "require_exact_license": true,
+    "require_deterministic_payload_for_fixed_pattern": true,
+    "require_byte_exact_roundtrip": true,
+    "require_complete_archive_accounting": true
+  },
+  "decision_contract": {
+    "primary_ranking": "smallest aggregate pattern-plus-payload bytes from one fixed official PBC method",
+    "oracle_ranking": "best method per family is context only and cannot support the primary claim",
+    "compression_time": "pattern-training median plus online file-compression median",
+    "online_compression_time": "file-compression median with the canonical pattern already available",
+    "decompression_time": "file-decompression median including pattern and payload loading",
+    "archive_bytes": "pattern file bytes plus compressed payload bytes",
+    "roundtrip": "restored size and SHA-256 must exactly match the source file",
+    "speed_comparison": "PBC hosted rates characterize this Ubuntu runner only and are not directly compared with JLS2 rates from a different runner"
+  },
+  "claim_ceiling": "official PBC development-corpus reproduction only; blind validation remains sealed"
+}
