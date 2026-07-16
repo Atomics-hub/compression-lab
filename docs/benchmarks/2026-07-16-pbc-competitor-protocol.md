@@ -2,8 +2,10 @@
 
 ## Status
 
-This protocol is frozen before the first comparative score is produced. It is
-development-corpus evidence only. Blind validation remains sealed.
+This protocol was frozen before the first comparative score was produced. The
+successful result is recorded in
+`2026-07-16-pbc-competitor-development-decision.md`. It is development-corpus
+evidence only.
 
 PBC is directly relevant because its official scope is high-ratio lossless
 compression for machine-generated data. Its source is Apache-2.0 licensed and

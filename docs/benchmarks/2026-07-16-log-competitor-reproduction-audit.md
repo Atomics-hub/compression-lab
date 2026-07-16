@@ -5,11 +5,12 @@
 Do not report a direct CLP, LogLite, or DeLog win yet. None is currently
 eligible for the same byte-exact local benchmark, for different reasons.
 
-PBC was found after the initial audit and is eligible for a frozen hosted
-reproduction. Its result is still pending.
+PBC was found after the initial audit and passed the frozen hosted
+reproduction. JLS2 was 92.39% smaller than the best fixed PBC method on the
+five exposed development families.
 
-This is an eligibility audit, not a comparative result. Blind validation
-remains sealed.
+The PBC result is a comparative development result. The remaining entries are
+eligibility findings. No public superiority claim follows from either.
 
 The machine-readable record is
 `config/log-competitor-reproduction-v1.json`.
@@ -50,7 +51,10 @@ artifacts, so their bytes are included in every complete archive. Pattern
 training time is reported separately and included in complete compression
 time.
 
-See `docs/benchmarks/2026-07-16-pbc-competitor-protocol.md`.
+The reproduction passed every exactness and accounting gate. PBC-only was the
+best fixed method at 35,380,846 complete bytes versus 2,693,313 for JLS2 and
+3,787,875 for zstd-9. See
+`docs/benchmarks/2026-07-16-pbc-competitor-development-decision.md`.
 
 ## CLP JSON
 
@@ -128,9 +132,9 @@ external environment after license clarification.
 
 ## Next action
 
-1. Complete the pinned official PBC hosted reproduction before opening
-   validation.
-2. Preserve zstd-9 and Brotli-11 as the current exact, reproducible baselines.
+1. Freeze JLS2 and PBC-only, then open the three-family public validation split
+   exactly once.
+2. Preserve zstd-9 and Brotli-11 as exact validation baselines.
 3. Add CLP only as a separate semantic-log comparison if Docker becomes
    available.
 4. Seek a licensed, byte-exact LogLite or DeLog execution path on suitable

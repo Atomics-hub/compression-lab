@@ -207,7 +207,11 @@ jobs:
         if: always()
         run: |
           if compgen -G "$EVIDENCE_DIR/*" > /dev/null; then
-            sha256sum "$EVIDENCE_DIR"/* | sort > "$EVIDENCE_DIR/SHA256SUMS"
+            (
+              cd "$EVIDENCE_DIR"
+              find . -maxdepth 1 -type f ! -name SHA256SUMS \
+                -printf '%P\0' | sort -z | xargs -0 sha256sum
+            ) > "$EVIDENCE_DIR/SHA256SUMS"
           fi
 
       - name: Upload complete reproduction evidence
