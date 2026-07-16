@@ -246,6 +246,13 @@ near-neutral 0.35% paired speed improvement and no integrity compromise. The
 next ratio-preserving speed hypothesis is an isolated STX2 command-stream
 prototype, not more Python bookkeeping work.
 
+That STX2 size gate is recorded in
+docs/benchmarks/2026-07-15-stx2-command-stream.md. The reversible one-byte-token
+prototype round-tripped every structured file, but its best per-file policy was
+306,452 bytes, or 10.24%, larger than STX1 and also lost to direct zstd-3 on
+every file. It was rejected before native or frame integration, leaving
+production code and the private holdout untouched.
+
 ## Current limitations
 
 - Workers read each file into memory; streaming and random-access tests come
