@@ -95,10 +95,17 @@ host and run; it is not evidence that the optimization regressed universally.
 
 ## Next gate
 
-1. Rerun peak memory after the bounded two-segment decoder.
-2. Obtain a sustained, isolated benchmark host or a long cool window with no
+The post-pipeline memory run passed on every family:
+
+`runs/jls2-complete-product-memory-development.json`
+
+The maximum compression resident set was 307,773,440 bytes on HPC. The maximum
+decompression resident set was 201,621,504 bytes on HPC. Both are below the
+536,870,912-byte ceiling.
+
+1. Obtain a sustained, isolated benchmark host or a long cool window with no
    unrelated build activity.
-3. Repeat the unchanged five-repetition protocol.
-4. Do not relax thresholds or select only favorable families.
-5. Keep validation sealed until one complete run passes every speed and memory
+2. Repeat the unchanged five-repetition protocol.
+3. Do not relax thresholds or select only favorable families.
+4. Keep validation sealed until one complete run passes every speed and memory
    gate and an eligible byte-exact log-specific competitor is reproduced.
