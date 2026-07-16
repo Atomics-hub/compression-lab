@@ -4,7 +4,7 @@ from collections import Counter
 import hashlib
 import struct
 import time
-from typing import Callable, Dict, List, Optional, Tuple
+from typing import Callable, cast, Dict, List, Optional, Tuple
 import zlib
 
 from .structured_text import (
@@ -168,7 +168,9 @@ def compress(
             selected_segments = transformed_segments
             selected_frame = transformed_frame
             selector_reason = "whole-structured-text-smaller"
-            structured_dictionary_tokens = structured_detail["dictionary_tokens"]
+            structured_dictionary_tokens = cast(
+                int, structured_detail["dictionary_tokens"]
+            )
 
         recipe_counts = Counter(recipe for recipe, _, _ in selected_segments)
         return selected_frame, {
@@ -290,6 +292,7 @@ def decompress(
     structured_text_zstd_decode_into: Optional[StructuredDecoderInto],
     transform_engine: str,
     codec_engine: str,
+    max_output_size: Optional[int] = None,
 ) -> Tuple[bytes, dict]:
     minimum_size = FRAME_HEADER.size + SEGMENT_COUNT.size
     if len(encoded) < minimum_size:
@@ -303,6 +306,11 @@ def decompress(
         raise ValueError(f"unsupported adaptive-v3 frame version: {version}")
     if backend != BACKEND_SEGMENTED:
         raise ValueError(f"unsupported adaptive-v3 backend: {backend}")
+    if max_output_size is not None and original_size > max_output_size:
+        raise ValueError(
+            f"adaptive-v3 output exceeds safety limit: "
+            f"{original_size} > {max_output_size}"
+        )
 
     offset = FRAME_HEADER.size
     segment_count = SEGMENT_COUNT.unpack(

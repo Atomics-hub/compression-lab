@@ -3,8 +3,21 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+import sys
 from typing import List
 
+from . import __version__
+from .api import (
+    DEFAULT_MAX_OUTPUT_SIZE,
+    _atomic_write,
+    compress as compress_bytes,
+    compress_file,
+    decompress as decompress_bytes,
+    decompress_file,
+    default_compressed_path,
+    default_decompressed_path,
+    inspect_frame,
+)
 from .codecs import all_codecs, probe_codec_versions, resolve_codecs
 from .corpus import freeze_holdout, generate_corpus, import_corpus, verify_holdout
 from .gates import evaluate_candidate, load_json, write_gate_report
@@ -25,12 +38,117 @@ def _csv_floats(value: str) -> List[float]:
         raise argparse.ArgumentTypeError(str(exc)) from exc
 
 
+def _byte_size(value: str):
+    normalized = value.strip().lower().replace("_", "")
+    if normalized in {"none", "unlimited"}:
+        return None
+    multipliers = {
+        "": 1,
+        "b": 1,
+        "k": 1024,
+        "kb": 1024,
+        "kib": 1024,
+        "m": 1024**2,
+        "mb": 1024**2,
+        "mib": 1024**2,
+        "g": 1024**3,
+        "gb": 1024**3,
+        "gib": 1024**3,
+        "t": 1024**4,
+        "tb": 1024**4,
+        "tib": 1024**4,
+    }
+    number = normalized
+    suffix = ""
+    while number and number[-1].isalpha():
+        suffix = number[-1] + suffix
+        number = number[:-1]
+    try:
+        result = int(number) * multipliers[suffix]
+    except (KeyError, ValueError) as exc:
+        raise argparse.ArgumentTypeError(f"invalid byte size: {value}") from exc
+    if result < 0:
+        raise argparse.ArgumentTypeError("byte size cannot be negative")
+    return result
+
+
+def _add_output_arguments(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("input", help="input file, or - for standard input")
+    parser.add_argument("-o", "--output", help="output file, or - for standard output")
+    parser.add_argument("-f", "--force", action="store_true", help="replace output")
+
+
+def _stream_input(path: str) -> bytes:
+    return sys.stdin.buffer.read() if path == "-" else Path(path).read_bytes()
+
+
+def _stream_output(path: str, data: bytes, overwrite: bool) -> None:
+    if path == "-":
+        sys.stdout.buffer.write(data)
+        sys.stdout.buffer.flush()
+    else:
+        _atomic_write(Path(path), data, overwrite)
+
+
+def _run_compress(args: argparse.Namespace) -> int:
+    output = args.output
+    if output is None:
+        output = "-" if args.input == "-" else str(default_compressed_path(args.input))
+    if args.input != "-" and output != "-":
+        result = compress_file(args.input, output, overwrite=args.force)
+        print(result)
+        return 0
+    _stream_output(output, compress_bytes(_stream_input(args.input)), args.force)
+    return 0
+
+
+def _run_decompress(args: argparse.Namespace) -> int:
+    output = args.output
+    if output is None:
+        output = "-" if args.input == "-" else str(default_decompressed_path(args.input))
+    if args.input != "-" and output != "-":
+        result = decompress_file(
+            args.input,
+            output,
+            overwrite=args.force,
+            max_output_size=args.max_output_size,
+        )
+        print(result)
+        return 0
+    restored = decompress_bytes(
+        _stream_input(args.input), max_output_size=args.max_output_size
+    )
+    _stream_output(output, restored, args.force)
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="compression-lab",
-        description="Reproducible lossless-compression benchmark harness",
+        description="Adaptive lossless compressor and reproducible benchmark lab",
     )
+    parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     subparsers = parser.add_subparsers(dest="command", required=True)
+
+    compress_command = subparsers.add_parser(
+        "compress", aliases=["c"], help="compress a file or standard input"
+    )
+    _add_output_arguments(compress_command)
+
+    decompress_command = subparsers.add_parser(
+        "decompress", aliases=["d"], help="decompress a .clab frame"
+    )
+    _add_output_arguments(decompress_command)
+    decompress_command.add_argument(
+        "--max-output-size",
+        type=_byte_size,
+        default=DEFAULT_MAX_OUTPUT_SIZE,
+        metavar="SIZE",
+        help="allocation safety limit (default: 2GiB; use unlimited to disable)",
+    )
+
+    info = subparsers.add_parser("info", help="inspect a frame without decoding it")
+    info.add_argument("input", help="frame file, or - for standard input")
 
     init = subparsers.add_parser("init-corpus", help="generate a deterministic smoke corpus")
     init.add_argument("--output", type=Path, required=True)
@@ -95,6 +213,26 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv=None) -> int:
     args = build_parser().parse_args(argv)
+    if args.command in {"compress", "c"}:
+        try:
+            return _run_compress(args)
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            print(f"compression-lab: {exc}", file=sys.stderr)
+            return 2
+    if args.command in {"decompress", "d"}:
+        try:
+            return _run_decompress(args)
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            print(f"compression-lab: {exc}", file=sys.stderr)
+            return 2
+    if args.command == "info":
+        try:
+            info = inspect_frame(_stream_input(args.input))
+        except (OSError, TypeError, ValueError) as exc:
+            print(f"compression-lab: {exc}", file=sys.stderr)
+            return 2
+        print(json.dumps(info.to_dict(), indent=2, sort_keys=True))
+        return 0
     if args.command == "init-corpus":
         manifest = generate_corpus(args.output, args.size_scale, args.seed)
         print(manifest)

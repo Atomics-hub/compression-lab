@@ -1,54 +1,73 @@
 # Compression Lab
 
-Compression Lab is the executable measurement foundation for a new adaptive
-lossless-compression system. It is intentionally independent of the eventual
-codec so that every new selector, transform, predictor, and container revision
-is judged by the same contract.
+Compression Lab is an adaptive lossless file compressor and the reproducible
+research harness used to decide every algorithm change. It writes
+self-describing `.clab` frames, verifies every decoded file with SHA-256, and
+keeps backward decoding for frame versions 1 through 3.
 
-Version 0.1 provides:
+The current encoder combines Zstandard with independently reversible numeric
+and structured-text transforms, segmented routing, and exact whole-frame
+fallback. It never chooses a complete candidate larger than its compared
+fallback. A Rust library accelerates transforms; the Python package supplies a
+portable Zstandard backend.
 
-- deterministic heterogeneous corpus generation;
-- isolated codec workers for store, gzip/DEFLATE, bzip2/BWT, and LZMA2;
-- SHA-256 round-trip verification for every trial;
-- separate cold-process and persistent-worker wall timing modes;
-- deterministic randomized trial order, host-load sampling, per-repetition
-  confidence intervals, and repeatability gates;
-- calibrated operation batches with explicit target-completion telemetry;
-- in-process Zstandard baselines using the same `libzstd` path as adaptive-v2
-  and adaptive-v3;
-- worker CPU telemetry that includes completed external-codec child processes;
-- worker peak-RSS telemetry;
-- compressed size, throughput, expansion, and transfer-time utility at
-  configurable bandwidths;
-- aggregate and per-file JSON, aggregate CSV, and a Markdown run report;
-- Pareto marking across size, compression speed, and decompression speed;
-- explicit train/validation/holdout split support.
-- an adaptive-v0 self-describing frame that samples content and safely chooses
-  between store and gzip-1, including original-size and SHA-256 verification.
-- provenance-required real-corpus intake and cryptographically frozen private
-  holdouts;
-- an optimized Rust delta-transpose library with a verified Python fallback;
-- exact native executable and version capture for Zstd, LZ4, Brotli, and 7-Zip.
-- an adaptive-v2 frame that can route to store, Zstandard, LZ4, or
-  delta-transpose plus Zstandard without breaking version-1 decoding.
-- an adaptive-v3 segmented frame with per-segment recipes and CRC32 checks,
-  whole-file SHA-256 verification, and a whole-stream fallback that prevents
-  segmentation from silently worsening compressed size.
-- a stateful native structured-text decoder fed directly from streaming
-  Zstandard output, avoiding a complete transformed-stream allocation.
+## Status: 0.1 release candidate
 
-The built-in codecs use Python's standard-library bindings. That keeps the
-harness dependency-free and gives us a working baseline on a clean machine.
-Native Zstd, LZ4, Brotli, and 7-Zip adapters are discovered automatically when
-their CLI executables are installed. Unavailable adapters remain visible
-through list-codecs but cannot be selected accidentally.
+This is alpha software, not yet a universal compression winner. On the pinned
+mixed public starter corpus, the retained adaptive-v3 milestone produced
+6,747,896 bytes versus 6,866,359 for zstd-3, a 1.73% reduction, while retaining
+a measured size/speed Pareto position. On the expanded JSON study it remained
+larger than zstd-9, Brotli-11, LZMA-9, and 7-Zip-9. Those limits are part of the
+result: see `docs/benchmarks/` for protocols, full payload sizes, negative
+experiments, and host-scoped timing evidence.
+
+Do not describe Compression Lab as state of the art on all data. Its strongest
+current claim is an evidence-backed adaptive research candidate with a usable,
+integrity-checked file format.
 
 ## Quick start
 
-Use any Python 3.9 or newer:
+Use Python 3.9 or newer and Rust stable for a source checkout:
 
     cd /path/to/compression-lab
-    export PYTHONPATH="$PWD/src"
+    python3 -m venv .venv
+    . .venv/bin/activate
+    python -m pip install -e .
+
+Compress, inspect, and restore a file:
+
+    compression-lab compress report.json
+    compression-lab info report.json.clab
+    compression-lab decompress report.json.clab -o restored.json
+
+Compression refuses to overwrite an output unless `--force` is supplied. The
+decoder rejects a declared output above 2 GiB by default; change the bound with
+`--max-output-size 512MiB` or explicitly disable it with `unlimited`.
+
+Standard input and output use `-`:
+
+    printf 'hello\n' | compression-lab compress - -o - > hello.clab
+    compression-lab decompress hello.clab -o -
+
+Python applications use the stable byte or file API:
+
+```python
+import compresslab
+
+frame = compresslab.compress(b"lossless data" * 1000)
+original = compresslab.decompress(frame, max_output_size=10_000_000)
+
+compressed_path = compresslab.compress_file("report.json")
+restored_path = compresslab.decompress_file(compressed_path, "report.copy.json")
+```
+
+The format contract is in `docs/file-format.md`; security boundaries are in
+`SECURITY.md`.
+
+## Reproduce the research harness
+
+Generate the deterministic smoke corpus and run the default comparison:
+
     python3 -m compresslab init-corpus --output corpora/smoke
     python3 -m compresslab run \
       --corpus corpora/smoke \

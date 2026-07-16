@@ -1,13 +1,53 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=77", "wheel>=0.42"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "compression-lab"
 version = "0.1.0"
-description = "Reproducible benchmark harness for adaptive lossless compression research"
+description = "Adaptive lossless compressor with reproducible benchmark evidence"
+readme = "README.md"
 requires-python = ">=3.9"
-dependencies = []
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [
+  {name = "Atomics Hub"},
+]
+keywords = ["compression", "lossless", "zstandard", "benchmark"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Operating System :: MacOS",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Programming Language :: Rust",
+  "Topic :: System :: Archiving :: Compression",
+]
+dependencies = [
+  "zstandard>=0.23,<1",
+]
+
+[project.optional-dependencies]
+dev = [
+  "build>=1.2,<2",
+  "mypy>=1.11,<2",
+  "ruff>=0.12,<1",
+  "twine>=6,<7",
+]
+
+[project.urls]
+Homepage = "https://github.com/Atomics-hub/compression-lab"
+Repository = "https://github.com/Atomics-hub/compression-lab"
+Issues = "https://github.com/Atomics-hub/compression-lab/issues"
+Changelog = "https://github.com/Atomics-hub/compression-lab/blob/main/CHANGELOG.md"
 
 [project.scripts]
 compression-lab = "compresslab.cli:main"
@@ -17,3 +57,27 @@ package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+compresslab = ["py.typed", "_native/*"]
+
+[tool.mypy]
+python_version = "3.9"
+ignore_missing_imports = true
+
+[tool.ruff]
+target-version = "py39"
+
+[tool.cibuildwheel]
+build = "cp312-*"
+skip = "*-musllinux_* *-win32"
+test-command = "python -c \"import compresslab; data=b'wheel-test'*10000; assert compresslab.decompress(compresslab.compress(data)) == data\""
+
+[tool.cibuildwheel.linux]
+archs = ["x86_64", "aarch64"]
+
+[tool.cibuildwheel.macos]
+archs = ["x86_64", "arm64"]
+
+[tool.cibuildwheel.windows]
+archs = ["AMD64"]

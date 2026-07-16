@@ -14,6 +14,8 @@ _LOAD_ATTEMPTED = False
 _ZSTD_LIBRARY: Optional[ctypes.CDLL] = None
 _ZSTD_LOAD_ATTEMPTED = False
 _ZSTD_STREAM_FUNCTIONS: Optional[Tuple[ctypes.c_void_p, ...]] = None
+_PYTHON_ZSTD = None
+_PYTHON_ZSTD_LOAD_ATTEMPTED = False
 _ZSTD_CONTENTSIZE_UNKNOWN = (1 << 64) - 1
 _ZSTD_CONTENTSIZE_ERROR = (1 << 64) - 2
 _STRUCTURED_TEXT_STREAM_CHUNK_SIZE = 4 * 1024 * 1024
@@ -31,6 +33,9 @@ def _library_path() -> Path:
     override = os.environ.get("COMPRESSION_LAB_NATIVE_LIB")
     if override:
         return Path(override)
+    packaged = Path(__file__).resolve().parent / "_native" / _library_filename()
+    if packaged.is_file():
+        return packaged
     repository = Path(__file__).resolve().parents[2]
     return repository / "native" / "target" / "release" / _library_filename()
 
@@ -316,7 +321,34 @@ def _load_zstd() -> Optional[ctypes.CDLL]:
 
 
 def zstd_available() -> bool:
+    return _load_zstd() is not None or _load_python_zstd() is not None
+
+
+def zstd_ffi_available() -> bool:
+    """Whether fused native streaming can borrow a system libzstd function table."""
+
     return _load_zstd() is not None
+
+
+def _load_python_zstd():
+    global _PYTHON_ZSTD, _PYTHON_ZSTD_LOAD_ATTEMPTED
+    if _PYTHON_ZSTD_LOAD_ATTEMPTED:
+        return _PYTHON_ZSTD
+    _PYTHON_ZSTD_LOAD_ATTEMPTED = True
+    try:
+        import zstandard
+    except ImportError:
+        return None
+    _PYTHON_ZSTD = zstandard
+    return _PYTHON_ZSTD
+
+
+def zstd_engine() -> str:
+    if _load_zstd() is not None:
+        return "libzstd-ffi"
+    if _load_python_zstd() is not None:
+        return "python-zstandard"
+    return "zstd-cli"
 
 
 def _zstd_error(library: ctypes.CDLL, result: int) -> None:
@@ -328,7 +360,10 @@ def _zstd_error(library: ctypes.CDLL, result: int) -> None:
 def zstd_compress(data: bytes, level: int = 3) -> bytes:
     library = _load_zstd()
     if library is None:
-        raise RuntimeError("libzstd is unavailable")
+        module = _load_python_zstd()
+        if module is None:
+            raise RuntimeError("Zstandard is unavailable")
+        return module.ZstdCompressor(level=level).compress(data)
     source = ctypes.create_string_buffer(data, max(1, len(data)))
     capacity = int(library.ZSTD_compressBound(len(data)))
     output = ctypes.create_string_buffer(max(1, capacity))
@@ -340,7 +375,13 @@ def zstd_compress(data: bytes, level: int = 3) -> bytes:
 def zstd_frame_content_size(data: bytes) -> int:
     library = _load_zstd()
     if library is None:
-        raise RuntimeError("libzstd is unavailable")
+        module = _load_python_zstd()
+        if module is None:
+            raise RuntimeError("Zstandard is unavailable")
+        result = int(module.frame_content_size(data))
+        if result < 0:
+            raise ValueError("Zstandard frame content size is invalid or unknown")
+        return result
     source = ctypes.create_string_buffer(data, max(1, len(data)))
     result = int(library.ZSTD_getFrameContentSize(source, len(data)))
     if result == _ZSTD_CONTENTSIZE_ERROR:
@@ -353,7 +394,20 @@ def zstd_frame_content_size(data: bytes) -> int:
 def zstd_decompress(data: bytes, expected_size: Optional[int] = None) -> bytes:
     library = _load_zstd()
     if library is None:
-        raise RuntimeError("libzstd is unavailable")
+        module = _load_python_zstd()
+        if module is None:
+            raise RuntimeError("Zstandard is unavailable")
+        if expected_size is None:
+            expected_size = zstd_frame_content_size(data)
+        result = module.ZstdDecompressor().decompress(
+            data, max_output_size=max(1, expected_size)
+        )
+        if len(result) != expected_size:
+            raise ValueError(
+                f"Zstandard output size mismatch: expected {expected_size}, "
+                f"got {len(result)}"
+            )
+        return result
     if expected_size is None:
         expected_size = zstd_frame_content_size(data)
     source = ctypes.create_string_buffer(data, max(1, len(data)))

@@ -6,7 +6,6 @@ import gzip
 import json
 import lzma
 import os
-import resource
 import shutil
 import struct
 import subprocess
@@ -14,7 +13,12 @@ import sys
 import time
 import hashlib
 from pathlib import Path
-from typing import Callable
+from typing import Any, Callable, Dict, Optional
+
+try:
+    import resource
+except ImportError:  # pragma: no cover - exercised by Windows CI
+    resource = None  # type: ignore[assignment]
 
 from .adaptive_v3 import (
     BACKEND_SEGMENTED as BACKEND_SEGMENTED_V3,
@@ -32,6 +36,8 @@ from .native import (
     zstd_available,
     zstd_compress,
     zstd_decompress,
+    zstd_engine,
+    zstd_ffi_available,
 )
 
 
@@ -47,7 +53,9 @@ BACKEND_LZ4_1 = 4
 BACKEND_DELTA_TRANSPOSE_ZSTD_3 = 5
 
 
-def _rss_bytes(usage: resource.struct_rusage) -> int:
+def _rss_bytes(usage: Any) -> int:
+    if resource is None:
+        return 0
     value = int(usage.ru_maxrss)
     # macOS reports bytes; Linux and most BSDs report KiB.
     if sys.platform == "darwin":
@@ -57,10 +65,21 @@ def _rss_bytes(usage: resource.struct_rusage) -> int:
 
 def _cpu_time_ns() -> int:
     """CPU consumed by this worker plus completed external codec children."""
+    if resource is None:
+        return time.process_time_ns()
     own = resource.getrusage(resource.RUSAGE_SELF)
     children = resource.getrusage(resource.RUSAGE_CHILDREN)
     seconds = own.ru_utime + own.ru_stime + children.ru_utime + children.ru_stime
     return int(seconds * 1_000_000_000)
+
+
+def _peak_rss_bytes() -> int:
+    if resource is None:
+        return 0
+    return max(
+        _rss_bytes(resource.getrusage(resource.RUSAGE_SELF)),
+        _rss_bytes(resource.getrusage(resource.RUSAGE_CHILDREN)),
+    )
 
 
 def _copy(source: Path, destination: Path) -> None:
@@ -198,7 +217,7 @@ def _v2_zstd_decompress(data: bytes, expected_size: int) -> bytes:
 
 def _v2_codec_engine(backend: int) -> str:
     if backend in {BACKEND_ZSTD_3, BACKEND_DELTA_TRANSPOSE_ZSTD_3}:
-        return "libzstd-ffi" if zstd_available() else "zstd-cli"
+        return zstd_engine()
     if backend == BACKEND_LZ4_1:
         return "lz4-cli"
     return "store"
@@ -366,31 +385,36 @@ def _adaptive_v3_compress(data: bytes) -> tuple[bytes, dict]:
         zstd_encode=_v2_zstd_compress,
         delta_transpose=_delta_transpose,
         transform_engine="rust" if native_available() else "python-fallback",
-        codec_engine="libzstd-ffi" if zstd_available() else "zstd-cli",
+        codec_engine=zstd_engine(),
     )
 
 
-def _adaptive_v3_decompress(encoded: bytes) -> tuple[bytes, dict]:
+def _adaptive_v3_decompress(
+    encoded: bytes, max_output_size: Optional[int] = None
+) -> tuple[bytes, dict]:
     return _v3_decompress(
         encoded,
         zstd_decode=_v2_zstd_decompress,
         inverse_delta_transpose=_inverse_delta_transpose,
         structured_text_zstd_decode=(
             structured_text_zstd_stream_decode
-            if native_available() and zstd_available()
+            if native_available() and zstd_ffi_available()
             else None
         ),
         structured_text_zstd_decode_into=(
             structured_text_zstd_stream_decode_into
-            if native_available() and zstd_available()
+            if native_available() and zstd_ffi_available()
             else None
         ),
         transform_engine="rust" if native_available() else "python-fallback",
-        codec_engine="libzstd-ffi" if zstd_available() else "zstd-cli",
+        codec_engine=zstd_engine(),
+        max_output_size=max_output_size,
     )
 
 
-def _adaptive_decompress(encoded: bytes) -> tuple[bytes, dict]:
+def _adaptive_decompress(
+    encoded: bytes, max_output_size: Optional[int] = None
+) -> tuple[bytes, dict]:
     if len(encoded) < ADAPTIVE_HEADER.size:
         raise ValueError("adaptive frame is truncated")
     magic, version, backend, original_size, expected_hash = ADAPTIVE_HEADER.unpack(
@@ -398,10 +422,15 @@ def _adaptive_decompress(encoded: bytes) -> tuple[bytes, dict]:
     )
     if magic != ADAPTIVE_MAGIC:
         raise ValueError("adaptive frame magic mismatch")
+    if max_output_size is not None and original_size > max_output_size:
+        raise ValueError(
+            f"adaptive output exceeds safety limit: "
+            f"{original_size} > {max_output_size}"
+        )
     if version == ADAPTIVE_VERSION_V3:
         if backend != BACKEND_SEGMENTED_V3:
             raise ValueError(f"unsupported adaptive-v3 backend: {backend}")
-        return _adaptive_v3_decompress(encoded)
+        return _adaptive_v3_decompress(encoded, max_output_size=max_output_size)
     if version not in {ADAPTIVE_VERSION_V1, ADAPTIVE_VERSION_V2}:
         raise ValueError(f"unsupported adaptive frame version: {version}")
     payload = encoded[ADAPTIVE_HEADER.size:]
@@ -485,18 +514,22 @@ def _run_external(codec, operation: str, source: Path, destination: Path) -> dic
     command = _external_command(codec, operation, source, destination)
     if codec.implementation == "external-7zip" and operation == "decompress":
         with destination.open("wb") as output:
-            completed = subprocess.run(
+            binary_result = subprocess.run(
                 command, stdout=output, stderr=subprocess.PIPE, check=False
             )
         stdout = ""
-        stderr = completed.stderr.decode("utf-8", errors="replace")
+        stderr = binary_result.stderr.decode("utf-8", errors="replace")
+        returncode = binary_result.returncode
     else:
-        completed = subprocess.run(command, capture_output=True, text=True, check=False)
-        stdout = completed.stdout
-        stderr = completed.stderr
-    if completed.returncode != 0:
+        text_result = subprocess.run(
+            command, capture_output=True, text=True, check=False
+        )
+        stdout = text_result.stdout
+        stderr = text_result.stderr
+        returncode = text_result.returncode
+    if returncode != 0:
         detail = stderr.strip() or stdout.strip()
-        raise RuntimeError(f"external codec exited {completed.returncode}: {detail}")
+        raise RuntimeError(f"external codec exited {returncode}: {detail}")
     return {
         "selected_backend": codec.id,
         "selector_ns": 0,
@@ -516,7 +549,7 @@ def _run_zstd_ffi(codec, operation: str, source: Path, destination: Path) -> dic
     return {
         "selected_backend": codec.id,
         "selector_ns": 0,
-        "codec_engine": "libzstd-ffi",
+        "codec_engine": zstd_engine(),
     }
 
 
@@ -526,7 +559,7 @@ def run(codec_id: str, operation: str, source: Path, destination: Path) -> dict:
     wall_start = time.perf_counter_ns()
     cpu_start = _cpu_time_ns()
 
-    detail = {}
+    detail: Dict[str, Any] = {}
     if codec.implementation == "store":
         _copy(source, destination)
     elif codec.implementation in {
@@ -564,10 +597,7 @@ def run(codec_id: str, operation: str, source: Path, destination: Path) -> dict:
         "operation": operation,
         "wall_ns": time.perf_counter_ns() - wall_start,
         "cpu_ns": _cpu_time_ns() - cpu_start,
-        "peak_rss_bytes": max(
-            _rss_bytes(resource.getrusage(resource.RUSAGE_SELF)),
-            _rss_bytes(resource.getrusage(resource.RUSAGE_CHILDREN)),
-        ),
+        "peak_rss_bytes": _peak_rss_bytes(),
         "input_bytes": source.stat().st_size,
         "output_bytes": destination.stat().st_size,
         "pid": os.getpid(),

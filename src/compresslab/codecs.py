@@ -6,6 +6,7 @@ from dataclasses import replace
 from typing import Dict, Iterable, List
 
 from .models import CodecSpec
+from .native import zstd_available
 
 
 _CODECS: Dict[str, CodecSpec] = {}
@@ -50,6 +51,12 @@ def _register_external(
 
 for level in (1, 3, 9, 19):
     _register_external(f"zstd-{level}", "Zstandard", "external-zstd", ("zstd",), level)
+    if zstd_available() and not _CODECS[f"zstd-{level}"].available:
+        _CODECS[f"zstd-{level}"] = replace(
+            _CODECS[f"zstd-{level}"],
+            available=True,
+            unavailable_reason="",
+        )
 for level in (1, 9):
     _register_external(f"lz4-{level}", "LZ4", "external-lz4", ("lz4",), level)
 for level in (1, 6, 11):
@@ -65,7 +72,7 @@ for level in (1, 5, 9):
         level,
     )
 
-_v2_dependencies = (_CODECS["zstd-3"], _CODECS["lz4-1"])
+_v2_dependencies = (_CODECS["zstd-3"],)
 _v2_missing = [codec.id for codec in _v2_dependencies if not codec.available]
 _register(
     CodecSpec(

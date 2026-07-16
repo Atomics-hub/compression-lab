@@ -134,15 +134,16 @@ class AdaptiveFrameTests(unittest.TestCase):
         self.assertEqual(v1_encoded[4], 1)
         self.assertEqual(_adaptive_decompress(v1_encoded)[0], cases[0][0])
 
-        lz4_source = cases[1][0]
-        lz4_frame = ADAPTIVE_HEADER.pack(
-            ADAPTIVE_MAGIC,
-            ADAPTIVE_VERSION_V2,
-            BACKEND_LZ4_1,
-            len(lz4_source),
-            hashlib.sha256(lz4_source).digest(),
-        ) + _codec_filter("lz4-1", "compress", lz4_source)
-        self.assertEqual(_adaptive_decompress(lz4_frame)[0], lz4_source)
+        if codec_by_id("lz4-1").available:
+            lz4_source = cases[1][0]
+            lz4_frame = ADAPTIVE_HEADER.pack(
+                ADAPTIVE_MAGIC,
+                ADAPTIVE_VERSION_V2,
+                BACKEND_LZ4_1,
+                len(lz4_source),
+                hashlib.sha256(lz4_source).digest(),
+            ) + _codec_filter("lz4-1", "compress", lz4_source)
+            self.assertEqual(_adaptive_decompress(lz4_frame)[0], lz4_source)
 
     def test_v2_stores_incompressible_data_and_rejects_version_backend_mismatch(self):
         self.require_v2()

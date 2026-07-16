@@ -523,6 +523,14 @@ pub extern "C" fn clab_structured_text_decoder_create(expected_size: usize) -> *
 }
 
 #[no_mangle]
+/// Feed transformed bytes into a streaming decoder.
+///
+/// # Safety
+///
+/// `decoder` must be a live pointer returned by
+/// `clab_structured_text_decoder_create`. `input` and `output` must be non-null
+/// and valid for reads or writes of their declared lengths for the duration of
+/// this call. The regions must not alias in a way that violates Rust's rules.
 pub unsafe extern "C" fn clab_structured_text_decoder_update(
     decoder: *mut c_void,
     input: *const u8,
@@ -530,10 +538,7 @@ pub unsafe extern "C" fn clab_structured_text_decoder_update(
     output: *mut u8,
     output_capacity: usize,
 ) -> i32 {
-    if decoder.is_null()
-        || (input.is_null() && len != 0)
-        || (output.is_null() && output_capacity != 0)
-    {
+    if decoder.is_null() || input.is_null() || output.is_null() {
         return NULL_POINTER;
     }
     let state = &mut *(decoder as *mut StreamingTextDecoder);
@@ -547,6 +552,12 @@ pub unsafe extern "C" fn clab_structured_text_decoder_update(
 }
 
 #[no_mangle]
+/// Validate that a streaming decoder consumed a complete STX1 stream.
+///
+/// # Safety
+///
+/// `decoder` must be a live pointer returned by
+/// `clab_structured_text_decoder_create` and must not be concurrently mutated.
 pub unsafe extern "C" fn clab_structured_text_decoder_finish(decoder: *mut c_void) -> i32 {
     if decoder.is_null() {
         return NULL_POINTER;
@@ -559,12 +570,20 @@ pub unsafe extern "C" fn clab_structured_text_decoder_finish(decoder: *mut c_voi
 }
 
 #[no_mangle]
+/// Release a streaming decoder. A null pointer is accepted as a no-op.
+///
+/// # Safety
+///
+/// A non-null `decoder` must have been returned by
+/// `clab_structured_text_decoder_create`, must not have been freed already, and
+/// must not be used after this call.
 pub unsafe extern "C" fn clab_structured_text_decoder_free(decoder: *mut c_void) {
     if !decoder.is_null() {
         drop(Box::from_raw(decoder as *mut StreamingTextDecoder));
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 unsafe fn decode_structured_text_zstd_stream(
     input: *const u8,
     len: usize,
@@ -626,6 +645,13 @@ unsafe fn decode_structured_text_zstd_stream(
 }
 
 #[no_mangle]
+/// Decompress a Zstandard-wrapped STX1 stream directly into output memory.
+///
+/// # Safety
+///
+/// `input` and `output` must be non-null and valid for their declared lengths.
+/// Every supplied function pointer must follow the Zstandard C ABI and remain
+/// valid for the complete call. The output region must not alias the input.
 pub unsafe extern "C" fn clab_structured_text_zstd_decode(
     input: *const u8,
     len: usize,
@@ -687,6 +713,13 @@ pub unsafe extern "C" fn clab_structured_text_zstd_decode(
 }
 
 #[no_mangle]
+/// Encode bytes with the STX1 transform.
+///
+/// # Safety
+///
+/// `input`, `output`, and `output_len` must be non-null. The input must be
+/// readable for `len` bytes, the output writable for `output_capacity` bytes,
+/// and `output_len` writable for one `usize`. Input and output must not alias.
 pub unsafe extern "C" fn clab_structured_text_encode(
     input: *const u8,
     len: usize,
@@ -696,7 +729,7 @@ pub unsafe extern "C" fn clab_structured_text_encode(
     output_capacity: usize,
     output_len: *mut usize,
 ) -> i32 {
-    if ((input.is_null() || output.is_null()) && len != 0) || output_len.is_null() {
+    if input.is_null() || output.is_null() || output_len.is_null() {
         return NULL_POINTER;
     }
     let source = slice::from_raw_parts(input, len);
@@ -710,13 +743,19 @@ pub unsafe extern "C" fn clab_structured_text_encode(
 }
 
 #[no_mangle]
+/// Decode a complete STX1 transform.
+///
+/// # Safety
+///
+/// `input` and `output` must be non-null and valid for reads of `len` bytes and
+/// writes of `expected_size` bytes respectively. The regions must not alias.
 pub unsafe extern "C" fn clab_structured_text_decode(
     input: *const u8,
     len: usize,
     output: *mut u8,
     expected_size: usize,
 ) -> i32 {
-    if (input.is_null() && len != 0) || (output.is_null() && expected_size != 0) {
+    if input.is_null() || output.is_null() {
         return NULL_POINTER;
     }
     let source = slice::from_raw_parts(input, len);
@@ -728,6 +767,13 @@ pub unsafe extern "C" fn clab_structured_text_decode(
 }
 
 #[no_mangle]
+/// Split a valid STX1 stream into skeleton and token-code channels.
+///
+/// # Safety
+///
+/// All five pointers must be non-null. `input` must be readable for `len`
+/// bytes, both outputs writable for their capacities, and both length pointers
+/// writable for one `usize`. No mutable output region may alias another region.
 pub unsafe extern "C" fn clab_structured_text_split_channels(
     input: *const u8,
     len: usize,
@@ -738,7 +784,9 @@ pub unsafe extern "C" fn clab_structured_text_split_channels(
     side_capacity: usize,
     side_len: *mut usize,
 ) -> i32 {
-    if ((input.is_null() || skeleton_output.is_null() || side_output.is_null()) && len != 0)
+    if input.is_null()
+        || skeleton_output.is_null()
+        || side_output.is_null()
         || skeleton_len.is_null()
         || side_len.is_null()
     {
@@ -760,6 +808,13 @@ pub unsafe extern "C" fn clab_structured_text_split_channels(
 }
 
 #[no_mangle]
+/// Recombine and decode STX1 skeleton and token-code channels.
+///
+/// # Safety
+///
+/// `skeleton`, `side`, and `output` must be non-null and valid for their
+/// declared read or write lengths. The output region must not alias either
+/// input region.
 pub unsafe extern "C" fn clab_structured_text_decode_channels(
     skeleton: *const u8,
     skeleton_len: usize,
@@ -768,10 +823,7 @@ pub unsafe extern "C" fn clab_structured_text_decode_channels(
     output: *mut u8,
     expected_size: usize,
 ) -> i32 {
-    if ((skeleton.is_null() || output.is_null()) && skeleton_len != 0)
-        || (side.is_null() && side_len != 0)
-        || (output.is_null() && expected_size != 0)
-    {
+    if skeleton.is_null() || side.is_null() || output.is_null() {
         return NULL_POINTER;
     }
     let skeleton_source = slice::from_raw_parts(skeleton, skeleton_len);
@@ -786,12 +838,18 @@ pub unsafe extern "C" fn clab_structured_text_decode_channels(
 }
 
 #[no_mangle]
+/// Apply 32-bit delta coding and byte-plane transpose.
+///
+/// # Safety
+///
+/// `input` and `output` must be non-null and valid for reads and writes of
+/// `len` bytes. The regions must not overlap.
 pub unsafe extern "C" fn clab_delta_transpose(
     input: *const u8,
     len: usize,
     output: *mut u8,
 ) -> i32 {
-    if (input.is_null() || output.is_null()) && len != 0 {
+    if input.is_null() || output.is_null() {
         return NULL_POINTER;
     }
     let source = slice::from_raw_parts(input, len);
@@ -820,12 +878,18 @@ pub unsafe extern "C" fn clab_delta_transpose(
 }
 
 #[no_mangle]
+/// Reverse 32-bit delta coding and byte-plane transpose.
+///
+/// # Safety
+///
+/// `input` and `output` must be non-null and valid for reads and writes of
+/// `len` bytes. The regions must not overlap.
 pub unsafe extern "C" fn clab_inverse_delta_transpose(
     input: *const u8,
     len: usize,
     output: *mut u8,
 ) -> i32 {
-    if (input.is_null() || output.is_null()) && len != 0 {
+    if input.is_null() || output.is_null() {
         return NULL_POINTER;
     }
     let source = slice::from_raw_parts(input, len);
@@ -850,6 +914,38 @@ pub unsafe extern "C" fn clab_inverse_delta_transpose(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::ptr;
+
+    #[test]
+    fn ffi_rejects_null_zero_length_buffers() {
+        unsafe {
+            assert_eq!(
+                clab_delta_transpose(ptr::null(), 0, ptr::null_mut()),
+                NULL_POINTER
+            );
+            assert_eq!(
+                clab_inverse_delta_transpose(ptr::null(), 0, ptr::null_mut()),
+                NULL_POINTER
+            );
+            let mut output_len = 0_usize;
+            assert_eq!(
+                clab_structured_text_encode(
+                    ptr::null(),
+                    0,
+                    0,
+                    0,
+                    ptr::null_mut(),
+                    0,
+                    &mut output_len,
+                ),
+                NULL_POINTER
+            );
+            assert_eq!(
+                clab_structured_text_decode(ptr::null(), 0, ptr::null_mut(), 0),
+                NULL_POINTER
+            );
+        }
+    }
 
     #[test]
     fn round_trip_preserves_words_and_tail() {
