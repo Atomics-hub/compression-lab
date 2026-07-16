@@ -20,6 +20,15 @@ from .api import (
 )
 from .codecs import all_codecs, probe_codec_versions, resolve_codecs
 from .corpus import freeze_holdout, generate_corpus, import_corpus, verify_holdout
+from .experimental import (
+    compress_json_log_file,
+    compress_json_logs,
+    decompress_json_log_file,
+    decompress_json_logs,
+    default_json_log_compressed_path,
+    default_json_log_decompressed_path,
+    inspect_json_log_frame,
+)
 from .gates import evaluate_candidate, load_json, write_gate_report
 from .runner import run_benchmark
 
@@ -122,6 +131,58 @@ def _run_decompress(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_json_compress(args: argparse.Namespace) -> int:
+    if args.segment_size is None:
+        raise ValueError("segment size cannot be unlimited")
+    output = args.output
+    if output is None:
+        output = (
+            "-"
+            if args.input == "-"
+            else str(default_json_log_compressed_path(args.input))
+        )
+    if args.input != "-" and output != "-":
+        result = compress_json_log_file(
+            args.input,
+            output,
+            overwrite=args.force,
+            segment_size=args.segment_size,
+        )
+        print(result)
+        return 0
+    encoded = compress_json_logs(
+        _stream_input(args.input),
+        segment_size=args.segment_size,
+    )
+    _stream_output(output, encoded, args.force)
+    return 0
+
+
+def _run_json_decompress(args: argparse.Namespace) -> int:
+    output = args.output
+    if output is None:
+        output = (
+            "-"
+            if args.input == "-"
+            else str(default_json_log_decompressed_path(args.input))
+        )
+    if args.input != "-" and output != "-":
+        result = decompress_json_log_file(
+            args.input,
+            output,
+            overwrite=args.force,
+            max_output_size=args.max_output_size,
+        )
+        print(result)
+        return 0
+    restored = decompress_json_logs(
+        _stream_input(args.input),
+        max_output_size=args.max_output_size,
+    )
+    _stream_output(output, restored, args.force)
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="compression-lab",
@@ -149,6 +210,40 @@ def build_parser() -> argparse.ArgumentParser:
 
     info = subparsers.add_parser("info", help="inspect a frame without decoding it")
     info.add_argument("input", help="frame file, or - for standard input")
+
+    json_compress = subparsers.add_parser(
+        "json-compress",
+        aliases=["jc"],
+        help="compress JSON logs with the experimental JLS2 codec",
+    )
+    _add_output_arguments(json_compress)
+    json_compress.add_argument(
+        "--segment-size",
+        type=_byte_size,
+        default=16 * 1024 * 1024,
+        metavar="SIZE",
+        help="record-aligned segment target (default: 16MiB)",
+    )
+
+    json_decompress = subparsers.add_parser(
+        "json-decompress",
+        aliases=["jd"],
+        help="decompress an experimental JLS2 frame",
+    )
+    _add_output_arguments(json_decompress)
+    json_decompress.add_argument(
+        "--max-output-size",
+        type=_byte_size,
+        default=DEFAULT_MAX_OUTPUT_SIZE,
+        metavar="SIZE",
+        help="allocation safety limit (default: 2GiB; use unlimited to disable)",
+    )
+
+    json_info = subparsers.add_parser(
+        "json-info",
+        help="inspect experimental JLS2 metadata without decoding",
+    )
+    json_info.add_argument("input", help="frame file, or - for standard input")
 
     init = subparsers.add_parser("init-corpus", help="generate a deterministic smoke corpus")
     init.add_argument("--output", type=Path, required=True)
@@ -232,6 +327,26 @@ def main(argv=None) -> int:
             print(f"compression-lab: {exc}", file=sys.stderr)
             return 2
         print(json.dumps(info.to_dict(), indent=2, sort_keys=True))
+        return 0
+    if args.command in {"json-compress", "jc"}:
+        try:
+            return _run_json_compress(args)
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            print(f"compression-lab: {exc}", file=sys.stderr)
+            return 2
+    if args.command in {"json-decompress", "jd"}:
+        try:
+            return _run_json_decompress(args)
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            print(f"compression-lab: {exc}", file=sys.stderr)
+            return 2
+    if args.command == "json-info":
+        try:
+            frame_info = inspect_json_log_frame(_stream_input(args.input))
+        except (OSError, TypeError, ValueError) as exc:
+            print(f"compression-lab: {exc}", file=sys.stderr)
+            return 2
+        print(json.dumps(frame_info.to_dict(), indent=2, sort_keys=True))
         return 0
     if args.command == "init-corpus":
         manifest = generate_corpus(args.output, args.size_scale, args.seed)

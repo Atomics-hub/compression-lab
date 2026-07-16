@@ -143,6 +143,77 @@ class PublicApiTests(unittest.TestCase):
             self.assertEqual(metadata["version"], 3)
             self.assertEqual(metadata["original_size"], source.stat().st_size)
 
+    def test_cli_json_log_roundtrip_info_and_safe_overwrite(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "events.jsonl"
+            encoded = root / "events.jls2"
+            restored = root / "restored.jsonl"
+            source.write_bytes(
+                b"".join(
+                    f'{{"id":{index},"event":"tick","bucket":{index % 7}}}\n'.encode()
+                    for index in range(1_000)
+                )
+            )
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(
+                    cli_main(
+                        [
+                            "json-compress",
+                            str(source),
+                            "-o",
+                            str(encoded),
+                            "--segment-size",
+                            "2KiB",
+                        ]
+                    ),
+                    0,
+                )
+                self.assertEqual(
+                    cli_main(
+                        ["json-decompress", str(encoded), "-o", str(restored)]
+                    ),
+                    0,
+                )
+            self.assertEqual(restored.read_bytes(), source.read_bytes())
+
+            stdout = io.StringIO()
+            with contextlib.redirect_stdout(stdout):
+                self.assertEqual(cli_main(["json-info", str(encoded)]), 0)
+            metadata = json.loads(stdout.getvalue())
+            self.assertEqual(metadata["format"], "JLS2")
+            self.assertEqual(metadata["original_size"], source.stat().st_size)
+            self.assertGreater(metadata["segment_count"], 1)
+
+            stderr = io.StringIO()
+            with contextlib.redirect_stderr(stderr):
+                self.assertEqual(
+                    cli_main(
+                        [
+                            "json-compress",
+                            str(source),
+                            "-o",
+                            str(encoded),
+                        ]
+                    ),
+                    2,
+                )
+                self.assertEqual(
+                    cli_main(
+                        [
+                            "json-compress",
+                            str(source),
+                            "-o",
+                            str(root / "bad.jls2"),
+                            "--segment-size",
+                            "unlimited",
+                        ]
+                    ),
+                    2,
+                )
+            self.assertIn("destination already exists", stderr.getvalue())
+            self.assertIn("segment size cannot be unlimited", stderr.getvalue())
+
     def test_frame_inspection_rejects_truncation_and_trailing_data(self):
         self.require_v3()
         encoded = compresslab.compress(b"inspect-frame" * 1_000)

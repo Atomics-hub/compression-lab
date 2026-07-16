@@ -1,10 +1,18 @@
 from __future__ import annotations
 
+import hashlib
 import random
 from pathlib import Path
 import tempfile
 import unittest
 
+from compresslab.experimental import (
+    compress_json_log_file,
+    compress_json_logs,
+    decompress_json_log_file,
+    decompress_json_logs,
+    inspect_json_log_frame,
+)
 from compresslab.json_log_codec import (
     FRAME_HEADER,
     compress,
@@ -13,6 +21,7 @@ from compresslab.json_log_codec import (
     decompress,
     decompress_file,
     decompress_frame,
+    inspect,
 )
 
 
@@ -99,6 +108,84 @@ class JsonLogCodecTests(unittest.TestCase):
             )
             self.assertEqual(restored_path.read_bytes(), source)
             self.assertEqual(decompression["restored_bytes"], len(source))
+
+    def test_inspection_reports_validated_segment_metadata(self) -> None:
+        source = (
+            b'{"id":1,"event":"tick"}\n'
+            b'{"id":2,"event":"tick"}\n'
+            b'{"id":3,"event":"tock"}\n'
+        )
+        encoded, detail = compress(source, segment_size=32)
+        info = inspect(encoded)
+        self.assertEqual(info.format, "JLS2")
+        self.assertEqual(info.version, 1)
+        self.assertEqual(info.original_size, len(source))
+        self.assertEqual(info.encoded_size, len(encoded))
+        self.assertEqual(info.segment_count, detail["segment_count"])
+        self.assertEqual(
+            info.direct_segments + info.columnar_segments,
+            info.segment_count,
+        )
+        self.assertLessEqual(info.maximum_segment_size, len(source))
+        self.assertEqual(info.sha256, hashlib.sha256(source).hexdigest())
+
+        corrupted = bytearray(encoded)
+        corrupted[-1] ^= 1
+        with self.assertRaisesRegex(ValueError, "encoded SHA-256"):
+            inspect(bytes(corrupted))
+
+    def test_experimental_api_roundtrips_and_refuses_overwrite(self) -> None:
+        source = b"".join(
+            f'{{"id":{index},"event":"tick","bucket":{index % 5}}}\n'.encode()
+            for index in range(500)
+        )
+        encoded = compress_json_logs(source, segment_size=1024)
+        info = inspect_json_log_frame(encoded)
+        self.assertEqual(info.original_size, len(source))
+        self.assertEqual(decompress_json_logs(encoded), source)
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source_path = root / "events.jsonl"
+            source_path.write_bytes(source)
+            encoded_path = compress_json_log_file(
+                source_path,
+                segment_size=1024,
+            )
+            self.assertEqual(encoded_path, root / "events.jsonl.jls2")
+            with self.assertRaises(FileExistsError):
+                compress_json_log_file(
+                    source_path,
+                    encoded_path,
+                    segment_size=1024,
+                )
+            self.assertEqual(
+                compress_json_log_file(
+                    source_path,
+                    encoded_path,
+                    overwrite=True,
+                    segment_size=1024,
+                ),
+                encoded_path,
+            )
+
+            source_path.unlink()
+            restored_path = decompress_json_log_file(encoded_path)
+            self.assertEqual(restored_path, source_path)
+            self.assertEqual(restored_path.read_bytes(), source)
+            with self.assertRaises(FileExistsError):
+                decompress_json_log_file(encoded_path, restored_path)
+
+    def test_experimental_api_rejects_invalid_input_types_and_paths(self) -> None:
+        with self.assertRaises(TypeError):
+            compress_json_logs("not bytes")  # type: ignore[arg-type]
+        with self.assertRaises(TypeError):
+            decompress_json_logs("not bytes")  # type: ignore[arg-type]
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / "same.jsonl"
+            source.write_bytes(b'{"ok":true}\n')
+            with self.assertRaisesRegex(ValueError, "must be different"):
+                compress_json_log_file(source, source)
 
 
 if __name__ == "__main__":

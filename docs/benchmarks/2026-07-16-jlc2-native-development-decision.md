@@ -82,6 +82,18 @@ HPC memory diagnostics:
 The 16 MiB target remains 43.94% smaller than zstd-9 on HPC while providing
 substantial headroom under the 512 MiB gate.
 
+Current-format per-family maximum resident set:
+
+| Family | Maximum resident set |
+| --- | ---: |
+| Apache | 140,820,480 |
+| HealthApp | 253,542,400 |
+| HPC | 294,682,624 |
+| Mac | 268,795,904 |
+| ZooKeeper | 169,426,944 |
+
+All five pass the 536,870,912-byte ceiling.
+
 ## Fuzz evidence
 
 The deterministic JLS2 fuzz run passed:
@@ -98,11 +110,10 @@ The deterministic JLS2 fuzz run passed:
 Before validation:
 
 1. obtain an eligible quiet-host five-repetition speed run;
-2. verify peak memory below 512 MiB on every development family;
-3. add release-facing CLI/API integration and versioned format inspection;
-4. run broader fuzzing and sanitizer/hosted CI;
-5. reproduce CLP, LogLite, DeLog, and other log-specific baselines where
+2. add release-facing CLI/API integration and versioned format inspection;
+3. run broader fuzzing and sanitizer/hosted CI;
+4. reproduce CLP, LogLite, DeLog, and other log-specific baselines where
    licensing and hardware permit;
-6. freeze the final validation artifact and thresholds.
+5. freeze the final validation artifact and thresholds.
 
 No public superiority claim follows from this checkpoint.

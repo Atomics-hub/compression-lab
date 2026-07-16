@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor
+from dataclasses import asdict, dataclass
 import hashlib
+import os
 from pathlib import Path
 import struct
+import tempfile
 from typing import BinaryIO, Dict, Iterator, List, Optional, Tuple, Union
 
 from .json_columnar import (
@@ -25,6 +28,23 @@ DEFAULT_SEGMENT_SIZE = 16 * 1024 * 1024
 ZSTD_LEVEL = 6
 
 TelemetryValue = Union[str, int, float, bool]
+
+
+@dataclass(frozen=True)
+class JsonLogFrameInfo:
+    format: str
+    version: int
+    original_size: int
+    encoded_size: int
+    sha256: str
+    encoded_sha256: str
+    segment_count: int
+    direct_segments: int
+    columnar_segments: int
+    maximum_segment_size: int
+
+    def to_dict(self) -> Dict[str, Union[str, int]]:
+        return asdict(self)
 
 
 def _pack_frame(mode: int, source: bytes, payload: bytes) -> bytes:
@@ -241,10 +261,10 @@ def compress_file(
     destination_path: Path,
     *,
     segment_size: int = DEFAULT_SEGMENT_SIZE,
+    overwrite: bool = False,
 ) -> Dict[str, TelemetryValue]:
-    temporary_path = destination_path.with_name(
-        destination_path.name + ".partial"
-    )
+    destination_path.parent.mkdir(parents=True, exist_ok=True)
+    temporary_path = _temporary_output_path(destination_path)
     original_size = 0
     segment_count = 0
     direct_segments = 0
@@ -290,7 +310,7 @@ def compress_file(
                 )
             )
             output.flush()
-        temporary_path.replace(destination_path)
+        _publish_temporary(temporary_path, destination_path, overwrite)
     except BaseException:
         temporary_path.unlink(missing_ok=True)
         raise
@@ -369,15 +389,140 @@ def decompress(
     return restored
 
 
+def inspect(data: bytes) -> JsonLogFrameInfo:
+    if len(data) < STREAM_HEADER.size:
+        raise ValueError("JLS2 stream is truncated")
+    (
+        magic,
+        version,
+        flags,
+        reserved,
+        original_size,
+        expected_sha256,
+        expected_encoded_sha256,
+        segment_count,
+    ) = STREAM_HEADER.unpack_from(data)
+    if magic != STREAM_MAGIC:
+        raise ValueError("JLS2 magic mismatch")
+    if version != VERSION:
+        raise ValueError(f"unsupported JLS2 version: {version}")
+    if flags != 0 or reserved != 0:
+        raise ValueError("JLS2 flags or reserved bits are nonzero")
+    encoded_payload = data[STREAM_HEADER.size :]
+    if hashlib.sha256(encoded_payload).digest() != expected_encoded_sha256:
+        raise ValueError("JLS2 encoded SHA-256 mismatch")
+    if original_size == 0 and segment_count != 0:
+        raise ValueError("empty JLS2 stream declares segments")
+    if original_size > 0 and segment_count == 0:
+        raise ValueError("nonempty JLS2 stream has no segments")
+
+    offset = STREAM_HEADER.size
+    decoded_total = 0
+    direct_segments = 0
+    columnar_segments = 0
+    maximum_segment_size = 0
+    for _ in range(segment_count):
+        header_end = offset + SEGMENT_HEADER.size
+        if header_end > len(data):
+            raise ValueError("JLS2 segment header is truncated")
+        segment_size, frame_size = SEGMENT_HEADER.unpack_from(data, offset)
+        offset = header_end
+        frame_end = offset + frame_size
+        if frame_end > len(data):
+            raise ValueError("JLS2 segment frame is truncated")
+        if segment_size > original_size - decoded_total:
+            raise ValueError("JLS2 segment exceeds declared output size")
+        frame = data[offset:frame_end]
+        if len(frame) < FRAME_HEADER.size:
+            raise ValueError("JLF2 frame is truncated")
+        (
+            frame_magic,
+            frame_version,
+            mode,
+            frame_reserved,
+            frame_original_size,
+            payload_size,
+            _,
+            payload_sha256,
+        ) = FRAME_HEADER.unpack_from(frame)
+        if frame_magic != FRAME_MAGIC:
+            raise ValueError("JLF2 magic mismatch")
+        if frame_version != VERSION:
+            raise ValueError(f"unsupported JLF2 version: {frame_version}")
+        if frame_reserved != 0:
+            raise ValueError("JLF2 reserved bits are nonzero")
+        if frame_original_size != segment_size:
+            raise ValueError("JLS2 nested frame size mismatch")
+        if payload_size != len(frame) - FRAME_HEADER.size:
+            raise ValueError("JLF2 payload size mismatch")
+        if hashlib.sha256(frame[FRAME_HEADER.size :]).digest() != (
+            payload_sha256
+        ):
+            raise ValueError("JLF2 payload SHA-256 mismatch")
+        if mode == MODE_DIRECT:
+            direct_segments += 1
+        elif mode == MODE_COLUMNAR:
+            columnar_segments += 1
+        else:
+            raise ValueError(f"unsupported JLF2 mode: {mode}")
+        decoded_total += segment_size
+        maximum_segment_size = max(maximum_segment_size, segment_size)
+        offset = frame_end
+    if offset != len(data):
+        raise ValueError("JLS2 stream has trailing data")
+    if decoded_total != original_size:
+        raise ValueError("JLS2 output size mismatch")
+    return JsonLogFrameInfo(
+        format="JLS2",
+        version=version,
+        original_size=original_size,
+        encoded_size=len(data),
+        sha256=expected_sha256.hex(),
+        encoded_sha256=expected_encoded_sha256.hex(),
+        segment_count=segment_count,
+        direct_segments=direct_segments,
+        columnar_segments=columnar_segments,
+        maximum_segment_size=maximum_segment_size,
+    )
+
+
+def _publish_temporary(
+    temporary_path: Path,
+    destination_path: Path,
+    overwrite: bool,
+) -> None:
+    destination_path.parent.mkdir(parents=True, exist_ok=True)
+    if overwrite:
+        os.replace(temporary_path, destination_path)
+        return
+    try:
+        os.link(temporary_path, destination_path)
+    except FileExistsError as error:
+        raise FileExistsError(
+            f"destination already exists: {destination_path}"
+        ) from error
+    temporary_path.unlink()
+
+
+def _temporary_output_path(destination_path: Path) -> Path:
+    descriptor, temporary_name = tempfile.mkstemp(
+        prefix=f".{destination_path.name}.",
+        suffix=".partial",
+        dir=destination_path.parent,
+    )
+    os.close(descriptor)
+    return Path(temporary_name)
+
+
 def decompress_file(
     source_path: Path,
     destination_path: Path,
     *,
     max_output_size: Optional[int] = None,
+    overwrite: bool = False,
 ) -> Dict[str, int]:
-    temporary_path = destination_path.with_name(
-        destination_path.name + ".partial"
-    )
+    destination_path.parent.mkdir(parents=True, exist_ok=True)
+    temporary_path = _temporary_output_path(destination_path)
     encoded_size = source_path.stat().st_size
     try:
         with source_path.open("rb") as source:
@@ -445,7 +590,7 @@ def decompress_file(
                 raise ValueError("JLS2 encoded SHA-256 mismatch")
             if digest.digest() != expected_sha256:
                 raise ValueError("JLS2 original SHA-256 mismatch")
-        temporary_path.replace(destination_path)
+        _publish_temporary(temporary_path, destination_path, overwrite)
     except BaseException:
         temporary_path.unlink(missing_ok=True)
         raise

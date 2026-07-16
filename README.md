@@ -70,6 +70,36 @@ compressed_path = compresslab.compress_file("report.json")
 restored_path = compresslab.decompress_file(compressed_path, "report.copy.json")
 ```
 
+### Experimental JSON-log codec
+
+The development branch also exposes a versioned `JLS2` codec for
+newline-delimited, flat JSON logs. It is exact and lossless: original
+whitespace, key order, line endings, and non-JSON fallback data are preserved.
+Each record-aligned segment independently selects the smaller of direct
+Zstandard and the JSON-columnar candidate.
+
+This surface is experimental and deliberately separate from the stable
+`compresslab` API:
+
+    clab json-compress events.jsonl
+    clab json-info events.jsonl.jls2
+    clab json-decompress events.jsonl.jls2 -o restored.jsonl
+
+```python
+from compresslab.experimental import compress_json_logs, decompress_json_logs
+
+frame = compress_json_logs(jsonl_bytes)
+restored = decompress_json_logs(frame)
+```
+
+Development-corpus results are promising but are not a public superiority
+claim. The frozen five-family LogTrie training run produced a complete JLS2
+payload 28.90% smaller than zstd-9 and 6.45% smaller than Brotli-11. Blind
+validation, an eligible quiet-host speed run, and independent competitor
+reproduction remain required before promotion. The full protocol and exact
+limits are recorded in
+`docs/benchmarks/2026-07-16-jlc2-native-development-decision.md`.
+
 The format contract is in `docs/file-format.md`; security boundaries are in
 `SECURITY.md`. Dependency and benchmark-tool licenses are summarized in
 `THIRD_PARTY_NOTICES.md`.

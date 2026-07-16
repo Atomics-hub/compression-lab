@@ -19,6 +19,10 @@ this project uses [Semantic Versioning](https://semver.org/).
 - A frozen eight-codec release benchmark and machine-verifiable evidence gate.
 - Pull-request and scheduled hostile-frame mutation fuzzing.
 - Dependency provenance, licensing notices, and automated update monitoring.
+- An experimental JLS2 JSON-log codec with record-aligned streaming,
+  integrity-checked nested frames, exact direct-Zstandard fallback, metadata
+  inspection, safe file APIs, and `json-compress`, `json-decompress`, and
+  `json-info` commands.
 
 ### Security
 
