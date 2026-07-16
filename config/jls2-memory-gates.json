@@ -4,11 +4,13 @@
   "requirements": {
     "maximum_resident_set_bytes": 536870912,
     "segment_target_bytes": 16777216,
-    "maximum_decode_segment_workers": 2,
+    "maximum_compression_segment_workers": 2,
+    "maximum_decompression_segment_workers": 2,
     "require_clean_commit": true
   },
   "notes": [
     "Measure compression and decompression in fresh child processes.",
+    "Compression and decompression pipelines are each bounded to two in-flight segments.",
     "The decompression measurement includes the bounded two-segment pipeline.",
     "This is development memory evidence only; validation remains sealed."
   ]

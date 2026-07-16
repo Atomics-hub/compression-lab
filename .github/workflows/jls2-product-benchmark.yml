@@ -1,0 +1,142 @@
+name: JLS2 complete-product benchmark
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - agent/jls2-compression-parallel
+    paths:
+      - .github/workflows/jls2-product-benchmark.yml
+      - config/jls2-product-gates.json
+      - config/logtrie-json-log-train-v1.json
+      - scripts/benchmark-jls2-product.py
+      - scripts/fetch-log-corpus.py
+      - scripts/wait-for-quiet-host.py
+      - src/compresslab/experimental.py
+      - src/compresslab/json_columnar.py
+      - src/compresslab/json_log_codec.py
+
+permissions:
+  contents: read
+
+concurrency:
+  group: jls2-product-benchmark-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  product-speed:
+    name: Frozen JLS2 development speed gate
+    runs-on: macos-15
+    timeout-minutes: 35
+    env:
+      PYTHONUNBUFFERED: "1"
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Initialize evidence directory
+        run: |
+          echo "EVIDENCE_DIR=$RUNNER_TEMP/compression-lab-jls2-evidence" >> "$GITHUB_ENV"
+          mkdir -p "$RUNNER_TEMP/compression-lab-jls2-evidence"
+
+      - name: Install pinned system codec and package
+        run: |
+          brew install zstd
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Capture runner provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$EVIDENCE_DIR"
+          {
+            sw_vers
+            uname -a
+            sysctl -n hw.logicalcpu
+            sysctl -n machdep.cpu.brand_string || true
+            python --version
+            python -c "from compresslab.native import native_available, zstd_engine; print(f'native_available={native_available()}'); print(f'zstd_engine={zstd_engine()}')"
+            brew list --versions zstd
+            rustc --version
+            git rev-parse HEAD
+            git status --porcelain
+          } | tee "$EVIDENCE_DIR/runner-provenance.txt"
+
+      - name: Verify implementation before measurement
+        run: |
+          python -m compileall -q src tests scripts
+          ruff check src tests scripts setup.py
+          mypy src/compresslab/json_log_codec.py src/compresslab/experimental.py
+          python -W error::ResourceWarning -m unittest tests.test_json_columnar tests.test_json_log_codec -v
+          cargo test --manifest-path native/Cargo.toml --release --locked
+
+      - name: Fetch and verify licensed development corpus
+        run: |
+          python scripts/fetch-log-corpus.py \
+            --config config/logtrie-json-log-train-v1.json \
+            --output corpora/logtrie-train-v1 \
+            --cache "$RUNNER_TEMP/logtrie-cache"
+
+      - name: Require a sustained quiet-host window
+        run: |
+          python scripts/wait-for-quiet-host.py \
+            --gates config/jls2-product-gates.json \
+            --consecutive 3 \
+            --interval 5 \
+            --timeout 120 | tee "$EVIDENCE_DIR/quiet-host.log"
+
+      - name: Run frozen five-repetition product gate
+        id: benchmark
+        shell: bash
+        run: |
+          set +e
+          python scripts/benchmark-jls2-product.py \
+            --manifest corpora/logtrie-train-v1/manifest.json \
+            --accepted runs/json-log-jlf2-jls2-16m-development.json \
+            --gates config/jls2-product-gates.json \
+            --output "$EVIDENCE_DIR/jls2-product-result.json" \
+            --repetitions 5 2>&1 | tee "$EVIDENCE_DIR/jls2-product.log"
+          status=${PIPESTATUS[0]}
+          echo "exit_code=$status" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Publish benchmark summary
+        if: always()
+        run: |
+          if [[ -f "$EVIDENCE_DIR/jls2-product-result.json" ]]; then
+            python -c "import json, os; p=json.load(open(os.path.join(os.environ['EVIDENCE_DIR'], 'jls2-product-result.json'))); print('## JLS2 complete-product development gate'); print(); print(f\"Passed: {p.get('passed')}\"); print(f\"Commit: {p.get('git', {}).get('commit')}\"); print(f\"Compression: {p.get('aggregate', {}).get('compression_mbps', 0):.2f} MB/s\"); print(f\"Decompression: {p.get('aggregate', {}).get('decompression_mbps', 0):.2f} MB/s\"); print(); [print(f\"- {r['family']}: {r['compression_mbps']:.2f} MB/s compress, {r['decompression_mbps']:.2f} MB/s decompress\") for r in p.get('rows', [])]" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Benchmark did not produce a result file." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Seal evidence checksums
+        if: always()
+        run: |
+          if compgen -G "$EVIDENCE_DIR/*" > /dev/null; then
+            shasum -a 256 "$EVIDENCE_DIR"/* | sort > "$EVIDENCE_DIR/SHA256SUMS"
+          fi
+
+      - name: Upload complete benchmark evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: jls2-product-benchmark-${{ github.run_id }}
+          path: ${{ runner.temp }}/compression-lab-jls2-evidence
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Enforce frozen gate result
+        if: always()
+        run: |
+          status="${{ steps.benchmark.outputs.exit_code }}"
+          if [[ -z "$status" ]]; then
+            echo "Benchmark did not report an exit code" >&2
+            exit 1
+          fi
+          exit "$status"

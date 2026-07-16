@@ -5,6 +5,7 @@ import random
 from pathlib import Path
 import tempfile
 import unittest
+from unittest import mock
 
 from compresslab.experimental import (
     compress_json_log_file,
@@ -108,6 +109,22 @@ class JsonLogCodecTests(unittest.TestCase):
             )
             self.assertEqual(restored_path.read_bytes(), source)
             self.assertEqual(decompression["restored_bytes"], len(source))
+
+    def test_single_segment_file_decode_avoids_executor_overhead(self) -> None:
+        source = b'{"id":1,"event":"tick"}\n' * 100
+        encoded, detail = compress(source, segment_size=len(source) + 1)
+        self.assertEqual(detail["segment_count"], 1)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            encoded_path = root / "source.jls2"
+            restored_path = root / "restored.jsonl"
+            encoded_path.write_bytes(encoded)
+            with mock.patch(
+                "compresslab.json_log_codec.ThreadPoolExecutor",
+                side_effect=AssertionError("single-segment decode used executor"),
+            ):
+                decompress_file(encoded_path, restored_path)
+            self.assertEqual(restored_path.read_bytes(), source)
 
     def test_inspection_reports_validated_segment_metadata(self) -> None:
         source = (
