@@ -30,7 +30,6 @@ jobs:
     timeout-minutes: 35
     env:
       PYTHONUNBUFFERED: "1"
-      EVIDENCE_DIR: ${{ runner.temp }}/compression-lab-jls2-evidence
 
     steps:
       - uses: actions/checkout@v6
@@ -39,6 +38,11 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
+
+      - name: Initialize evidence directory
+        run: |
+          echo "EVIDENCE_DIR=$RUNNER_TEMP/compression-lab-jls2-evidence" >> "$GITHUB_ENV"
+          mkdir -p "$RUNNER_TEMP/compression-lab-jls2-evidence"
 
       - name: Install pinned system codec and package
         run: |
