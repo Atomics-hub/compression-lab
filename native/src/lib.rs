@@ -134,7 +134,11 @@ fn ranked_dictionary(data: &[u8], limit: usize, sample_budget: usize) -> Vec<Vec
         .filter_map(|(token, count)| {
             let gain = count * token.len().saturating_sub(2);
             let overhead = token.len() + 1;
-            (count >= 2 && gain > overhead).then_some((gain - overhead, count, token))
+            if count >= 2 && gain > overhead {
+                Some((gain - overhead, count, token))
+            } else {
+                None
+            }
         })
         .collect();
     ranked.sort_by(|left, right| {

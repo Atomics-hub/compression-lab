@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "name": "public-json-v1",
+  "claim_ceiling": "expanded public engineering evidence only; private holdout remains sealed",
+  "sources": [
+    {
+      "dataset": "kubernetes-openapi-1b4e48f5",
+      "url": "https://raw.githubusercontent.com/kubernetes/kubernetes/1b4e48f52199bcfb28ef6efd60522a082c3e78d0/api/openapi-spec/swagger.json",
+      "upstream_commit": "1b4e48f52199bcfb28ef6efd60522a082c3e78d0",
+      "digest_algorithm": "sha256",
+      "digest": "6938670a70e28085394cbf6f20a446285c099b0bd4e9110c9d6739d53b08640b",
+      "license_spdx": "Apache-2.0",
+      "license_url": "https://github.com/kubernetes/kubernetes/blob/1b4e48f52199bcfb28ef6efd60522a082c3e78d0/LICENSE",
+      "category": "structured-text",
+      "split": "validation"
+    },
+    {
+      "dataset": "unicode-cldr-likely-subtags-a79b4999",
+      "url": "https://raw.githubusercontent.com/unicode-org/cldr-json/a79b499916d486dca4b0f74fe423ea457705fdd9/cldr-json/cldr-core/supplemental/likelySubtags.json",
+      "upstream_commit": "a79b499916d486dca4b0f74fe423ea457705fdd9",
+      "digest_algorithm": "sha256",
+      "digest": "38345946ad457213fb39e9645ab50f36b61681bf674b2eef2979a3b58d04afc8",
+      "license_spdx": "Unicode-3.0",
+      "license_url": "https://github.com/unicode-org/cldr-json/blob/a79b499916d486dca4b0f74fe423ea457705fdd9/LICENSE",
+      "category": "structured-text",
+      "split": "validation"
+    },
+    {
+      "dataset": "vega-movies-cad85578",
+      "url": "https://raw.githubusercontent.com/vega/vega-datasets/cad85578e232704bb0453544742440038038c6a2/data/movies.json",
+      "upstream_commit": "cad85578e232704bb0453544742440038038c6a2",
+      "digest_algorithm": "sha256",
+      "digest": "e63c499759e3b07b49563e036f55290f87feb56def8703ec049ca305ab1523d3",
+      "license_spdx": "BSD-3-Clause",
+      "license_url": "https://github.com/vega/vega-datasets/blob/cad85578e232704bb0453544742440038038c6a2/package.json",
+      "category": "structured-text",
+      "split": "validation"
+    },
+    {
+      "dataset": "natural-earth-admin0-ca96624a",
+      "url": "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/ca96624a56bd078437bca8184e78163e5039ad19/geojson/ne_110m_admin_0_countries.geojson",
+      "upstream_commit": "ca96624a56bd078437bca8184e78163e5039ad19",
+      "digest_algorithm": "sha256",
+      "digest": "6866c877d39cba9c357620878839b336d569f8c662d3cfab4cb1dbe2d39c977f",
+      "license_spdx": "LicenseRef-Natural-Earth-Public-Domain",
+      "license_url": "https://github.com/nvkelso/natural-earth-vector/blob/ca96624a56bd078437bca8184e78163e5039ad19/LICENSE.md",
+      "category": "structured-text",
+      "split": "validation"
+    }
+  ]
+}

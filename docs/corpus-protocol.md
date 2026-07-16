@@ -26,6 +26,23 @@ Rebuild it with:
 
     scripts/fetch-public-starter.py
 
+## Expanded public JSON corpus
+
+`config/public-json-v1.json` freezes four independent, license-compatible JSON
+families at upstream commits: Kubernetes OpenAPI, Unicode CLDR, Vega records,
+and Natural Earth GeoJSON. It is reconstructed with the same digest-checking
+fetcher while keeping the original starter corpus unchanged:
+
+    PYTHONPATH="$PWD/src" python3 scripts/fetch-public-starter.py \
+      --config config/public-json-v1.json \
+      --output corpora/public-json-v1 \
+      --cache corpora/_download-cache/public-json-v1
+
+The expanded set is engineering validation evidence for JSON selector
+external validity. It does not replace the sealed private holdout or support a
+general market-lead claim. Its frozen decision protocol is documented in
+`docs/benchmarks/2026-07-15-expanded-json-protocol.md`.
+
 ## Importing additional licensed data
 
     PYTHONPATH="$PWD/src" python3 -m compresslab import-corpus \

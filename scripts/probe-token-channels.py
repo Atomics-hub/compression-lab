@@ -211,7 +211,9 @@ def public_files(root: Path) -> Iterable[Path]:
     yield from sorted((root / "validation" / "structured-text").glob("*"))
 
 
-def benchmark_file(path: Path) -> None:
+def benchmark_file(
+    path: Path,
+) -> list[tuple[str, int, int, int, int, float, float, float]]:
     source = path.read_bytes()
     limit = _dictionary_limit(source)
     transform_start = time.perf_counter()
@@ -244,6 +246,7 @@ def benchmark_file(path: Path) -> None:
             )
         )
 
+    results = []
     for mode, candidate_size, encode_seconds, decode_seconds in rows:
         total_encode_seconds = transform_seconds + encode_seconds
         total_baseline_seconds = transform_seconds + baseline_seconds
@@ -263,6 +266,49 @@ def benchmark_file(path: Path) -> None:
                 )
             )
         )
+        results.append(
+            (
+                mode,
+                len(source),
+                direct_size,
+                baseline_size,
+                candidate_size,
+                total_baseline_seconds,
+                total_encode_seconds,
+                decode_seconds,
+            )
+        )
+    return results
+
+
+def print_aggregates(
+    rows: list[tuple[str, int, int, int, int, float, float, float]],
+) -> None:
+    for mode in MODES:
+        selected = [row for row in rows if row[0] == mode]
+        input_bytes = sum(row[1] for row in selected)
+        direct_size = sum(row[2] for row in selected)
+        baseline_size = sum(row[3] for row in selected)
+        candidate_size = sum(row[4] for row in selected)
+        baseline_seconds = sum(row[5] for row in selected)
+        encode_seconds = sum(row[6] for row in selected)
+        decode_seconds = sum(row[7] for row in selected)
+        print(
+            "\t".join(
+                (
+                    "<aggregate>",
+                    mode,
+                    str(input_bytes),
+                    str(direct_size),
+                    str(baseline_size),
+                    str(candidate_size),
+                    str(candidate_size - baseline_size),
+                    f"{input_bytes / 1_000_000 / baseline_seconds:.3f}",
+                    f"{input_bytes / 1_000_000 / encode_seconds:.3f}",
+                    f"{input_bytes / 1_000_000 / decode_seconds:.3f}",
+                )
+            )
+        )
 
 
 def main() -> int:
@@ -279,8 +325,10 @@ def main() -> int:
         "\tdelta_vs_stx1\tstx1_encode_mb_s\tcandidate_encode_mb_s"
         "\tcandidate_decode_mb_s"
     )
+    rows = []
     for path in public_files(arguments.corpus):
-        benchmark_file(path)
+        rows.extend(benchmark_file(path))
+    print_aggregates(rows)
     return 0
 
 
