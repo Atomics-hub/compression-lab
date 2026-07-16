@@ -129,8 +129,8 @@ fn ranked_dictionary(data: &[u8], limit: usize, sample_budget: usize) -> Vec<Vec
         });
     }
     let mut ranked: Vec<(usize, usize, Vec<u8>)> = counts
-        .into_iter()
-        .flat_map(|(_, bucket)| bucket)
+        .into_values()
+        .flatten()
         .filter_map(|(token, count)| {
             let gain = count * token.len().saturating_sub(2);
             let overhead = token.len() + 1;
