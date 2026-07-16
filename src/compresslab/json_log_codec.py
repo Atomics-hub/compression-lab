@@ -48,15 +48,20 @@ class JsonLogFrameInfo:
         return asdict(self)
 
 
-def _pack_frame(mode: int, source: bytes, payload: bytes) -> bytes:
+def _pack_frame(
+    mode: int,
+    source_size: int,
+    source_sha256: bytes,
+    payload: bytes,
+) -> bytes:
     return FRAME_HEADER.pack(
         FRAME_MAGIC,
         VERSION,
         mode,
         0,
-        len(source),
+        source_size,
         len(payload),
-        hashlib.sha256(source).digest(),
+        source_sha256,
         hashlib.sha256(payload).digest(),
     ) + payload
 
@@ -73,10 +78,17 @@ def compress_frame(
         )
         direct_payload = direct_future.result()
         columnar_payload, columnar_telemetry = columnar_future.result()
-    direct_frame = _pack_frame(MODE_DIRECT, data, direct_payload)
+    source_sha256 = hashlib.sha256(data).digest()
+    direct_frame = _pack_frame(
+        MODE_DIRECT,
+        len(data),
+        source_sha256,
+        direct_payload,
+    )
     columnar_frame = _pack_frame(
         MODE_COLUMNAR,
-        data,
+        len(data),
+        source_sha256,
         columnar_payload,
     )
     if len(columnar_frame) < len(direct_frame):
@@ -105,6 +117,7 @@ def decompress_frame(
     frame: bytes,
     *,
     max_output_size: Optional[int] = None,
+    _verify_original_sha: bool = True,
 ) -> bytes:
     if len(frame) < FRAME_HEADER.size:
         raise ValueError("JLF2 frame is truncated")
@@ -145,7 +158,10 @@ def decompress_frame(
         raise ValueError(f"invalid JLF2 payload: {error}") from error
     if len(restored) != original_size:
         raise ValueError("JLF2 output size mismatch")
-    if hashlib.sha256(restored).digest() != expected_sha256:
+    if (
+        _verify_original_sha
+        and hashlib.sha256(restored).digest() != expected_sha256
+    ):
         raise ValueError("JLF2 original SHA-256 mismatch")
     return restored
 
@@ -375,6 +391,7 @@ def decompress(
         restored = decompress_frame(
             data[offset:frame_end],
             max_output_size=segment_size,
+            _verify_original_sha=False,
         )
         if len(restored) != segment_size:
             raise ValueError("JLS2 segment size mismatch")
@@ -607,6 +624,7 @@ def decompress_file(
                                     decompress_frame,
                                     frame,
                                     max_output_size=segment_size,
+                                    _verify_original_sha=False,
                                 ),
                             )
                         )
