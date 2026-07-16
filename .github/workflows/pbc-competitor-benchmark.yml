@@ -115,7 +115,10 @@ jobs:
             third-party/externals/colm.cmake | \
             tee "$EVIDENCE_DIR/pbc-build-dependency-repair.patch"
           export PBC_MAKE_JOBS="$(nproc)"
-          bash "$PBC_DIR/build.sh" -r 2>&1 | tee "$EVIDENCE_DIR/pbc-build.log"
+          (
+            cd "$PBC_DIR"
+            bash ./build.sh -r
+          ) 2>&1 | tee "$EVIDENCE_DIR/pbc-build.log"
           md5sum \
             "$PBC_DIR/third-party/downloads/boost_1_67_0.tar.gz" | \
             tee "$EVIDENCE_DIR/boost-1.67.0-digest.txt"
