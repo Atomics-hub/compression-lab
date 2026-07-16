@@ -21,6 +21,24 @@ its SIGMOD artifact has independent reproducibility badges.
 The benchmark clones and builds this pinned external repository. PBC source,
 dependencies, and binaries are not vendored into Compression Lab.
 
+### Build dependency repair
+
+The first frozen hosted attempt failed before producing any score because two
+historical dependency URLs no longer reproduce their pinned archives:
+
+- Boost retired the JFrog download URL after December 2024. The workflow uses
+  Boost's official archive host for the same 1.67.0 tarball and preserves PBC's
+  original MD5.
+- Colm's repository was renamed to `colm-suite`, and GitHub regenerated the
+  tag archive. The workflow pins tag `0.14.7` to immutable commit
+  `e88bda068d4a25f2afa7f48821e0f539405c8c6a` and verifies archive SHA-256
+  `6f11b349722797165f5b71bac5dd71a2ade3cff1c45a9c0ae5522f0f71902ee1`.
+
+The workflow records the exact build-only patch and dependency digests, builds
+the artifact, then restores the PBC checkout and requires clean tracked source
+before official tests and measurement. No PBC compression, training, CLI, or
+test code is modified.
+
 ## Official settings
 
 The reproduction tests all four methods exposed by the official CLI:
@@ -60,6 +78,9 @@ The complete compression rate includes the median pattern-training time plus
 the median online file-compression time. Online compression is also reported
 because PBC explicitly separates offline pattern extraction from per-record
 compression.
+
+PBC's hosted rates characterize this Ubuntu runner. They are not treated as a
+direct speed comparison against JLS2 rates measured on a different runner.
 
 ## Ranking and claims
 

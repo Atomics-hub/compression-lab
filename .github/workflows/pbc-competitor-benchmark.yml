@@ -91,8 +91,41 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          sed -i \
+            's#https://boostorg.jfrog.io/artifactory/main/release/1.67.0/source/boost_1_67_0.tar.gz#https://archives.boost.io/release/1.67.0/source/boost_1_67_0.tar.gz#' \
+            "$PBC_DIR/third-party/externals/boost.cmake"
+          sed -i \
+            's#https://github.com/adrian-thurston/colm/archive/refs/tags/0.14.7.tar.gz#https://codeload.github.com/adrian-thurston/colm-suite/tar.gz/e88bda068d4a25f2afa7f48821e0f539405c8c6a#' \
+            "$PBC_DIR/third-party/externals/colm.cmake"
+          sed -i \
+            's#URL_HASH MD5=213a9ddf207c5732f04941852ca8db62#URL_HASH SHA256=6f11b349722797165f5b71bac5dd71a2ade3cff1c45a9c0ae5522f0f71902ee1#' \
+            "$PBC_DIR/third-party/externals/colm.cmake"
+          grep -F \
+            'https://archives.boost.io/release/1.67.0/source/boost_1_67_0.tar.gz' \
+            "$PBC_DIR/third-party/externals/boost.cmake"
+          grep -F \
+            'https://codeload.github.com/adrian-thurston/colm-suite/tar.gz/e88bda068d4a25f2afa7f48821e0f539405c8c6a' \
+            "$PBC_DIR/third-party/externals/colm.cmake"
+          grep -F \
+            'URL_HASH SHA256=6f11b349722797165f5b71bac5dd71a2ade3cff1c45a9c0ae5522f0f71902ee1' \
+            "$PBC_DIR/third-party/externals/colm.cmake"
+          git -C "$PBC_DIR" diff --check
+          git -C "$PBC_DIR" diff -- \
+            third-party/externals/boost.cmake \
+            third-party/externals/colm.cmake | \
+            tee "$EVIDENCE_DIR/pbc-build-dependency-repair.patch"
           export PBC_MAKE_JOBS="$(nproc)"
           bash "$PBC_DIR/build.sh" -r 2>&1 | tee "$EVIDENCE_DIR/pbc-build.log"
+          md5sum \
+            "$PBC_DIR/third-party/downloads/boost_1_67_0.tar.gz" | \
+            tee "$EVIDENCE_DIR/boost-1.67.0-digest.txt"
+          find "$PBC_DIR/third-party/downloads" -maxdepth 1 -type f \
+            -exec sha256sum {} + | sort | \
+            tee "$EVIDENCE_DIR/pbc-third-party-downloads-sha256.txt"
+          git -C "$PBC_DIR" checkout -- \
+            third-party/externals/boost.cmake \
+            third-party/externals/colm.cmake
+          test -z "$(git -C "$PBC_DIR" status --porcelain --untracked-files=no)"
 
       - name: Run official unit and integration tests
         shell: bash

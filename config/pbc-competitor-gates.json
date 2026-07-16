@@ -6,7 +6,22 @@
     "commit": "bac1f86d29624cb585bb4475235d22a28e60ffea",
     "license_spdx": "Apache-2.0",
     "license_sha256": "bacacee63139034e9acba4de0c513eeb93cc6277ae52054a30eebf4be644e7ed",
-    "recommended_environment": "Ubuntu 22.04"
+    "recommended_environment": "Ubuntu 22.04",
+    "build_dependency_repairs": [
+      {
+        "dependency": "Boost 1.67.0",
+        "reason": "the upstream JFrog URL was retired after the PBC commit",
+        "replacement_url": "https://archives.boost.io/release/1.67.0/source/boost_1_67_0.tar.gz",
+        "preserved_upstream_md5": "4850fceb3f2222ee011d4f3ea304d2cb"
+      },
+      {
+        "dependency": "Colm 0.14.7",
+        "reason": "the repository was renamed and GitHub regenerated the tag archive",
+        "tag_commit": "e88bda068d4a25f2afa7f48821e0f539405c8c6a",
+        "replacement_url": "https://codeload.github.com/adrian-thurston/colm-suite/tar.gz/e88bda068d4a25f2afa7f48821e0f539405c8c6a",
+        "replacement_sha256": "6f11b349722797165f5b71bac5dd71a2ade3cff1c45a9c0ae5522f0f71902ee1"
+      }
+    ]
   },
   "settings": {
     "methods": [
@@ -46,7 +61,8 @@
     "online_compression_time": "file-compression median with the canonical pattern already available",
     "decompression_time": "file-decompression median including pattern and payload loading",
     "archive_bytes": "pattern file bytes plus compressed payload bytes",
-    "roundtrip": "restored size and SHA-256 must exactly match the source file"
+    "roundtrip": "restored size and SHA-256 must exactly match the source file",
+    "speed_comparison": "PBC hosted rates characterize this Ubuntu runner only and are not directly compared with JLS2 rates from a different runner"
   },
   "claim_ceiling": "official PBC development-corpus reproduction only; blind validation remains sealed"
 }
