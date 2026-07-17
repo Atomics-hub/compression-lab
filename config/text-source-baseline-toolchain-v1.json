@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "name": "text-source-baseline-toolchain-v1",
+  "declared_at": "2026-07-17",
+  "measurement_policy": {
+    "input_unit": "one complete derived development item",
+    "artifact_accounting": "Every byte of the self-contained decodable artifact is counted.",
+    "threads": 1,
+    "repetitions": 5,
+    "warmups": 1,
+    "require_exact_roundtrip": true,
+    "require_deterministic_artifact": true,
+    "order_seed": 20260717,
+    "timeout_seconds_per_operation": 43200,
+    "claim_ceiling": "Development baseline census only; no candidate, validation, holdout, market-leading, world-best, or state-of-the-art evidence."
+  },
+  "host_tools": [
+    {
+      "name": "gzip",
+      "executable": "gzip",
+      "expected_version_substring": "Apple gzip 479",
+      "version_arguments": ["--version"]
+    },
+    {
+      "name": "bzip2",
+      "executable": "bzip2",
+      "expected_version_substring": "Version 1.0.8",
+      "version_arguments": ["--help"]
+    },
+    {
+      "name": "bzip3",
+      "executable": "bzip3",
+      "expected_version_substring": "bzip3 1.5.3",
+      "version_arguments": ["--version"]
+    },
+    {
+      "name": "zstd",
+      "executable": "zstd",
+      "expected_version_substring": "v1.5.7",
+      "version_arguments": ["--version"]
+    },
+    {
+      "name": "brotli",
+      "executable": "brotli",
+      "expected_version_substring": "brotli 1.2.0",
+      "version_arguments": ["--version"]
+    },
+    {
+      "name": "xz",
+      "executable": "xz",
+      "expected_version_substring": "XZ Utils) 5.8.3",
+      "version_arguments": ["--version"]
+    },
+    {
+      "name": "7zz",
+      "executable": "7zz",
+      "expected_version_substring": "7-Zip (z) 26.02",
+      "version_arguments": []
+    },
+    {
+      "name": "lz4",
+      "executable": "lz4",
+      "expected_version_substring": "v1.10.0",
+      "version_arguments": ["--version"]
+    }
+  ],
+  "source_builds": [
+    {
+      "name": "kanzi",
+      "version": "2.5.3",
+      "tag": "2.5.3",
+      "commit": "6eea1658897019ab3107df2806d5e534ef0798df",
+      "archive_url": "https://codeload.github.com/flanglet/kanzi-cpp/tar.gz/6eea1658897019ab3107df2806d5e534ef0798df",
+      "archive_size_bytes": 355126,
+      "archive_sha256": "0f34944b0ea77843b34ae461d5207bacd3a9839436182d8df244c6c190a1e30d",
+      "license_spdx": "Apache-2.0",
+      "cmake_arguments": [
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DKANZI_ENABLE_NATIVE_OPTIMIZATIONS=ON"
+      ],
+      "target": "kanzi_static",
+      "built_relative_path": "build/kanzi_static",
+      "installed_name": "kanzi"
+    },
+    {
+      "name": "libbsc",
+      "version": "3.3.12",
+      "tag": "v3.3.12",
+      "commit": "5e5c2ef0fb1298626936b091f6e4ae539e5b0071",
+      "archive_url": "https://codeload.github.com/IlyaGrebnov/libbsc/tar.gz/5e5c2ef0fb1298626936b091f6e4ae539e5b0071",
+      "archive_size_bytes": 196184,
+      "archive_sha256": "b352c96311f6fc54c4e026be46536992f1a4403ed5d31241849a14ad17d1739f",
+      "license_spdx": "Apache-2.0",
+      "cmake_arguments": [
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DBSC_ENABLE_OPENMP=OFF",
+        "-DBSC_ENABLE_CUDA=OFF",
+        "-DBSC_ENABLE_NATIVE_COMPILATION=ON",
+        "-DBSC_BUILD_SHARED_LIB=OFF"
+      ],
+      "target": "bsc",
+      "built_relative_path": "build/bsc",
+      "installed_name": "bsc"
+    }
+  ],
+  "practical_codec_ids": [
+    "store",
+    "lz4-1",
+    "gzip-9",
+    "bzip2-9",
+    "bzip3-max",
+    "zstd-3",
+    "zstd-9",
+    "zstd-19",
+    "zstd-22-ultra",
+    "brotli-11",
+    "xz-lzma2-9e",
+    "7zip-lzma2-9",
+    "7zip-ppmd-9",
+    "kanzi-max",
+    "libbsc-max"
+  ],
+  "ratio_settings": {
+    "bzip3-max": ["--encode", "--block=511", "--jobs=1"],
+    "zstd-22-ultra": ["--ultra", "-22", "-T1"],
+    "7zip-lzma2-9": ["-t7z", "-m0=lzma2", "-mx=9", "-mmt=1"],
+    "7zip-ppmd-9": ["-t7z", "-m0=PPMd", "-mx=9", "-mmt=1"],
+    "kanzi-max": ["--compress", "--level=9", "--block=1g", "--jobs=1"],
+    "libbsc-max": ["e", "-b512", "-e2"]
+  }
+}
