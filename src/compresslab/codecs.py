@@ -139,6 +139,21 @@ _register(
     )
 )
 
+_register(
+    CodecSpec(
+        "tbl1-stream-dense",
+        "Compression Lab tabular",
+        "tbl1-stream-dense",
+        available=_CODECS["zstd-9"].available,
+        unavailable_reason=(
+            "missing native dependency: zstd-9"
+            if not _CODECS["zstd-9"].available
+            else ""
+        ),
+        version="stream-tbs1-v1-dense-selector1-16m-c2",
+    )
+)
+
 
 def all_codecs() -> List[CodecSpec]:
     return list(_CODECS.values())

@@ -368,10 +368,20 @@ def _trial(
         delimiter=int(cmeta.get("delimiter", 0)),
         compression_level=int(cmeta.get("compression_level", 0)),
         compression_threads=int(cmeta.get("compression_threads", 0)),
+        stream_segment_size=int(cmeta.get("stream_segment_size", 0)),
+        stream_record_slack=int(cmeta.get("stream_record_slack", 0)),
+        stream_concurrency=int(cmeta.get("stream_concurrency", 0)),
         segment_count=int(cmeta.get("segment_count", 0)),
         candidate_segment_count=int(cmeta.get("candidate_segment_count", 0)),
         transformed_segments=int(cmeta.get("transformed_segments", 0)),
+        direct_segments=int(cmeta.get("direct_segments", 0)),
         stored_segments=int(cmeta.get("stored_segments", 0)),
+        direct_fallback_compared_segments=int(
+            cmeta.get("direct_fallback_compared_segments", 0)
+        ),
+        direct_fallback_selected_segments=int(
+            cmeta.get("direct_fallback_selected_segments", 0)
+        ),
         structured_text_segments=int(cmeta.get("structured_text_segments", 0)),
         structured_dictionary_tokens=int(
             cmeta.get("structured_dictionary_tokens", 0)
@@ -440,10 +450,20 @@ def _failed_trial(
         delimiter=int(cmeta.get("delimiter", 0)),
         compression_level=int(cmeta.get("compression_level", 0)),
         compression_threads=int(cmeta.get("compression_threads", 0)),
+        stream_segment_size=int(cmeta.get("stream_segment_size", 0)),
+        stream_record_slack=int(cmeta.get("stream_record_slack", 0)),
+        stream_concurrency=int(cmeta.get("stream_concurrency", 0)),
         segment_count=int(cmeta.get("segment_count", 0)),
         candidate_segment_count=int(cmeta.get("candidate_segment_count", 0)),
         transformed_segments=int(cmeta.get("transformed_segments", 0)),
+        direct_segments=int(cmeta.get("direct_segments", 0)),
         stored_segments=int(cmeta.get("stored_segments", 0)),
+        direct_fallback_compared_segments=int(
+            cmeta.get("direct_fallback_compared_segments", 0)
+        ),
+        direct_fallback_selected_segments=int(
+            cmeta.get("direct_fallback_selected_segments", 0)
+        ),
         structured_text_segments=int(cmeta.get("structured_text_segments", 0)),
         structured_dictionary_tokens=int(
             cmeta.get("structured_dictionary_tokens", 0)

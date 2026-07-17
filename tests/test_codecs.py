@@ -16,6 +16,8 @@ class CodecProbeTests(unittest.TestCase):
             self.assertEqual(codec.level, level)
         dense = codec_by_id("tbl1-dense")
         self.assertEqual(dense.implementation, "tbl1-dense")
+        stream = codec_by_id("tbl1-stream-dense")
+        self.assertEqual(stream.implementation, "tbl1-stream-dense")
 
     def test_tabular_worker_roundtrips_automatic_delimiter(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -34,6 +36,25 @@ class CodecProbeTests(unittest.TestCase):
             self.assertEqual(compression["delimiter"], ord(";"))
             self.assertEqual(compression["transform_engine"], "rust")
             self.assertEqual(decompression["selected_backend"], "tbl1-decode")
+
+    def test_tabular_stream_worker_roundtrips_without_whole_file_api(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "source.csv"
+            encoded = root / "encoded.tbs1"
+            restored = root / "restored.csv"
+            source.write_bytes(b"kind,value\n" + b"alpha,100\n" * 10000)
+            compression = run(
+                "tbl1-stream-dense", "compress", source, encoded
+            )
+            decompression = run(
+                "tbl1-stream-dense", "decompress", encoded, restored
+            )
+            self.assertEqual(restored.read_bytes(), source.read_bytes())
+            self.assertEqual(compression["segment_count"], 1)
+            self.assertEqual(compression["stream_segment_size"], 16 * 1024 * 1024)
+            self.assertEqual(compression["stream_concurrency"], 2)
+            self.assertEqual(decompression["selected_backend"], "tbl1-stream-decode")
 
     def test_external_versions_are_probed_once_per_executable(self):
         codecs = [codec_by_id("zstd-1"), codec_by_id("zstd-3")]

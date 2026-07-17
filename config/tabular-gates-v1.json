@@ -42,6 +42,23 @@
     "minimum_decompression_mbps": 500.0,
     "maximum_peak_rss_mib": 384.0
   },
+  "streaming_requirements": {
+    "format": "TBS1 version 1 segmented TBL1 stream",
+    "target_segment_bytes": 16777216,
+    "maximum_record_alignment_slack_bytes": 1048576,
+    "maximum_concurrent_segments": 2,
+    "minimum_large_file_bytes": 1073741824,
+    "maximum_size_regression_vs_whole_file_dense_percent": 2.0,
+    "minimum_compression_mbps": 50.0,
+    "minimum_decompression_mbps": 250.0,
+    "minimum_repetition_compression_mbps": 50.0,
+    "minimum_repetition_decompression_mbps": 250.0,
+    "maximum_peak_compression_rss_mib": 512.0,
+    "maximum_peak_decompression_rss_mib": 512.0,
+    "require_atomic_failure_without_output_clobber": true,
+    "require_inner_and_outer_integrity_checks": true,
+    "require_segment_size_and_count_bounds": true
+  },
   "shared_requirements": {
     "required_public_validation_families": 4,
     "minimum_repetitions": 5,
