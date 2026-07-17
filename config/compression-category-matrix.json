@@ -79,10 +79,10 @@
     {
       "id": "numeric_timeseries",
       "label": "Numeric arrays and time-series data",
-      "status": "development",
+      "status": "public-validation-partial",
       "specialist": "DMS2/DSS1 for byte-exact dense numeric matrices; time-series specialist remains open",
-      "current_evidence": "docs/benchmarks/2026-07-17-dms2-public-validation-readiness.md",
-      "current_result": "On 4,895,341 fresh licensed development bytes, DMS2 was 5.28% smaller than bzip2-9 at 54.85 MB/s compression and 268.18 MB/s decompression. Local operational gates and Linux/macOS/Windows full-suite and native-wheel reproduction passed. The exact Gisette/Madelon first-score package is locked but those validation bytes remain unopened.",
+      "current_evidence": "runs/dms2-public-validation-v1/decision.json",
+      "current_result": "The retained first DMS2 public-validation score did not pass. On the two locked dense-matrix families, DMS2 was 46.57% larger than Brotli-11 on Gisette and 41.03% larger than bzip2-9 on Madelon; the two-item diagnostic aggregate was 43.55% larger than Brotli-11. Compression speed, minimum repetition speed, and cold compression memory also missed. Exactness, determinism, corruption rejection, decompression speed, bounded fallback, complete accounting, portability, and cross-platform wheels passed. A baseline manifest-scope defect independently invalidated the frozen aggregate corpus gate, and the complete deviation and first attempt are retained.",
       "tested_standards": [
         "store",
         "lz4-1",
@@ -95,7 +95,7 @@
         "LZMA-9",
         "7-Zip-9"
       ],
-      "next_gate": "Run the locked Gisette/Madelon score exactly once and retain it regardless of outcome. Treat time-series, floating-point arrays, sparse arrays, and missing-value scientific data as separate future wedges with their own licensed development and unseen-validation families."
+      "next_gate": "Do not tune or rerun DMS2 on Gisette or Madelon. Return dense matrices to fresh development research, fix corpus plumbing before any new lock, and require a materially new specialist to beat Brotli-11 and bzip2-9 on fresh development families before freezing different untouched validation families. Treat time-series, floating-point arrays, sparse arrays, and missing-value scientific data as separate wedges."
     },
     {
       "id": "general_binary_archive",

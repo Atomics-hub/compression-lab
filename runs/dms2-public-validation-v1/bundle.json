@@ -1,0 +1,21 @@
+{
+  "artifacts": {
+    "README.md": "e209923b7bb345f27fc4165deb6ed12cf127122717dbb251deed494bc3850b19",
+    "acquisition-manifest.json": "187ea52098338107d41893bb358536e710edb949e6bbc0b1400e7a9e6ba177c7",
+    "acquisition-receipt.json": "d6db49d03f26cba3a7b8ef2b92c00e39abe0e54a2b2e64accda7ff17111d8b0c",
+    "attempt.json": "bb369c877c02a5039dadf896dbfca56458e47cebcd2a701dd97c835d4e32a824",
+    "baseline-memory.json": "25424cff4d3844c80c1f2aa810843458084577ee9abee740a4c36ad61af1ddbc",
+    "baseline-performance.json": "a104b8066b750b27d705e1da6a6b3ab4ee798d3d6f576cd660754a7390f2f5d2",
+    "candidate-memory.json": "ca0f380c7c8531739db6fc7e80b4dd408d1d9a967058a7c7bf0bac540913c034",
+    "candidate-performance.json": "1f8cb9bd53fc1ffc2d7b75c43b57e976800133995a19e360bc0fe1ddbcb9a19a",
+    "comparison.json": "9838088a7e641acbda20eefc3b66cfb1aeef678ca24da23703b522c8061c1417",
+    "decision.json": "6b77d486ada9c1b3508395aeb003246a46404e25e8138bafb66a7c624b989428",
+    "gates.json": "e21eb894bbbdea189965463ca88ac714781596af14b3dd8f4fc04ecc46b64721",
+    "receipt.json": "df77e4c4d84f081e0b44f220a65f284e6eec27826786f6b24f3ecbacb5276841",
+    "scoring-manifest.json": "aa2d2c6e7abb823c063679517b8cc6904fc8bc4c9d1e7bf5b81c4efb08e4cd16"
+  },
+  "claim_ceiling": "The frozen DMS2 public-validation gate did not pass. These rows disclose the retained first attempt and support no category-win or state-of-the-art claim.",
+  "name": "dms2-public-validation-first-score-bundle-v1",
+  "schema_version": 1,
+  "status": "not_passed"
+}

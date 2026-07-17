@@ -1,0 +1,27 @@
+{
+  "config": {
+    "execution_mode": "cold-process",
+    "repetitions": 1
+  },
+  "schema_version": 1,
+  "summary": {
+    "codec_id": "dms2-stream",
+    "compression_peak_rss_bytes": 661078016,
+    "decompression_peak_rss_bytes": 91144192,
+    "roundtrip_failures": 0
+  },
+  "trials": [
+    {
+      "compression_peak_rss_bytes": 661078016,
+      "decompression_peak_rss_bytes": 91144192,
+      "item_id": "uci-gisette-train",
+      "roundtrip_ok": true
+    },
+    {
+      "compression_peak_rss_bytes": 76414976,
+      "decompression_peak_rss_bytes": 40615936,
+      "item_id": "uci-madelon-train",
+      "roundtrip_ok": true
+    }
+  ]
+}

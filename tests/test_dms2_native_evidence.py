@@ -30,7 +30,7 @@ class DMS2NativeEvidenceTests(unittest.TestCase):
         )
         self.assertEqual(aggregate["families_with_five_percent_gain"], 2)
 
-    def test_chart_lists_every_standard_without_overstating_claim(self):
+    def test_archived_development_chart_and_current_failure_are_visible(self):
         decision = DECISION.read_text(encoding="utf-8")
         readme = (REPOSITORY / "README.md").read_text(encoding="utf-8")
         for row in self.evidence["standards"]:
@@ -41,8 +41,10 @@ class DMS2NativeEvidenceTests(unittest.TestCase):
             }.get(row["codec_id"], row["codec_id"])
             self.assertIn(label, decision.lower())
         self.assertIn("189,738", decision)
-        self.assertIn("189,738", readme)
-        self.assertIn("development evidence", readme)
+        self.assertIn("11,937,137", readme)
+        self.assertIn("43.55%", readme)
+        self.assertIn("did not pass public validation", readme)
+        self.assertIn("immutable evidence bundle", readme)
         self.assertEqual(self.evidence["public_validation"], "unopened")
         self.assertEqual(self.evidence["private_holdout"], "sealed")
         self.assertGreater(len(self.evidence["remaining_gates"]), 0)
