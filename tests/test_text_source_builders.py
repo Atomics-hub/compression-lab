@@ -175,7 +175,7 @@ class TextSourceBuilderTests(unittest.TestCase):
                 link.type = tarfile.SYMTYPE
                 link.linkname = "target.py"
                 archive.addfile(link)
-            with self.assertRaisesRegex(ValueError, "links are forbidden"):
+            with self.assertRaisesRegex(ValueError, "selected archive link is forbidden"):
                 BUILDERS.build_source_bundle(
                     archive_path=link_archive,
                     destination=root / "link.axsrc",
@@ -221,6 +221,29 @@ class TextSourceBuilderTests(unittest.TestCase):
             destination = root / "safe.axsrc"
             BUILDERS.build_source_bundle(
                 archive_path=archive,
+                destination=destination,
+                source={"id": "fixture-source"},
+                rules_path=RULES,
+            )
+            decoded, _ = decode_source_bundle(destination)
+            self.assertEqual(decoded, [("src/main.rs", b"fn main() {}\n")])
+
+    def test_excluded_link_is_safe_because_member_is_never_extracted(self):
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            archive_path = root / "excluded-link.tar.xz"
+            with tarfile.open(archive_path, "w:xz") as archive:
+                link = tarfile.TarInfo("root/tests/link.py")
+                link.type = tarfile.SYMTYPE
+                link.linkname = "target.py"
+                archive.addfile(link)
+                content = b"fn main() {}\n"
+                member = tarfile.TarInfo("root/src/main.rs")
+                member.size = len(content)
+                archive.addfile(member, io.BytesIO(content))
+            destination = root / "safe.axsrc"
+            BUILDERS.build_source_bundle(
+                archive_path=archive_path,
                 destination=destination,
                 source={"id": "fixture-source"},
                 rules_path=RULES,

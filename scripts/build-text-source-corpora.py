@@ -79,19 +79,10 @@ def _validated_member_path(member: tarfile.TarInfo) -> tuple[str, ...]:
 
 def _safe_tar_members(archive: tarfile.TarFile) -> list[tuple[tarfile.TarInfo, tuple[str, ...]]]:
     members: list[tuple[tarfile.TarInfo, tuple[str, ...]]] = []
-    exact_paths: set[str] = set()
     roots: set[str] = set()
     for member in archive.getmembers():
         parts = _validated_member_path(member)
-        normalized = "/".join(parts)
-        if normalized in exact_paths:
-            raise ValueError(f"duplicate archive path: {normalized}")
-        exact_paths.add(normalized)
         roots.add(parts[0])
-        if member.issym() or member.islnk():
-            raise ValueError(f"archive links are forbidden: {normalized}")
-        if not member.isdir() and not member.isreg():
-            raise ValueError(f"non-regular archive member is forbidden: {normalized}")
         members.append((member, parts))
     if len(roots) != 1:
         raise ValueError("source archive must contain exactly one top-level directory")
@@ -138,20 +129,27 @@ def build_source_bundle(
     with tarfile.open(archive_path, mode="r:*") as archive:
         members = _safe_tar_members(archive)
         selected: list[tuple[bytes, str, tarfile.TarInfo]] = []
+        selected_exact_paths: set[str] = set()
         selected_casefold_paths: dict[str, str] = {}
         for member, parts in members:
-            if not member.isreg():
-                continue
             relative = "/".join(parts[1:])
-            if _is_selected_source(relative, source["id"], rules):
-                folded = relative.casefold()
-                previous = selected_casefold_paths.get(folded)
-                if previous is not None and previous != relative:
-                    raise ValueError(
-                        f"case-fold selected-path collision: {previous} vs {relative}"
-                    )
-                selected_casefold_paths[folded] = relative
-                selected.append((relative.encode("utf-8"), relative, member))
+            if not _is_selected_source(relative, source["id"], rules):
+                continue
+            if member.issym() or member.islnk():
+                raise ValueError(f"selected archive link is forbidden: {relative}")
+            if not member.isreg():
+                raise ValueError(f"selected non-regular member is forbidden: {relative}")
+            if relative in selected_exact_paths:
+                raise ValueError(f"duplicate selected archive path: {relative}")
+            selected_exact_paths.add(relative)
+            folded = relative.casefold()
+            previous = selected_casefold_paths.get(folded)
+            if previous is not None and previous != relative:
+                raise ValueError(
+                    f"case-fold selected-path collision: {previous} vs {relative}"
+                )
+            selected_casefold_paths[folded] = relative
+            selected.append((relative.encode("utf-8"), relative, member))
         selected.sort(key=lambda row: row[0])
         if not selected:
             raise ValueError("source selection produced no files")

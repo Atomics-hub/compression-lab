@@ -5,7 +5,7 @@
     "archive_root": "Every archive must contain exactly one non-empty top-level directory. Strip that directory before selection.",
     "encoding": "Every relative path must round-trip through strict UTF-8 without normalization.",
     "separator": "Only POSIX slash separators are accepted; backslashes are rejected.",
-    "matching": "Extension, segment, and prefix comparisons are case-sensitive. After frozen exclusions, case-fold collisions among candidate selected paths are rejected before ordering. Excluded members are never extracted and cannot collide in the derived bundle."
+    "matching": "Extension, segment, and prefix comparisons are case-sensitive. After frozen exclusions, exact duplicates, case-fold collisions, links, and non-regular types among candidate selected paths are rejected before ordering. Excluded members are never extracted and cannot enter or collide in the derived bundle."
   },
   "selected_extensions": [
     ".c",

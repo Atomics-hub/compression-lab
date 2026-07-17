@@ -77,11 +77,14 @@ opened.
 
 The first development acquisition stopped before LLVM or Wikimedia when the
 official Rust source tarball exposed a case-only name collision inside an
-excluded rustfmt test fixture (`ABCD` versus `abcd`). Since the builder streams
+excluded rustfmt test fixture (`ABCD` versus `abcd`). A second attempt stopped
+on a symlink inside excluded vendored LLVM LLDB tests. Since the builder streams
 members directly and never extracts an archive to host paths, the rule was
-narrowed to reject case-fold collisions among post-exclusion candidate source
-paths. The interrupted staging directory was removed; cached archives remained
-subject to the same publisher size and digest checks on resume.
+narrowed completely: exact duplicates, case-fold collisions, links, and
+non-regular types are rejected among post-exclusion candidate source paths.
+Every path still receives global lexical/root/encoding validation. Interrupted
+staging directories were removed; cached archives remained subject to the same
+publisher size and digest checks on resume.
 
 The deterministic extractor keeps namespace-zero, non-redirect latest revision
 text in publisher order, performs only XML decoding, and applies no Unicode,
