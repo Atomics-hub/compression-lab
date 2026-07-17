@@ -60,10 +60,10 @@
       "label": "Tabular CSV and delimited records",
       "status": "untested",
       "specialist": null,
-      "current_evidence": null,
-      "current_result": "No category-scoped evidence yet.",
+      "current_evidence": "docs/benchmarks/2026-07-16-tabular-corpus-protocol.md",
+      "current_result": "The licensed four-family development and four-family public-validation split and first product gates are frozen; no category benchmark has run and validation bytes remain unopened.",
       "tested_standards": [],
-      "next_gate": "Select licensed heterogeneous training and validation families, reproduce columnar and general-purpose baselines, and predeclare ratio, speed, and schema-robustness gates."
+      "next_gate": "Acquire and digest-pin development bytes only, reproduce exact-byte and semantic-context baselines, and test TBL1 representation channels without opening public validation."
     },
     {
       "id": "numeric_timeseries",

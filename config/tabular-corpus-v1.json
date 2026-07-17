@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "name": "uci-delimited-tabular-v1",
+  "category": "tabular_csv",
+  "claim_ceiling": "licensed development and one-time unseen public validation for byte-exact delimited tabular files; not private-holdout, independently reproduced, universal, market-leading, or state-of-the-art evidence",
+  "provider": {
+    "name": "UCI Machine Learning Repository",
+    "license_spdx": "CC-BY-4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "attribution_policy": "Retain each dataset DOI, creator citation, source page, acquired archive SHA-256, selected member, and derived-item SHA-256 in every manifest."
+  },
+  "archive_integrity_policy": {
+    "state": "publisher does not expose checksums on the cited pages",
+    "development": "The frozen URL may be acquired after this split is committed. Record and commit the archive SHA-256 before using its bytes for a scored development result.",
+    "public_validation": "Do not acquire before the candidate, implementation paths, gates, and evaluator are frozen. The first authorized acquisition records the archive and item SHA-256 values; retain the first score and do not tune on these families."
+  },
+  "selection": {
+    "max_item_bytes": 67108864,
+    "slice_rule": "After archive extraction and any declared member decompression, retain the complete file when it is at most max_item_bytes. Otherwise retain the longest prefix of at most max_item_bytes that ends immediately after LF. Do not parse, normalize, transcode, reserialize, or change line endings.",
+    "member_rule": "Match the complete normalized archive member path exactly. Reject duplicate, absent, absolute, parent-traversing, symbolic-link, or non-regular members.",
+    "item_rule": "One selected source member is one benchmark family and one exact byte stream."
+  },
+  "development": [
+    {
+      "id": "uci-autouniv-au2",
+      "family": "autouniv_mixed",
+      "dataset_id": 197,
+      "title": "AutoUniv",
+      "doi": "10.24432/C5690V",
+      "creator": "Ray Hickey",
+      "page_url": "https://archive.ics.uci.edu/dataset/197/autouniv",
+      "archive_url": "https://archive.ics.uci.edu/static/public/197/autouniv.zip",
+      "archive_sha256": null,
+      "member": "AU/Data Sets/au2_10000.csv",
+      "member_compression": "none",
+      "publisher_reported_member_size": "10.7 MB",
+      "delimiter": "comma",
+      "structure": "synthetic mixed discrete and continuous attributes"
+    },
+    {
+      "id": "uci-covertype",
+      "family": "covertype_integer_binary",
+      "dataset_id": 31,
+      "title": "Covertype",
+      "doi": "10.24432/C50K5N",
+      "creator": "Jock Blackard",
+      "page_url": "https://archive.ics.uci.edu/dataset/31/covertype",
+      "archive_url": "https://archive.ics.uci.edu/static/public/31/covertype.zip",
+      "archive_sha256": null,
+      "member": "covtype.data.gz",
+      "member_compression": "gzip",
+      "publisher_reported_member_size": "10.7 MB compressed",
+      "delimiter": "comma",
+      "structure": "581012 rows of integer and binary cartographic attributes"
+    },
+    {
+      "id": "uci-facebook-comment-volume-v4",
+      "family": "facebook_dense_numeric",
+      "dataset_id": 363,
+      "title": "Facebook Comment Volume",
+      "doi": "10.24432/C5Q886",
+      "creator": "Kamaljot Singh",
+      "page_url": "https://archive.ics.uci.edu/dataset/363/facebook%2Bcomment%2Bvolume%2Bdataset",
+      "archive_url": "https://archive.ics.uci.edu/static/public/363/facebook%2Bcomment%2Bvolume%2Bdataset.zip",
+      "archive_sha256": null,
+      "member": "Dataset/Training/Features_Variant_4.csv",
+      "member_compression": "none",
+      "publisher_reported_member_size": "50.8 MB",
+      "delimiter": "comma",
+      "structure": "dense integer, decimal, and binary social-post features"
+    },
+    {
+      "id": "uci-gas-sensor-raw",
+      "family": "gas_sensor_wide_float",
+      "dataset_id": 308,
+      "title": "Gas sensor array under flow modulation",
+      "doi": "10.24432/C5BG7G",
+      "creator": "Andrey Ziyatdinov and Jordi Fonollosa",
+      "page_url": "https://archive.ics.uci.edu/dataset/308/gas%2Bsensor%2Barray%2Bunder%2Bflow%2Bmodulation",
+      "archive_url": "https://archive.ics.uci.edu/static/public/308/gas%2Bsensor%2Barray%2Bunder%2Bflow%2Bmodulation.zip",
+      "archive_sha256": null,
+      "member": "rawdata.csv.gz",
+      "member_compression": "gzip",
+      "publisher_reported_member_size": "4.5 MB compressed",
+      "delimiter": "comma",
+      "structure": "very wide floating-point sensor time-series rows plus categorical labels"
+    }
+  ],
+  "public_validation": [
+    {
+      "id": "uci-metropt3",
+      "family": "metropt_timestamp_sensor",
+      "dataset_id": 791,
+      "title": "MetroPT-3 Dataset",
+      "doi": "10.24432/C5VW3R",
+      "creator": "Narjes Davari, Bruno Veloso, Rita Ribeiro, and Joao Gama",
+      "page_url": "https://archive.ics.uci.edu/dataset/791/metropt%2B3%2B",
+      "archive_url": "https://archive.ics.uci.edu/static/public/791/metropt%2B3%2Bdataset.zip",
+      "archive_sha256": null,
+      "member": "MetroPT3(AirCompressor).csv",
+      "member_compression": "none",
+      "publisher_reported_member_size": "208.2 MB",
+      "delimiter": "comma",
+      "structure": "timestamp, index, continuous sensors, and digital state columns"
+    },
+    {
+      "id": "uci-electricity-load",
+      "family": "electricity_semicolon_decimal",
+      "dataset_id": 321,
+      "title": "ElectricityLoadDiagrams20112014",
+      "doi": "10.24432/C58C86",
+      "creator": "Artur Trindade",
+      "page_url": "https://archive.ics.uci.edu/dataset/321/electricity",
+      "archive_url": "https://archive.ics.uci.edu/static/public/321/electricityloaddiagrams20112014.zip",
+      "archive_sha256": null,
+      "member": "LD2011_2014.txt",
+      "member_compression": "none",
+      "publisher_reported_member_size": "678.1 MB",
+      "delimiter": "semicolon",
+      "structure": "timestamp plus hundreds of decimal electricity-consumption columns"
+    },
+    {
+      "id": "uci-oulad-student-vle",
+      "family": "oulad_relational_events",
+      "dataset_id": 349,
+      "title": "Open University Learning Analytics dataset",
+      "doi": "10.24432/C5KK69",
+      "creator": "Jakub Kuzilek, Martin Hlosta, and Zdenek Zdrahal",
+      "page_url": "https://archive.ics.uci.edu/dataset/349/tennis%2Bmajor%2Btournament%2Bmatch%2Bstatistics",
+      "archive_url": "https://archive.ics.uci.edu/static/public/349/open%2Buniversity%2Blearning%2Banalytics%2Bdataset.zip",
+      "archive_sha256": null,
+      "member": "studentVle.csv",
+      "member_compression": "none",
+      "publisher_reported_member_size": "432.8 MB",
+      "delimiter": "comma",
+      "structure": "relational event rows with repeated categorical identifiers and integers"
+    },
+    {
+      "id": "uci-character-font-ocrb",
+      "family": "character_font_mixed_pixels",
+      "dataset_id": 417,
+      "title": "Character Font Images",
+      "doi": "10.24432/C5X61Q",
+      "creator": "Richard Lyman",
+      "page_url": "https://archive.ics.uci.edu/dataset/417/character",
+      "archive_url": "https://archive.ics.uci.edu/static/public/417/character%2Bfont%2Bimages.zip",
+      "archive_sha256": null,
+      "member": "OCRB.csv",
+      "member_compression": "none",
+      "publisher_reported_member_size": "117.1 MB",
+      "delimiter": "comma",
+      "structure": "string font metadata, numeric geometry, and 400 low-cardinality pixel columns"
+    }
+  ],
+  "private_holdout": {
+    "status": "sealed",
+    "policy": "No dataset names, URLs, bytes, digests, or derived statistics are stored in the public repository."
+  }
+}

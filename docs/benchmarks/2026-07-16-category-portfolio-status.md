@@ -15,7 +15,7 @@ portability, or independent-evidence cells remain red or untested.
 | --- | --- | --- | --- | --- | --- | --- |
 | JSON and machine logs | Public-validation partial | ✅ JLS2 beat zstd-9 on 3/3, PBC on 3/3, and Brotli-11 in aggregate; Brotli family gate was 1/3 | ⚠️ compression passed; Linux decompression failed 250 MB/s gate | ⚠️ development-only JLS2 measurement; no same-run baseline memory | ❌ No | Development-only Linux decode profile, then a fresh independent corpus |
 | Plain text and source | Development | ❌ no win over the strongest tested ratio baselines | ⚠️ some Pareto development points, no category validation | ⚠️ partial development measurements | ❌ No | New representation or calibrated entropy-model hypothesis |
-| Tabular CSV | Untested | — | — | — | ❌ No | Licensed corpus and specialist-baseline reproduction |
+| Tabular CSV | Protocol frozen; untested | — four development and four unseen public-validation families selected | — frozen dense and balanced speed gates | — frozen 512/384 MiB gates | ❌ No | Digest-pin development bytes, reproduce baselines, and test TBL1 without opening validation |
 | Numeric and time series | Smoke only | ⚠️ synthetic delta-transpose signal | — | — | ❌ No | Licensed heterogeneous numeric corpus and specialist audit |
 | General binary/archive | Development | ❌ current encoder loses to zstd-9 | ❌ not Pareto-optimal | ⚠️ bounded-frame evidence only | ❌ No | Keep safe fallback; wait for a materially new specialist hypothesis |
 | Incompressible/already compressed | Development safety tests | ✅ bounded store/direct fallback behavior | — category throughput unvalidated | — large-file category gate unvalidated | ❌ No | Freeze expansion, selector-cost, speed, and memory gates |
@@ -25,6 +25,11 @@ The machine-readable portfolio and required chart fields are in
 gate must add a checksummed JSON summary and render the same size, speed,
 memory, integrity, comparability, and claim-ceiling fields used by
 `scripts/render-category-scorecard.py`.
+
+The tabular split, exact-byte boundary, baseline roster, and first product gates
+are frozen in
+`docs/benchmarks/2026-07-16-tabular-corpus-protocol.md`. Public-validation
+archives remain unopened.
 
 ## Universal-selector consequence
 
