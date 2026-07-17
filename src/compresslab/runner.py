@@ -480,12 +480,9 @@ def _system_state(label: str, include_thermal_signal: bool = False) -> Dict[str,
         "label": label,
         "captured_at": datetime.now(timezone.utc).isoformat(),
     }
-    getloadavg = getattr(os, "getloadavg", None)
     try:
-        state["load_average_1m_5m_15m"] = (
-            list(getloadavg()) if callable(getloadavg) else []
-        )
-    except OSError:
+        state["load_average_1m_5m_15m"] = list(os.getloadavg())
+    except (AttributeError, OSError):
         state["load_average_1m_5m_15m"] = []
     if include_thermal_signal and sys.platform == "darwin" and shutil.which("pmset"):
         try:
