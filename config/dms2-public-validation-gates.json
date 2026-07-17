@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "name": "dms2-dense-matrix-one-time-public-validation-v1",
+  "category": "byte_exact_dense_numeric_matrices",
+  "claim_ceiling": "A passing first score supports only a category-scoped public-validation result for two previously unopened CC-BY-4.0 UCI dense numeric matrix families. It is not private-holdout, independently reproduced, universal, market-leading, or state-of-the-art evidence.",
+  "candidate": {
+    "codec_id": "dms2-stream",
+    "format": "DSS1 version 1 containing DMS2 version 1 segments",
+    "frozen_base_commit": "5ff6f01d10960681b35cce5a53eff3e9e3d96ee8",
+    "segment_target_bytes": 16777216,
+    "specialist_level": 19,
+    "direct_fallback_level": 1,
+    "selector_sample_bytes": 65536,
+    "frozen_paths": {
+      ".gitattributes": "d60f352d0db1404c70afb4bb8b2ca3fd1c610572aa40720e8a0b7baa7885418c",
+      "native/Cargo.lock": "830795453d6689554f4724ea5124ceb08b7b4d0ffe03ed031ed010d587519bbf",
+      "native/Cargo.toml": "9aef2315c7dd6c20546e221d179ca69a4fb04544317898521d92bc55574154fe",
+      "native/src/lib.rs": "4d624291ec8ea8301e3dc844f025b90e71c964bcbad012130488d7cd353b6a3e",
+      "native-dense/Cargo.lock": "76d9b00c6ce753885e5476174aa87ae55e6b4d7b4b351d3aab70a0ce4a7ebc16",
+      "native-dense/Cargo.toml": "1d8c74473c23aca1fee3c7f6b181c42ebc377d0c384c085e15b3e82ca45faffd",
+      "native-dense/src/lib.rs": "5ee73adc7a50ccaaaa8bb17b750b5af4cbe920e120bfa5d6a0562c8a5244c720",
+      "pyproject.toml": "45f59bde45228dc5be2d62d85117f5019129d8164eb28add8e195453bff6725c",
+      "src/compresslab/dense_matrix_transform.py": "0a0ab33cbec9b87fadebca540b13e3bbe7b9042365eb3edf0595ed89bf4b2c8e",
+      "src/compresslab/dense_native.py": "eea2f6880d5d41a0d951b9ec35f63aec132d7c3ffbf0cfc3118161b397b5c6d1",
+      "src/compresslab/native.py": "3420b3d7acaa636a27f2788e9304b19c01014f6f3183c2aa822e9bf3cc4cf7d1",
+      "tests/test_dense_matrix_transform.py": "83e73a312c67d622507218818daf34eb1c7c7d8790571bb4d11e03f12bd4a935"
+    }
+  },
+  "development_evidence": {
+    "speed_ratio_path": "runs/dms2-safe-selector-development-gate-v2.json",
+    "speed_ratio_sha256": "9cd63a00a43a0612adc8cc29a5cac65554982d2131cca2f86cb74cd779ae7ad6",
+    "operational_path": "runs/dms2-operational-development-gate-v1.json",
+    "operational_sha256": "91f6b885da42e07d43b7076bf4524ee7b98bb9514a2f4448a3cf50c847e01192",
+    "cross_platform_path": "runs/dms2-cross-platform-ci-receipt-v1.json",
+    "cross_platform_sha256": "1d3ac324ad02b3f4ae54d252947f6748227016b71d980938cf968449ef17b075"
+  },
+  "validation": {
+    "corpus_config_path": "config/tabular-successor-corpus-v1.json",
+    "corpus_config_sha256": "f2ede2a954f46413a4d6fd87692523e4d1e93d69ed4248af1da66dc2dd800e24",
+    "expected_items": [
+      {
+        "id": "uci-gisette-train",
+        "family": "gisette_dense_digit_features",
+        "track": "dense_feature_matrix"
+      },
+      {
+        "id": "uci-madelon-train",
+        "family": "madelon_dense_synthetic_features",
+        "track": "dense_feature_matrix"
+      }
+    ],
+    "expected_license_spdx": "CC-BY-4.0",
+    "expected_split": "validation",
+    "maximum_item_bytes": 67108864,
+    "minimum_repetitions": 5,
+    "warmups": 1,
+    "memory_repetitions": 1,
+    "order_seed": 20260717,
+    "candidate_execution_mode": "persistent-dms2-worker",
+    "baseline_execution_mode": "persistent-worker",
+    "memory_execution_mode": "cold-process",
+    "timeout_seconds": 1800.0,
+    "max_normalized_preflight_load_1m": 0.75
+  },
+  "baselines": {
+    "codec_ids": [
+      "store",
+      "lz4-1",
+      "gzip-9",
+      "bz2-9",
+      "zstd-3",
+      "zstd-9",
+      "zstd-19",
+      "brotli-11",
+      "lzma-9",
+      "7zip-9"
+    ],
+    "comparison_rule": "Aggregate size is compared with the smallest complete fixed exact-byte baseline. Each family is compared with that family's smallest complete exact-byte baseline. Candidate and baseline worker-wall timings run adjacently on the same host and corpus but in separate shuffled batches, so speed comparisons are contextual rather than paired."
+  },
+  "requirements": {
+    "minimum_aggregate_gain_vs_strongest_complete_exact_byte_baseline_percent": 5.0,
+    "minimum_families_with_five_percent_gain_vs_strongest_complete_exact_byte_baseline": 2,
+    "minimum_family_gain_percent": 5.0,
+    "maximum_segment_regression_vs_equally_framed_direct_fallback_bytes": 0,
+    "minimum_aggregate_compression_mbps": 50.0,
+    "minimum_aggregate_decompression_mbps": 250.0,
+    "minimum_repetition_compression_mbps": 45.0,
+    "minimum_repetition_decompression_mbps": 225.0,
+    "maximum_cold_compression_peak_rss_mib": 512.0,
+    "maximum_cold_decompression_peak_rss_mib": 512.0,
+    "require_exact_roundtrip_for_every_trial": true,
+    "require_deterministic_output": true,
+    "require_corruption_rejection": true,
+    "require_complete_frame_accounting": true,
+    "require_all_baselines_present": true,
+    "require_no_benchmark_failures": true,
+    "require_clean_tracked_commit": true,
+    "require_frozen_candidate_paths": true,
+    "require_portable_reference_decoder": true,
+    "require_cross_platform_wheel_receipt": true
+  },
+  "decision_rule": "The first eligible score is final. Every applicable gate must pass. No representation, selector, parameter, threshold, corpus family, corpus slice, baseline setting, evaluator, or pass threshold may change after public-validation acquisition. A failed or interrupted scored attempt is retained and cannot be replaced by a tuned rerun.",
+  "private_holdout": {
+    "status": "sealed",
+    "required_for_state_of_the_art_claim": true
+  }
+}
