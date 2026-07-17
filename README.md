@@ -1,31 +1,32 @@
 # Compression Lab
 
-**Category-specialized lossless compression with reproducible evidence.**
+**Category-specialized lossless compression, backed by reproducible evidence.**
 
-Compression Lab combines specialist codecs, a deterministic content selector,
-exact fallback, and a self-describing `.clab` container. The general-file CLI
-is alpha; JLS2, TBS1, and DMS2 are research codecs promoted only through frozen
-benchmark gates.
+Compression Lab is building a practical compressor that detects what a file is,
+routes it to a specialist codec, and falls back safely when specialization will
+not help. Every result is gated by exact byte restoration, complete archive
+accounting, frozen datasets, and checked-in benchmark receipts.
 
-## Current measured lead: structured JSON event logs
+## 18.08% smaller than the closest tested standard on JSON event logs
 
-On a fresh 203.6 MB development slice of the licensed CLUE-LDS cloud-event
-dataset, JLS2 produced the smallest complete archive among all 11 tested
-configurations:
+JLS2 compressed a fresh 203.6 MB CLUE-LDS development slice to **3.52 MB**.
+Brotli-11, the next-smallest of 10 tested alternatives, produced **4.30 MB**.
+JLS2 was also smallest on all three frozen ranges and restored the exact input
+in all **99 of 99** measured round trips.
 
-- **18.08% smaller than Brotli-11**, the closest standard;
-- smallest on **3 of 3** frozen development ranges;
-- **99 of 99** measured round trips restored the exact original bytes; and
-- **109.90 MB/s** compression, while missing the frozen 250 MB/s decode gate at
-  **116.43 MB/s**.
+![JLS2 complete archive size, compression speed, and decompression speed compared with nine established codecs](docs/assets/clue-json-log-scorecard.svg)
 
-![Compressed-size comparison for JLS2 and nine established codecs](docs/assets/clue-json-log-compressed-size.svg)
+This is a **category-scoped development result**—not yet public-validation,
+private-holdout, independent, general-file, or world-best evidence. JLS2 won
+size and compression speed against Brotli-11, but decoded 54.1% slower and
+missed its frozen 250 MB/s cold-process decode gate.
 
-### Full same-run scorecard
+<details>
+<summary><strong>Open the full same-run scorecard</strong></summary>
 
-Lower archive size is better. `JLS2 smaller by` compares complete archive bytes
-with JLS2; positive values are a JLS2 size win. Every speed and memory value was
-measured by the same cold-process runner on the same machine.
+Lower archive size is better. Positive `JLS2 smaller by` values are JLS2 wins.
+All speed and memory values came from the same cold-process runner on the same
+machine; `Store` is included as the no-compression control.
 
 <!-- clue-scorecard:start -->
 
@@ -45,26 +46,25 @@ measured by the same cold-process runner on the same machine.
 
 <!-- clue-scorecard:end -->
 
-This is fresh, licensed **development evidence**, not public validation or an
-independently reproduced state-of-the-art claim. The exact corpus ranges,
-versions, runner commit, raw trials, memory scope, checksums, and failed decode
-gate are in the [complete evidence bundle](runs/clue-json-log-development-census-v1/README.md).
+</details>
+
+The [complete evidence bundle](runs/clue-json-log-development-census-v1/README.md)
+contains corpus ranges, licenses, codec versions, the runner commit, raw trials,
+memory scope, checksums, and the failed gate.
 
 ## Measured standings
 
-| Category | Best result so far | Evidence status |
+| Category | Best measured result | Gate status and evidence |
 | --- | --- | --- |
-| JSON and machine logs | JLS2 is 18.08% smaller than the strongest standard on fresh CLUE-LDS development data | Ratio lead; cold-process decode gate open |
-| Delimited tables | TBS1 vs 7-Zip-9: 3.48% larger aggregate; TBS1 won 3/4 families against each family's strongest standard | Frozen gate failed (public validation) |
-| Dense matrices | DMS2 vs Brotli-11: 43.55% larger; 33.45 / 313.99 MB/s compression / decompression | Frozen gate failed (public validation) |
-| General files | Exact `.clab` fallback; no strongest-standard win established | Alpha product |
-| Text, source, time series, binary, media | No category claim yet | Not tested |
+| JSON and machine logs | JLS2 is 18.08% smaller than the strongest tested standard | Ratio lead; decode gate open ([kernel A/B](runs/jls2-decode-kernel-development-v1/README.md), [scheduling A/B](runs/clue-jls2-decode-scheduling-v1/README.md)) |
+| Delimited tables | TBS1 vs 7-Zip-9: 3.48% larger aggregate | Frozen gate failed ([decision](docs/benchmarks/2026-07-17-tbl1-public-validation-decision.md), [Fresh successor corpus protocol](docs/benchmarks/2026-07-17-tabular-successor-corpus-protocol.md)) |
+| Dense matrices | DMS2 vs Brotli-11: 43.55% larger; 33.45 / 313.99 MB/s compression / decompression | Frozen gate failed ([evidence](runs/dms2-public-validation-v1/README.md)) |
+| General files | Exact `.clab` fallback; no strongest-standard lead established | Alpha |
 
-See the [category portfolio](docs/benchmarks/2026-07-16-category-portfolio-status.md)
-for the full gate history. Consumed validation families are never reused as
-fresh evidence.
+Consumed validation families are never reused as fresh evidence. The benchmark
+runner also has a checked-in [manifest-binding gate](runs/benchmark-manifest-binding-v1/README.md).
 
-## Use it
+## Try it
 
 Python 3.9 or newer is required. Native builds also require Rust stable.
 
@@ -98,8 +98,16 @@ frame = compresslab.compress(b"lossless data" * 1000)
 original = compresslab.decompress(frame, max_output_size=10_000_000)
 ```
 
-Experimental specialists remain separate from the stable API while their
-formats and evidence gates are moving.
+The general `.clab` format is currently alpha. Research specialists stay
+separate from the stable API until their formats and evidence gates are frozen.
+
+## What is in the repository
+
+- A self-describing `.clab` container with deterministic selection and an exact
+  direct/store fallback for arbitrary files.
+- JLS2 for structured JSON event logs, plus gated tabular and matrix research.
+- Reproducible runners, manifests, receipts, fuzz tests, integrity checks,
+  native acceleration, and cross-platform Python packaging.
 
 ## Reproduce the work
 
@@ -121,25 +129,14 @@ PYTHONPATH=src python3 -m compresslab run \
   --warmups 1
 ```
 
-Every promoted result records licenses, corpus and manifest hashes, selected
-item IDs, candidate commit, codec versions, runner scope, repetitions, exact
-round trips, complete archive bytes, and claim ceiling. Private holdout data
-stays outside the repository.
+Every result records licenses, corpus and manifest hashes, item IDs, candidate
+commit, codec versions, runner scope, repetitions, exact round trips, complete
+archive bytes, and its claim ceiling. Private holdout data stays outside the
+repository.
 
-## Evidence index
-
-- [Fresh CLUE-LDS 11-codec development census](runs/clue-json-log-development-census-v1/README.md)
-- [JLS2 public-validation standards chart](docs/benchmarks/2026-07-16-jls2-public-validation-decision.md)
-- [TBS1 public-validation 10-standard chart](docs/benchmarks/2026-07-17-tbl1-public-validation-decision.md)
-- [Fresh successor corpus protocol](docs/benchmarks/2026-07-17-tabular-successor-corpus-protocol.md)
-- [DMS2 public-validation 11-codec chart](runs/dms2-public-validation-v1/README.md)
-- [JLS2 decoder A/B gate](runs/jls2-decode-kernel-development-v1/README.md)
-- [CLUE-LDS decode-scheduling rejection chart](runs/clue-jls2-decode-scheduling-v1/README.md)
-- [Benchmark manifest-binding gate](runs/benchmark-manifest-binding-v1/README.md)
-- [File-format contract](docs/file-format.md)
-- [Release readiness](docs/release-readiness.md)
-- [Security policy](SECURITY.md)
-- [Complete benchmark archive](docs/benchmarks/)
+Start with the [category portfolio](docs/benchmarks/2026-07-16-category-portfolio-status.md),
+[benchmark archive](docs/benchmarks/), [file-format contract](docs/file-format.md),
+[release-readiness checklist](docs/release-readiness.md), and [security policy](SECURITY.md).
 
 ## License
 
