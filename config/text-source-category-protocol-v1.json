@@ -1,0 +1,284 @@
+{
+  "schema_version": 1,
+  "name": "text-and-source-category-protocol-v1",
+  "declared_at": "2026-07-17",
+  "claim_ceiling": "unacquired corpus and benchmark design for two separate categories: English Wikimedia wikitext and multi-language source-code bundles; no benchmark result, category win, public-validation, private-holdout, independent-reproduction, market-leading, world-best, or state-of-the-art evidence",
+  "category_separation": {
+    "rule": "Natural-language text and source code are independent tracks, gates, scorecards, and claims. A pass on either track says nothing about the other.",
+    "reason": "The tracks have different byte structure, licensing, project-lineage leakage, specialist compressors, and practical workloads.",
+    "legacy_evidence": "The SQLite-only public-starter source files and adaptive-v3 measurements remain consumed development diagnostics. They are not members of either new split and cannot satisfy a gate."
+  },
+  "common_integrity_policy": {
+    "acquisition_order": "Commit this declaration before downloading any declared development archive. Record publisher checksum evidence when available, acquired archive SHA-256, extraction-tool version, ordered source manifest, exact derived-item byte count, and derived-item SHA-256 before the first codec probe.",
+    "validation_lock": "Do not download, list, sample, checksum, parse, or otherwise inspect a public-validation archive until the candidate, selector, corpus builder, baselines, gates, runner, evaluator, and publication path are frozen at a clean commit. Retain the first authorized acquisition and score whether it passes, fails, or is interrupted.",
+    "archive_rules": "Reject absolute paths, parent traversal, symbolic or hard links, duplicate normalized paths, non-regular selected members, case-fold collisions, unsupported encodings, and any archive whose observed identity disagrees with its declaration.",
+    "exactness": "Every scored compressor must restore the exact derived input bytes. Complete frame bytes, dictionaries, models, preprocessors required for decoding, metadata, and side assets count toward compressed size.",
+    "private_holdout": "Sealed and unnamed. No source identity, URL, byte, digest, statistic, language mix, or family count is stored in the public repository."
+  },
+  "source_code": {
+    "category_id": "source_code_bundles",
+    "scope": "Deterministic bundles of unmodified source files from four implementation-language strata: Python, TypeScript, Rust, and C/C++.",
+    "bundle_rule": {
+      "format": "source-bundle-v1",
+      "selected_extensions": [
+        ".c",
+        ".cc",
+        ".cpp",
+        ".cxx",
+        ".h",
+        ".hh",
+        ".hpp",
+        ".hxx",
+        ".inc",
+        ".py",
+        ".pyi",
+        ".rs",
+        ".ts",
+        ".tsx"
+      ],
+      "selection": "Select regular files by a case-sensitive suffix match after archive safety validation. Exclude vendored, generated, build-output, fixture, snapshot, and third-party trees using one frozen path-rule file that must be committed before development acquisition.",
+      "ordering": "Sort normalized UTF-8 paths by raw UTF-8 bytes.",
+      "framing": "Emit an ASCII magic and version, then for every file emit unsigned 64-bit little-endian path length, raw UTF-8 path, unsigned 64-bit little-endian content length, and the unmodified file bytes. Finish with the ordered-manifest SHA-256.",
+      "metadata": "Do not include timestamps, owners, permissions, archive padding, or host-dependent metadata. Do not normalize Unicode, whitespace, comments, line endings, or final-newline state.",
+      "size_rule": "Retain the complete selected bundle when at most 268435456 bytes. Otherwise retain the longest ordered whole-file prefix at most 268435456 bytes; never truncate a source file."
+    },
+    "lineage_isolation": "A validation project may not be a fork, port, generated distribution, vendored copy, shared monorepo, or direct descendant of a development project. Language strata intentionally overlap; project families do not.",
+    "development": [
+      {
+        "id": "cpython-3.14.6-source",
+        "project_family": "python-cpython",
+        "language_stratum": "python_and_c",
+        "release": "3.14.6",
+        "release_url": "https://www.python.org/downloads/release/python-3146/",
+        "archive_url": "https://www.python.org/ftp/python/3.14.6/Python-3.14.6.tar.xz",
+        "license_spdx": "PSF-2.0",
+        "license_url": "https://docs.python.org/3/license.html",
+        "acquisition_status": "declared_unacquired",
+        "publisher_digest": null,
+        "archive_sha256": null,
+        "derived_item_bytes": null,
+        "derived_item_sha256": null
+      },
+      {
+        "id": "typescript-6.0.3-source",
+        "project_family": "microsoft-typescript",
+        "language_stratum": "typescript",
+        "release": "v6.0.3",
+        "release_url": "https://github.com/microsoft/TypeScript/releases/tag/v6.0.3",
+        "archive_url": "https://github.com/microsoft/TypeScript/archive/refs/tags/v6.0.3.tar.gz",
+        "license_spdx": "Apache-2.0",
+        "license_url": "https://github.com/microsoft/TypeScript/blob/v6.0.3/LICENSE.txt",
+        "acquisition_status": "declared_unacquired",
+        "publisher_digest": null,
+        "archive_sha256": null,
+        "derived_item_bytes": null,
+        "derived_item_sha256": null
+      },
+      {
+        "id": "rust-1.97.1-source",
+        "project_family": "rust-lang-rust",
+        "language_stratum": "rust",
+        "release": "1.97.1",
+        "release_url": "https://github.com/rust-lang/rust/releases/tag/1.97.1",
+        "archive_url": "https://static.rust-lang.org/dist/rustc-1.97.1-src.tar.xz",
+        "license_spdx": "MIT OR Apache-2.0",
+        "license_url": "https://github.com/rust-lang/rust/tree/1.97.1#license",
+        "acquisition_status": "declared_unacquired",
+        "publisher_digest": null,
+        "archive_sha256": null,
+        "derived_item_bytes": null,
+        "derived_item_sha256": null
+      },
+      {
+        "id": "llvm-22.1.8-source",
+        "project_family": "llvm-project",
+        "language_stratum": "c_and_cpp",
+        "release": "llvmorg-22.1.8",
+        "release_url": "https://github.com/llvm/llvm-project/releases/tag/llvmorg-22.1.8",
+        "archive_url": "https://github.com/llvm/llvm-project/releases/download/llvmorg-22.1.8/llvm-project-22.1.8.src.tar.xz",
+        "license_spdx": "Apache-2.0 WITH LLVM-exception",
+        "license_url": "https://github.com/llvm/llvm-project/blob/llvmorg-22.1.8/LICENSE.TXT",
+        "acquisition_status": "declared_unacquired",
+        "publisher_digest": null,
+        "archive_sha256": null,
+        "derived_item_bytes": null,
+        "derived_item_sha256": null
+      }
+    ],
+    "public_validation": [
+      {
+        "id": "django-6.0.7-source",
+        "project_family": "django-framework",
+        "language_stratum": "python",
+        "release": "6.0.7",
+        "release_url": "https://www.djangoproject.com/download/",
+        "archive_url": "https://www.djangoproject.com/m/releases/6.0/django-6.0.7.tar.gz",
+        "license_spdx": "BSD-3-Clause",
+        "license_url": "https://github.com/django/django/blob/6.0.7/LICENSE",
+        "acquisition_status": "sealed_unacquired",
+        "publisher_digest": null,
+        "archive_sha256": null,
+        "derived_item_bytes": null,
+        "derived_item_sha256": null
+      },
+      {
+        "id": "vscode-1.129.0-source",
+        "project_family": "microsoft-vscode",
+        "language_stratum": "typescript",
+        "release": "1.129.0",
+        "release_url": "https://github.com/microsoft/vscode/releases/tag/1.129.0",
+        "archive_url": "https://github.com/microsoft/vscode/archive/refs/tags/1.129.0.tar.gz",
+        "license_spdx": "MIT",
+        "license_url": "https://github.com/microsoft/vscode/blob/1.129.0/LICENSE.txt",
+        "acquisition_status": "sealed_unacquired",
+        "publisher_digest": null,
+        "archive_sha256": null,
+        "derived_item_bytes": null,
+        "derived_item_sha256": null
+      },
+      {
+        "id": "tokio-1.53.0-source",
+        "project_family": "tokio-runtime",
+        "language_stratum": "rust",
+        "release": "tokio-1.53.0",
+        "release_url": "https://github.com/tokio-rs/tokio/releases/tag/tokio-1.53.0",
+        "archive_url": "https://github.com/tokio-rs/tokio/archive/refs/tags/tokio-1.53.0.tar.gz",
+        "license_spdx": "MIT",
+        "license_url": "https://github.com/tokio-rs/tokio/blob/tokio-1.53.0/LICENSE",
+        "acquisition_status": "sealed_unacquired",
+        "publisher_digest": null,
+        "archive_sha256": null,
+        "derived_item_bytes": null,
+        "derived_item_sha256": null
+      },
+      {
+        "id": "fmt-12.2.0-source",
+        "project_family": "fmt-library",
+        "language_stratum": "c_and_cpp",
+        "release": "12.2.0",
+        "release_url": "https://github.com/fmtlib/fmt/releases/tag/12.2.0",
+        "archive_url": "https://github.com/fmtlib/fmt/archive/refs/tags/12.2.0.tar.gz",
+        "license_spdx": "MIT",
+        "license_url": "https://github.com/fmtlib/fmt/blob/12.2.0/LICENSE",
+        "acquisition_status": "sealed_unacquired",
+        "publisher_digest": null,
+        "archive_sha256": null,
+        "derived_item_bytes": null,
+        "derived_item_sha256": null
+      }
+    ]
+  },
+  "natural_language": {
+    "category_id": "english_wikimedia_wikitext",
+    "scope": "English-language Wikimedia revision text, including natural prose and retained wikitext markup; not a claim about arbitrary plain text, books, chat, email, OCR, or other languages.",
+    "provider": {
+      "name": "Wikimedia Foundation public dumps",
+      "legal_url": "https://dumps.wikimedia.org/legal.html",
+      "terms_url": "https://foundation.wikimedia.org/wiki/Policy:Terms_of_Use",
+      "license_expression": "CC-BY-SA-4.0 AND GFDL-1.3-or-later, subject to page-specific exceptions and third-party material",
+      "attribution_policy": "Retain project, dump date, archive URL, checksum-file URL, publisher digest when present, archive SHA-256, revision identifiers, derived manifest, and the Wikimedia attribution and license notices with every retained corpus manifest."
+    },
+    "extractor_rule": {
+      "format": "wikimedia-revision-text-v1",
+      "input": "Decompressed pages-articles-multistream XML dump.",
+      "selection": "Stream pages in publisher order. Retain namespace 0 pages with a non-redirect latest revision and non-empty revision text. Do not fetch templates, images, linked pages, or current revisions outside the frozen dump.",
+      "framing": "Emit an ASCII magic and version, then unsigned 64-bit little-endian page-id, revision-id, title-byte length, title UTF-8 bytes, text-byte length, and XML-decoded revision-text UTF-8 bytes. Finish with the ordered revision-manifest SHA-256.",
+      "normalization": "No Unicode normalization, whitespace folding, case folding, markup stripping, line-ending conversion, or reserialization is allowed after XML decoding.",
+      "cross_split_deduplication": "Before a first validation score, deterministically reject a validation page when any exact 4096-byte content chunk hash occurs in a development page. The frozen evaluator reports every rejection and scores the remaining publisher-ordered pages without tuning or replacement.",
+      "size_rule": "Retain the longest publisher-ordered whole-page prefix whose complete framed size is at most 67108864 bytes. Never truncate a page."
+    },
+    "development": [
+      {
+        "id": "enwikibooks-20260620",
+        "project_family": "english-wikibooks",
+        "content_stratum": "instructional_books",
+        "dump_date": "20260620",
+        "archive_url": "https://dumps.wikimedia.org/enwikibooks/20260620/enwikibooks-20260620-pages-articles-multistream.xml.bz2",
+        "checksum_url": "https://dumps.wikimedia.org/enwikibooks/20260620/enwikibooks-20260620-sha1sums.txt",
+        "acquisition_status": "declared_unacquired",
+        "publisher_digest": null,
+        "archive_sha256": null,
+        "derived_item_bytes": null,
+        "derived_item_sha256": null
+      },
+      {
+        "id": "enwikinews-20260620",
+        "project_family": "english-wikinews",
+        "content_stratum": "news_reporting",
+        "dump_date": "20260620",
+        "archive_url": "https://dumps.wikimedia.org/enwikinews/20260620/enwikinews-20260620-pages-articles-multistream.xml.bz2",
+        "checksum_url": "https://dumps.wikimedia.org/enwikinews/20260620/enwikinews-20260620-sha1sums.txt",
+        "acquisition_status": "declared_unacquired",
+        "publisher_digest": null,
+        "archive_sha256": null,
+        "derived_item_bytes": null,
+        "derived_item_sha256": null
+      },
+      {
+        "id": "enwikiversity-20260620",
+        "project_family": "english-wikiversity",
+        "content_stratum": "educational_material",
+        "dump_date": "20260620",
+        "archive_url": "https://dumps.wikimedia.org/enwikiversity/20260620/enwikiversity-20260620-pages-articles-multistream.xml.bz2",
+        "checksum_url": "https://dumps.wikimedia.org/enwikiversity/20260620/enwikiversity-20260620-sha1sums.txt",
+        "acquisition_status": "declared_unacquired",
+        "publisher_digest": null,
+        "archive_sha256": null,
+        "derived_item_bytes": null,
+        "derived_item_sha256": null
+      }
+    ],
+    "public_validation": [
+      {
+        "id": "enwiki-20260620",
+        "project_family": "english-wikipedia",
+        "content_stratum": "encyclopedic_articles",
+        "dump_date": "20260620",
+        "archive_url": "https://dumps.wikimedia.org/enwiki/20260620/enwiki-20260620-pages-articles-multistream.xml.bz2",
+        "checksum_url": "https://dumps.wikimedia.org/enwiki/20260620/enwiki-20260620-sha1sums.txt",
+        "acquisition_status": "sealed_unacquired",
+        "publisher_digest": null,
+        "archive_sha256": null,
+        "derived_item_bytes": null,
+        "derived_item_sha256": null
+      },
+      {
+        "id": "simplewiki-20260620",
+        "project_family": "simple-english-wikipedia",
+        "content_stratum": "simplified_encyclopedic_articles",
+        "dump_date": "20260620",
+        "archive_url": "https://dumps.wikimedia.org/simplewiki/20260620/simplewiki-20260620-pages-articles-multistream.xml.bz2",
+        "checksum_url": "https://dumps.wikimedia.org/simplewiki/20260620/simplewiki-20260620-sha1sums.txt",
+        "acquisition_status": "sealed_unacquired",
+        "publisher_digest": null,
+        "archive_sha256": null,
+        "derived_item_bytes": null,
+        "derived_item_sha256": null
+      },
+      {
+        "id": "enwikivoyage-20260620",
+        "project_family": "english-wikivoyage",
+        "content_stratum": "travel_guides",
+        "dump_date": "20260620",
+        "archive_url": "https://dumps.wikimedia.org/enwikivoyage/20260620/enwikivoyage-20260620-pages-articles-multistream.xml.bz2",
+        "checksum_url": "https://dumps.wikimedia.org/enwikivoyage/20260620/enwikivoyage-20260620-sha1sums.txt",
+        "acquisition_status": "sealed_unacquired",
+        "publisher_digest": null,
+        "archive_sha256": null,
+        "derived_item_bytes": null,
+        "derived_item_sha256": null
+      }
+    ],
+    "diagnostics_only": [
+      {
+        "id": "enwik9",
+        "source_url": "https://mattmahoney.net/dc/textdata.html",
+        "reason": "This famous fixed benchmark has been optimized against for years. It may measure research progress and compare with published historical results, but it is consumed public data and can never be development-gate, validation, or holdout evidence."
+      }
+    ]
+  },
+  "private_holdout": {
+    "status": "sealed",
+    "policy": "Maintain independent, unnamed holdouts for both tracks. Passing one holdout does not satisfy the other."
+  }
+}

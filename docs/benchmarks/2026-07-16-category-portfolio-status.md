@@ -15,8 +15,9 @@ portability, or independent-evidence cells remain red or untested.
 
 | Category | Evidence stage | Ratio status | Speed status | Memory status | Complete category win? | Next gate |
 | --- | --- | --- | --- | --- | --- | --- |
-| JSON and machine logs | Public-validation partial | ✅ retained LogTrie score beat zstd-9 on 3/3 and PBC on 3/3 but passed the Brotli family gate on only 1/3; fresh CLUE development JLS2 was 18.08% smaller than Brotli-11; the frozen CLUE first score completed as a no-pass and exact numbers await checksum-verified import | ✅ fresh CLUE development delivery gate passed: 585.43 MB/s local median and 689.96 MB/s hosted ARM64 median, with every measured aggregate round above 250 MB/s; exact validation speed awaits import | ⚠️ development JLS2 standalone decode was 146.5 MiB local and 114.5 MiB hosted; exact validation memory awaits import | ❌ No | Import and publish the immutable no-pass artifact, diagnose without tuning on the consumed ranges, and develop successors only on fresh families |
-| Plain text and source | Development | ❌ no win over the strongest tested ratio baselines | ⚠️ some Pareto development points, no category validation | ⚠️ partial development measurements | ❌ No | New representation or calibrated entropy-model hypothesis |
+| JSON and machine logs | Public-validation partial | ✅ JLS2 produced 489,591 bytes from 96,934,483 unseen source bytes, 52.97% smaller than Brotli-11; both families won by 48.31% and 54.50% | ✅ 109.58 MB/s compression and 431.36 MB/s standalone decode; every speed gate passed | ❌ standalone decode was 621.3 MiB versus the frozen 512 MiB cap; compression memory passed | ❌ No; valid no-pass on one memory gate | Preserve the imported first score; diagnose RSS only on fresh development families and use different untouched validation families |
+| Source-code bundles | Unacquired protocol | — no score; four licensed development and four lineage-disjoint validation projects frozen | — untested | — untested | ❌ No | Acquire only declared development releases and run the expanded practical census before choosing a hypothesis |
+| English Wikimedia wikitext | Unacquired protocol | — no score; three development and three validation projects frozen; enwik9 is diagnostic-only | — untested | — untested | ❌ No | Acquire only declared development dumps and run practical plus bounded research-ceiling baselines |
 | Tabular CSV | Public-validation partial | ⚠️ TBS1 won 3/4 families by 7.35%–16.50%, but lost aggregate to 7-Zip-9 by 3.48% after a 32.15% OCRB loss | ⚠️ 107.67/403.39 MB/s average; minimum compression passed, one decompression repetition failed at 163.51 MB/s | ✅ cold 293.70/139.81 MiB | ❌ No | Preserve the three-family signal; split image-like matrices into a separate category and use only fresh families for a successor |
 | Dense numeric matrices and time series | Public-validation partial | ❌ DMS2 was 46.57% larger than Brotli-11 on Gisette and 41.03% larger than bzip2-9 on Madelon; a baseline corpus-scope defect also invalidated the frozen aggregate | ❌ 33.45 MB/s aggregate and 27.77 MB/s minimum missed 50/45 MB/s gates; decompression passed | ❌ cold compression RSS was 630.45 MiB versus 512 MiB gate; decompression passed | ❌ No | Retain the first score, never tune on Gisette/Madelon, repair corpus plumbing, and require a materially new specialist on fresh development and validation families |
 | General binary/archive | Development | ❌ current encoder loses to zstd-9 | ❌ not Pareto-optimal | ⚠️ bounded-frame evidence only | ❌ No | Keep safe fallback; wait for a materially new specialist hypothesis |
@@ -35,9 +36,18 @@ The latter passed locally and on a GitHub-hosted Apple ARM64 runner. The single
 authorized CLUE acquisition and score subsequently completed as a valid
 no-pass in
 [GitHub Actions run 29606109504](https://github.com/Atomics-hub/compression-lab/actions/runs/29606109504).
-Both validation ranges are now consumed and may not be reused. The exact
-numeric result is pending checksum-verified repository import, and the category
-has not achieved a public-validation pass.
+The checksum-verified
+[imported publication](../../runs/clue-jls2-public-validation-v1/publication/README.md)
+shows a 52.97% aggregate gain over Brotli-11 and wins on both families, with
+every gate passing except decoder RSS at 621.3 MiB versus 512 MiB. Both
+validation ranges are now consumed and may not be reused. The category has not
+achieved a complete public-validation pass.
+
+The new source-code and English Wikimedia wikitext splits, extraction rules,
+expanded practical baselines, bounded research-ceiling roster, and claim
+boundaries are frozen in
+[`docs/benchmarks/2026-07-17-text-source-category-protocol.md`](2026-07-17-text-source-category-protocol.md).
+No declared item has been acquired or scored.
 
 The tabular split, exact-byte boundary, baseline roster, and first product gates
 are frozen in
@@ -59,7 +69,7 @@ and checksummed raw bundle are in
 
 ## Universal-selector consequence
 
-The selector may eventually route among JSON/log, text/source, tabular,
+The selector may eventually route among JSON/log, source-code, natural-language, tabular,
 numeric, binary, and store/direct specialists. It must use bounded evidence
 from the input itself, compare complete framed candidates where practical, and
 never learn from a consumed validation or private-holdout family. A specialist

@@ -30,7 +30,7 @@
       "status": "public-validation-partial",
       "specialist": "JLS2",
       "current_evidence": "docs/benchmarks/2026-07-17-clue-jls2-public-validation-result-status.md",
-      "current_result": "The retained LogTrie public-validation score passed decisively against zstd-9 and PBC-only and passed Brotli-11 in aggregate, but failed Brotli family coverage. On the fresh CLUE-LDS development corpus, JLS2 was the smallest of the complete eleven-codec census and 18.08% smaller than Brotli-11. The standalone decoder then passed its development delivery gate locally at 585.43 MB/s median and on GitHub-hosted Apple ARM64 at 689.96 MB/s median, with every measured aggregate round above 250 MB/s. The single authorized CLUE public-validation acquisition and score completed as a valid no-pass in GitHub Actions run 29606109504. Those validation ranges are consumed and cannot be reused; the exact numeric result is pending checksum-verified repository import, so no fresh category validation pass exists.",
+      "current_result": "The immutable first CLUE-LDS public-validation score is a valid no-pass with a decisive ratio result: JLS2 produced 489,591 bytes from 96,934,483 source bytes, 52.97% smaller than the strongest eligible complete standard, Brotli-11 at 1,040,990 bytes. It won both previously unopened temporal families by 48.31% and 54.50%, compressed at 109.58 MB/s, and decoded at 431.36 MB/s. Every gate passed except standalone decoder memory: 651,517,952 bytes (621.3 MiB) exceeded the frozen 512 MiB cap. Both ranges are consumed and cannot be tuned or rerun. The result is public-validation ratio evidence, not a complete category win, private-holdout result, independent reproduction, or state-of-the-art claim.",
       "tested_standards": [
         "store",
         "LZ4-1",
@@ -44,24 +44,27 @@
         "7-Zip-9",
         "official PBC-only on the frozen CLUE first score"
       ],
-      "next_gate": "Checksum-verify, retain, and publish the immutable CLUE first-score artifact. Diagnose the failed gates without tuning or rerunning on either consumed CLUE validation range. Develop any successor only on fresh licensed development families, then require different untouched validation families and independent confirmation before a category or state-of-the-art claim."
+      "next_gate": "Diagnose and reduce standalone decoder memory only on fresh licensed development families while preserving the imported no-pass unchanged. Do not tune or rerun on either consumed CLUE validation range. Require different untouched validation families, private-holdout success, and independent confirmation before a complete category or state-of-the-art claim."
     },
     {
-      "id": "plain_text_source",
-      "label": "Plain text and source code",
-      "status": "development",
-      "specialist": "structured-text adaptive-v3 research path",
-      "current_evidence": "docs/benchmarks/2026-07-16-release-candidate.md",
-      "current_result": "No category win. Existing general candidate remains behind strongest ratio baselines on the expanded public study.",
-      "tested_standards": [
-        "gzip-9",
-        "zstd-3",
-        "zstd-9",
-        "Brotli-11",
-        "LZMA-9",
-        "7-Zip-9"
-      ],
-      "next_gate": "Research a new text representation or probability model and freeze separate source-code and natural-language development families before integration."
+      "id": "source_code_bundles",
+      "label": "Multi-language source-code bundles",
+      "status": "untested",
+      "specialist": "open; adaptive-v3 remains a rejected legacy development path",
+      "current_evidence": "docs/benchmarks/2026-07-17-text-source-category-protocol.md",
+      "current_result": "The licensed, lineage-disjoint source-bundle protocol is frozen before acquisition. No declared development item has been acquired or scored, so no tested-standard result or category claim exists.",
+      "tested_standards": [],
+      "next_gate": "Acquire only the four declared development releases, freeze exact archive and derived-bundle digests, and run the complete practical census including bzip3, zstd ultra, Brotli, LZMA2, PPMd, Kanzi, and libbsc before selecting a representation hypothesis."
+    },
+    {
+      "id": "english_wikimedia_wikitext",
+      "label": "English Wikimedia revision text and wikitext",
+      "status": "untested",
+      "specialist": "open; enwik9 is diagnostic-only",
+      "current_evidence": "docs/benchmarks/2026-07-17-text-source-category-protocol.md",
+      "current_result": "The licensed Wikimedia project split and deterministic revision-text protocol are frozen before acquisition. No declared development item has been acquired or scored, so no tested-standard result or natural-language claim exists.",
+      "tested_standards": [],
+      "next_gate": "Acquire only the three declared development dumps, record publisher and derived digests, and run the practical plus bounded research-ceiling census. Keep enwik9 outside every unseen gate."
     },
     {
       "id": "tabular_csv",

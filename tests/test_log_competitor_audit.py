@@ -43,12 +43,13 @@ class LogCompetitorAuditTests(unittest.TestCase):
             row for row in portfolio["categories"] if row["id"] == "json_logs"
         )
         self.assertEqual(category["status"], "public-validation-partial")
-        self.assertIn("standalone decoder", category["current_result"].lower())
         self.assertIn("valid no-pass", category["current_result"].lower())
+        self.assertIn("52.97% smaller", category["current_result"])
+        self.assertIn("621.3 MiB", category["current_result"])
         self.assertIn("consumed", category["current_result"].lower())
         next_gate = category["next_gate"].lower()
-        self.assertIn("checksum-verify", next_gate)
-        self.assertIn("without tuning or rerunning", next_gate)
+        self.assertIn("fresh licensed development families", next_gate)
+        self.assertIn("do not tune or rerun", next_gate)
         self.assertIn("7-Zip-9", category["tested_standards"])
 
 

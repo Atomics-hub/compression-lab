@@ -1,32 +1,55 @@
-# Compression Lab
+# Axiom Compression
 
 **Category-specialized lossless compression, backed by reproducible evidence.**
 
-Compression Lab is building a practical compressor that detects what a file is,
+Axiom is building a practical compressor that detects what a file is,
 routes it to a specialist codec, and falls back safely when specialization will
 not help. Every result is gated by exact byte restoration, complete archive
 accounting, frozen datasets, and checked-in benchmark receipts.
 
-## 18.08% smaller than the closest tested standard on JSON event logs
+## 52.97% smaller on previously unopened JSON event logs
 
-JLS2 compressed a fresh 203.6 MB CLUE-LDS development slice to **3.52 MB**.
-Brotli-11, the next-smallest of 10 tested alternatives, produced **4.30 MB**.
-JLS2 was also smallest on all three frozen ranges and restored the exact input
-in all **99 of 99** measured round trips.
+Axiom's JLS2 codec compressed **96,934,483 source bytes to 489,591 bytes** on
+the single authorized CLUE-LDS public-validation score. Brotli-11, the
+smallest eligible complete standard, produced **1,040,990 bytes**. JLS2 was
+therefore **52.97% smaller**, while compressing at **109.58 MB/s** and decoding
+at **431.36 MB/s**. It won both previously unopened temporal families by
+**48.31%** and **54.50%**, and every measured round trip was exact.
 
-![JLS2 complete archive size, compression speed, and decompression speed compared with nine established codecs](docs/assets/clue-json-log-scorecard.svg)
+![Axiom JLS2 complete archive size compared with standards and eligible specialists on the frozen CLUE-LDS public-validation score](runs/clue-jls2-public-validation-v1/publication/comparison.svg)
 
-This remains a **category-scoped development result**, not a public-validation
-win. The frozen first public-validation gate completed as a valid **no-pass**
-in [GitHub Actions run 29606109504](https://github.com/Atomics-hub/compression-lab/actions/runs/29606109504);
-its retained artifact is awaiting checksum-verified repository import, so no
-numeric public-validation claim is made here yet. The result is also not
-private-holdout, independent, general-file, or world-best evidence. In the
-original same-run development census, JLS2 won size and compression speed
-against Brotli-11 but decoded 54.1% slower. A separately frozen
-product-delivery gate passes with the standalone decoder at
-**585.43 MB/s median**, a **398.40 MB/s minimum**, and all
-**7/7 rounds above 250 MB/s**.
+The frozen overall product gate is still an honest **no-pass**. JLS2 passed the
+aggregate and per-family ratio gates, compression and decompression speed,
+compression memory, exactness, determinism, corruption rejection, fallback,
+accounting, provenance, and roster gates. Its only miss was standalone decoder
+peak RSS: **621.3 MiB** against the frozen **512 MiB** limit. Both validation
+ranges are now consumed and will not be tuned or rerun.
+
+The [immutable publication bundle](runs/clue-jls2-public-validation-v1/publication/README.md)
+contains the complete chart, all tested standards, family rows, speed and
+memory measurements, unavailable-specialist disclosures, gates, and exact
+claim ceiling. The [import receipt](runs/clue-jls2-public-validation-v1-import.json)
+binds it to GitHub artifact `8418445259`, workflow run `29606109504`, the
+workflow commit, and GitHub's artifact SHA-256 digest.
+
+This is strong **category-scoped public-validation ratio evidence**, but not a
+complete category win, private-holdout result, independent reproduction,
+general-file result, or world-best claim. LogFold, LogPrism, LogLite, and DeLog
+remain unavailable or ineligible for exact reproduction; their absence is not
+an Axiom win.
+
+Brand note: the validation protocol was frozen under the earlier public label
+**Atompress**, so the immutable evidence retains that label. The current
+product name is **Axiom**; `JLS2` remains the technical on-disk format ID.
+
+<details>
+<summary><strong>Open the earlier development and standalone-decoder evidence</strong></summary>
+
+Before public validation, JLS2 compressed a fresh 203.6 MB CLUE-LDS
+development slice to **3.52 MB**, 18.08% smaller than Brotli-11. The separately
+frozen product-delivery gate passed with the standalone decoder at
+**585.43 MB/s median**, a **398.40 MB/s minimum**, and all **7/7 rounds above
+250 MB/s**.
 
 ![Standalone JLS2 delivery gate and immutable 11-codec size census](runs/jls2-native-decoder-v1/native-decoder-scorecard.svg)
 
@@ -60,6 +83,8 @@ machine; `Store` is included as the no-compression control.
 
 </details>
 
+</details>
+
 The [complete standards bundle](runs/clue-json-log-development-census-v1/README.md)
 contains corpus ranges, licenses, codec versions, raw trials, and the original
 failed delivery gate. The separate [standalone decoder bundle](runs/jls2-native-decoder-v1/README.md)
@@ -73,7 +98,9 @@ claim boundary. Its optimization lineage remains independently inspectable:
 
 | Category | Best measured result | Gate status and evidence |
 | --- | --- | --- |
-| JSON and machine logs | JLS2 is 18.08% smaller than the strongest tested standard in development | Development ratio lead and standalone decode gate passed; the frozen first public-validation gate completed as a no-pass and its exact artifact is pending checksum-verified import ([result status](docs/benchmarks/2026-07-17-clue-jls2-public-validation-result-status.md), [readiness protocol](docs/benchmarks/2026-07-17-clue-jls2-public-validation-readiness.md)) |
+| JSON and machine logs | JLS2 is 52.97% smaller than the strongest eligible standard on the first frozen public-validation score | Ratio, both families, speed, exactness, integrity, and compression memory passed; overall gate failed only decoder RSS at 621.3 MiB vs 512 MiB ([immutable result](runs/clue-jls2-public-validation-v1/publication/README.md), [import receipt](runs/clue-jls2-public-validation-v1-import.json)) |
+| Source-code bundles | Licensed four-project development and four-project validation split frozen; no score yet | Untested; acquire only declared development releases and run the expanded practical census ([protocol](docs/benchmarks/2026-07-17-text-source-category-protocol.md)) |
+| English Wikimedia wikitext | Licensed three-project development and three-project validation split frozen; no score yet | Untested; enwik9 is diagnostic-only, never unseen evidence ([protocol](docs/benchmarks/2026-07-17-text-source-category-protocol.md)) |
 | Delimited tables | TBS1 vs 7-Zip-9: 3.48% larger aggregate | Frozen gate failed ([decision](docs/benchmarks/2026-07-17-tbl1-public-validation-decision.md), [Fresh successor corpus protocol](docs/benchmarks/2026-07-17-tabular-successor-corpus-protocol.md)) |
 | Dense matrices | DMS2 vs Brotli-11: 43.55% larger; 33.45 / 313.99 MB/s compression / decompression | Frozen gate failed ([evidence](runs/dms2-public-validation-v1/README.md)) |
 | General files | Exact `.clab` fallback; no strongest-standard lead established | Alpha |

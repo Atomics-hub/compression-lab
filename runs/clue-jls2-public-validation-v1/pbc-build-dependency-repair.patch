@@ -1,0 +1,28 @@
+diff --git a/third-party/externals/boost.cmake b/third-party/externals/boost.cmake
+index bb84b07..2144853 100644
+--- a/third-party/externals/boost.cmake
++++ b/third-party/externals/boost.cmake
+@@ -17,7 +17,7 @@ set(source_dir ${CMAKE_CURRENT_BINARY_DIR}/${name}/source)
+ get_filename_component(compiler_path ${CMAKE_CXX_COMPILER} DIRECTORY)
+ ExternalProject_Add(
+     ${name}
+-    URL https://boostorg.jfrog.io/artifactory/main/release/1.67.0/source/boost_1_67_0.tar.gz
++    URL https://archives.boost.io/release/1.67.0/source/boost_1_67_0.tar.gz
+     URL_HASH MD5=4850fceb3f2222ee011d4f3ea304d2cb
+     TIMEOUT 120
+     DOWNLOAD_NAME boost_1_67_0.tar.gz
+diff --git a/third-party/externals/colm.cmake b/third-party/externals/colm.cmake
+index b6b144c..36d7d06 100644
+--- a/third-party/externals/colm.cmake
++++ b/third-party/externals/colm.cmake
+@@ -17,8 +17,8 @@ set(source_dir ${CMAKE_CURRENT_BINARY_DIR}/${name}/source)
+ set(MEMKIND_PREFIX "")
+ ExternalProject_Add(
+     ${name}
+-    URL https://github.com/adrian-thurston/colm/archive/refs/tags/0.14.7.tar.gz
+-    URL_HASH MD5=213a9ddf207c5732f04941852ca8db62
++    URL https://codeload.github.com/adrian-thurston/colm-suite/tar.gz/e88bda068d4a25f2afa7f48821e0f539405c8c6a
++    URL_HASH SHA256=6f11b349722797165f5b71bac5dd71a2ade3cff1c45a9c0ae5522f0f71902ee1
+     TIMEOUT 120
+     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/${name}
+     TMP_DIR ${BUILD_INFO_DIR}

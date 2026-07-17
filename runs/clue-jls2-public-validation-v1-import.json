@@ -1,0 +1,17 @@
+{
+  "artifact_digest": "sha256:03d39e93c037b25397fa6750d2d4d30da08eedafcc9ef7b8f0c66b140b6047a3",
+  "artifact_id": 8418445259,
+  "artifact_name": "clue-jls2-public-validation-v1-29606109504",
+  "category_gate_passed": false,
+  "claim_ceiling": "A passing first score supports only a category-scoped public-validation result on two previously unopened CC-BY-4.0 CLUE-LDS temporal ranges. It is not private-holdout or independently reproduced evidence and cannot support universal, market-leading, world-best, or state-of-the-art language while eligible emerging specialists remain unavailable for reproduction.",
+  "decision_sha256": "0d2f2fe7ca728078cdd721bba4f52e7d1213469abb45874f7aa79207e426fc2f",
+  "file_count_excluding_sha256sums": 42,
+  "name": "clue-jls2-public-validation-first-score-import-v1",
+  "publication_bundle_sha256": "4b9ce689b2c9a11d81528879e0231a17be1a06e8a50e97fdb1f541eb7464d9d3",
+  "repository": "Atomics-hub/compression-lab",
+  "result": "not_passed",
+  "schema_version": 1,
+  "sha256sums_sha256": "da674071818ca17ce6f0a7e0983b0a83913ad4a2a233221e14553a79ef5095b3",
+  "workflow_head_sha": "b9cdc9e797b36709ba4c17c23a4c6585670254e3",
+  "workflow_run_id": 29606109504
+}

@@ -1,0 +1,239 @@
+{
+  "accepted_path": "/home/runner/work/_temp/clue-jls2-public-validation-v1/jls2/pbc-accepted.json",
+  "accepted_sha256": "c1641c8f535850b037ba77239537a159ff24a79e079632ea693c3fbe76fadf73",
+  "aggregates": {
+    "pbc_only": {
+      "archive_bytes": 18922528,
+      "complete_compression_mbps": 0.24967006296197983,
+      "complete_compression_seconds": 388.2503246484996,
+      "decompression_mbps": 55.434968803733085,
+      "decompression_seconds": 1.7486161730007552,
+      "jls2_bytes": 489591,
+      "online_compression_mbps": 41.639281467512625,
+      "online_compression_seconds": 2.3279576299996734,
+      "original_bytes": 96934483,
+      "pattern_bytes": 34847,
+      "pattern_training_seconds": 385.9223670184999,
+      "payload_bytes": 18887681,
+      "pbc_gain_vs_jls2_percent": -3764.966472014396,
+      "pbc_gain_vs_zstd9_percent": -1225.2155813886714,
+      "zstd9_bytes": 1427883
+    }
+  },
+  "benchmark_source": {
+    "commit": "b9cdc9e797b36709ba4c17c23a4c6585670254e3",
+    "tracked_status": ""
+  },
+  "claim_ceiling": "Frozen PBC-only exact specialist comparison for the one-time CLUE-LDS public-validation score; no broad superiority claim.",
+  "decision": {
+    "oracle_context_only": {
+      "archive_bytes": 18922528,
+      "jls2_bytes": 489591,
+      "pbc_gain_vs_jls2_percent": -3764.966472014396,
+      "pbc_gain_vs_zstd9_percent": -1225.2155813886714,
+      "selected_methods": {
+        "clue_validation_a": "pbc_only",
+        "clue_validation_b": "pbc_only"
+      },
+      "zstd9_bytes": 1427883
+    },
+    "primary": {
+      "archive_bytes": 18922528,
+      "complete_compression_mbps": 0.24967006296197983,
+      "complete_compression_seconds": 388.2503246484996,
+      "decompression_mbps": 55.434968803733085,
+      "decompression_seconds": 1.7486161730007552,
+      "jls2_bytes": 489591,
+      "online_compression_mbps": 41.639281467512625,
+      "online_compression_seconds": 2.3279576299996734,
+      "original_bytes": 96934483,
+      "pattern_bytes": 34847,
+      "pattern_training_seconds": 385.9223670184999,
+      "payload_bytes": 18887681,
+      "pbc_gain_vs_jls2_percent": -3764.966472014396,
+      "pbc_gain_vs_zstd9_percent": -1225.2155813886714,
+      "zstd9_bytes": 1427883
+    },
+    "primary_method": "pbc_only"
+  },
+  "gate_results": {
+    "byte_exact_roundtrip": true,
+    "clean_tracked_source": true,
+    "complete_archive_accounting": true,
+    "deterministic_payload_for_fixed_pattern": true,
+    "exact_license": true,
+    "exact_source_commit": true,
+    "expected_families": true,
+    "expected_methods": true,
+    "record_size_eligible": true,
+    "repetitions": true,
+    "training_repetitions": true
+  },
+  "gates_path": "config/clue-pbc-public-validation-gates.json",
+  "gates_sha256": "dd8f7d940e5e4eab1149773c02bd407f0ca800c0999add8ccbbc15d20a5683b5",
+  "manifest_path": "/home/runner/work/_temp/clue-validation/manifest.json",
+  "manifest_sha256": "fddc257dc6dd87ccb1efaf98fb772c62047a17cf9394e9b79ca4894f05ed8583",
+  "passed": true,
+  "pbc": {
+    "binary": "/home/runner/work/_temp/pbc/bin/pbc",
+    "binary_sha256": "c96e0dbf5268899314a51238d5bed8bfa58c00bc032e196a2a1dddbff0bfc720",
+    "clean_tracked_source": true,
+    "commit": "bac1f86d29624cb585bb4475235d22a28e60ffea",
+    "exact_commit": true,
+    "exact_license": true,
+    "license_path": "/home/runner/work/_temp/pbc/LICENSE",
+    "license_sha256": "bacacee63139034e9acba4de0c513eeb93cc6277ae52054a30eebf4be644e7ed",
+    "origin": "https://github.com/antgroup/pbc",
+    "tracked_status": ""
+  },
+  "repetitions": 5,
+  "rows": [
+    {
+      "archive_bytes": 5159314,
+      "complete_compression_mbps": 0.25203061741607,
+      "complete_compression_seconds": 192.0574511789996,
+      "decompression_mbps": 54.65332495274689,
+      "decompression_samples": [
+        0.8869185740004468,
+        0.8864915880003537,
+        0.8856617240003288,
+        0.8845011739999791,
+        0.8855874019996008
+      ],
+      "decompression_seconds": 0.8856617240003288,
+      "family": "clue_validation_a",
+      "jls2_bytes": 269709,
+      "maximum_record_bytes": 391,
+      "method": "pbc_only",
+      "online_compression_mbps": 41.022833826577106,
+      "online_compression_samples": [
+        1.1799369639998076,
+        1.1888428339998427,
+        1.177681578999909,
+        1.174674718999995,
+        1.190978155999801
+      ],
+      "online_compression_seconds": 1.1799369639998076,
+      "original_bytes": 48404358,
+      "pattern_bytes": 18371,
+      "pattern_deterministic": false,
+      "pattern_sha256": "1f8ddf6c1f9bf9c82be2f90546594083fecd4ca5b3c6671840f4d0e50bef05f4",
+      "pattern_training_samples": [
+        193.23429677499962,
+        188.52073165499996
+      ],
+      "pattern_training_seconds": 190.8775142149998,
+      "payload_bytes": 5140943,
+      "payload_deterministic_for_fixed_pattern": true,
+      "payload_sha256": "344d39219a979f57de1de3986f931400ac7c37143d565fe5e23c5537e735f85b",
+      "pbc_gain_vs_jls2_percent": -1812.918738343919,
+      "pbc_gain_vs_zstd9_percent": -603.6985914609279,
+      "record_count": 250000,
+      "roundtrip_verified": true,
+      "source_sha256": "6956d1b9edf9dbe54a69c8c7ed0151d8abbaa6f994ab64260c9a6da967f8850b",
+      "zstd9_bytes": 733171
+    },
+    {
+      "archive_bytes": 13763214,
+      "complete_compression_mbps": 0.2473592651037065,
+      "complete_compression_seconds": 196.1928734695,
+      "decompression_mbps": 56.23718037054355,
+      "decompression_samples": [
+        0.86472060899996,
+        0.8629544490004264,
+        0.8639243779998651,
+        0.8619365920003474,
+        0.8625766999994084
+      ],
+      "decompression_seconds": 0.8629544490004264,
+      "family": "clue_validation_b",
+      "jls2_bytes": 219882,
+      "maximum_record_bytes": 667,
+      "method": "pbc_only",
+      "online_compression_mbps": 42.27286706353218,
+      "online_compression_samples": [
+        1.1482071870004802,
+        1.1448954110001068,
+        1.1480206659998657,
+        1.142559328999596,
+        1.1485037259999444
+      ],
+      "online_compression_seconds": 1.1480206659998657,
+      "original_bytes": 48530125,
+      "pattern_bytes": 16476,
+      "pattern_deterministic": false,
+      "pattern_sha256": "5579d368b8c9645ad93eb7cc4ce5202993268b95ac242ca6b29bdc16b788d226",
+      "pattern_training_samples": [
+        191.53021246100025,
+        198.55949314600002
+      ],
+      "pattern_training_seconds": 195.04485280350013,
+      "payload_bytes": 13746738,
+      "payload_deterministic_for_fixed_pattern": true,
+      "payload_sha256": "a3da126577ff7adf638bd6af557b44b6cd6acbedddfb30d219d9cb0f247c493d",
+      "pbc_gain_vs_jls2_percent": -6159.363658689661,
+      "pbc_gain_vs_zstd9_percent": -1881.1395225647464,
+      "record_count": 250000,
+      "roundtrip_verified": true,
+      "source_sha256": "e3a3ca88452989c004853f16d3f1374a0dc13d0df67ce8f2c29fcf82ad99b5fb",
+      "zstd9_bytes": 694712
+    }
+  ],
+  "runtime": {
+    "platform": "Linux-6.8.0-1062-azure-x86_64-with-glibc2.35",
+    "python": "3.12.13"
+  },
+  "schema_version": 1,
+  "settings": {
+    "input_type": "newline-delimited record",
+    "methods": [
+      "pbc_only"
+    ],
+    "pattern_size": 100,
+    "train_data_number": 2000,
+    "train_thread_num": 64
+  },
+  "system_states": [
+    {
+      "label": "run-start",
+      "load_average_1m_5m_15m": [
+        1.0,
+        1.0,
+        1.2607421875
+      ],
+      "logical_cpus": 4,
+      "normalized_load_1m": 0.25
+    },
+    {
+      "label": "checkpoint-clue_validation_a-pbc_only",
+      "load_average_1m_5m_15m": [
+        25.11279296875,
+        25.31298828125,
+        13.40966796875
+      ],
+      "logical_cpus": 4,
+      "normalized_load_1m": 6.2781982421875
+    },
+    {
+      "label": "checkpoint-clue_validation_b-pbc_only",
+      "load_average_1m_5m_15m": [
+        24.11181640625,
+        32.46826171875,
+        21.87255859375
+      ],
+      "logical_cpus": 4,
+      "normalized_load_1m": 6.0279541015625
+    },
+    {
+      "label": "run-end",
+      "load_average_1m_5m_15m": [
+        24.11181640625,
+        32.46826171875,
+        21.87255859375
+      ],
+      "logical_cpus": 4,
+      "normalized_load_1m": 6.0279541015625
+    }
+  ],
+  "training_repetitions": 2
+}

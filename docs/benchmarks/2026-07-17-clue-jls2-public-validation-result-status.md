@@ -15,43 +15,55 @@ returned exit code 2, which the frozen workflow reserves for a complete valid
 Both CLUE validation ranges are consumed. They will never be reused as fresh
 evidence, and this first score will not be tuned or rerun.
 
-## Interim evidence boundary
+## Checksum-verified imported result
 
-The retained artifact has not yet been downloaded into the repository because
-the current execution environment denied the read-only GitHub artifact
-download after reaching its approval-usage limit. Therefore this interim
-status records no compressed-byte, speed, memory, family, or individual-gate
-numbers from the inaccessible bundle.
+The exact artifact was retrieved after explicit approval and imported without
+mutation. GitHub reports artifact ID `8418445259`, name
+`clue-jls2-public-validation-v1-29606109504`, and digest
+`sha256:03d39e93c037b25397fa6750d2d4d30da08eedafcc9ef7b8f0c66b140b6047a3`.
+The importer verified all 42 retained files against `SHA256SUMS`, the frozen
+gates byte-for-byte, publication source bindings, workflow identity, head
+commit, result, and artifact provenance before its atomic copy.
 
-Until the exact artifact is checksum-verified and imported:
+The first score is a decisive ratio result and an overall product-gate
+no-pass:
 
-- the public result is only **complete frozen no-pass, exact numbers pending**;
-- the existing 18.08% ratio lead remains development evidence only;
-- unavailable specialists remain unavailable, not Atompress wins;
-- the private holdout remains sealed; and
-- no category-win, universal, market-leading, world-best, or state-of-the-art
-  claim is permitted.
+- 96,934,483 source bytes became 489,591 complete JLS2 bytes;
+- Brotli-11 was the strongest eligible standard at 1,040,990 bytes, making JLS2
+  52.97% smaller;
+- the two family gains were 48.31% against Brotli-11 and 54.50% against
+  7-Zip-9;
+- aggregate compression was 109.58 MB/s and standalone decompression was
+  431.36 MB/s;
+- compression peak RSS was 322,994,176 bytes;
+- standalone decompression peak RSS was 651,517,952 bytes (621.3 MiB); and
+- every frozen gate passed except the 512 MiB decompression-memory gate.
 
-## Immutable import procedure
+The authoritative full result is
+[`runs/clue-jls2-public-validation-v1/publication/README.md`](../../runs/clue-jls2-public-validation-v1/publication/README.md),
+and the adjacent
+[`runs/clue-jls2-public-validation-v1-import.json`](../../runs/clue-jls2-public-validation-v1-import.json)
+is the immutable import receipt.
 
-The importer at `scripts/import-clue-jls2-public-validation.py` is pinned to the
-repository, workflow run, head commit, artifact name, and expected no-pass
-result. It verifies every retained file against `SHA256SUMS`, rejects unlisted
-files and symlinks, verifies the publication bundle and decision source
-bindings, compares the frozen gates byte-for-byte, refuses replacement, and
-copies through a verified staging directory before an atomic rename.
+## Evidence boundary
 
-After read-only artifact access is explicitly approved, retrieve GitHub's
-artifact ID and digest, download the artifact, then run:
+This supports a category-scoped public-validation **ratio** result on two
+previously unopened CC-BY-4.0 CLUE-LDS temporal ranges. It does not support a
+complete category win because the frozen memory gate failed. The private
+holdout remains sealed, and independent reproduction has not occurred.
 
-```bash
-python scripts/import-clue-jls2-public-validation.py \
-  --evidence /tmp/clue-score-29606109504/clue-jls2-public-validation-v1-29606109504 \
-  --artifact-id ARTIFACT_ID \
-  --artifact-digest sha256:ARTIFACT_DIGEST
-```
+Unavailable or ineligible specialists remain visible in the publication chart
+and are not Atompress/Axiom wins. Therefore no universal, market-leading,
+world-best, strongest-ratio, or state-of-the-art claim is permitted.
 
-The imported publication report and SVG—not the workflow badge—will become the
-authoritative numeric result. The README, category matrix, and standardized
-comparison chart must then be synchronized to that bundle without changing any
-frozen score input or consumed-range policy.
+The immutable protocol used the earlier public brand Atompress. The checked-in
+artifact is not rewritten during the transition to the Axiom product name;
+JLS2 remains the technical format identifier.
+
+## Next decision
+
+Preserve this no-pass and both consumed ranges. Diagnose the decoder RSS miss
+only on fresh licensed development families. A successor must keep the ratio,
+speed, exactness, integrity, and fallback wins while reducing peak decode
+memory below the frozen product boundary, then face different untouched public
+validation families.

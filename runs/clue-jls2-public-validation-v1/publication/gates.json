@@ -1,0 +1,170 @@
+{
+  "schema_version": 1,
+  "name": "clue-jls2-one-time-public-validation-v1",
+  "category": "byte_exact_structured_cloud_event_logs",
+  "public_brand": "Atompress",
+  "technical_codec": "JLS2",
+  "readiness_status": "candidate-and-gates-frozen-awaiting-final-readiness-lock",
+  "claim_ceiling": "A passing first score supports only a category-scoped public-validation result on two previously unopened CC-BY-4.0 CLUE-LDS temporal ranges. It is not private-holdout or independently reproduced evidence and cannot support universal, market-leading, world-best, or state-of-the-art language while eligible emerging specialists remain unavailable for reproduction.",
+  "candidate": {
+    "codec_id": "jls2",
+    "format": "JLS2 version 1 containing JLF2 version 1 segments",
+    "frozen_implementation_commit": "e254c43458e2ae4f8088b7fcc22b665614e8f169",
+    "segment_target_bytes": 16777216,
+    "internal_zstd_level": 6,
+    "compression_segment_workers": 2,
+    "standalone_decode_segment_workers": 3,
+    "frozen_paths": {
+      "pyproject.toml": "45f59bde45228dc5be2d62d85117f5019129d8164eb28add8e195453bff6725c",
+      "native/Cargo.lock": "a905547d069da6d55bf6739307ffe9c75202cc15e87a6ae399e10b8890544783",
+      "native/Cargo.toml": "f5ab389ff2beb11294e775cd75d01e81de3d4c6976eb7e3f9bfb26fb72f435f3",
+      "native/src/lib.rs": "ec3ba58920c8701c3eac6a6c4150c3b4474248e203376c158ec376a2b3411127",
+      "native/src/jls2.rs": "e57b5d7d0bf1797eceba7bb2a3b0eeffd06a44cb7d4dc046a62ceda0c90bfbbc",
+      "native/src/bin/clab-jls2.rs": "45d835cc512406f747a0cab7173b2594897c2064fcddff1c53a94e8b9d43c7c9",
+      "src/compresslab/json_columnar.py": "cf3b677a40397b36d9f527b3df1f562594d396049c60692e0482af111c5ed85e",
+      "src/compresslab/json_log_codec.py": "d8882a3de67233acf9963adeb0c8edc19eae1209753cd42246490538f4597f9e",
+      "src/compresslab/native.py": "3420b3d7acaa636a27f2788e9304b19c01014f6f3183c2aa822e9bf3cc4cf7d1",
+      "src/compresslab/worker.py": "3d5cf89abd2d992e9ea017205105f212df90f3dd3ee15608b0eb742c4a193b61"
+    }
+  },
+  "development_evidence": {
+    "ratio_census_path": "runs/clue-json-log-development-census-v1/comparison.json",
+    "ratio_census_sha256": "66d8986ae2bf6beb2cc2a4fd4280f9dfe34f013f947e9097c80353853bf74a36",
+    "standalone_local_path": "runs/jls2-native-decoder-v1/results.json",
+    "standalone_local_sha256": "d5d64e3b756f75ff1ee6585e895b88caea1996201c3f08de1e6e35b5e648a0dc",
+    "standalone_hosted_path": "runs/jls2-native-decoder-v1/hosted-arm64-reproduction.json",
+    "standalone_hosted_sha256": "800ddebd739f1d39d0e008419760ee052395839d4c1a297eca7d62fce71bbbd0"
+  },
+  "validation": {
+    "corpus_config_path": "config/clue-json-log-corpus-v1.json",
+    "corpus_config_sha256": "9326b3c38835da96feabe0c3b8fcdae1f176d113301e95bc703169666c1f6cf5",
+    "expected_items": [
+      {
+        "id": "clue-validation-a",
+        "family": "clue_validation_a",
+        "first_record_id": 35000001,
+        "last_record_id": 35250000
+      },
+      {
+        "id": "clue-validation-b",
+        "family": "clue_validation_b",
+        "first_record_id": 45000001,
+        "last_record_id": 45250000
+      }
+    ],
+    "expected_license_spdx": "CC-BY-4.0",
+    "expected_split": "public_validation",
+    "minimum_repetitions": 5,
+    "warmups": 1,
+    "memory_repetitions": 1,
+    "order_seed": 20260717,
+    "standard_execution_mode": "cold-process",
+    "candidate_compression_execution_mode": "cold-process",
+    "candidate_decompression_execution_mode": "standalone-native-cold-process",
+    "timing_scope": "parent wall clock including process startup and complete file IO",
+    "memory_scope": "cold-process peak RSS",
+    "timeout_seconds": 1800.0,
+    "max_normalized_preflight_load_1m": 0.75
+  },
+  "baselines": {
+    "standard_codec_ids": [
+      "store",
+      "lz4-1",
+      "gzip-9",
+      "bz2-9",
+      "zstd-3",
+      "zstd-9",
+      "zstd-19",
+      "brotli-11",
+      "lzma-9",
+      "7zip-9"
+    ],
+    "required_external_versions": {
+      "lz4": "1.10.0",
+      "zstd": "1.5.7",
+      "brotli": "1.2.0",
+      "7zip": "26.02"
+    },
+    "required_external_sources": {
+      "lz4": {
+        "repository": "https://github.com/lz4/lz4",
+        "commit": "ebb370ca83af193212df4dcbadcc5d87bc0de2f0"
+      },
+      "zstd": {
+        "repository": "https://github.com/facebook/zstd",
+        "commit": "f8745da6ff1ad1e7bab384bd1f9d742439278e99"
+      },
+      "brotli": {
+        "repository": "https://github.com/google/brotli",
+        "commit": "028fb5a23661f123017c060daa546b55cf4bde29"
+      },
+      "7zip": {
+        "release_url": "https://github.com/ip7z/7zip/releases/download/26.02/7z2602-linux-x64.tar.xz",
+        "asset_sha256": "41aaba7b1235304ab5aa0624530c67ae829496cd29e875925271efdccc28c03e"
+      }
+    },
+    "specialist": {
+      "name": "PBC-only",
+      "gates_path": "config/clue-pbc-public-validation-gates.json",
+      "gates_sha256": "dd8f7d940e5e4eab1149773c02bd407f0ca800c0999add8ccbbc15d20a5683b5",
+      "repository": "https://github.com/antgroup/pbc",
+      "commit": "bac1f86d29624cb585bb4475235d22a28e60ffea",
+      "license_spdx": "Apache-2.0",
+      "license_sha256": "bacacee63139034e9acba4de0c513eeb93cc6277ae52054a30eebf4be644e7ed",
+      "method": "pbc_only",
+      "pattern_size": 100,
+      "train_data_number": 2000,
+      "train_thread_num": 64,
+      "minimum_training_repetitions": 2,
+      "complete_archive_bytes": "pattern file plus compressed payload",
+      "complete_compression_time": "pattern-training median plus file-compression median"
+    },
+    "comparison_rule": "For each family and aggregate, compare JLS2 with the smallest complete exact-byte result among every required standard and the frozen PBC-only specialist. Standard timings are same-run context. PBC timing is reported separately unless executed in the identical runner envelope.",
+    "eligibility_audit_path": "config/log-competitor-reproduction-v1.json",
+    "eligibility_audit_sha256": "0b6792cdce6ea53b062e8083c976419b62ca4175e6f978c876cffc4b579991a7",
+    "unavailable_context": [
+      "LogFold",
+      "LogPrism",
+      "LogLite",
+      "DeLog"
+    ],
+    "unavailable_is_not_a_win": true
+  },
+  "requirements": {
+    "minimum_aggregate_gain_vs_strongest_complete_exact_byte_baseline_percent": 5.0,
+    "minimum_family_gain_vs_strongest_complete_exact_byte_baseline_percent": 5.0,
+    "minimum_families_passing_ratio_gate": 2,
+    "minimum_aggregate_compression_mbps": 100.0,
+    "minimum_aggregate_standalone_decompression_mbps": 250.0,
+    "minimum_repetition_compression_mbps": 90.0,
+    "minimum_repetition_standalone_decompression_mbps": 225.0,
+    "maximum_cold_compression_peak_rss_mib": 512.0,
+    "maximum_cold_decompression_peak_rss_mib": 512.0,
+    "maximum_segment_regression_vs_equally_framed_direct_fallback_bytes": 0,
+    "require_exact_roundtrip_for_every_trial": true,
+    "require_deterministic_output": true,
+    "require_corruption_rejection": true,
+    "require_complete_frame_accounting": true,
+    "require_all_standard_baselines_present": true,
+    "require_pbc_specialist_present": true,
+    "require_no_benchmark_failures": true,
+    "require_clean_tracked_commit": true,
+    "require_frozen_candidate_paths": true,
+    "require_standalone_decoder": true,
+    "require_cross_platform_product_evidence": true,
+    "require_unavailable_competitor_markers": true
+  },
+  "authorization": {
+    "maximum_acquisitions": 1,
+    "maximum_scored_attempts": 1,
+    "retain_failed_or_interrupted_attempt": true,
+    "prohibit_post_score_tuning": true,
+    "validation_currently_authorized": false,
+    "authorization_condition": "A final readiness lock must pin this gates file, candidate, corpus config, competitor audit, fetcher, runner, evaluator, verifier, workflow, and decision renderer before acquisition."
+  },
+  "decision_rule": "The first eligible score is final. Both temporal families, the aggregate, and every operational, integrity, memory, accounting, roster, and provenance gate must pass. No candidate path, parameter, threshold, corpus range, baseline setting, evaluator, runner, or chart rule may change after acquisition. A failed or interrupted scored attempt is retained and cannot be replaced by a tuned rerun.",
+  "private_holdout": {
+    "status": "sealed",
+    "required_for_state_of_the_art_claim": true
+  }
+}
