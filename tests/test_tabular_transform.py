@@ -1,19 +1,93 @@
 import struct
 import unittest
 
-from compresslab.native import zstd_compress
+from compresslab.native import (
+    tabular_reassemble as native_tabular_reassemble,
+    tabular_transform as native_tabular_transform,
+    zstd_compress,
+)
 from compresslab.tabular_transform import (
     BACKEND_COLUMN,
     HEADER,
     compress,
+    compress_auto,
+    compress_auto_with_metadata,
+    compress_dense_auto_with_metadata,
     decompress,
     frame_backend,
+    frame_delimiter,
     inverse_transform,
+    reference_inverse_transform,
+    reference_transform,
     transform,
 )
 
 
 class TabularTransformTests(unittest.TestCase):
+    def test_auto_delimiter_is_deterministic_and_roundtrips(self):
+        semicolon = b"time;value;state\n" + b"1;2;ok\n" * 100
+        frame = compress_auto(semicolon, level=3)
+        self.assertEqual(frame_delimiter(frame), ord(";"))
+        self.assertEqual(decompress(frame), semicolon)
+        no_delimiter = compress_auto(b"plain text", level=3)
+        self.assertEqual(frame_delimiter(no_delimiter), ord(","))
+        self.assertEqual(decompress(no_delimiter), b"plain text")
+
+    def test_bounded_selector_uses_one_full_backend(self):
+        source = b"kind,value,state\n" + b"alpha,100,ready\n" * 10000
+        frame, metadata = compress_auto_with_metadata(source, level=3)
+        self.assertEqual(decompress(frame), source)
+        self.assertEqual(metadata["selector_sample_bytes"], len(source))
+        self.assertIn(
+            metadata["selector_reason"],
+            {"sample-column-clear-win", "sample-direct-or-ambiguous"},
+        )
+        self.assertGreater(metadata["selector_ns"], 0)
+
+    def test_dense_selector_is_deterministic_and_records_parameters(self):
+        source = b"a,b,c\n" + b"1,2,3\n" * 20000
+        first, metadata = compress_dense_auto_with_metadata(source)
+        second, repeated = compress_dense_auto_with_metadata(source)
+        self.assertEqual(first, second)
+        self.assertEqual(metadata["compression_level"], repeated["compression_level"])
+        self.assertEqual(
+            metadata["compression_threads"], repeated["compression_threads"]
+        )
+        self.assertIn(metadata["compression_level"], {9, 16})
+        self.assertIn(metadata["compression_threads"], {1, 2})
+        self.assertEqual(decompress(first), source)
+
+    def test_native_transform_is_byte_identical_to_reference(self):
+        fixtures = [
+            (b"", ord(",")),
+            (b"a,b\n1,2\n", ord(",")),
+            (b"a;b;c\n1;2\n;;\n", ord(";")),
+            (b'"a,b",c\n"line",2\n', ord(",")),
+            (b"\x00,\xff\nraw,binary", ord(",")),
+        ]
+        for source, delimiter in fixtures:
+            with self.subTest(source=source):
+                reference = reference_transform(source, delimiter)
+                native = native_tabular_transform(source, delimiter)
+                self.assertEqual(native, reference)
+                self.assertEqual(
+                    native_tabular_reassemble(native, delimiter, len(source)),
+                    source,
+                )
+                self.assertEqual(
+                    reference_inverse_transform(reference, delimiter, len(source)),
+                    source,
+                )
+
+    def test_native_transform_retries_when_compact_capacity_is_too_small(self):
+        source = b"," * (2 * 1024 * 1024)
+        transformed = native_tabular_transform(source, ord(","))
+        self.assertGreater(len(transformed), len(source) + len(source) // 32)
+        self.assertEqual(
+            native_tabular_reassemble(transformed, ord(","), len(source)),
+            source,
+        )
+
     def test_transform_roundtrips_exact_table_bytes(self):
         fixtures = [
             b"",
@@ -67,6 +141,8 @@ class TabularTransformTests(unittest.TestCase):
     def test_inverse_rejects_invalid_metadata_and_unused_columns(self):
         with self.assertRaises(ValueError):
             inverse_transform(b"\x01\x01\x01\x00\x00", ord(","), 0)
+        with self.assertRaises(ValueError):
+            inverse_transform(b"\xe8\x07\x00\x00", ord(","), 1024)
         valid = bytearray(transform(b"a,b\n", ord(",")))
         valid.append(0)
         with self.assertRaisesRegex(ValueError, "trailing"):

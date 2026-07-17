@@ -106,6 +106,39 @@ _register(
     )
 )
 
+for level in (3, 9, 19):
+    dependency = _CODECS[f"zstd-{level}"]
+    _register(
+        CodecSpec(
+            f"tbl1-{level}",
+            "Compression Lab tabular",
+            "tbl1",
+            level,
+            available=dependency.available,
+            unavailable_reason=(
+                "missing native dependency: " + dependency.id
+                if not dependency.available
+                else ""
+            ),
+            version="frame-tbl1-v1",
+        )
+    )
+
+_register(
+    CodecSpec(
+        "tbl1-dense",
+        "Compression Lab tabular",
+        "tbl1-dense",
+        available=_CODECS["zstd-9"].available,
+        unavailable_reason=(
+            "missing native dependency: zstd-9"
+            if not _CODECS["zstd-9"].available
+            else ""
+        ),
+        version="frame-tbl1-v1-dense-selector1",
+    )
+)
+
 
 def all_codecs() -> List[CodecSpec]:
     return list(_CODECS.values())

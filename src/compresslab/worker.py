@@ -33,11 +33,19 @@ from .native import (
     native_available,
     structured_text_zstd_stream_decode,
     structured_text_zstd_stream_decode_into,
+    tabular_native_available,
     zstd_available,
     zstd_compress,
     zstd_decompress,
     zstd_engine,
     zstd_ffi_available,
+)
+from .tabular_transform import (
+    compress_dense_auto_with_metadata as _tbl1_dense_compress,
+    compress_auto_with_metadata as _tbl1_compress,
+    decompress as _tbl1_decompress,
+    frame_backend as _tbl1_frame_backend,
+    frame_delimiter as _tbl1_frame_delimiter,
 )
 
 
@@ -580,6 +588,38 @@ def run(codec_id: str, operation: str, source: Path, destination: Path) -> dict:
                 )
         else:
             output, detail = _adaptive_decompress(source.read_bytes())
+        destination.write_bytes(output)
+    elif codec.implementation in {"tbl1", "tbl1-dense"}:
+        if operation == "compress":
+            if codec.implementation == "tbl1-dense":
+                output, selector_detail = _tbl1_dense_compress(
+                    source.read_bytes()
+                )
+            else:
+                output, selector_detail = _tbl1_compress(
+                    source.read_bytes(), level=codec.level
+                )
+            detail = {
+                "selected_backend": _tbl1_frame_backend(output),
+                "transform_engine": (
+                    "rust" if tabular_native_available() else "python-fallback"
+                ),
+                "codec_engine": zstd_engine(),
+                "delimiter": _tbl1_frame_delimiter(output),
+                **selector_detail,
+            }
+        elif operation == "decompress":
+            output = _tbl1_decompress(source.read_bytes())
+            detail = {
+                "selected_backend": "tbl1-decode",
+                "selector_ns": 0,
+                "transform_engine": (
+                    "rust" if tabular_native_available() else "python-fallback"
+                ),
+                "codec_engine": zstd_engine(),
+            }
+        else:
+            raise ValueError(f"Unsupported operation: {operation}")
         destination.write_bytes(output)
     elif codec.implementation == "external-zstd" and zstd_available():
         detail = _run_zstd_ffi(codec, operation, source, destination)

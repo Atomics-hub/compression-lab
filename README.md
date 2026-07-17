@@ -31,13 +31,43 @@ same-host contextual measurements; JLS2 used repeated trials. See the
 [complete scorecard](docs/benchmarks/2026-07-16-jls2-public-validation-decision.md)
 and [immutable GitHub Actions run](https://github.com/Atomics-hub/compression-lab/actions/runs/29542804015).
 
+## Newest development result: delimited tables
+
+On the frozen, licensed 187,321,615-byte tabular development corpus,
+`TBL1-dense` produced **12,012,933 bytes**: 10.52% smaller than Brotli-11 and
+33.40% smaller than zstd-9. It beat the strongest exact baseline by at least 5%
+on three of four data families.
+
+| Standard | Complete bytes | TBL1-dense size result | Compress MB/s | Decompress MB/s | Peak compression RSS | Exact? | Size win? |
+| --- | ---: | ---: | ---: | ---: | ---: | --- | --- |
+| **TBL1-dense** | **12,012,933** | reference | **51.30** | **250.41** | **402.55 MiB** | 20/20 | — |
+| Brotli-11 | 13,425,698 | **10.52% smaller** | 0.33 | 293.21 | 254.47 MiB | Yes | **Yes** |
+| LZMA-9 | 14,275,744 | **15.85% smaller** | 0.78 | 38.91 | 801.78 MiB | Yes | **Yes** |
+| 7-Zip-9 | 14,301,453 | **16.00% smaller** | 2.69 | 133.13 | 648.53 MiB | Yes | **Yes** |
+| zstd-19 | 14,570,801 | **17.55% smaller** | 2.07 | 424.88 | 240.38 MiB | Yes | **Yes** |
+| bzip2-9 | 17,627,845 | **31.85% smaller** | 1.43 | 20.86 | 255.45 MiB | Yes | **Yes** |
+| zstd-9 | 18,038,379 | **33.40% smaller** | 61.91 | 380.94 | 233.70 MiB | Yes | **Yes** |
+| gzip-9 | 19,811,936 | **39.37% smaller** | 8.03 | 362.97 | 269.00 MiB | Yes | **Yes** |
+| zstd-3 | 22,715,433 | **47.12% smaller** | 185.13 | 333.23 | 327.27 MiB | Yes | **Yes** |
+| LZ4-1 | 38,164,405 | **68.52% smaller** | 765.00 | 393.48 | 37.17 MiB | Yes | **Yes** |
+| store | 187,321,615 | **93.59% smaller** | 1,242.40 | 719.78 | 25.03 MiB | Yes | **Yes** |
+
+TBL1 figures are a clean five-repetition point decision; its isolated memory
+run was exact on all four families. Baseline throughput and memory are
+single-trial contextual measurements from the same development corpus, so the
+table does not claim a controlled speed win. The complete category is **not
+passed**: TBL1 still needs bounded streaming, more stable speed margin, unseen
+public validation, cross-platform portability evidence, and independent
+reproduction. See the
+[transparent decision record](docs/benchmarks/2026-07-16-tbl1-dense-development-decision.md).
+
 ### Portfolio scorecard
 
 | Category | Evidence stage | Ratio position | Speed position | Current verdict |
 | --- | --- | --- | --- | --- |
 | JSON and machine logs | Public validation | Beat zstd-9 and PBC; mixed against Brotli-11 | Mixed | Strong specialist result; full gate not passed |
 | Plain text and source | Development | Behind strongest dense baselines | Not frontier-leading | Not won |
-| CSV and delimited tables | Bounded development probe | TBL1 selector beat direct zstd-19 by 24.02% on four slices; full-corpus/Brotli result pending | Python reference: 0.65–2.69 MB/s encode on column wins; rejected for speed | Native TBL1 next |
+| CSV and delimited tables | Development point decision | TBL1-dense beat Brotli-11 by 10.52% aggregate and the strongest exact baseline by >=5% on 3/4 families | 51.30/250.41 MB/s point metrics; margins remain fragile | Point metrics passed; category not validated |
 | Numeric and time series | Smoke only | Synthetic signal only | Untested | Not validated |
 | General binary and archives | Development | Behind zstd-9 | Behind zstd | Not won |
 | Incompressible or precompressed | Safety tests | Store/direct fallback | Category benchmark pending | Expansion safety only |
@@ -162,6 +192,7 @@ round-trip, provenance, stability, or completeness failure remains visible.
 - [JLS2 public-validation decision](docs/benchmarks/2026-07-16-jls2-public-validation-decision.md)
 - [Tabular development baseline census](docs/benchmarks/2026-07-16-tabular-baseline-census.md)
 - [TBL1 bounded column-transpose probe](docs/benchmarks/2026-07-16-tbl1-column-transpose-probe.md)
+- [TBL1 dense development decision](docs/benchmarks/2026-07-16-tbl1-dense-development-decision.md)
 - [File-format contract](docs/file-format.md)
 - [Release readiness](docs/release-readiness.md)
 - [Security policy](SECURITY.md)

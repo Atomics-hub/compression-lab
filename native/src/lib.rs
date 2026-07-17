@@ -56,9 +56,14 @@ fn encode_varint(mut value: usize, output: &mut Vec<u8>) {
 }
 
 fn decode_varint(data: &[u8], offset: &mut usize) -> Option<usize> {
-    let mut value = 0_usize;
-    let mut shift = 0_u32;
-    for _ in 0..10 {
+    let first = *data.get(*offset)?;
+    *offset += 1;
+    if first < 0x80 {
+        return Some(first as usize);
+    }
+    let mut value = (first & 0x7f) as usize;
+    let mut shift = 7_u32;
+    for _ in 1..10 {
         let byte = *data.get(*offset)?;
         *offset += 1;
         value |= ((byte & 0x7f) as usize).checked_shl(shift)?;
@@ -71,6 +76,155 @@ fn decode_varint(data: &[u8], offset: &mut usize) -> Option<usize> {
         }
     }
     None
+}
+
+fn encode_tabular_columns(data: &[u8], delimiter: u8) -> Option<Vec<u8>> {
+    let mut columns: Vec<Vec<u8>> = Vec::new();
+    let mut row_metadata = Vec::new();
+    let mut row_count = 0_usize;
+    let mut start = 0_usize;
+
+    while start < data.len() {
+        let newline = data[start..]
+            .iter()
+            .position(|&value| value == b'\n')
+            .map(|relative| start + relative);
+        let (end, terminated) = newline.map_or((data.len(), false), |end| (end, true));
+        let row = &data[start..end];
+        let arity = row
+            .iter()
+            .filter(|&&value| value == delimiter)
+            .count()
+            .checked_add(1)?;
+        encode_varint(
+            arity.checked_shl(1)? | usize::from(terminated),
+            &mut row_metadata,
+        );
+        if arity > columns.len() {
+            columns.resize_with(arity, Vec::new);
+        }
+        for (index, field) in row.split(|&value| value == delimiter).enumerate() {
+            encode_varint(field.len(), &mut columns[index]);
+            columns[index].extend_from_slice(field);
+        }
+        row_count = row_count.checked_add(1)?;
+        if !terminated {
+            break;
+        }
+        start = end.checked_add(1)?;
+    }
+
+    let column_bytes = columns
+        .iter()
+        .try_fold(0_usize, |total, column| total.checked_add(column.len()))?;
+    let mut output = Vec::with_capacity(
+        row_metadata
+            .len()
+            .checked_add(column_bytes)?
+            .checked_add(columns.len().checked_mul(10)?)?
+            .checked_add(30)?,
+    );
+    encode_varint(row_count, &mut output);
+    encode_varint(columns.len(), &mut output);
+    encode_varint(row_metadata.len(), &mut output);
+    output.extend_from_slice(&row_metadata);
+    for column in columns {
+        encode_varint(column.len(), &mut output);
+        output.extend_from_slice(&column);
+    }
+    Some(output)
+}
+
+fn decode_tabular_columns_into(transformed: &[u8], delimiter: u8, output: &mut [u8]) -> Option<()> {
+    let expected_size = output.len();
+    let mut offset = 0_usize;
+    let row_count = decode_varint(transformed, &mut offset)?;
+    let column_count = decode_varint(transformed, &mut offset)?;
+    let metadata_size = decode_varint(transformed, &mut offset)?;
+    let count_limit = expected_size.checked_add(1)?;
+    if row_count > count_limit || column_count > count_limit {
+        return None;
+    }
+    let metadata_end = offset.checked_add(metadata_size)?;
+    if metadata_end > transformed.len() {
+        return None;
+    }
+    if row_count > metadata_size {
+        return None;
+    }
+
+    let mut arities = Vec::with_capacity(row_count);
+    let mut terminators = Vec::with_capacity(row_count);
+    let mut metadata_offset = offset;
+    let mut total_fields = 0_usize;
+    let field_limit = expected_size.checked_add(row_count)?.checked_add(1)?;
+    for _ in 0..row_count {
+        let packed = decode_varint(transformed, &mut metadata_offset)?;
+        let arity = packed >> 1;
+        if arity == 0 || arity > column_count {
+            return None;
+        }
+        total_fields = total_fields.checked_add(arity)?;
+        if total_fields > field_limit {
+            return None;
+        }
+        arities.push(arity);
+        terminators.push(packed & 1 != 0);
+    }
+    if metadata_offset != metadata_end {
+        return None;
+    }
+    offset = metadata_end;
+
+    if column_count > transformed.len().checked_sub(metadata_end)? {
+        return None;
+    }
+
+    let mut columns = Vec::with_capacity(column_count);
+    for _ in 0..column_count {
+        let column_size = decode_varint(transformed, &mut offset)?;
+        let column_end = offset.checked_add(column_size)?;
+        columns.push(transformed.get(offset..column_end)?);
+        offset = column_end;
+    }
+    if offset != transformed.len() {
+        return None;
+    }
+
+    let mut column_offsets = vec![0_usize; column_count];
+    let mut output_offset = 0_usize;
+    for (row_index, arity) in arities.into_iter().enumerate() {
+        for column_index in 0..arity {
+            let column = columns[column_index];
+            let field_size = decode_varint(column, &mut column_offsets[column_index])?;
+            let field_start = column_offsets[column_index];
+            let field_end = field_start.checked_add(field_size)?;
+            let field = column.get(field_start..field_end)?;
+            if column_index > 0 {
+                *output.get_mut(output_offset)? = delimiter;
+                output_offset += 1;
+            }
+            let output_end = output_offset.checked_add(field.len())?;
+            output
+                .get_mut(output_offset..output_end)?
+                .copy_from_slice(field);
+            output_offset = output_end;
+            column_offsets[column_index] = field_end;
+        }
+        if terminators[row_index] {
+            *output.get_mut(output_offset)? = b'\n';
+            output_offset += 1;
+        }
+    }
+    if output_offset != expected_size
+        || column_offsets
+            .iter()
+            .zip(&columns)
+            .any(|(&consumed, column)| consumed != column.len())
+    {
+        return None;
+    }
+    Some(())
 }
 
 fn log_slot(size: usize) -> usize {
@@ -1333,6 +1487,62 @@ pub unsafe extern "C" fn clab_structured_text_zstd_decode(
 }
 
 #[no_mangle]
+/// Transpose byte-exact delimited rows into independently compressible columns.
+///
+/// # Safety
+///
+/// `input`, `output`, and `output_len` must be non-null. The input must be
+/// readable for `len` bytes, the output writable for `output_capacity` bytes,
+/// and `output_len` writable for one `usize`. Input and output must not alias.
+pub unsafe extern "C" fn clab_tabular_transform(
+    input: *const u8,
+    len: usize,
+    delimiter: u8,
+    output: *mut u8,
+    output_capacity: usize,
+    output_len: *mut usize,
+) -> i32 {
+    if input.is_null() || output.is_null() || output_len.is_null() {
+        return NULL_POINTER;
+    }
+    let source = slice::from_raw_parts(input, len);
+    let Some(encoded) = encode_tabular_columns(source, delimiter) else {
+        return INVALID_INPUT;
+    };
+    *output_len = encoded.len();
+    if encoded.len() > output_capacity {
+        return OUTPUT_TOO_SMALL;
+    }
+    slice::from_raw_parts_mut(output, output_capacity)[..encoded.len()].copy_from_slice(&encoded);
+    OK
+}
+
+#[no_mangle]
+/// Reassemble a byte-exact tabular column transform.
+///
+/// # Safety
+///
+/// `input` and `output` must be non-null and valid for reads of `len` bytes and
+/// writes of `expected_size` bytes respectively. The regions must not alias.
+pub unsafe extern "C" fn clab_tabular_reassemble(
+    input: *const u8,
+    len: usize,
+    delimiter: u8,
+    output: *mut u8,
+    expected_size: usize,
+) -> i32 {
+    if input.is_null() || output.is_null() {
+        return NULL_POINTER;
+    }
+    let source = slice::from_raw_parts(input, len);
+    let destination = slice::from_raw_parts_mut(output, expected_size);
+    if decode_tabular_columns_into(source, delimiter, destination).is_none() {
+        return INVALID_INPUT;
+    }
+    OK
+}
+
+#[no_mangle]
 /// Encode bytes with the bounded LWX2 same-length log transform.
 ///
 /// # Safety
@@ -1688,6 +1898,14 @@ mod tests {
                 clab_json_columnar_reassemble(ptr::null(), 0, ptr::null_mut(), 0),
                 NULL_POINTER
             );
+            assert_eq!(
+                clab_tabular_transform(ptr::null(), 0, b',', ptr::null_mut(), 0, &mut output_len,),
+                NULL_POINTER
+            );
+            assert_eq!(
+                clab_tabular_reassemble(ptr::null(), 0, b',', ptr::null_mut(), 0),
+                NULL_POINTER
+            );
         }
     }
 
@@ -1715,6 +1933,47 @@ mod tests {
             );
         }
         assert_eq!(restored, source);
+    }
+
+    #[test]
+    fn tabular_columns_round_trip_variable_rows_and_binary_fields() {
+        let source = b"a,b,c\n1,,3\n\x00,\xff\nlast,row";
+        let transformed = encode_tabular_columns(source, b',').unwrap();
+        let mut restored = vec![0_u8; source.len()];
+        assert_eq!(
+            decode_tabular_columns_into(&transformed, b',', &mut restored),
+            Some(())
+        );
+        assert_eq!(restored, source);
+        assert_eq!(
+            decode_tabular_columns_into(&transformed[..transformed.len() - 1], b',', &mut restored),
+            None
+        );
+        let mut trailing = transformed;
+        trailing.push(0);
+        assert_eq!(
+            decode_tabular_columns_into(&trailing, b',', &mut restored),
+            None
+        );
+        let mut tiny = [0_u8; 1];
+        let mut required = 0_usize;
+        unsafe {
+            assert_eq!(
+                clab_tabular_transform(
+                    source.as_ptr(),
+                    source.len(),
+                    b',',
+                    tiny.as_mut_ptr(),
+                    tiny.len(),
+                    &mut required,
+                ),
+                OUTPUT_TOO_SMALL
+            );
+        }
+        assert_eq!(
+            required,
+            encode_tabular_columns(source, b',').unwrap().len()
+        );
     }
 
     #[test]

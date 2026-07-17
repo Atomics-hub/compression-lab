@@ -2,10 +2,15 @@ from __future__ import annotations
 
 import hashlib
 import struct
+import time
 from typing import Tuple
 
 from .native import (
+    tabular_native_available,
+    tabular_reassemble,
+    tabular_transform,
     zstd_compress,
+    zstd_compress_multithread,
     zstd_decompress,
     zstd_frame_content_size,
 )
@@ -18,6 +23,14 @@ BACKEND_COLUMN = 1
 HEADER = struct.Struct(">4sBBBQ32s")
 DEFAULT_MAX_OUTPUT_SIZE = 2 * 1024 * 1024 * 1024
 TRANSFORM_SLACK = 1024 * 1024
+AUTO_DELIMITERS = (ord(","), ord(";"), ord("\t"), ord("|"))
+DETECTION_SAMPLE_BYTES = 1024 * 1024
+SAMPLE_COLUMN_MARGIN = 0.98
+DENSE_SAMPLE_LEVEL = 3
+DENSE_DEFAULT_LEVEL = 9
+DENSE_EXTREME_LEVEL = 16
+DENSE_EXTREME_THREADS = 2
+DENSE_EXTREME_COLUMN_RATIO = 0.05
 
 
 def _encode_varint(value: int) -> bytes:
@@ -44,7 +57,7 @@ def _decode_varint(data: bytes | memoryview, offset: int) -> Tuple[int, int]:
     raise ValueError("TBL1 varint is too large")
 
 
-def transform(data: bytes, delimiter: int) -> bytes:
+def reference_transform(data: bytes, delimiter: int) -> bytes:
     if not 0 <= delimiter <= 255:
         raise ValueError("delimiter must be one byte")
     delimiter_bytes = bytes((delimiter,))
@@ -85,7 +98,9 @@ def transform(data: bytes, delimiter: int) -> bytes:
     return bytes(output)
 
 
-def inverse_transform(data: bytes, delimiter: int, expected_size: int) -> bytes:
+def reference_inverse_transform(
+    data: bytes, delimiter: int, expected_size: int
+) -> bytes:
     if not 0 <= delimiter <= 255:
         raise ValueError("delimiter must be one byte")
     if expected_size < 0:
@@ -164,16 +179,19 @@ def inverse_transform(data: bytes, delimiter: int, expected_size: int) -> bytes:
     return bytes(output)
 
 
-def compress(data: bytes, delimiter: int, level: int = 9) -> bytes:
-    transformed = transform(data, delimiter)
-    direct_payload = zstd_compress(data, level=level)
-    column_payload = zstd_compress(transformed, level=level)
-    if len(column_payload) < len(direct_payload):
-        backend = BACKEND_COLUMN
-        payload = column_payload
-    else:
-        backend = BACKEND_DIRECT
-        payload = direct_payload
+def transform(data: bytes, delimiter: int) -> bytes:
+    if tabular_native_available():
+        return tabular_transform(data, delimiter)
+    return reference_transform(data, delimiter)
+
+
+def inverse_transform(data: bytes, delimiter: int, expected_size: int) -> bytes:
+    if tabular_native_available():
+        return tabular_reassemble(data, delimiter, expected_size)
+    return reference_inverse_transform(data, delimiter, expected_size)
+
+
+def _pack_frame(data: bytes, delimiter: int, backend: int, payload: bytes) -> bytes:
     return HEADER.pack(
         MAGIC,
         VERSION,
@@ -182,6 +200,119 @@ def compress(data: bytes, delimiter: int, level: int = 9) -> bytes:
         len(data),
         hashlib.sha256(data).digest(),
     ) + payload
+
+
+def compress(data: bytes, delimiter: int, level: int = 9) -> bytes:
+    transformed = transform(data, delimiter)
+    direct_payload = zstd_compress(data, level=level)
+    column_payload = zstd_compress(transformed, level=level)
+    if len(column_payload) < len(direct_payload):
+        return _pack_frame(data, delimiter, BACKEND_COLUMN, column_payload)
+    return _pack_frame(data, delimiter, BACKEND_DIRECT, direct_payload)
+
+
+def _representative_sample(data: bytes) -> bytes:
+    if len(data) <= DETECTION_SAMPLE_BYTES:
+        return data
+    block = DETECTION_SAMPLE_BYTES // 3
+    middle = len(data) // 2 - block // 2
+    return data[:block] + data[middle : middle + block] + data[-block:]
+
+
+def _detect_delimiter_from_sample(sample: bytes) -> int:
+    counts = [sample.count(bytes((delimiter,))) for delimiter in AUTO_DELIMITERS]
+    return AUTO_DELIMITERS[max(range(len(counts)), key=counts.__getitem__)]
+
+
+def detect_delimiter(data: bytes) -> int:
+    return _detect_delimiter_from_sample(_representative_sample(data))
+
+
+def _sample_backend(
+    sample: bytes, delimiter: int, level: int
+) -> tuple[int, bytes, bytes]:
+    direct_sample = zstd_compress(sample, level=level)
+    column_sample = zstd_compress(transform(sample, delimiter), level=level)
+    if len(column_sample) < len(direct_sample) * SAMPLE_COLUMN_MARGIN:
+        return BACKEND_COLUMN, direct_sample, column_sample
+    return BACKEND_DIRECT, direct_sample, column_sample
+
+
+def compress_auto_with_metadata(data: bytes, level: int = 9) -> tuple[bytes, dict]:
+    selector_start = time.perf_counter_ns()
+    sample = _representative_sample(data)
+    delimiter = _detect_delimiter_from_sample(sample)
+    backend, direct_sample, column_sample = _sample_backend(
+        sample, delimiter, level
+    )
+    if backend == BACKEND_COLUMN:
+        reason = "sample-column-clear-win"
+    else:
+        reason = "sample-direct-or-ambiguous"
+    selector_ns = time.perf_counter_ns() - selector_start
+
+    if backend == BACKEND_COLUMN:
+        payload = zstd_compress(transform(data, delimiter), level=level)
+    else:
+        payload = zstd_compress(data, level=level)
+    frame = _pack_frame(data, delimiter, backend, payload)
+    sample_size = max(1, len(sample))
+    return frame, {
+        "selector_ns": selector_ns,
+        "selector_stages": 1,
+        "selector_sample_bytes": len(sample),
+        "sample_ratio": len(direct_sample) / sample_size,
+        "transformed_sample_ratio": len(column_sample) / sample_size,
+        "selector_reason": reason,
+        "compression_level": level,
+        "compression_threads": 1,
+    }
+
+
+def compress_auto(data: bytes, level: int = 9) -> bytes:
+    frame, _metadata = compress_auto_with_metadata(data, level=level)
+    return frame
+
+
+def compress_dense_auto_with_metadata(data: bytes) -> tuple[bytes, dict]:
+    selector_start = time.perf_counter_ns()
+    sample = _representative_sample(data)
+    delimiter = _detect_delimiter_from_sample(sample)
+    backend, direct_sample, column_sample = _sample_backend(
+        sample, delimiter, DENSE_SAMPLE_LEVEL
+    )
+    sample_size = max(1, len(sample))
+    column_ratio = len(column_sample) / sample_size
+    if backend == BACKEND_COLUMN and column_ratio < DENSE_EXTREME_COLUMN_RATIO:
+        level = DENSE_EXTREME_LEVEL
+        threads = DENSE_EXTREME_THREADS
+        reason = "extreme-column-ratio"
+    elif backend == BACKEND_COLUMN:
+        level = DENSE_DEFAULT_LEVEL
+        threads = 1
+        reason = "ordinary-column-ratio"
+    else:
+        level = DENSE_DEFAULT_LEVEL
+        threads = 1
+        reason = "direct-or-ambiguous"
+    selector_ns = time.perf_counter_ns() - selector_start
+
+    source = transform(data, delimiter) if backend == BACKEND_COLUMN else data
+    if threads > 1:
+        payload = zstd_compress_multithread(source, level=level, threads=threads)
+    else:
+        payload = zstd_compress(source, level=level)
+    frame = _pack_frame(data, delimiter, backend, payload)
+    return frame, {
+        "selector_ns": selector_ns,
+        "selector_stages": 1,
+        "selector_sample_bytes": len(sample),
+        "sample_ratio": len(direct_sample) / sample_size,
+        "transformed_sample_ratio": column_ratio,
+        "selector_reason": reason,
+        "compression_level": level,
+        "compression_threads": threads,
+    }
 
 
 def frame_backend(frame: bytes) -> str:
@@ -195,6 +326,15 @@ def frame_backend(frame: bytes) -> str:
     if backend == BACKEND_COLUMN:
         return "column-transpose+zstd"
     raise ValueError("unsupported TBL1 backend")
+
+
+def frame_delimiter(frame: bytes) -> int:
+    if len(frame) < HEADER.size:
+        raise ValueError("truncated TBL1 frame")
+    magic, version, delimiter, _backend, _size, _digest = HEADER.unpack_from(frame)
+    if magic != MAGIC or version != VERSION:
+        raise ValueError("unsupported TBL1 frame")
+    return delimiter
 
 
 def decompress(
