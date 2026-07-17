@@ -1,0 +1,19 @@
+{
+  "artifacts": {
+    "README.md": "cb8d8f909d7b6213af88a445d667c72f81645d38ec82012d677759ff7ad9c5e6",
+    "comparison.svg": "1525dc810f230b8e09e98026d38066452daf7b2d9423b9662712add2ad6522bb",
+    "decision.json": "0d2f2fe7ca728078cdd721bba4f52e7d1213469abb45874f7aa79207e426fc2f",
+    "gates.json": "659f645ece4b6be1591d8045b02e593f179bc1510b0b1b4755db72dd6d38b5b6",
+    "pbc-result.json": "0999fad344cad216ccf294a998f387ca44a8ffe88b38713df0e58c842289ac94",
+    "performance.json": "c17869ef953c9841529ff4fecda285e4e0feac8394d3508cf3dc46e8fc95c18e",
+    "receipt.json": "dad63bf698f1dfc0fec0f8ac2a73d6e20880e69187b75acdd97ddefedcf99be6",
+    "validation-manifest.json": "fddc257dc6dd87ccb1efaf98fb772c62047a17cf9394e9b79ca4894f05ed8583"
+  },
+  "category_gate_passed": false,
+  "claim_ceiling": "A passing first score supports only a category-scoped public-validation result on two previously unopened CC-BY-4.0 CLUE-LDS temporal ranges. It is not private-holdout or independently reproduced evidence and cannot support universal, market-leading, world-best, or state-of-the-art language while eligible emerging specialists remain unavailable for reproduction.",
+  "name": "clue-jls2-public-validation-first-score-bundle-v1",
+  "public_brand": "Atompress",
+  "schema_version": 1,
+  "status": "not_passed",
+  "technical_codec": "JLS2"
+}

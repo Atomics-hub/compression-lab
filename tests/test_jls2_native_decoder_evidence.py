@@ -3,15 +3,27 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
+import subprocess
 import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
 RUN = ROOT / "runs" / "jls2-native-decoder-v1"
+PUBLICATION_COMMIT = "e254c43458e2ae4f8088b7fcc22b665614e8f169"
 
 
 def sha256_file(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def sha256_git_blob(commit: str, relative: str) -> str:
+    result = subprocess.run(
+        ["git", "show", f"{commit}:{relative}"],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+    )
+    return hashlib.sha256(result.stdout).hexdigest()
 
 
 class JLS2NativeDecoderEvidenceTests(unittest.TestCase):
@@ -100,8 +112,13 @@ class JLS2NativeDecoderEvidenceTests(unittest.TestCase):
         self.assertEqual(sum("standalone/" in line for line in checksum_lines), 3)
         for relative, expected in receipt["artifacts"].items():
             self.assertEqual(sha256_file(ROOT / relative), expected)
+        # Publication inputs are historical evidence. Verify their exact blobs
+        # at the merged publication commit so later README or test maintenance
+        # cannot mutate the receipt and need not freeze those live files forever.
         for relative, expected in receipt["publication_sources"].items():
-            self.assertEqual(sha256_file(ROOT / relative), expected)
+            self.assertEqual(
+                sha256_git_blob(PUBLICATION_COMMIT, relative), expected
+            )
 
 
 if __name__ == "__main__":

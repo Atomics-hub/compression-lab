@@ -37,15 +37,19 @@ class LogCompetitorAuditTests(unittest.TestCase):
             {"LogFold", "LogPrism", "LogLite", "DeLog"},
         )
 
-    def test_json_log_portfolio_advances_only_the_development_product_gate(self) -> None:
+    def test_json_log_portfolio_retains_the_completed_no_pass(self) -> None:
         portfolio = json.loads(PORTFOLIO.read_text(encoding="utf-8"))
         category = next(
             row for row in portfolio["categories"] if row["id"] == "json_logs"
         )
         self.assertEqual(category["status"], "public-validation-partial")
-        self.assertIn("standalone decoder", category["current_result"].lower())
-        self.assertIn("remain sealed", category["current_result"].lower())
-        self.assertIn("maximum of one scored attempt", category["next_gate"])
+        self.assertIn("valid no-pass", category["current_result"].lower())
+        self.assertIn("52.97% smaller", category["current_result"])
+        self.assertIn("621.3 MiB", category["current_result"])
+        self.assertIn("consumed", category["current_result"].lower())
+        next_gate = category["next_gate"].lower()
+        self.assertIn("fresh licensed development families", next_gate)
+        self.assertIn("do not tune or rerun", next_gate)
         self.assertIn("7-Zip-9", category["tested_standards"])
 
 

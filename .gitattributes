@@ -1,1 +1,2 @@
 * text=auto eol=lf
+runs/clue-jls2-public-validation-v1/** -text

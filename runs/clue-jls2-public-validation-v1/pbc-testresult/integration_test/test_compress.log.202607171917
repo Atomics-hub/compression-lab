@@ -1,0 +1,56 @@
+[INFO]operation: test_compress
+[INFO]compress method: PBC_ONLY
+[INFO]compress file path:/home/runner/work/_temp/pbc/testresult/integration_test/test_data
+[INFO]pattern file path:/home/runner/work/_temp/pbc/testresult/integration_test/test_data_2000_100_pbc_only
+[INFO]Toal test record number: 56482
+[INFO]max_record_len: 160
+[INFO]compression rate:0.189078
+[INFO]compression :3554381 -> 672056
+[INFO]compression speed: 96.31MB/s
+[INFO]decompression speed: 1343.38MB/s
+[INFO]compress_pbc_only rate : 0.996795
+[INFO]compress_secondary_only rate : 0
+[INFO]compress_pbc_combined rate : 0
+[INFO]compress_failed rate : 0.00320456
+[INFO]operation: test_compress
+[INFO]compress method: PBC_FSE
+[INFO]compress file path:/home/runner/work/_temp/pbc/testresult/integration_test/test_data
+[INFO]pattern file path:/home/runner/work/_temp/pbc/testresult/integration_test/test_data_2000_100_pbc_fse
+[INFO]Toal test record number: 56482
+[INFO]max_record_len: 160
+[INFO]compression rate:0.157819
+[INFO]compression :3554381 -> 560949
+[INFO]compression speed: 76.9162MB/s
+[INFO]decompression speed: 787.091MB/s
+[INFO]compress_pbc_only rate : 0.508073
+[INFO]compress_secondary_only rate : 0.00320456
+[INFO]compress_pbc_combined rate : 0.488722
+[INFO]compress_failed rate : 0
+[INFO]operation: test_compress
+[INFO]compress method: PBC_FSST
+[INFO]compress file path:/home/runner/work/_temp/pbc/testresult/integration_test/test_data
+[INFO]pattern file path:/home/runner/work/_temp/pbc/testresult/integration_test/test_data_2000_100_pbc_fsst
+[INFO]Toal test record number: 56482
+[INFO]max_record_len: 160
+[INFO]compression rate:0.133342
+[INFO]compression :3554381 -> 473950
+[INFO]compression speed: 76.6811MB/s
+[INFO]decompression speed: 1145.31MB/s
+[INFO]compress_pbc_only rate : 0.355848
+[INFO]compress_secondary_only rate : 0.00189441
+[INFO]compress_pbc_combined rate : 0.640948
+[INFO]compress_failed rate : 0.00131015
+[INFO]operation: test_compress
+[INFO]compress method: PBC_ZSTD
+[INFO]compress file path:/home/runner/work/_temp/pbc/testresult/integration_test/test_data
+[INFO]pattern file path:/home/runner/work/_temp/pbc/testresult/integration_test/test_data_2000_100_pbc_zstd
+[INFO]Toal test record number: 56482
+[INFO]max_record_len: 160
+[INFO]compression rate:0.185999
+[INFO]compression :3554381 -> 661112
+[INFO]compression speed: 48.8712MB/s
+[INFO]decompression speed: 1192.15MB/s
+[INFO]compress_pbc_only rate : 0.981782
+[INFO]compress_secondary_only rate : 0.0015049
+[INFO]compress_pbc_combined rate : 0.0150136
+[INFO]compress_failed rate : 0.00169966

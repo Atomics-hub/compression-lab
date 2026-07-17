@@ -1,0 +1,417 @@
+{
+  "benchmark_script_sha256": "709e2846af97d2dd8be16069b567852899d507b82f088337e548286893c59559",
+  "candidate_proof": {
+    "deterministic_rows": [
+      {
+        "corruption_rejected": true,
+        "deterministic": true,
+        "fallback_safety": {
+          "accounted_stream_bytes": 269709,
+          "complete_frame_accounting": true,
+          "maximum_regression_bytes": -183773,
+          "passed": true,
+          "rows": [
+            {
+              "direct_frame_bytes": 297836,
+              "passed": true,
+              "regression_bytes": -217656,
+              "segment": 0,
+              "selected_frame_bytes": 80180
+            },
+            {
+              "direct_frame_bytes": 299305,
+              "passed": true,
+              "regression_bytes": -197946,
+              "segment": 1,
+              "selected_frame_bytes": 101359
+            },
+            {
+              "direct_frame_bytes": 271811,
+              "passed": true,
+              "regression_bytes": -183773,
+              "segment": 2,
+              "selected_frame_bytes": 88038
+            }
+          ],
+          "segments": 3,
+          "stream_bytes": 269709
+        },
+        "family": "clue_validation_a",
+        "frame_bytes": 269709,
+        "frame_sha256": "8d3c4dd278d485fd44629bee68ac874fc1a47437400ef386b4def77be964e3cf",
+        "id": "clue-validation-a",
+        "source_sha256": "6956d1b9edf9dbe54a69c8c7ed0151d8abbaa6f994ab64260c9a6da967f8850b"
+      },
+      {
+        "corruption_rejected": true,
+        "deterministic": true,
+        "fallback_safety": {
+          "accounted_stream_bytes": 219882,
+          "complete_frame_accounting": true,
+          "maximum_regression_bytes": -212091,
+          "passed": true,
+          "rows": [
+            {
+              "direct_frame_bytes": 316227,
+              "passed": true,
+              "regression_bytes": -248941,
+              "segment": 0,
+              "selected_frame_bytes": 67286
+            },
+            {
+              "direct_frame_bytes": 323949,
+              "passed": true,
+              "regression_bytes": -235836,
+              "segment": 1,
+              "selected_frame_bytes": 88113
+            },
+            {
+              "direct_frame_bytes": 276442,
+              "passed": true,
+              "regression_bytes": -212091,
+              "segment": 2,
+              "selected_frame_bytes": 64351
+            }
+          ],
+          "segments": 3,
+          "stream_bytes": 219882
+        },
+        "family": "clue_validation_b",
+        "frame_bytes": 219882,
+        "frame_sha256": "ba6d610fbfead7a5ad573ed3fec753550af0687b33a3466e384a5d497bb4afd0",
+        "id": "clue-validation-b",
+        "source_sha256": "e3a3ca88452989c004853f16d3f1374a0dc13d0df67ce8f2c29fcf82ad99b5fb"
+      }
+    ],
+    "standalone_decode_summary": {
+      "all_exact": true,
+      "family_rows": [
+        {
+          "family": "clue_validation_a",
+          "median_mbps": 426.1218022008882,
+          "minimum_mbps": 383.9778837228628
+        },
+        {
+          "family": "clue_validation_b",
+          "median_mbps": 432.4114605510829,
+          "minimum_mbps": 425.1277797836414
+        }
+      ],
+      "median_aggregate_mbps": 431.36023861070174,
+      "minimum_aggregate_mbps": 403.53304840685627,
+      "peak_rss_bytes": 651517952,
+      "round_rates_mbps": [
+        424.2056533368623,
+        433.6718701633316,
+        431.36023861070174,
+        403.53304840685627,
+        433.6764742825034
+      ],
+      "rounds": 5
+    },
+    "standalone_decode_trials": [
+      {
+        "encoded_bytes": 269709,
+        "encoded_sha256": "8d3c4dd278d485fd44629bee68ac874fc1a47437400ef386b4def77be964e3cf",
+        "exact": true,
+        "family": "clue_validation_a",
+        "item_id": "clue-validation-a",
+        "mbps": 430.32573071642867,
+        "peak_rss_bytes": 651517952,
+        "returncode": 0,
+        "round": 0,
+        "source_bytes": 48404358,
+        "source_sha256": "6956d1b9edf9dbe54a69c8c7ed0151d8abbaa6f994ab64260c9a6da967f8850b",
+        "stderr": "",
+        "stdout": "decoded 269709 bytes to 48404358 bytes across 3 segment(s)\n",
+        "wall_ns": 112483067,
+        "warmup": true
+      },
+      {
+        "encoded_bytes": 219882,
+        "encoded_sha256": "ba6d610fbfead7a5ad573ed3fec753550af0687b33a3466e384a5d497bb4afd0",
+        "exact": true,
+        "family": "clue_validation_b",
+        "item_id": "clue-validation-b",
+        "mbps": 423.75857220431044,
+        "peak_rss_bytes": 651517952,
+        "returncode": 0,
+        "round": 0,
+        "source_bytes": 48530125,
+        "source_sha256": "e3a3ca88452989c004853f16d3f1374a0dc13d0df67ce8f2c29fcf82ad99b5fb",
+        "stderr": "",
+        "stdout": "decoded 219882 bytes to 48530125 bytes across 3 segment(s)\n",
+        "wall_ns": 114523052,
+        "warmup": true
+      },
+      {
+        "encoded_bytes": 269709,
+        "encoded_sha256": "8d3c4dd278d485fd44629bee68ac874fc1a47437400ef386b4def77be964e3cf",
+        "exact": true,
+        "family": "clue_validation_a",
+        "item_id": "clue-validation-a",
+        "mbps": 422.1782946298287,
+        "peak_rss_bytes": 651517952,
+        "returncode": 0,
+        "round": 1,
+        "source_bytes": 48404358,
+        "source_sha256": "6956d1b9edf9dbe54a69c8c7ed0151d8abbaa6f994ab64260c9a6da967f8850b",
+        "stderr": "",
+        "stdout": "decoded 269709 bytes to 48404358 bytes across 3 segment(s)\n",
+        "wall_ns": 114653829,
+        "warmup": false
+      },
+      {
+        "encoded_bytes": 219882,
+        "encoded_sha256": "ba6d610fbfead7a5ad573ed3fec753550af0687b33a3466e384a5d497bb4afd0",
+        "exact": true,
+        "family": "clue_validation_b",
+        "item_id": "clue-validation-b",
+        "mbps": 426.24724713100903,
+        "peak_rss_bytes": 651517952,
+        "returncode": 0,
+        "round": 1,
+        "source_bytes": 48530125,
+        "source_sha256": "e3a3ca88452989c004853f16d3f1374a0dc13d0df67ce8f2c29fcf82ad99b5fb",
+        "stderr": "",
+        "stdout": "decoded 219882 bytes to 48530125 bytes across 3 segment(s)\n",
+        "wall_ns": 113854401,
+        "warmup": false
+      },
+      {
+        "encoded_bytes": 219882,
+        "encoded_sha256": "ba6d610fbfead7a5ad573ed3fec753550af0687b33a3466e384a5d497bb4afd0",
+        "exact": true,
+        "family": "clue_validation_b",
+        "item_id": "clue-validation-b",
+        "mbps": 432.4114605510829,
+        "peak_rss_bytes": 651517952,
+        "returncode": 0,
+        "round": 2,
+        "source_bytes": 48530125,
+        "source_sha256": "e3a3ca88452989c004853f16d3f1374a0dc13d0df67ce8f2c29fcf82ad99b5fb",
+        "stderr": "",
+        "stdout": "decoded 219882 bytes to 48530125 bytes across 3 segment(s)\n",
+        "wall_ns": 112231357,
+        "warmup": false
+      },
+      {
+        "encoded_bytes": 269709,
+        "encoded_sha256": "8d3c4dd278d485fd44629bee68ac874fc1a47437400ef386b4def77be964e3cf",
+        "exact": true,
+        "family": "clue_validation_a",
+        "item_id": "clue-validation-a",
+        "mbps": 434.9429527079595,
+        "peak_rss_bytes": 651517952,
+        "returncode": 0,
+        "round": 2,
+        "source_bytes": 48404358,
+        "source_sha256": "6956d1b9edf9dbe54a69c8c7ed0151d8abbaa6f994ab64260c9a6da967f8850b",
+        "stderr": "",
+        "stdout": "decoded 269709 bytes to 48404358 bytes across 3 segment(s)\n",
+        "wall_ns": 111288981,
+        "warmup": false
+      },
+      {
+        "encoded_bytes": 269709,
+        "encoded_sha256": "8d3c4dd278d485fd44629bee68ac874fc1a47437400ef386b4def77be964e3cf",
+        "exact": true,
+        "family": "clue_validation_a",
+        "item_id": "clue-validation-a",
+        "mbps": 426.1218022008882,
+        "peak_rss_bytes": 651517952,
+        "returncode": 0,
+        "round": 3,
+        "source_bytes": 48404358,
+        "source_sha256": "6956d1b9edf9dbe54a69c8c7ed0151d8abbaa6f994ab64260c9a6da967f8850b",
+        "stderr": "",
+        "stdout": "decoded 269709 bytes to 48404358 bytes across 3 segment(s)\n",
+        "wall_ns": 113592775,
+        "warmup": false
+      },
+      {
+        "encoded_bytes": 219882,
+        "encoded_sha256": "ba6d610fbfead7a5ad573ed3fec753550af0687b33a3466e384a5d497bb4afd0",
+        "exact": true,
+        "family": "clue_validation_b",
+        "item_id": "clue-validation-b",
+        "mbps": 436.7149870352766,
+        "peak_rss_bytes": 651517952,
+        "returncode": 0,
+        "round": 3,
+        "source_bytes": 48530125,
+        "source_sha256": "e3a3ca88452989c004853f16d3f1374a0dc13d0df67ce8f2c29fcf82ad99b5fb",
+        "stderr": "",
+        "stdout": "decoded 219882 bytes to 48530125 bytes across 3 segment(s)\n",
+        "wall_ns": 111125394,
+        "warmup": false
+      },
+      {
+        "encoded_bytes": 219882,
+        "encoded_sha256": "ba6d610fbfead7a5ad573ed3fec753550af0687b33a3466e384a5d497bb4afd0",
+        "exact": true,
+        "family": "clue_validation_b",
+        "item_id": "clue-validation-b",
+        "mbps": 425.1277797836414,
+        "peak_rss_bytes": 651517952,
+        "returncode": 0,
+        "round": 4,
+        "source_bytes": 48530125,
+        "source_sha256": "e3a3ca88452989c004853f16d3f1374a0dc13d0df67ce8f2c29fcf82ad99b5fb",
+        "stderr": "",
+        "stdout": "decoded 219882 bytes to 48530125 bytes across 3 segment(s)\n",
+        "wall_ns": 114154208,
+        "warmup": false
+      },
+      {
+        "encoded_bytes": 269709,
+        "encoded_sha256": "8d3c4dd278d485fd44629bee68ac874fc1a47437400ef386b4def77be964e3cf",
+        "exact": true,
+        "family": "clue_validation_a",
+        "item_id": "clue-validation-a",
+        "mbps": 383.9778837228628,
+        "peak_rss_bytes": 651517952,
+        "returncode": 0,
+        "round": 4,
+        "source_bytes": 48404358,
+        "source_sha256": "6956d1b9edf9dbe54a69c8c7ed0151d8abbaa6f994ab64260c9a6da967f8850b",
+        "stderr": "",
+        "stdout": "decoded 269709 bytes to 48404358 bytes across 3 segment(s)\n",
+        "wall_ns": 126060276,
+        "warmup": false
+      },
+      {
+        "encoded_bytes": 269709,
+        "encoded_sha256": "8d3c4dd278d485fd44629bee68ac874fc1a47437400ef386b4def77be964e3cf",
+        "exact": true,
+        "family": "clue_validation_a",
+        "item_id": "clue-validation-a",
+        "mbps": 429.62922173558076,
+        "peak_rss_bytes": 651517952,
+        "returncode": 0,
+        "round": 5,
+        "source_bytes": 48404358,
+        "source_sha256": "6956d1b9edf9dbe54a69c8c7ed0151d8abbaa6f994ab64260c9a6da967f8850b",
+        "stderr": "",
+        "stdout": "decoded 269709 bytes to 48404358 bytes across 3 segment(s)\n",
+        "wall_ns": 112665423,
+        "warmup": false
+      },
+      {
+        "encoded_bytes": 219882,
+        "encoded_sha256": "ba6d610fbfead7a5ad573ed3fec753550af0687b33a3466e384a5d497bb4afd0",
+        "exact": true,
+        "family": "clue_validation_b",
+        "item_id": "clue-validation-b",
+        "mbps": 437.7899155438402,
+        "peak_rss_bytes": 651517952,
+        "returncode": 0,
+        "round": 5,
+        "source_bytes": 48530125,
+        "source_sha256": "e3a3ca88452989c004853f16d3f1374a0dc13d0df67ce8f2c29fcf82ad99b5fb",
+        "stderr": "",
+        "stdout": "decoded 219882 bytes to 48530125 bytes across 3 segment(s)\n",
+        "wall_ns": 110852542,
+        "warmup": false
+      }
+    ]
+  },
+  "claim_ceiling": "A passing first score supports only a category-scoped public-validation result on two previously unopened CC-BY-4.0 CLUE-LDS temporal ranges. It is not private-holdout or independently reproduced evidence and cannot support universal, market-leading, world-best, or state-of-the-art language while eligible emerging specialists remain unavailable for reproduction.",
+  "codec_ids": [
+    "jls2",
+    "store",
+    "lz4-1",
+    "gzip-9",
+    "bz2-9",
+    "zstd-3",
+    "zstd-9",
+    "zstd-19",
+    "brotli-11",
+    "lzma-9",
+    "7zip-9"
+  ],
+  "codec_versions": {
+    "7zip-9": "7-Zip (z) 26.02 (x64) : Copyright (c) 1999-2026 Igor Pavlov : 2026-06-25",
+    "brotli-11": "brotli 1.2.0",
+    "bz2-9": "",
+    "gzip-9": "",
+    "jls2": "stream-jls2-v1-16m-c2",
+    "lz4-1": "*** lz4 v1.10.0 64-bit multithread, by Yann Collet ***",
+    "lzma-9": "",
+    "store": "",
+    "zstd-19": "*** Zstandard CLI (64-bit) v1.5.7, by Yann Collet ***",
+    "zstd-3": "*** Zstandard CLI (64-bit) v1.5.7, by Yann Collet ***",
+    "zstd-9": "*** Zstandard CLI (64-bit) v1.5.7, by Yann Collet ***"
+  },
+  "completed": true,
+  "first_score": true,
+  "frozen_candidate_paths": {
+    "native/Cargo.lock": "a905547d069da6d55bf6739307ffe9c75202cc15e87a6ae399e10b8890544783",
+    "native/Cargo.toml": "f5ab389ff2beb11294e775cd75d01e81de3d4c6976eb7e3f9bfb26fb72f435f3",
+    "native/src/bin/clab-jls2.rs": "45d835cc512406f747a0cab7173b2594897c2064fcddff1c53a94e8b9d43c7c9",
+    "native/src/jls2.rs": "e57b5d7d0bf1797eceba7bb2a3b0eeffd06a44cb7d4dc046a62ceda0c90bfbbc",
+    "native/src/lib.rs": "ec3ba58920c8701c3eac6a6c4150c3b4474248e203376c158ec376a2b3411127",
+    "pyproject.toml": "45f59bde45228dc5be2d62d85117f5019129d8164eb28add8e195453bff6725c",
+    "src/compresslab/json_columnar.py": "cf3b677a40397b36d9f527b3df1f562594d396049c60692e0482af111c5ed85e",
+    "src/compresslab/json_log_codec.py": "d8882a3de67233acf9963adeb0c8edc19eae1209753cd42246490538f4597f9e",
+    "src/compresslab/native.py": "3420b3d7acaa636a27f2788e9304b19c01014f6f3183c2aa822e9bf3cc4cf7d1",
+    "src/compresslab/worker.py": "3d5cf89abd2d992e9ea017205105f212df90f3dd3ee15608b0eb742c4a193b61"
+  },
+  "gates_path": "/home/runner/work/compression-lab/compression-lab/config/clue-jls2-public-validation-gates.json",
+  "gates_sha256": "659f645ece4b6be1591d8045b02e593f179bc1510b0b1b4755db72dd6d38b5b6",
+  "lock_receipt": {
+    "authorization": {
+      "expected_item_ids": [
+        "clue-validation-a",
+        "clue-validation-b"
+      ],
+      "maximum_acquisitions": 1,
+      "maximum_scored_attempts": 1,
+      "prohibit_post_score_tuning": true,
+      "retain_failed_or_interrupted_attempt": true,
+      "split": "public_validation"
+    },
+    "claim_ceiling": "This lock authorizes one unchanged acquisition and first score on the two declared CLUE-LDS public-validation ranges. It does not itself provide performance evidence or support a category-win, market-leading, world-best, or state-of-the-art claim.",
+    "head_commit": "b9cdc9e797b36709ba4c17c23a4c6585670254e3",
+    "lock_path": "/home/runner/work/compression-lab/compression-lab/config/clue-jls2-public-validation-lock.json",
+    "lock_sha256": "b74635fdad32524ff6e1c7b659ccdd38c09fa47aa421cd375ffabf113d5f4b6f",
+    "passed": true,
+    "readiness_commit": "65bc87e9cf15ed5c9c3f46f07dd1148fac814972",
+    "schema_version": 1,
+    "tracked_status": "",
+    "verified_paths": {
+      ".github/workflows/clue-jls2-public-validation.yml": "bbe3218219ff632fd597df4ace635f07fc19236b28f434d6078e9ac44e299293",
+      "config/clue-jls2-public-validation-gates.json": "659f645ece4b6be1591d8045b02e593f179bc1510b0b1b4755db72dd6d38b5b6",
+      "config/clue-json-log-corpus-v1.json": "9326b3c38835da96feabe0c3b8fcdae1f176d113301e95bc703169666c1f6cf5",
+      "config/clue-pbc-public-validation-gates.json": "dd8f7d940e5e4eab1149773c02bd407f0ca800c0999add8ccbbc15d20a5683b5",
+      "config/log-competitor-reproduction-v1.json": "0b6792cdce6ea53b062e8083c976419b62ca4175e6f978c876cffc4b579991a7",
+      "docs/benchmarks/2026-07-17-clue-jls2-public-validation-readiness.md": "3618f980638075c68af4968e71b358767e0a9307e22b4c3ea52ed147ef2a57cc",
+      "scripts/benchmark-clue-jls2-public-validation.py": "709e2846af97d2dd8be16069b567852899d507b82f088337e548286893c59559",
+      "scripts/benchmark-pbc-competitor.py": "e23691c006923b68b23a70c8ae923d8a3d7df99d63f825cea48c93542220970e",
+      "scripts/evaluate-clue-jls2-public-validation.py": "4bb0d7259fb8892afd2c2fd5a00d6ff9bdcb794fdda54e5fe33f1c09f589464e",
+      "scripts/fetch-clue-json-corpus.py": "5cb74b2d85c340a65c398766aa78965aa12554c39ce71e41010ee7a565e617e5",
+      "scripts/publish-clue-jls2-public-validation.py": "163d3095bfdb32789d28b7a58f6cf86f0c59e84f9648800777efef2590c14006",
+      "scripts/verify-clue-jls2-public-validation-lock.py": "43b947fc1e3cf86da1561b4f88dae32c44ba89f64069eed9d4c06f5877b97f68",
+      "tests/test_clue_jls2_publication.py": "d1bb784b6f15b7c51685aae841bc0339c48e62a7fd5abb6e8114b9dfcaf52fe3",
+      "tests/test_clue_jls2_validation_readiness.py": "d47c96f6d35789f2d4fe12741c9d8d49118f239296d39497fe7596888bdbc541"
+    }
+  },
+  "manifest_path": "/home/runner/work/_temp/clue-validation/manifest.json",
+  "manifest_sha256": "fddc257dc6dd87ccb1efaf98fb772c62047a17cf9394e9b79ca4894f05ed8583",
+  "native_binary_sha256": "f3dbc0720c8fde9149dc974a62f0b88d010545b69f69653bc5e395027639bd24",
+  "normalized_preflight_load_1m": 0.3553466796875,
+  "pbc_accepted": "pbc-accepted.json",
+  "pbc_accepted_sha256": "c1641c8f535850b037ba77239537a159ff24a79e079632ea693c3fbe76fadf73",
+  "performance_results": "performance/results.json",
+  "performance_results_sha256": "c17869ef953c9841529ff4fecda285e4e0feac8394d3508cf3dc46e8fc95c18e",
+  "repository": {
+    "commit": "b9cdc9e797b36709ba4c17c23a4c6585670254e3",
+    "tracked_status": ""
+  },
+  "schema_version": 1,
+  "verified_development_evidence": {
+    "runs/clue-json-log-development-census-v1/comparison.json": "66d8986ae2bf6beb2cc2a4fd4280f9dfe34f013f947e9097c80353853bf74a36",
+    "runs/jls2-native-decoder-v1/hosted-arm64-reproduction.json": "800ddebd739f1d39d0e008419760ee052395839d4c1a297eca7d62fce71bbbd0",
+    "runs/jls2-native-decoder-v1/results.json": "d5d64e3b756f75ff1ee6585e895b88caea1996201c3f08de1e6e35b5e648a0dc"
+  }
+}

@@ -1,0 +1,177 @@
+{
+  "schema_version": 1,
+  "name": "text-and-source-product-gates-v1",
+  "declared_at": "2026-07-17",
+  "tracks": {
+    "source_code_bundles": {
+      "required_development_families": 4,
+      "required_public_validation_families": 4,
+      "minimum_families_with_five_percent_gain": 3
+    },
+    "english_wikimedia_wikitext": {
+      "required_development_families": 3,
+      "required_public_validation_families": 3,
+      "minimum_families_with_five_percent_gain": 2
+    }
+  },
+  "baseline_tiers": {
+    "practical_required": [
+      {
+        "codec_id": "store",
+        "version": "format-native",
+        "official_source": null
+      },
+      {
+        "codec_id": "lz4-1",
+        "version": "1.10.0",
+        "official_source": "https://github.com/lz4/lz4/releases/tag/v1.10.0"
+      },
+      {
+        "codec_id": "gzip-9",
+        "version": "host-pinned",
+        "official_source": "https://www.gnu.org/software/gzip/"
+      },
+      {
+        "codec_id": "bzip2-9",
+        "version": "1.0.8",
+        "official_source": "https://sourceware.org/bzip2/"
+      },
+      {
+        "codec_id": "bzip3-max",
+        "version": "1.5.3",
+        "official_source": "https://github.com/iczelia/bzip3/releases/tag/1.5.3"
+      },
+      {
+        "codec_id": "zstd-3",
+        "version": "1.5.7",
+        "official_source": "https://github.com/facebook/zstd/releases/tag/v1.5.7"
+      },
+      {
+        "codec_id": "zstd-9",
+        "version": "1.5.7",
+        "official_source": "https://github.com/facebook/zstd/releases/tag/v1.5.7"
+      },
+      {
+        "codec_id": "zstd-19",
+        "version": "1.5.7",
+        "official_source": "https://github.com/facebook/zstd/releases/tag/v1.5.7"
+      },
+      {
+        "codec_id": "zstd-22-ultra",
+        "version": "1.5.7",
+        "official_source": "https://github.com/facebook/zstd/releases/tag/v1.5.7"
+      },
+      {
+        "codec_id": "brotli-11",
+        "version": "1.2.0",
+        "official_source": "https://github.com/google/brotli/releases/tag/v1.2.0"
+      },
+      {
+        "codec_id": "xz-lzma2-9e",
+        "version": "host-pinned",
+        "official_source": "https://tukaani.org/xz/"
+      },
+      {
+        "codec_id": "7zip-lzma2-9",
+        "version": "26.02",
+        "official_source": "https://www.7-zip.org/download.html"
+      },
+      {
+        "codec_id": "7zip-ppmd-9",
+        "version": "26.02",
+        "official_source": "https://www.7-zip.org/download.html"
+      },
+      {
+        "codec_id": "kanzi-max",
+        "version": "2.5.3",
+        "official_source": "https://github.com/flanglet/kanzi-cpp/releases/tag/v2.5.3"
+      },
+      {
+        "codec_id": "libbsc-max",
+        "version": "3.3.12",
+        "official_source": "https://libbsc.com/"
+      }
+    ],
+    "research_ceiling": [
+      {
+        "codec_id": "zpaq-5",
+        "version": "7.15",
+        "official_source": "https://mattmahoney.net/dc/zpaq.html",
+        "resource_policy": "Run if exact single-input mode and complete archive accounting are reproducible within the research budget."
+      },
+      {
+        "codec_id": "paq8px-forcetext",
+        "version": "v216",
+        "official_source": "https://github.com/hxim/paq8px/releases/tag/v216",
+        "resource_policy": "Use the strongest level completing within the research budget. Any pretraining dictionaries or expression files required to decode count in full."
+      },
+      {
+        "codec_id": "cmix",
+        "version": "v21",
+        "official_source": "https://github.com/byronknoll/cmix/releases/tag/v21",
+        "resource_policy": "Run only on a declared host with at least 32 GiB RAM and within the research time budget."
+      },
+      {
+        "codec_id": "nncp",
+        "version": "3.2",
+        "official_source": "https://bellard.org/nncp/",
+        "resource_policy": "Run only when the official implementation, model assets, and decoder can be pinned and completely accounted within the research budget."
+      }
+    ]
+  },
+  "comparability_policy": {
+    "practical_gate": "The ratio-oriented product must beat the smallest eligible practical_required complete artifact. Every required baseline must be reproduced on identical derived bytes or marked infrastructure-failed; missing, unavailable, timed-out, or inexact baselines cannot be counted as wins.",
+    "research_context": "Research-ceiling compressors never disappear from the chart. A product may pass the practical gate without beating them, but no strongest-ratio, world-best, or state-of-the-art wording is allowed unless it also beats every eligible completed research-ceiling result under exact complete accounting.",
+    "single_file_rule": "All competitors receive one identical derived category item and produce one self-contained decodable artifact. Directory metadata, solid-archive advantages, external models, preprocessors, and dictionaries must be equally framed and counted.",
+    "famous_benchmark_rule": "Published enwik8/enwik9 results are context only and never substitute for a same-run frozen split."
+  },
+  "ratio_mode_requirements": {
+    "minimum_aggregate_gain_vs_strongest_practical_percent": 5.0,
+    "maximum_family_regression_vs_equally_framed_best_direct_fallback_percent": 1.0,
+    "minimum_compression_mbps": 25.0,
+    "minimum_decompression_mbps": 200.0,
+    "maximum_peak_compression_rss_mib": 1024.0,
+    "maximum_peak_decompression_rss_mib": 1024.0
+  },
+  "balanced_mode_requirements": {
+    "minimum_aggregate_gain_vs_zstd9_percent": 5.0,
+    "maximum_aggregate_size_regression_vs_ratio_mode_percent": 3.0,
+    "maximum_family_regression_vs_equally_framed_best_direct_fallback_percent": 1.0,
+    "minimum_compression_mbps": 100.0,
+    "minimum_decompression_mbps": 500.0,
+    "maximum_peak_compression_rss_mib": 512.0,
+    "maximum_peak_decompression_rss_mib": 512.0
+  },
+  "research_budget": {
+    "maximum_wall_hours_per_family_per_codec": 12.0,
+    "maximum_peak_rss_gib": 32.0,
+    "minimum_repetitions": 1,
+    "reason": "Research-ceiling runs are ratio context, not a practical speed tier. Wall time and memory remain bounded and visible."
+  },
+  "streaming_requirements": {
+    "target_segment_bytes": 16777216,
+    "maximum_concurrent_segments": 2,
+    "minimum_large_file_bytes": 1073741824,
+    "maximum_size_regression_vs_whole_file_ratio_mode_percent": 2.0,
+    "maximum_peak_compression_rss_mib": 1024.0,
+    "maximum_peak_decompression_rss_mib": 1024.0,
+    "require_segment_independent_decode": true,
+    "require_bounded_seek_index": true,
+    "require_atomic_failure_without_output_clobber": true
+  },
+  "shared_requirements": {
+    "minimum_practical_repetitions": 5,
+    "require_exact_roundtrip": true,
+    "require_deterministic_output": true,
+    "require_complete_frame_accounting": true,
+    "require_no_material_expansion_vs_equally_framed_fallback": true,
+    "maximum_material_expansion_bytes": 64,
+    "require_bounded_input_derived_selection": true,
+    "require_truncated_and_corrupt_frame_rejection": true,
+    "require_portable_reference_decoder": true,
+    "require_cross_platform_wheels": true,
+    "require_clean_frozen_commit": true
+  },
+  "decision_rule": "A track and mode pass only if every applicable requirement passes on the first authorized public-validation score. No representation, model, dictionary, selector, threshold, corpus rule, baseline setting, evaluator, or gate may change after validation acquisition.",
+  "claim_rule": "A public-validation pass supports only the exact track scope. Private-holdout success and independent reproduction are additionally required before state-of-the-art wording; all eligible research-ceiling results must also be beaten before a strongest-ratio or world-best claim."
+}

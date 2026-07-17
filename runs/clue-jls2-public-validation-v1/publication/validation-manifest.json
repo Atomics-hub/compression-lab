@@ -1,0 +1,76 @@
+{
+  "archive": {
+    "filename": "clue.zip",
+    "member": "clue.json",
+    "member_size_bytes": 14862210499,
+    "publisher_digest": "9e318370f96b68077667e9cdc05f26a5",
+    "publisher_digest_algorithm": "md5",
+    "sha256": "0c9eadb104acf1da6de738ba9babe957c83cd8602a01fa6d846a6ea4a6611d96",
+    "size_bytes": 635105552
+  },
+  "category": "structured_cloud_event_logs",
+  "claim_ceiling": "CLUE-LDS development and one-time public-validation evidence only; not private-holdout, universal, market-leading, world-best, or state-of-the-art evidence",
+  "config_path": "config/clue-json-log-corpus-v1.json",
+  "config_sha256": "9326b3c38835da96feabe0c3b8fcdae1f176d113301e95bc703169666c1f6cf5",
+  "items": [
+    {
+      "category": "structured_cloud_event_logs",
+      "dataset": "clue-json-log-corpus-v1",
+      "family": "clue_validation_a",
+      "first_record_id": 35000001,
+      "id": "clue-validation-a",
+      "last_record_id": 35250000,
+      "license_spdx": "CC-BY-4.0",
+      "path": "clue-validation-a.jsonl",
+      "provenance": {
+        "archive_sha256": "0c9eadb104acf1da6de738ba9babe957c83cd8602a01fa6d846a6ea4a6611d96",
+        "doi": "10.5281/zenodo.7119953",
+        "selection_rule": "preserve complete original NDJSON records whose official monotonically increasing id is within the inclusive frozen range"
+      },
+      "record_count": 250000,
+      "sha256": "6956d1b9edf9dbe54a69c8c7ed0151d8abbaa6f994ab64260c9a6da967f8850b",
+      "size_bytes": 48404358,
+      "source_url": "https://zenodo.org/records/7119953",
+      "split": "public_validation"
+    },
+    {
+      "category": "structured_cloud_event_logs",
+      "dataset": "clue-json-log-corpus-v1",
+      "family": "clue_validation_b",
+      "first_record_id": 45000001,
+      "id": "clue-validation-b",
+      "last_record_id": 45250000,
+      "license_spdx": "CC-BY-4.0",
+      "path": "clue-validation-b.jsonl",
+      "provenance": {
+        "archive_sha256": "0c9eadb104acf1da6de738ba9babe957c83cd8602a01fa6d846a6ea4a6611d96",
+        "doi": "10.5281/zenodo.7119953",
+        "selection_rule": "preserve complete original NDJSON records whose official monotonically increasing id is within the inclusive frozen range"
+      },
+      "record_count": 250000,
+      "sha256": "e3a3ca88452989c004853f16d3f1374a0dc13d0df67ce8f2c29fcf82ad99b5fb",
+      "size_bytes": 48530125,
+      "source_url": "https://zenodo.org/records/7119953",
+      "split": "public_validation"
+    }
+  ],
+  "name": "clue-json-log-corpus-v1",
+  "provider": {
+    "authors": [
+      "Max Landauer",
+      "Florian Skopik",
+      "Georg H\u00f6ld",
+      "Markus Wurzenberger"
+    ],
+    "doi": "10.5281/zenodo.7119953",
+    "license_spdx": "CC-BY-4.0",
+    "publication_date": "2022-09-28",
+    "record_count_description": "around 50 million events",
+    "record_url": "https://zenodo.org/records/7119953",
+    "title": "Cloud-based User Entity Behavior Analytics Log Data Set",
+    "unpacked_size_description": "around 14.5 GB"
+  },
+  "schema_version": 1,
+  "selection_rule": "preserve complete original NDJSON records whose official monotonically increasing id is within the inclusive frozen range",
+  "split": "public_validation"
+}

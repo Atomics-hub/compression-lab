@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="556" viewBox="0 0 1120 556" role="img" aria-labelledby="title description">
+<title id="title">Atompress JLS2 CLUE-LDS compressed-byte comparison</title>
+<desc id="description">Lower bars are better. All available exact-byte standards and the separately run PBC specialist are included.</desc>
+<rect width="1120" height="100%" fill="#0b1020"/>
+<text x="28" y="34" fill="#f8fafc" font-family="system-ui,sans-serif" font-size="22" font-weight="700">Atompress (JLS2) — complete compressed bytes</text>
+<text x="28" y="57" fill="#94a3b8" font-family="system-ui,sans-serif" font-size="13">Lower is better · exact-byte archive accounting · first frozen score</text>
+<text x="158" y="94" text-anchor="end" fill="#e2e8f0" font-family="ui-monospace,monospace" font-size="13">jls2</text>
+<rect x="170" y="80" width="4.14" height="20" rx="3" fill="#22c55e"/>
+<text x="182.14" y="95" fill="#e2e8f0" font-family="ui-monospace,monospace" font-size="12">489,591</text>
+<text x="158" y="128" text-anchor="end" fill="#e2e8f0" font-family="ui-monospace,monospace" font-size="13">store</text>
+<rect x="170" y="114" width="820.00" height="20" rx="3" fill="#64748b"/>
+<text x="998.00" y="129" fill="#e2e8f0" font-family="ui-monospace,monospace" font-size="12">96,934,483</text>
+<text x="158" y="162" text-anchor="end" fill="#e2e8f0" font-family="ui-monospace,monospace" font-size="13">lz4-1</text>
+<rect x="170" y="148" width="36.74" height="20" rx="3" fill="#64748b"/>
+<text x="214.74" y="163" fill="#e2e8f0" font-family="ui-monospace,monospace" font-size="12">4,343,178</text>
+<text x="158" y="196" text-anchor="end" fill="#e2e8f0" font-family="ui-monospace,monospace" font-size="13">gzip-9</text>
+<rect x="170" y="182" width="14.83" height="20" rx="3" fill="#64748b"/>
+<text x="192.83" y="197" fill="#e2e8f0" font-family="ui-monospace,monospace" font-size="12">1,753,139</text>
+<text x="158" y="230" text-anchor="end" fill="#e2e8f0" font-family="ui-monospace,monospace" font-size="13">bz2-9</text>
+<rect x="170" y="216" width="10.08" height="20" rx="3" fill="#64748b"/>
+<text x="188.08" y="231" fill="#e2e8f0" font-family="ui-monospace,monospace" font-size="12">1,191,120</text>
+<text x="158" y="264" text-anchor="end" fill="#e2e8f0" font-family="ui-monospace,monospace" font-size="13">zstd-3</text>
+<rect x="170" y="250" width="17.25" height="20" rx="3" fill="#64748b"/>
+<text x="195.25" y="265" fill="#e2e8f0" font-family="ui-monospace,monospace" font-size="12">2,039,686</text>
+<text x="158" y="298" text-anchor="end" fill="#e2e8f0" font-family="ui-monospace,monospace" font-size="13">zstd-9</text>
+<rect x="170" y="284" width="12.08" height="20" rx="3" fill="#64748b"/>
+<text x="190.08" y="299" fill="#e2e8f0" font-family="ui-monospace,monospace" font-size="12">1,427,883</text>
+<text x="158" y="332" text-anchor="end" fill="#e2e8f0" font-family="ui-monospace,monospace" font-size="13">zstd-19</text>
+<rect x="170" y="318" width="11.05" height="20" rx="3" fill="#64748b"/>
+<text x="189.05" y="333" fill="#e2e8f0" font-family="ui-monospace,monospace" font-size="12">1,306,105</text>
+<text x="158" y="366" text-anchor="end" fill="#e2e8f0" font-family="ui-monospace,monospace" font-size="13">brotli-11</text>
+<rect x="170" y="352" width="8.81" height="20" rx="3" fill="#64748b"/>
+<text x="186.81" y="367" fill="#e2e8f0" font-family="ui-monospace,monospace" font-size="12">1,040,990</text>
+<text x="158" y="400" text-anchor="end" fill="#e2e8f0" font-family="ui-monospace,monospace" font-size="13">lzma-9</text>
+<rect x="170" y="386" width="10.66" height="20" rx="3" fill="#64748b"/>
+<text x="188.66" y="401" fill="#e2e8f0" font-family="ui-monospace,monospace" font-size="12">1,259,596</text>
+<text x="158" y="434" text-anchor="end" fill="#e2e8f0" font-family="ui-monospace,monospace" font-size="13">7zip-9</text>
+<rect x="170" y="420" width="10.64" height="20" rx="3" fill="#64748b"/>
+<text x="188.64" y="435" fill="#e2e8f0" font-family="ui-monospace,monospace" font-size="12">1,257,298</text>
+<text x="158" y="468" text-anchor="end" fill="#e2e8f0" font-family="ui-monospace,monospace" font-size="13">pbc-only</text>
+<rect x="170" y="454" width="160.07" height="20" rx="3" fill="#a78bfa"/>
+<text x="338.07" y="469" fill="#e2e8f0" font-family="ui-monospace,monospace" font-size="12">18,922,528</text>
+<text x="28" y="528" fill="#94a3b8" font-family="system-ui,sans-serif" font-size="12">Unavailable/ineligible (not wins): LogFold, LogPrism, LogLite, DeLog</text>
+</svg>
