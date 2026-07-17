@@ -221,6 +221,7 @@ round-trip, provenance, stability, or completeness failure remains visible.
 - [Fresh tabular-successor corpus protocol](docs/benchmarks/2026-07-17-tabular-successor-corpus-protocol.md)
 - [Fresh tabular-successor development census](docs/benchmarks/2026-07-17-tabular-successor-development-census.md)
 - [Dense-matrix representation protocol](docs/benchmarks/2026-07-17-dense-matrix-representation-protocol.md)
+- [Dense-matrix representation decision](docs/benchmarks/2026-07-17-dense-matrix-representation-decision.md)
 - [TBL1 public-validation lock](config/tbl1-public-validation-lock.json)
 - [File-format contract](docs/file-format.md)
 - [Release readiness](docs/release-readiness.md)

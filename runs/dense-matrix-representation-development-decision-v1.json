@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "name": "dense-matrix-representation-development-decision-v1",
+  "stage": "fresh-development-reference-representation-decision",
+  "claim_ceiling": "three fresh licensed development matrices and single local reference timings only; not product-speed, public-validation, private-holdout, independent, category-best, market-leading, or state-of-the-art evidence",
+  "corpus": {
+    "source_bytes": 4895341,
+    "families": 3,
+    "public_validation": "unopened",
+    "private_holdout": "sealed"
+  },
+  "baseline": {
+    "codec": "bz2-9",
+    "aggregate_bytes": 200311,
+    "five_percent_target_bytes": 190295
+  },
+  "hypotheses": [
+    {
+      "id": "DMT1",
+      "description": "row-major separator-aware dictionary indices",
+      "aggregate_bytes": 230158,
+      "gain_vs_bz2_9_percent": -14.900329986870418,
+      "families_with_five_percent_gain": 1,
+      "ratio_gate_passed": false,
+      "decision": "reject as a universal representation; retain binary-token component"
+    },
+    {
+      "id": "DMI1",
+      "description": "column-major token indices",
+      "aggregate_bytes": 255964,
+      "gain_vs_bz2_9_percent": -27.78329697320666,
+      "families_with_five_percent_gain": 0,
+      "ratio_gate_passed": false,
+      "decision": "reject"
+    },
+    {
+      "id": "DMP1",
+      "description": "row-major numeric bit planes",
+      "aggregate_bytes": 244655,
+      "gain_vs_bz2_9_percent": -22.137576069212376,
+      "families_with_five_percent_gain": 1,
+      "ratio_gate_passed": false,
+      "decision": "reject as a universal representation; retain for binary-like streams"
+    },
+    {
+      "id": "DMC1",
+      "description": "static column-and-previous-symbol arithmetic contexts",
+      "aggregate_bytes": 199232,
+      "gain_vs_bz2_9_percent": 0.5386623799991014,
+      "families_with_five_percent_gain": 1,
+      "ratio_gate_passed": false,
+      "decision": "reject stored model; retain context definition"
+    },
+    {
+      "id": "DMA1",
+      "description": "adaptive column-and-previous-symbol arithmetic contexts",
+      "aggregate_bytes": 179168,
+      "gain_vs_bz2_9_percent": 10.555086839963856,
+      "families_with_five_percent_gain": 1,
+      "ratio_gate_passed": false,
+      "decision": "retain as primary numeric-matrix representation"
+    },
+    {
+      "id": "DMS1",
+      "description": "complete-frame smaller-of DMA1 and DMP1 for bounded rectangular numeric inputs",
+      "aggregate_bytes": 177434,
+      "gain_vs_bz2_9_percent": 11.420740748136646,
+      "families_with_five_percent_gain": 2,
+      "ratio_gate_passed": true,
+      "operational_gate_passed": false,
+      "decision": "advance representation to native implementation only"
+    }
+  ],
+  "selected_families": [
+    {
+      "family": "multiple_features_pixel_matrix",
+      "route": "DMA1",
+      "source_bytes": 1442000,
+      "complete_bytes": 74133,
+      "bz2_9_bytes": 77935,
+      "gain_vs_bz2_9_percent": 4.878424327965612,
+      "reference_compression_mbps": 1.254663841958373,
+      "reference_decompression_mbps": 1.3336255323521915,
+      "exact_roundtrip": true
+    },
+    {
+      "family": "optdigits_integer_matrix",
+      "route": "DMA1",
+      "source_bytes": 563639,
+      "complete_bytes": 72762,
+      "bz2_9_bytes": 89361,
+      "gain_vs_bz2_9_percent": 18.575217376707958,
+      "reference_compression_mbps": 0.8520772765195143,
+      "reference_decompression_mbps": 0.8413561525695898,
+      "exact_roundtrip": true
+    },
+    {
+      "family": "semeion_binary_digit_matrix",
+      "route": "DMP1",
+      "source_bytes": 2889702,
+      "complete_bytes": 30539,
+      "bz2_9_bytes": 33015,
+      "gain_vs_bz2_9_percent": 7.499621384219294,
+      "reference_compression_mbps": 3.115818228110155,
+      "reference_decompression_mbps": 7.837343436141269,
+      "exact_roundtrip": true
+    }
+  ],
+  "gates": {
+    "aggregate_ratio": "pass",
+    "two_of_three_family_ratio": "pass",
+    "exact_roundtrip": "pass",
+    "reference_compression_speed": "fail",
+    "reference_decompression_speed": "fail",
+    "record_table_preservation": "pending native selector integration",
+    "memory_corruption_portability": "pending native candidate"
+  },
+  "decision": "The DMS1 representation passes the frozen development ratio gates but is not a product candidate. Implement DMA1 arithmetic coding and DMP1 binary planes in Rust, add complete-frame selection and unchanged TBS1 fallback, then run operational and record-table regression gates before any validation acquisition."
+}
