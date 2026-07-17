@@ -40,13 +40,21 @@ jobs:
       - name: Type-check public surface
         run: mypy src/compresslab/api.py src/compresslab/experimental.py src/compresslab/json_log_codec.py src/compresslab/cli.py scripts/benchmark-tbl1-public-validation.py scripts/evaluate-tbl1-public-validation.py
       - name: Check Rust formatting
-        run: cargo fmt --manifest-path native/Cargo.toml --all -- --check
+        run: |
+          cargo fmt --manifest-path native/Cargo.toml --all -- --check
+          cargo fmt --manifest-path native-dense/Cargo.toml --all -- --check
       - name: Lint Rust library
-        run: cargo clippy --manifest-path native/Cargo.toml --all-targets --locked -- -D warnings
+        run: |
+          cargo clippy --manifest-path native/Cargo.toml --all-targets --locked -- -D warnings
+          cargo clippy --manifest-path native-dense/Cargo.toml --all-targets --locked -- -D warnings
       - name: Test Rust library (debug)
-        run: cargo test --manifest-path native/Cargo.toml --locked
+        run: |
+          cargo test --manifest-path native/Cargo.toml --locked
+          cargo test --manifest-path native-dense/Cargo.toml --locked
       - name: Test Rust library (release)
-        run: cargo test --manifest-path native/Cargo.toml --release --locked
+        run: |
+          cargo test --manifest-path native/Cargo.toml --release --locked
+          cargo test --manifest-path native-dense/Cargo.toml --release --locked
       - name: Test Python package
         run: python -W error::ResourceWarning -m unittest discover -s tests -v
       - name: Run hostile-frame fuzz smoke
@@ -108,6 +116,13 @@ jobs:
         env:
           CIBW_ARCHS: native
           CIBW_BUILD: cp312-*
+          CIBW_TEST_COMMAND: >-
+            python -c "import compresslab; from compresslab import native;
+            from compresslab.dense_native import dense_parallel_native_available,
+            dense_plane_native_available; from compresslab.dense_matrix_transform
+            import selector_compress, selector_decompress; data=b'0,1,16,4\n1,0,2,4\n'*1000;
+            assert native.native_available(); assert dense_parallel_native_available();
+            assert dense_plane_native_available(); assert selector_decompress(selector_compress(data))==data"
       - uses: actions/upload-artifact@v7
         with:
           name: wheel-smoke-${{ runner.os }}

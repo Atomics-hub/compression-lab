@@ -7,6 +7,7 @@ from compresslab.dense_matrix_transform import (
     adaptive_decompress,
     adaptive_inverse_transform,
     adaptive_transform,
+    _parallel_transform_python,
     compress,
     context_compress,
     context_decompress,
@@ -22,6 +23,11 @@ from compresslab.dense_matrix_transform import (
     plane_decompress,
     plane_inverse_transform,
     plane_transform,
+    parallel_inverse_transform,
+    parallel_transform,
+    selector_backend,
+    selector_compress,
+    selector_decompress,
     transform,
 )
 
@@ -120,6 +126,29 @@ class DenseMatrixTransformTests(unittest.TestCase):
         )
         frame = adaptive_compress(source)
         self.assertEqual(adaptive_decompress(frame), source)
+
+    def test_parallel_context_lanes_match_reference_and_roundtrip(self):
+        source = b"0,1,16,4\n1,0,2,4\n0,1,15,3\n" * 20
+        transformed = parallel_transform(source)
+        self.assertEqual(transformed, _parallel_transform_python(source))
+        self.assertEqual(
+            parallel_inverse_transform(transformed, True, len(source)), source
+        )
+
+    def test_dense_selector_is_deterministic_exact_and_self_describing(self):
+        binary = b"0.0000 1.0000 0.0000 \n1.0000 0.0000 1.0000 \n" * 20
+        varied = b"0,1,16,4\n1,0,2,4\n0,1,15,3\n" * 20
+        for source, backend in (
+            (binary, "dmp1-planes"),
+            (varied, "dma2-parallel"),
+        ):
+            with self.subTest(backend=backend):
+                first = selector_compress(source)
+                self.assertEqual(first, selector_compress(source))
+                self.assertEqual(selector_backend(first), backend)
+                self.assertEqual(selector_decompress(first), source)
+                with self.assertRaises(ValueError):
+                    selector_decompress(first[:-1])
 
 
 if __name__ == "__main__":

@@ -5,7 +5,23 @@ import struct
 from decimal import Decimal
 from collections import defaultdict
 
-from .native import zstd_compress, zstd_decompress, zstd_frame_content_size
+from .dense_native import (
+    dense_adaptive_native_available,
+    dense_adaptive_reassemble,
+    dense_adaptive_transform as native_dense_adaptive_transform,
+    dense_plane_native_available,
+    dense_plane_reassemble,
+    dense_plane_transform as native_dense_plane_transform,
+    dense_parallel_native_available,
+    dense_parallel_reassemble,
+    dense_parallel_transform as native_dense_parallel_transform,
+    dense_sample_alphabet,
+)
+from .native import (
+    zstd_compress,
+    zstd_decompress,
+    zstd_frame_content_size,
+)
 
 
 MAGIC = b"DMT1"
@@ -13,6 +29,8 @@ MATRIX_MAGIC = b"DMI1"
 PLANE_MAGIC = b"DMP1"
 CONTEXT_MAGIC = b"DMC1"
 ADAPTIVE_MAGIC = b"DMA1"
+PARALLEL_MAGIC = b"DMA2"
+SELECTOR_MAGIC = b"DMS2"
 VERSION = 1
 SEPARATOR_BYTES = frozenset(b" \t,;|\r\n")
 HEADER = struct.Struct(">4sBBQQ32s")
@@ -442,7 +460,7 @@ def matrix_decompress(frame: bytes) -> bytes:
     return output
 
 
-def plane_transform(data: bytes) -> bytes:
+def _plane_transform_python(data: bytes) -> bytes:
     starts_with_token, tokens, separators = _split_runs(data)
     if any(not _is_numeric_lexeme(token) for token in tokens):
         raise ValueError("DMP1 input contains a nonnumeric field")
@@ -482,7 +500,7 @@ def plane_transform(data: bytes) -> bytes:
     return bytes(output)
 
 
-def plane_inverse_transform(
+def _plane_inverse_transform_python(
     transformed: bytes, starts_with_token: bool, expected_size: int
 ) -> bytes:
     if not 0 <= expected_size <= MAX_TRANSFORMED_BYTES:
@@ -540,6 +558,28 @@ def plane_inverse_transform(
     if len(output) != expected_size:
         raise ValueError("DMP1 output size does not match declaration")
     return bytes(output)
+
+
+def plane_transform(data: bytes) -> bytes:
+    if dense_plane_native_available():
+        transformed, starts_with_token = native_dense_plane_transform(data)
+        expected_start = not data or data[0] not in SEPARATOR_BYTES
+        if starts_with_token != expected_start:
+            raise ValueError("native DMP1 start type does not match input")
+        return transformed
+    return _plane_transform_python(data)
+
+
+def plane_inverse_transform(
+    transformed: bytes, starts_with_token: bool, expected_size: int
+) -> bytes:
+    if dense_plane_native_available():
+        return dense_plane_reassemble(
+            transformed, starts_with_token, expected_size
+        )
+    return _plane_inverse_transform_python(
+        transformed, starts_with_token, expected_size
+    )
 
 
 def plane_compress(data: bytes, level: int = 9) -> bytes:
@@ -1059,7 +1099,7 @@ def _adaptive_decode(
     return output
 
 
-def adaptive_transform(data: bytes) -> bytes:
+def _adaptive_transform_python(data: bytes) -> bytes:
     starts_with_token, tokens, separators = _split_runs(data)
     if any(not _is_numeric_lexeme(token) for token in tokens):
         raise ValueError("DMA1 input contains a nonnumeric field")
@@ -1091,7 +1131,7 @@ def adaptive_transform(data: bytes) -> bytes:
     return bytes(output)
 
 
-def adaptive_inverse_transform(
+def _adaptive_inverse_transform_python(
     transformed: bytes, starts_with_token: bool, expected_size: int
 ) -> bytes:
     view = memoryview(transformed)
@@ -1138,6 +1178,222 @@ def adaptive_inverse_transform(
     if len(output) != expected_size:
         raise ValueError("DMA1 output size does not match declaration")
     return bytes(output)
+
+
+def adaptive_transform(data: bytes) -> bytes:
+    if dense_adaptive_native_available():
+        transformed, starts_with_token = native_dense_adaptive_transform(data)
+        expected_start = not data or data[0] not in SEPARATOR_BYTES
+        if starts_with_token != expected_start:
+            raise ValueError("native DMA1 start type does not match input")
+        return transformed
+    return _adaptive_transform_python(data)
+
+
+def adaptive_inverse_transform(
+    transformed: bytes, starts_with_token: bool, expected_size: int
+) -> bytes:
+    if dense_adaptive_native_available():
+        return dense_adaptive_reassemble(
+            transformed, starts_with_token, expected_size
+        )
+    return _adaptive_inverse_transform_python(
+        transformed, starts_with_token, expected_size
+    )
+
+
+def _parallel_transform_python(data: bytes) -> bytes:
+    _starts_with_token, tokens, separators = _split_runs(data)
+    if any(not _is_numeric_lexeme(token) for token in tokens):
+        raise ValueError("DMA2 input contains a nonnumeric field")
+    row_count, column_count = _matrix_shape(data)
+    token_dictionary = sorted(
+        set(tokens), key=lambda token: (Decimal(token.decode("ascii")), token)
+    )
+    separator_dictionary = sorted(set(separators))
+    token_lookup = {entry: index for index, entry in enumerate(token_dictionary)}
+    separator_lookup = {
+        entry: index for index, entry in enumerate(separator_dictionary)
+    }
+    symbols = [token_lookup[token] for token in tokens]
+    requested_lanes = 7 if len(token_dictionary) <= 8 else 6
+    lane_count = min(row_count, requested_lanes)
+    boundaries = [
+        row_count * lane // lane_count * column_count
+        for lane in range(lane_count + 1)
+    ]
+    streams = [
+        _adaptive_encode(
+            symbols[boundaries[lane] : boundaries[lane + 1]],
+            column_count,
+            len(token_dictionary),
+        )
+        for lane in range(lane_count)
+    ]
+    separator_indices = [separator_lookup[item] for item in separators]
+    packed_separators = _pack_indices(
+        separator_indices, len(separator_dictionary)
+    )
+    output = bytearray()
+    _write_dictionary(output, token_dictionary)
+    _write_dictionary(output, separator_dictionary)
+    output.extend(_encode_varint(row_count))
+    output.extend(_encode_varint(column_count))
+    output.extend(_encode_varint(len(separators)))
+    output.extend(_encode_varint(lane_count))
+    for stream in streams:
+        output.extend(_encode_varint(len(stream)))
+        output.extend(stream)
+    output.extend(_encode_varint(len(packed_separators)))
+    output.extend(packed_separators)
+    return bytes(output)
+
+
+def _parallel_inverse_transform_python(
+    transformed: bytes, starts_with_token: bool, expected_size: int
+) -> bytes:
+    view = memoryview(transformed)
+    token_dictionary, offset = _read_dictionary(view, 0)
+    separator_dictionary, offset = _read_dictionary(view, offset)
+    row_count, offset = _decode_varint(view, offset)
+    column_count, offset = _decode_varint(view, offset)
+    separator_count, offset = _decode_varint(view, offset)
+    token_count = row_count * column_count
+    if row_count == 0 or column_count == 0 or token_count > expected_size + 1:
+        raise ValueError("DMA2 matrix shape exceeds output bound")
+    lane_count, offset = _decode_varint(view, offset)
+    if not 1 <= lane_count <= 7 or lane_count > row_count:
+        raise ValueError("DMA2 lane count is invalid")
+    symbols: list[int] = []
+    for lane in range(lane_count):
+        stream_size, offset = _decode_varint(view, offset)
+        stream_end = offset + stream_size
+        if stream_end > len(view):
+            raise ValueError("truncated DMA2 arithmetic lane")
+        start_row = row_count * lane // lane_count
+        end_row = row_count * (lane + 1) // lane_count
+        symbols.extend(
+            _adaptive_decode(
+                view[offset:stream_end],
+                (end_row - start_row) * column_count,
+                column_count,
+                len(token_dictionary),
+            )
+        )
+        offset = stream_end
+    separator_size, offset = _decode_varint(view, offset)
+    separator_end = offset + separator_size
+    if separator_end != len(view):
+        raise ValueError("truncated or trailing DMA2 separator indices")
+    separator_indices = _unpack_indices(
+        view[offset:separator_end], separator_count, len(separator_dictionary)
+    )
+    output = bytearray()
+    token_offset = 0
+    separator_offset = 0
+    is_token = starts_with_token
+    for _ in range(token_count + separator_count):
+        if is_token:
+            output.extend(token_dictionary[symbols[token_offset]])
+            token_offset += 1
+        else:
+            output.extend(separator_dictionary[separator_indices[separator_offset]])
+            separator_offset += 1
+        if len(output) > expected_size:
+            raise ValueError("DMA2 output exceeds declared size")
+        is_token = not is_token
+    if len(output) != expected_size:
+        raise ValueError("DMA2 output size does not match declaration")
+    return bytes(output)
+
+
+def parallel_transform(data: bytes) -> bytes:
+    if dense_parallel_native_available():
+        transformed, starts_with_token = native_dense_parallel_transform(data)
+        expected_start = not data or data[0] not in SEPARATOR_BYTES
+        if starts_with_token != expected_start:
+            raise ValueError("native DMA2 start type does not match input")
+        return transformed
+    return _parallel_transform_python(data)
+
+
+def parallel_inverse_transform(
+    transformed: bytes, starts_with_token: bool, expected_size: int
+) -> bytes:
+    if dense_parallel_native_available():
+        return dense_parallel_reassemble(
+            transformed, starts_with_token, expected_size
+        )
+    return _parallel_inverse_transform_python(
+        transformed, starts_with_token, expected_size
+    )
+
+
+def _sample_alphabet_python(data: bytes, sample_size: int = 64 * 1024) -> int:
+    _starts, tokens, _separators = _split_runs(data[:sample_size])
+    if any(not _is_numeric_lexeme(token) for token in tokens):
+        raise ValueError("DMS2 sample contains a nonnumeric field")
+    return min(5, len(set(tokens)))
+
+
+def selector_compress(data: bytes, level: int = 19) -> bytes:
+    starts_with_token = not data or data[0] not in SEPARATOR_BYTES
+    alphabet = (
+        dense_sample_alphabet(data)
+        if dense_parallel_native_available()
+        else _sample_alphabet_python(data)
+    )
+    use_planes = alphabet <= 4
+    transformed = plane_transform(data) if use_planes else parallel_transform(data)
+    payload = zstd_compress(transformed, level=level)
+    flags = int(starts_with_token) | (int(use_planes) << 1)
+    return HEADER.pack(
+        SELECTOR_MAGIC,
+        VERSION,
+        flags,
+        len(data),
+        len(transformed),
+        hashlib.sha256(data).digest(),
+    ) + payload
+
+
+def selector_decompress(frame: bytes) -> bytes:
+    if len(frame) < HEADER.size:
+        raise ValueError("truncated DMS2 frame")
+    magic, version, flags, original_size, transformed_size, digest = (
+        HEADER.unpack_from(frame)
+    )
+    if magic != SELECTOR_MAGIC or version != VERSION or flags > 3:
+        raise ValueError("invalid DMS2 header")
+    payload = frame[HEADER.size :]
+    if zstd_frame_content_size(payload) != transformed_size:
+        raise ValueError("DMS2 transformed size does not match payload")
+    try:
+        transformed = zstd_decompress(payload, transformed_size)
+    except RuntimeError as error:
+        raise ValueError(f"invalid DMS2 payload: {error}") from error
+    starts_with_token = bool(flags & 1)
+    output = (
+        plane_inverse_transform(transformed, starts_with_token, original_size)
+        if flags & 2
+        else parallel_inverse_transform(
+            transformed, starts_with_token, original_size
+        )
+    )
+    if hashlib.sha256(output).digest() != digest:
+        raise ValueError("DMS2 checksum mismatch")
+    return output
+
+
+def selector_backend(frame: bytes) -> str:
+    if len(frame) < HEADER.size:
+        raise ValueError("truncated DMS2 frame")
+    magic, version, flags, _original, _transformed, _digest = HEADER.unpack_from(
+        frame
+    )
+    if magic != SELECTOR_MAGIC or version != VERSION or flags > 3:
+        raise ValueError("invalid DMS2 header")
+    return "dmp1-planes" if flags & 2 else "dma2-parallel"
 
 
 def adaptive_compress(data: bytes, level: int = 3) -> bytes:
