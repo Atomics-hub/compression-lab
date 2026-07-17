@@ -58,6 +58,31 @@ five decompression repetitions fell below 250 MB/s. Average speed was
 determinism, fallback safety, complete accounting, portability, and the 3/4
 family gate passed. See the [full scorecard and raw evidence](docs/benchmarks/2026-07-17-tbl1-public-validation-decision.md).
 
+### Fresh successor development checkpoint
+
+The next clean development corpus contains 18,635,606 bytes from six new UCI
+families. Unchanged TBS1 is already the smallest result on the three record
+tables, but dense feature matrices expose the next problem to solve. This was
+one local trial per pair, so it guides development and is not validation.
+
+| Standard | Complete bytes | TBS1 size result | Compress MB/s: TBS1 / standard | Decompress MB/s: TBS1 / standard | Exact |
+| --- | ---: | --- | ---: | ---: | --- |
+| **TBS1 stream-dense** | **1,697,505** | candidate | **45.52 / —** | **278.26 / —** | ✅ |
+| store | 18,635,606 | **90.89% smaller** | 45.52 / 1,627.18 | 278.26 / 2,189.08 | ✅ |
+| LZ4-1 | 4,920,321 | **65.50% smaller** | 45.52 / 255.90 | 278.26 / 311.16 | ✅ |
+| zstd-3 | 2,795,608 | **39.28% smaller** | 45.52 / 154.90 | 278.26 / 542.01 | ✅ |
+| zstd-9 | 2,307,534 | **26.44% smaller** | 45.52 / 57.32 | 278.26 / 595.30 | ✅ |
+| gzip-9 | 2,298,691 | **26.15% smaller** | 45.52 / 3.60 | 278.26 / 695.15 | ✅ |
+| zstd-19 | 1,802,591 | **5.83% smaller** | 45.52 / 1.81 | 278.26 / 720.14 | ✅ |
+| Brotli-11 | 1,755,288 | **3.29% smaller** | 45.52 / 0.43 | 278.26 / 239.36 | ✅ |
+| 7-Zip-9 | 1,703,372 | **0.34% smaller** | 45.52 / 3.34 | 278.26 / 124.44 | ✅ |
+| LZMA-9 | 1,693,160 | **0.26% larger** | 45.52 / 0.69 | 278.26 / 50.55 | ✅ |
+| bzip2-9 | **1,650,170** | **2.87% larger** | 45.52 / 4.09 | 278.26 / 28.06 | ✅ |
+
+By track, TBS1 is 4.88% smaller than the strongest record-table standard and
+59.88% larger than the strongest dense-matrix standard. See the
+[complete development scorecard and raw evidence](docs/benchmarks/2026-07-17-tabular-successor-development-census.md).
+
 ### Portfolio scorecard
 
 | Category | Evidence stage | Ratio position | Speed position | Current verdict |
@@ -194,6 +219,7 @@ round-trip, provenance, stability, or completeness failure remains visible.
 - [TBL1 public-validation readiness decision](docs/benchmarks/2026-07-16-tbl1-public-validation-readiness.md)
 - [TBL1 public-validation decision and full chart](docs/benchmarks/2026-07-17-tbl1-public-validation-decision.md)
 - [Fresh tabular-successor corpus protocol](docs/benchmarks/2026-07-17-tabular-successor-corpus-protocol.md)
+- [Fresh tabular-successor development census](docs/benchmarks/2026-07-17-tabular-successor-development-census.md)
 - [TBL1 public-validation lock](config/tbl1-public-validation-lock.json)
 - [File-format contract](docs/file-format.md)
 - [Release readiness](docs/release-readiness.md)
