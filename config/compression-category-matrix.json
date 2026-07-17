@@ -51,20 +51,20 @@
       "label": "Multi-language source-code bundles",
       "status": "untested",
       "specialist": "open; adaptive-v3 remains a rejected legacy development path",
-      "current_evidence": "docs/benchmarks/2026-07-17-text-source-category-protocol.md",
-      "current_result": "The licensed, lineage-disjoint source-bundle protocol is frozen before acquisition. No declared development item has been acquired or scored, so no tested-standard result or category claim exists.",
+      "current_evidence": "docs/benchmarks/2026-07-17-text-source-development-acquisition.md",
+      "current_result": "The licensed, lineage-disjoint source-bundle protocol and four-family development corpus are frozen and byte-verified. No codec has been run, so no tested-standard result or category claim exists.",
       "tested_standards": [],
-      "next_gate": "Acquire only the four declared development releases, freeze exact archive and derived-bundle digests, and run the complete practical census including bzip3, zstd ultra, Brotli, LZMA2, PPMd, Kanzi, and libbsc before selecting a representation hypothesis."
+      "next_gate": "Run the complete practical census including bzip3, zstd ultra, Brotli, LZMA2, PPMd, Kanzi, and libbsc before selecting a representation hypothesis."
     },
     {
       "id": "english_wikimedia_wikitext",
       "label": "English Wikimedia revision text and wikitext",
       "status": "untested",
       "specialist": "open; enwik9 is diagnostic-only",
-      "current_evidence": "docs/benchmarks/2026-07-17-text-source-category-protocol.md",
-      "current_result": "The licensed Wikimedia project split and deterministic revision-text protocol are frozen before acquisition. No declared development item has been acquired or scored, so no tested-standard result or natural-language claim exists.",
+      "current_evidence": "docs/benchmarks/2026-07-17-text-source-development-acquisition.md",
+      "current_result": "The licensed Wikimedia project split, deterministic revision-text protocol, and three-family development corpus are frozen and byte-verified. No codec has been run, so no tested-standard result or natural-language claim exists.",
       "tested_standards": [],
-      "next_gate": "Acquire only the three declared development dumps, record publisher and derived digests, and run the practical plus bounded research-ceiling census. Keep enwik9 outside every unseen gate."
+      "next_gate": "Run the practical plus bounded research-ceiling census. Keep enwik9 outside every unseen gate."
     },
     {
       "id": "tabular_csv",

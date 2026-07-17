@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "name": "text-source-development-acquisition-v1",
+  "acquisition_commit": "b54283c5b80bfd98adebb1bb5766e15d3d1deda4",
+  "protocol_sha256": "3e507f5e1edfe29deab5818512008d7889b36a238741c53e52c84d9902bc0362",
+  "rules_sha256": "bed5421cd3dc6924c57647b8c51d7fd4b03e4b0b7794e378eb95a50949b16c55",
+  "aggregate_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+  "public_validation_accessed": false,
+  "attempts": [
+    {
+      "attempt": 1,
+      "result": "stopped_atomically",
+      "boundary": "rust-1.97.1-source archive audit",
+      "reason": "Case-only collision inside an excluded rustfmt test fixture exposed an over-broad whole-archive collision rule.",
+      "output_promoted": false
+    },
+    {
+      "attempt": 2,
+      "result": "stopped_atomically",
+      "boundary": "rust-1.97.1-source archive audit",
+      "reason": "A symlink inside excluded vendored LLVM LLDB tests exposed the same over-broad whole-archive member-type rule.",
+      "output_promoted": false
+    },
+    {
+      "attempt": 3,
+      "result": "interrupted_after_diagnosis",
+      "boundary": "rust-1.97.1-source content construction",
+      "reason": "Repeated seeks through compressed XZ made sorted extraction effectively quadratic; the run was interrupted and replaced with one-pass opaque spooling.",
+      "output_promoted": false
+    },
+    {
+      "attempt": 4,
+      "result": "stopped_atomically",
+      "boundary": "llvm-22.1.8-source archive audit",
+      "reason": "Three selected Python symlink aliases targeted regular modules already included under mlgo/corpus; all aliases were audited and explicitly excluded instead of dereferenced.",
+      "output_promoted": false
+    },
+    {
+      "attempt": 5,
+      "result": "completed",
+      "boundary": "all seven declared development sources",
+      "reason": null,
+      "output_promoted": true
+    }
+  ],
+  "claim_ceiling": "Development acquisition and deterministic corpus construction only; no codec probe, comparison, validation, private-holdout, independent-reproduction, market-leading, world-best, or state-of-the-art evidence."
+}

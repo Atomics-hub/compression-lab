@@ -9,9 +9,12 @@ independent tracks:
 2. English Wikimedia revision text with its wikitext markup retained.
 
 A win on one track says nothing about the other. Neither track has a benchmark
-result yet. The committed declarations in
+result yet. The seven development sources have now been acquired and verified,
+as recorded in
+`docs/benchmarks/2026-07-17-text-source-development-acquisition.md`. The
+committed declarations in
 `config/text-source-category-protocol-v1.json` and
-`config/text-source-gates-v1.json` are an unacquired protocol, not evidence that
+`config/text-source-gates-v1.json` and the acquisition receipt are not evidence that
 Compression Lab is better than another compressor.
 
 ## Why the old evidence is insufficient
@@ -47,7 +50,11 @@ source-file bytes unchanged, sorts paths bytewise, excludes frozen generated
 and vendored trees, and frames paths and contents without timestamps, owners,
 permissions, archive padding, or host-dependent metadata. This measures source
 content rather than the accidental metadata of a tar implementation while
-still preserving every selected source file exactly.
+still preserving every selected source file exactly. The exact exclusions are
+frozen in `config/text-source-path-rules-v1.json`. Both category formats include
+an explicit record count and a terminal manifest digest whose input bytes are
+defined in the machine-readable protocol, so a decoder never has to guess where
+records stop.
 
 ## Natural-language split
 
@@ -56,13 +63,44 @@ revision text, including wikitext markup. It is not a claim about books, email,
 chat, OCR, other languages, or arbitrary UTF-8.
 
 Development uses English Wikibooks, Wikinews, and Wikiversity from the frozen
-2026-06-20 dumps. Public validation uses different projects: English Wikipedia,
+2026-07-01 dumps. Public validation uses different projects: English Wikipedia,
 Simple English Wikipedia, and English Wikivoyage from the same dump date. The
 [Wikimedia dump legal page](https://dumps.wikimedia.org/legal.html) explains
 that textual content is generally available under CC BY-SA 4.0 and the GFDL,
 subject to page-specific exceptions and third-party material. Every retained
 manifest must therefore preserve project, revision, attribution, license,
 publisher checksum evidence, and exact acquired and derived digests.
+
+The first declaration named `20260620`, but all three development checksum URLs
+returned HTTP 404 before any archive was acquired. The protocol was therefore
+amended to the completed common monthly dump `20260701`. Only the three
+development project indexes were inspected to make that correction; no
+public-validation archive, checksum file, listing, byte, or statistic was
+opened.
+
+The first development acquisition stopped before LLVM or Wikimedia when the
+official Rust source tarball exposed a case-only name collision inside an
+excluded rustfmt test fixture (`ABCD` versus `abcd`). A second attempt stopped
+on a symlink inside excluded vendored LLVM LLDB tests. Since the builder streams
+members directly and never extracts an archive to host paths, the rule was
+narrowed completely: exact duplicates, case-fold collisions, links, and
+non-regular types are rejected among post-exclusion candidate source paths.
+Every path still receives global lexical/root/encoding validation. Interrupted
+staging directories were removed; cached archives remained subject to the same
+publisher size and digest checks on resume.
+
+A third attempt was manually interrupted when the original sorted writer was
+observed repeatedly seeking through Rust's compressed XZ stream. The builder
+now makes one streaming content pass into opaque, index-named temporary blobs,
+then replays those blobs in bytewise path order. Archive member names are never
+created on disk, the final bytes are unchanged, and the repeated decompression
+cost is eliminated.
+
+LLVM subsequently exposed three selected Python symlink aliases under
+`llvm/utils/mlgo-utils`; their regular module targets under `mlgo/corpus` are
+already selected. The aliases are explicitly frozen as exclusions rather than
+being dereferenced or counted twice. A full LLVM link audit found no other
+post-exclusion selected-extension links.
 
 The deterministic extractor keeps namespace-zero, non-redirect latest revision
 text in publisher order, performs only XML decoding, and applies no Unicode,
@@ -109,9 +147,7 @@ still required before state-of-the-art wording.
 
 ## Next action
 
-Commit and verify this declaration, then acquire only the seven declared
-development sources (four source-code releases and three Wikimedia projects;
-enwik9 is diagnostic-only), record all exact digests before probing a codec,
-and run the complete practical baseline census. No new representation work is
-justified until that census identifies the actual per-family leaders and the
-ratio/speed frontier.
+Run the complete practical baseline census on the seven verified development
+items. Enwik9 remains diagnostic-only. No new representation work is justified
+until that census identifies the actual per-family leaders and the ratio/speed
+frontier.

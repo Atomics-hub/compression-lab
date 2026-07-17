@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 import unittest
@@ -9,6 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PROTOCOL = ROOT / "config" / "text-source-category-protocol-v1.json"
 GATES = ROOT / "config" / "text-source-gates-v1.json"
 PORTFOLIO = ROOT / "config" / "compression-category-matrix.json"
+PATH_RULES = ROOT / "config" / "text-source-path-rules-v1.json"
 
 
 class TextSourceProtocolTests(unittest.TestCase):
@@ -53,14 +55,34 @@ class TextSourceProtocolTests(unittest.TestCase):
             self.assertTrue(item["archive_url"].startswith("https://"))
             self.assertTrue(item["license_spdx"])
             self.assertTrue(item["license_url"].startswith("https://"))
+        for item in validation:
             self.assertIsNone(item["archive_sha256"])
             self.assertIsNone(item["derived_item_sha256"])
         self.assertTrue(
-            all(item["acquisition_status"] == "declared_unacquired" for item in development)
+            all(item["acquisition_status"] == "acquired_development" for item in development)
         )
+        self.assertTrue(all(item["archive_sha256"] for item in development))
+        self.assertTrue(all(item["derived_item_sha256"] for item in development))
         self.assertTrue(
             all(item["acquisition_status"] == "sealed_unacquired" for item in validation)
         )
+
+    def test_source_path_rules_and_both_framings_are_exactly_bound(self) -> None:
+        bundle = self.protocol["source_code"]["bundle_rule"]
+        self.assertEqual(bundle["path_rules"], "config/text-source-path-rules-v1.json")
+        self.assertEqual(
+            bundle["path_rules_sha256"],
+            hashlib.sha256(PATH_RULES.read_bytes()).hexdigest(),
+        )
+        rules = json.loads(PATH_RULES.read_text(encoding="utf-8"))
+        self.assertEqual(
+            rules["selected_extensions"], bundle["selected_extensions"]
+        )
+        self.assertIn("retained-file count", bundle["framing"])
+        self.assertIn("Concatenate entries", bundle["manifest_hash"])
+        extractor = self.protocol["natural_language"]["extractor_rule"]
+        self.assertIn("retained-page count", extractor["framing"])
+        self.assertIn("Concatenate entries", extractor["manifest_hash"])
 
     def test_wikimedia_projects_are_split_and_famous_benchmark_is_context_only(self) -> None:
         track = self.protocol["natural_language"]
@@ -72,11 +94,19 @@ class TextSourceProtocolTests(unittest.TestCase):
         validation_families = {item["project_family"] for item in validation}
         self.assertTrue(development_families.isdisjoint(validation_families))
         for item in development + validation:
-            self.assertEqual(item["dump_date"], "20260620")
+            self.assertEqual(item["dump_date"], "20260701")
             self.assertTrue(item["archive_url"].startswith("https://dumps.wikimedia.org/"))
             self.assertTrue(item["checksum_url"].startswith("https://dumps.wikimedia.org/"))
+        for item in validation:
             self.assertIsNone(item["archive_sha256"])
             self.assertIsNone(item["derived_item_sha256"])
+        self.assertTrue(all(item["publisher_digest"] for item in development))
+        self.assertTrue(all(item["publisher_digest"] is None for item in validation))
+        self.assertTrue(
+            all(item["acquisition_status"] == "acquired_development" for item in development)
+        )
+        self.assertTrue(all(item["archive_sha256"] for item in development))
+        self.assertTrue(all(item["derived_item_sha256"] for item in development))
         diagnostic = track["diagnostics_only"][0]
         self.assertEqual(diagnostic["id"], "enwik9")
         self.assertIn("never", diagnostic["reason"].lower())

@@ -1,0 +1,242 @@
+{
+  "acquisition_commit": "b54283c5b80bfd98adebb1bb5766e15d3d1deda4",
+  "aggregate_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+  "attempts": [
+    {
+      "attempt": 1,
+      "boundary": "rust-1.97.1-source archive audit",
+      "output_promoted": false,
+      "reason": "Case-only collision inside an excluded rustfmt test fixture exposed an over-broad whole-archive collision rule.",
+      "result": "stopped_atomically"
+    },
+    {
+      "attempt": 2,
+      "boundary": "rust-1.97.1-source archive audit",
+      "output_promoted": false,
+      "reason": "A symlink inside excluded vendored LLVM LLDB tests exposed the same over-broad whole-archive member-type rule.",
+      "result": "stopped_atomically"
+    },
+    {
+      "attempt": 3,
+      "boundary": "rust-1.97.1-source content construction",
+      "output_promoted": false,
+      "reason": "Repeated seeks through compressed XZ made sorted extraction effectively quadratic; the run was interrupted and replaced with one-pass opaque spooling.",
+      "result": "interrupted_after_diagnosis"
+    },
+    {
+      "attempt": 4,
+      "boundary": "llvm-22.1.8-source archive audit",
+      "output_promoted": false,
+      "reason": "Three selected Python symlink aliases targeted regular modules already included under mlgo/corpus; all aliases were audited and explicitly excluded instead of dereferenced.",
+      "result": "stopped_atomically"
+    },
+    {
+      "attempt": 5,
+      "boundary": "all seven declared development sources",
+      "output_promoted": true,
+      "reason": null,
+      "result": "completed"
+    }
+  ],
+  "claim_ceiling": "Development acquisition and deterministic corpus construction only; no codec probe, comparison, validation, private-holdout, independent-reproduction, market-leading, world-best, or state-of-the-art evidence.",
+  "item_count": 7,
+  "items": [
+    {
+      "archive_sha256": "143b1dddefaec3bd2e21e3b839b34a2b7fb9842272883c576420d605e9f30c63",
+      "archive_size_bytes": 23921184,
+      "bundle_path": "cpython-3.14.6-source.axsrc",
+      "bundle_sha256": "a5148815b1257d5e9f040a6995b09493ceaeecd1f1791c2cb4a858f177cbf1c3",
+      "bundle_size_bytes": 44506231,
+      "format": "source-bundle-v1",
+      "manifest_path": "cpython-3.14.6-source.manifest.json",
+      "manifest_sha256": "55831e675f3e86ab4a5880be9da4c36640d466f302896a1e49ef82cf2e2393f5",
+      "ordered_manifest_sha256": "6d61aa9bf95487ebc1fd901a0db7d524e3efe088e937c84524e24a8cf86f7faf",
+      "provenance": {
+        "archive_url": "https://www.python.org/ftp/python/3.14.6/Python-3.14.6.tar.xz",
+        "license_spdx": "PSF-2.0",
+        "license_url": "https://docs.python.org/3/license.html",
+        "publisher_digest": "143b1dddefaec3bd2e21e3b839b34a2b7fb9842272883c576420d605e9f30c63",
+        "publisher_digest_algorithm": "sha256",
+        "publisher_digest_source": "https://www.python.org/ftp/python/3.14.6/Python-3.14.6.tar.xz.sigstore",
+        "publisher_evidence_file": "Python-3.14.6.tar.xz.sigstore",
+        "publisher_evidence_sha256": "237b33fd3dcdb3acbd060d21d63fcfd4c06e17e0b35878888b3d37e683a1c36e",
+        "publisher_tag_commit": null,
+        "release_url": "https://www.python.org/downloads/release/python-3146/"
+      },
+      "record_count": 2032,
+      "selected_record_count": 2032,
+      "source_id": "cpython-3.14.6-source",
+      "truncated_at_byte_cap": false
+    },
+    {
+      "archive_sha256": "43d388f7fc6511ae105f23f4779e1c8df96f6dfa003025b70249816089609f5b",
+      "archive_size_bytes": 33864358,
+      "bundle_path": "typescript-6.0.3-source.axsrc",
+      "bundle_sha256": "4c35679d66dc77e54cc87ee7b6fe17cf2262bc3242c37eff3fa527e385d64480",
+      "bundle_size_bytes": 25693307,
+      "format": "source-bundle-v1",
+      "manifest_path": "typescript-6.0.3-source.manifest.json",
+      "manifest_sha256": "cdf49caf04331512785609c328790283885296ce1f05898b2e0e2e479c7c8443",
+      "ordered_manifest_sha256": "b165ce0e130de51189f1dbdcdf7c1db17f10446d7dd93009d2d550c3731d0905",
+      "provenance": {
+        "archive_url": "https://github.com/microsoft/TypeScript/archive/050880ce59e30b356b686bd3144efe24f875ebc8.tar.gz",
+        "license_spdx": "Apache-2.0",
+        "license_url": "https://github.com/microsoft/TypeScript/blob/v6.0.3/LICENSE.txt",
+        "publisher_digest": null,
+        "publisher_digest_algorithm": null,
+        "publisher_digest_source": null,
+        "publisher_evidence_file": null,
+        "publisher_evidence_sha256": null,
+        "publisher_tag_commit": "050880ce59e30b356b686bd3144efe24f875ebc8",
+        "release_url": "https://github.com/microsoft/TypeScript/releases/tag/v6.0.3"
+      },
+      "record_count": 819,
+      "selected_record_count": 819,
+      "source_id": "typescript-6.0.3-source",
+      "truncated_at_byte_cap": false
+    },
+    {
+      "archive_sha256": "0ed06fdaffd4722a7702e0b4eebfafc897ab8f513e8e1b247cdd7e5c6df6ded2",
+      "archive_size_bytes": 242787896,
+      "bundle_path": "rust-1.97.1-source.axsrc",
+      "bundle_sha256": "655025f34d7887305c90af2bf0936bbacc92ffeaef5d790c5ba566da0cd32659",
+      "bundle_size_bytes": 190921859,
+      "format": "source-bundle-v1",
+      "manifest_path": "rust-1.97.1-source.manifest.json",
+      "manifest_sha256": "bb63410449ff21505112b89ffba7ec779cfa6a01164985b480b921fd4735880c",
+      "ordered_manifest_sha256": "36a309e82a874930d5b031b9b3e9877f2d9131237ff83af99f08314d4a599570",
+      "provenance": {
+        "archive_url": "https://static.rust-lang.org/dist/rustc-1.97.1-src.tar.xz",
+        "license_spdx": "MIT OR Apache-2.0",
+        "license_url": "https://github.com/rust-lang/rust/tree/1.97.1#license",
+        "publisher_digest": "0ed06fdaffd4722a7702e0b4eebfafc897ab8f513e8e1b247cdd7e5c6df6ded2",
+        "publisher_digest_algorithm": "sha256",
+        "publisher_digest_source": "https://static.rust-lang.org/dist/rustc-1.97.1-src.tar.xz.sha256",
+        "publisher_evidence_file": "rustc-1.97.1-src.tar.xz.sha256",
+        "publisher_evidence_sha256": "42bbd1473d90ff4c54f831ece8e0dae15b7d83c0a5f918a3e274fc780040b503",
+        "publisher_tag_commit": null,
+        "release_url": "https://github.com/rust-lang/rust/releases/tag/1.97.1"
+      },
+      "record_count": 16445,
+      "selected_record_count": 16445,
+      "source_id": "rust-1.97.1-source",
+      "truncated_at_byte_cap": false
+    },
+    {
+      "archive_sha256": "922f1817a0df7b1489272d18134ee0087a8b068828f87ac63b9861b1a9965888",
+      "archive_size_bytes": 167061596,
+      "bundle_path": "llvm-22.1.8-source.axsrc",
+      "bundle_sha256": "8a54e60b4c022683a0261ada2a2203f9d56fd3e5e48a7fc36c9de97050c31509",
+      "bundle_size_bytes": 268328176,
+      "format": "source-bundle-v1",
+      "manifest_path": "llvm-22.1.8-source.manifest.json",
+      "manifest_sha256": "5eba12eaf4cf6038e43a456bc2ccb0d0422a62d5c180e706ab979fb1b2b6599a",
+      "ordered_manifest_sha256": "de76e54a1fe4cfff839b18bf91d5cd7abef9b0c2789dc106325a2ea5ecffbd4b",
+      "provenance": {
+        "archive_url": "https://github.com/llvm/llvm-project/releases/download/llvmorg-22.1.8/llvm-project-22.1.8.src.tar.xz",
+        "license_spdx": "Apache-2.0 WITH LLVM-exception",
+        "license_url": "https://github.com/llvm/llvm-project/blob/llvmorg-22.1.8/LICENSE.TXT",
+        "publisher_digest": "922f1817a0df7b1489272d18134ee0087a8b068828f87ac63b9861b1a9965888",
+        "publisher_digest_algorithm": "sha256",
+        "publisher_digest_source": "https://github.com/llvm/llvm-project/releases/download/llvmorg-22.1.8/llvm-project-22.1.8.src.tar.xz.jsonl",
+        "publisher_evidence_file": "llvm-project-22.1.8.src.tar.xz.jsonl",
+        "publisher_evidence_sha256": "dd4aa06bd73706743090631300c02a6d8a3df43d41d85c627ec438d5a13b3739",
+        "publisher_tag_commit": null,
+        "release_url": "https://github.com/llvm/llvm-project/releases/tag/llvmorg-22.1.8"
+      },
+      "record_count": 20660,
+      "selected_record_count": 27356,
+      "source_id": "llvm-22.1.8-source",
+      "truncated_at_byte_cap": true
+    },
+    {
+      "archive_sha256": "cb6487326d55e0f017ca75f2174af7cf5ab3f39fd1a9140c046e1d899dd02c29",
+      "archive_size_bytes": 207098222,
+      "bundle_path": "enwikibooks-20260701.axwkt",
+      "bundle_sha256": "d4e99fa76d224995f03512df7fe2d9b0411e283b21157c934be6c10e2059998a",
+      "bundle_size_bytes": 67107953,
+      "format": "wikimedia-revision-text-v1",
+      "manifest_path": "enwikibooks-20260701.manifest.json",
+      "manifest_sha256": "b6a75b54ad9dfdd535de9a9b2ec6b440c56c381af0cf6f41e2d3545cce55d140",
+      "ordered_manifest_sha256": "7485e6b1806b0f099dbadd98275421269bd7a5d5959b4707066ec8f3cdfc8f95",
+      "provenance": {
+        "archive_url": "https://dumps.wikimedia.org/enwikibooks/20260701/enwikibooks-20260701-pages-articles-multistream.xml.bz2",
+        "checksum_file": "enwikibooks-20260701-sha1sums.txt",
+        "checksum_file_sha256": "b023822c6799e7bb9d05ccc9502b7330a156fcd47c339eda680209a1286ace9f",
+        "checksum_url": "https://dumps.wikimedia.org/enwikibooks/20260701/enwikibooks-20260701-sha1sums.txt",
+        "legal_url": "https://dumps.wikimedia.org/legal.html",
+        "license_expression": "CC-BY-SA-4.0 AND GFDL-1.3-or-later, subject to page-specific exceptions and third-party material",
+        "publisher_digest": "55027cba056ae1e071ae24a75b7c81ae33b8d0e7",
+        "publisher_digest_algorithm": "sha1"
+      },
+      "record_count": 9813,
+      "selected_record_count": 9813,
+      "source_id": "enwikibooks-20260701",
+      "truncated_at_byte_cap": null
+    },
+    {
+      "archive_sha256": "ba76e5215a517ef565b5400d7ad458c3766c29fa496a7f000a90d2ac699268a6",
+      "archive_size_bytes": 54157210,
+      "bundle_path": "enwikinews-20260701.axwkt",
+      "bundle_sha256": "ac803f7c66400659801b4dd72576ad88602952db4dbc78e82c1c4c4d39c92b9e",
+      "bundle_size_bytes": 67105968,
+      "format": "wikimedia-revision-text-v1",
+      "manifest_path": "enwikinews-20260701.manifest.json",
+      "manifest_sha256": "29b5fbc806fa522051d8e2c2bcf142710b468cb0ae5cad78c840759b74624abc",
+      "ordered_manifest_sha256": "7ff53fba77924e731da6be2e59e7d40a66f60a0ac815d100b32a69685b2ec466",
+      "provenance": {
+        "archive_url": "https://dumps.wikimedia.org/enwikinews/20260701/enwikinews-20260701-pages-articles-multistream.xml.bz2",
+        "checksum_file": "enwikinews-20260701-sha1sums.txt",
+        "checksum_file_sha256": "55b23f0ca646c762d4415841c99f0fe9464aebbb2a70d79186356c9b68ac056b",
+        "checksum_url": "https://dumps.wikimedia.org/enwikinews/20260701/enwikinews-20260701-sha1sums.txt",
+        "legal_url": "https://dumps.wikimedia.org/legal.html",
+        "license_expression": "CC-BY-SA-4.0 AND GFDL-1.3-or-later, subject to page-specific exceptions and third-party material",
+        "publisher_digest": "d195129bc73687384bb0f4169546eb4f27ce2ae6",
+        "publisher_digest_algorithm": "sha1"
+      },
+      "record_count": 18698,
+      "selected_record_count": 18698,
+      "source_id": "enwikinews-20260701",
+      "truncated_at_byte_cap": null
+    },
+    {
+      "archive_sha256": "305548abb494e23e83b18d4e8542aaa6ab9eb658a54c53716f7744a75bb9083b",
+      "archive_size_bytes": 119592609,
+      "bundle_path": "enwikiversity-20260701.axwkt",
+      "bundle_sha256": "35d42b7137f5d85772cb44ea214dcf1f6df9c0bb59f65dde3170df8c0a8dfbe4",
+      "bundle_size_bytes": 67097252,
+      "format": "wikimedia-revision-text-v1",
+      "manifest_path": "enwikiversity-20260701.manifest.json",
+      "manifest_sha256": "960706837e350672ca4d3b304ad36a0974ae83f3d1211936109ffbbf70e813ce",
+      "ordered_manifest_sha256": "602a03d66bc0d9f0232d5f0e80f10d49ab19deb6cd40f181ea40c5ff45287385",
+      "provenance": {
+        "archive_url": "https://dumps.wikimedia.org/enwikiversity/20260701/enwikiversity-20260701-pages-articles-multistream.xml.bz2",
+        "checksum_file": "enwikiversity-20260701-sha1sums.txt",
+        "checksum_file_sha256": "c2ab185c21269518c0967f947dded1d1ea8a5308f92ee0ff2432c1264ba77967",
+        "checksum_url": "https://dumps.wikimedia.org/enwikiversity/20260701/enwikiversity-20260701-sha1sums.txt",
+        "legal_url": "https://dumps.wikimedia.org/legal.html",
+        "license_expression": "CC-BY-SA-4.0 AND GFDL-1.3-or-later, subject to page-specific exceptions and third-party material",
+        "publisher_digest": "751e1afb5dfa0e114116f1ae13852ed74ecff778",
+        "publisher_digest_algorithm": "sha1"
+      },
+      "record_count": 12904,
+      "selected_record_count": 12904,
+      "source_id": "enwikiversity-20260701",
+      "truncated_at_byte_cap": null
+    }
+  ],
+  "name": "text-source-development-acquisition-v1",
+  "passed": true,
+  "protocol_sha256": "3e507f5e1edfe29deab5818512008d7889b36a238741c53e52c84d9902bc0362",
+  "public_validation_accessed": false,
+  "rules_sha256": "bed5421cd3dc6924c57647b8c51d7fd4b03e4b0b7794e378eb95a50949b16c55",
+  "schema_version": 1,
+  "toolchain": {
+    "builder_sha256": "89e9c4c92a824fefb58a4c036034ca85994be590ccc2dbf0356044e18dc08ae4",
+    "expat": "expat_2.2.8",
+    "fetcher_sha256": "451a6daed01eeec637e4c8669257a14d92cb901dd078e6ac6add4a65f67ca5e8",
+    "implementation": "CPython",
+    "python": "3.9.6"
+  },
+  "total_derived_bytes": 730760746
+}
