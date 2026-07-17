@@ -1,0 +1,14 @@
+{
+  "artifacts": {
+    "README.md": "ece9a02a3d2dd81facc196d91dda8846fcaf26bcaa2e2768f37a7bab51fb66e8",
+    "comparison.json": "66d8986ae2bf6beb2cc2a4fd4280f9dfe34f013f947e9097c80353853bf74a36",
+    "report.md": "c052a3106700c7468c598b7ff0542863c5a53e67702e3c96b1dc3a6db51bbd65",
+    "results.json": "391b2ac9608be53bfd796c255d25a306c3635eea3a131556ca60b6056642e606",
+    "summary.csv": "5afa962e5401e09561c8b5a33f98387e67df714394d6896bdc51c260ee8c5241"
+  },
+  "claim_ceiling": "Fresh licensed CLUE-LDS development evidence only; not public validation, private holdout, independent reproduction, universal, market-leading, world-best, or state-of-the-art evidence",
+  "name": "clue-json-log-development-census-v1-receipt",
+  "publisher_source": "scripts/publish-clue-json-log-census.py",
+  "publisher_source_sha256": "dab25d2090a1aa3ff704b77c069e0a509182335b8847a3fea6798cbc90704d0f",
+  "schema_version": 1
+}

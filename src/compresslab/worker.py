@@ -27,6 +27,11 @@ from .adaptive_v3 import (
     decompress as _v3_decompress,
 )
 from .codecs import codec_by_id
+from .json_log_codec import (
+    DEFAULT_SEGMENT_SIZE as JLS2_SEGMENT_SIZE,
+    compress_file as _jls2_compress_file,
+    decompress_file as _jls2_decompress_file,
+)
 from .native import (
     delta_transpose as _native_delta_transpose,
     inverse_delta_transpose as _native_inverse_delta_transpose,
@@ -122,7 +127,7 @@ def _representative_sample(data: bytes, total_size: int = 16 * 1024) -> bytes:
     block_size = max(1, total_size // 3)
     middle = max(0, len(data) // 2 - block_size // 2)
     tail_size = total_size - 2 * block_size
-    return data[:block_size] + data[middle:middle + block_size] + data[-tail_size:]
+    return data[:block_size] + data[middle : middle + block_size] + data[-tail_size:]
 
 
 def _python_delta_transpose(data: bytes) -> bytes:
@@ -233,7 +238,9 @@ def _v2_codec_engine(backend: int) -> str:
     return "store"
 
 
-def _adaptive_compress(data: bytes, allow_transform: bool = False) -> tuple[bytes, dict]:
+def _adaptive_compress(
+    data: bytes, allow_transform: bool = False
+) -> tuple[bytes, dict]:
     selector_start = time.perf_counter_ns()
     sample = _representative_sample(data, 16 * 1024)
     sample_compressed = gzip.compress(sample, compresslevel=1, mtime=0)
@@ -273,9 +280,7 @@ def _adaptive_compress(data: bytes, allow_transform: bool = False) -> tuple[byte
     if selected == BACKEND_GZIP_1:
         payload = gzip.compress(data, compresslevel=1, mtime=0)
     elif selected == BACKEND_DELTA_TRANSPOSE_GZIP_1:
-        payload = gzip.compress(
-            _delta_transpose(data), compresslevel=1, mtime=0
-        )
+        payload = gzip.compress(_delta_transpose(data), compresslevel=1, mtime=0)
     else:
         payload = data
     if selected != BACKEND_STORE:
@@ -428,14 +433,13 @@ def _adaptive_decompress(
     if len(encoded) < ADAPTIVE_HEADER.size:
         raise ValueError("adaptive frame is truncated")
     magic, version, backend, original_size, expected_hash = ADAPTIVE_HEADER.unpack(
-        encoded[:ADAPTIVE_HEADER.size]
+        encoded[: ADAPTIVE_HEADER.size]
     )
     if magic != ADAPTIVE_MAGIC:
         raise ValueError("adaptive frame magic mismatch")
     if max_output_size is not None and original_size > max_output_size:
         raise ValueError(
-            f"adaptive output exceeds safety limit: "
-            f"{original_size} > {max_output_size}"
+            f"adaptive output exceeds safety limit: {original_size} > {max_output_size}"
         )
     if version == ADAPTIVE_VERSION_V3:
         if backend != BACKEND_SEGMENTED_V3:
@@ -443,7 +447,7 @@ def _adaptive_decompress(
         return _adaptive_v3_decompress(encoded, max_output_size=max_output_size)
     if version not in {ADAPTIVE_VERSION_V1, ADAPTIVE_VERSION_V2}:
         raise ValueError(f"unsupported adaptive frame version: {version}")
-    payload = encoded[ADAPTIVE_HEADER.size:]
+    payload = encoded[ADAPTIVE_HEADER.size :]
     if backend == BACKEND_STORE:
         data = payload
         selected_backend = "store"
@@ -482,7 +486,9 @@ def _adaptive_decompress(
     }
 
 
-def _external_command(codec, operation: str, source: Path, destination: Path) -> list[str]:
+def _external_command(
+    codec, operation: str, source: Path, destination: Path
+) -> list[str]:
     executable = codec.executable or {
         "external-zstd": "zstd",
         "external-lz4": "lz4",
@@ -491,16 +497,37 @@ def _external_command(codec, operation: str, source: Path, destination: Path) ->
     }.get(codec.implementation, codec.implementation)
     if codec.implementation == "external-zstd":
         if operation == "compress":
-            return [executable, "-q", "-f", f"-{codec.level}", str(source), "-o", str(destination)]
+            return [
+                executable,
+                "-q",
+                "-f",
+                f"-{codec.level}",
+                str(source),
+                "-o",
+                str(destination),
+            ]
         return [executable, "-q", "-d", "-f", str(source), "-o", str(destination)]
     if codec.implementation == "external-lz4":
         if operation == "compress":
-            return [executable, "-q", "-f", f"-{codec.level}", str(source), str(destination)]
+            return [
+                executable,
+                "-q",
+                "-f",
+                f"-{codec.level}",
+                str(source),
+                str(destination),
+            ]
         return [executable, "-q", "-d", "-f", str(source), str(destination)]
     if codec.implementation == "external-brotli":
         if operation == "compress":
             return [
-                executable, "-f", "-q", str(codec.level), "-o", str(destination), str(source)
+                executable,
+                "-f",
+                "-q",
+                str(codec.level),
+                "-o",
+                str(destination),
+                str(source),
             ]
         return [executable, "-f", "-d", "-o", str(destination), str(source)]
     if codec.implementation == "external-7zip":
@@ -572,6 +599,51 @@ def run(codec_id: str, operation: str, source: Path, destination: Path) -> dict:
     detail: Dict[str, Any] = {}
     if codec.implementation == "store":
         _copy(source, destination)
+    elif codec.implementation == "jls2":
+        if operation == "compress":
+            compression_telemetry = _jls2_compress_file(
+                source,
+                destination,
+                segment_size=JLS2_SEGMENT_SIZE,
+                overwrite=True,
+            )
+            segment_count = int(compression_telemetry["segment_count"])
+            direct_segments = int(compression_telemetry["direct_segments"])
+            detail = {
+                "selected_backend": "jls2",
+                "selector_ns": 0,
+                "transform_engine": (
+                    "rust" if native_available() else "python-fallback"
+                ),
+                "codec_engine": zstd_engine(),
+                "stream_segment_size": JLS2_SEGMENT_SIZE,
+                "stream_concurrency": 2,
+                "segment_count": segment_count,
+                "candidate_segment_count": segment_count,
+                "transformed_segments": int(compression_telemetry["columnar_segments"]),
+                "direct_segments": direct_segments,
+                "direct_fallback_compared_segments": segment_count,
+                "direct_fallback_selected_segments": direct_segments,
+            }
+        elif operation == "decompress":
+            decompression_telemetry = _jls2_decompress_file(
+                source,
+                destination,
+                overwrite=True,
+            )
+            detail = {
+                "selected_backend": "jls2-decode",
+                "selector_ns": 0,
+                "transform_engine": (
+                    "rust" if native_available() else "python-fallback"
+                ),
+                "codec_engine": zstd_engine(),
+                "stream_segment_size": JLS2_SEGMENT_SIZE,
+                "stream_concurrency": 2,
+                "segment_count": int(decompression_telemetry["segment_count"]),
+            }
+        else:
+            raise ValueError(f"Unsupported operation: {operation}")
     elif codec.implementation in {
         "adaptive-v0",
         "adaptive-v1",
@@ -609,9 +681,7 @@ def run(codec_id: str, operation: str, source: Path, destination: Path) -> dict:
     elif codec.implementation in {"tbl1", "tbl1-dense"}:
         if operation == "compress":
             if codec.implementation == "tbl1-dense":
-                output, selector_detail = _tbl1_dense_compress(
-                    source.read_bytes()
-                )
+                output, selector_detail = _tbl1_dense_compress(source.read_bytes())
             else:
                 output, selector_detail = _tbl1_compress(
                     source.read_bytes(), level=codec.level
@@ -643,9 +713,13 @@ def run(codec_id: str, operation: str, source: Path, destination: Path) -> dict:
     elif codec.implementation.startswith("external-"):
         detail = _run_external(codec, operation, source, destination)
     elif operation == "compress":
-        destination.write_bytes(_compressor(codec.implementation, codec.level)(source.read_bytes()))
+        destination.write_bytes(
+            _compressor(codec.implementation, codec.level)(source.read_bytes())
+        )
     elif operation == "decompress":
-        destination.write_bytes(_decompressor(codec.implementation)(source.read_bytes()))
+        destination.write_bytes(
+            _decompressor(codec.implementation)(source.read_bytes())
+        )
     else:
         raise ValueError(f"Unsupported operation: {operation}")
 
@@ -769,7 +843,9 @@ def main(argv=None) -> int:
     try:
         telemetry = run(args.codec, args.operation, args.source, args.destination)
         args.telemetry.parent.mkdir(parents=True, exist_ok=True)
-        args.telemetry.write_text(json.dumps(telemetry, sort_keys=True), encoding="utf-8")
+        args.telemetry.write_text(
+            json.dumps(telemetry, sort_keys=True), encoding="utf-8"
+        )
         return 0
     except Exception as exc:
         args.telemetry.parent.mkdir(parents=True, exist_ok=True)

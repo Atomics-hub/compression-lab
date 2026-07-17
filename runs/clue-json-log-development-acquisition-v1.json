@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "name": "clue-json-log-development-acquisition-v1",
+  "claim_ceiling": "Corpus acquisition and byte identity only; no compression-performance evidence",
+  "protocol_commit": "9f88b10d1ad0d41941de1f5428878b6099106981",
+  "acquired_at_utc": "2026-07-17T12:48:42Z",
+  "archive": {
+    "filename": "clue.zip",
+    "url": "https://zenodo.org/api/records/7119953/files/clue.zip/content",
+    "size_bytes": 635105552,
+    "publisher_digest_algorithm": "md5",
+    "publisher_digest": "9e318370f96b68077667e9cdc05f26a5",
+    "sha256": "0c9eadb104acf1da6de738ba9babe957c83cd8602a01fa6d846a6ea4a6611d96",
+    "member": "clue.json"
+  },
+  "items": [
+    {
+      "id": "clue-early-development",
+      "family": "clue_early",
+      "first_record_id": 1,
+      "last_record_id": 250000,
+      "size_bytes": 62267473,
+      "sha256": "4f1571569ebdf98621bbd29da45ba84ab37b4f1f1033aacf822dd5b3f40358fe"
+    },
+    {
+      "id": "clue-middle-development",
+      "family": "clue_middle",
+      "first_record_id": 10000001,
+      "last_record_id": 10250000,
+      "size_bytes": 69847327,
+      "sha256": "5ee50c36db110b023faf412e05398402e25ed59776ef5ee9323339f8b1aa4fa5"
+    },
+    {
+      "id": "clue-late-development",
+      "family": "clue_late",
+      "first_record_id": 20000001,
+      "last_record_id": 20250000,
+      "size_bytes": 71463332,
+      "sha256": "71091e9fa5d8fd20944e1bd5707f1c832470c56d4b662fc6ef3d34e9478eb739"
+    }
+  ],
+  "record_count": 750000,
+  "size_bytes": 203578132,
+  "archive_member_bytes": 14862210499,
+  "parsed_through_record_id": 20250000,
+  "public_validation_first_record_id": 35000001,
+  "public_validation_parsed": false
+}

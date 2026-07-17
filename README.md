@@ -16,6 +16,7 @@ complete container bytes.
 
 | Category and comparison | Size result | Compress MB/s: ours / standard | Decompress MB/s: ours / standard | Verdict |
 | --- | ---: | ---: | ---: | --- |
+| Fresh cloud-event JSON logs: JLS2 vs Brotli-11 (development) | **18.08% smaller**; won 3/3 ranges | 109.90 / 0.37 | 116.43 / 253.86 | Ratio win; 250 MB/s decode gate failed |
 | JSON logs: JLS2 vs zstd-9 | **28.77% smaller** | 155.83 / 222.03 | 165.88 / 1,547.88 | Ratio win; frozen speed gate failed |
 | JSON logs: JLS2 vs Brotli-11 | **4.58% smaller aggregate**; won 1/3 families | 155.83 / 0.49 | 165.88 / 1,168.58 | Mixed; frozen gate failed |
 | JSON logs: JLS2 vs PBC-only | **83.82% smaller** | 155.83 / 0.56 complete | 165.88 / 94.63 | Ratio and decode win; overall gate still failed |
@@ -45,6 +46,7 @@ retained public-validation result. See the
 
 - [Category scorecard](docs/benchmarks/2026-07-16-category-portfolio-status.md)
 - [JLS2 public-validation standards chart](docs/benchmarks/2026-07-16-jls2-public-validation-decision.md)
+- [Fresh CLUE-LDS 11-codec development chart](runs/clue-json-log-development-census-v1/README.md)
 - [TBS1 public-validation 10-standard chart](docs/benchmarks/2026-07-17-tbl1-public-validation-decision.md)
 - [DMS2 public-validation 11-codec chart and immutable bundle](runs/dms2-public-validation-v1/README.md)
 

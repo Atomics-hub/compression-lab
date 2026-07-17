@@ -19,6 +19,18 @@ def _register(codec: CodecSpec) -> None:
 _register(CodecSpec("store", "Store", "store"))
 _register(CodecSpec("adaptive-v0", "Compression Lab", "adaptive-v0"))
 _register(CodecSpec("adaptive-v1", "Compression Lab", "adaptive-v1"))
+_register(
+    CodecSpec(
+        "jls2",
+        "Compression Lab JSON logs",
+        "jls2",
+        available=zstd_available(),
+        unavailable_reason=(
+            "missing Zstandard dependency" if not zstd_available() else ""
+        ),
+        version="stream-jls2-v1-16m-c2",
+    )
+)
 for level in (1, 6, 9):
     _register(CodecSpec(f"gzip-{level}", "DEFLATE", "gzip", level))
 for level in (1, 9):
@@ -43,7 +55,9 @@ def _register_external(
             implementation,
             level,
             available=path is not None,
-            unavailable_reason="" if path else f"{' or '.join(names)} executable not found",
+            unavailable_reason=""
+            if path
+            else f"{' or '.join(names)} executable not found",
             executable=path or "",
         )
     )
@@ -168,7 +182,9 @@ def probe_codec_versions(codecs: Iterable[CodecSpec]) -> List[CodecSpec]:
             probed.append(codec)
             continue
         if codec.executable not in cache:
-            arguments = ("i",) if codec.implementation == "external-7zip" else ("--version",)
+            arguments = (
+                ("i",) if codec.implementation == "external-7zip" else ("--version",)
+            )
             try:
                 completed = subprocess.run(
                     [codec.executable, *arguments],
@@ -177,9 +193,12 @@ def probe_codec_versions(codecs: Iterable[CodecSpec]) -> List[CodecSpec]:
                     timeout=5,
                     check=False,
                 )
-                lines = (completed.stdout + "\n" + completed.stderr).strip().splitlines()
+                lines = (
+                    (completed.stdout + "\n" + completed.stderr).strip().splitlines()
+                )
                 cache[codec.executable] = next(
-                    (line.strip() for line in lines if line.strip()), "version unavailable"
+                    (line.strip() for line in lines if line.strip()),
+                    "version unavailable",
                 )
             except (OSError, subprocess.SubprocessError):
                 cache[codec.executable] = "version probe failed"
@@ -198,7 +217,9 @@ def resolve_codecs(codec_ids: Iterable[str]) -> List[CodecSpec]:
         if codec is None:
             unknown.append(codec_id)
         elif not codec.available:
-            raise ValueError(f"Codec {codec.id} is unavailable: {codec.unavailable_reason}")
+            raise ValueError(
+                f"Codec {codec.id} is unavailable: {codec.unavailable_reason}"
+            )
         else:
             resolved.append(codec)
     if unknown:
