@@ -37,8 +37,16 @@ jobs:
         run: python -m compileall -q src tests
       - name: Lint Python sources
         run: ruff check src tests scripts setup.py
-      - name: Type-check public surface
-        run: mypy src/compresslab/api.py src/compresslab/experimental.py src/compresslab/json_log_codec.py src/compresslab/cli.py scripts/benchmark-tbl1-public-validation.py scripts/evaluate-tbl1-public-validation.py
+      - name: Type-check complete source tree
+        if: matrix.os != 'windows-latest'
+        run: >-
+          mypy src scripts/audit-dms2-operational.py
+          scripts/probe-dense-matrix-native.py
+      - name: Type-check complete source tree with frozen Windows telemetry shims
+        if: matrix.os == 'windows-latest'
+        run: |
+          mypy --follow-imports=skip --exclude "src/compresslab/(runner|worker)\.py" src scripts/audit-dms2-operational.py scripts/probe-dense-matrix-native.py
+          mypy --disable-error-code attr-defined src/compresslab/runner.py src/compresslab/worker.py
       - name: Check Rust formatting
         run: |
           cargo fmt --manifest-path native/Cargo.toml --all -- --check
@@ -117,12 +125,21 @@ jobs:
           CIBW_ARCHS: native
           CIBW_BUILD: cp312-*
           CIBW_TEST_COMMAND: >-
-            python -c "import compresslab; from compresslab import native;
+            python -c "import io, random, compresslab; from compresslab import native;
             from compresslab.dense_native import dense_parallel_native_available,
             dense_plane_native_available; from compresslab.dense_matrix_transform
-            import selector_compress, selector_decompress; data=b'0,1,16,4\n1,0,2,4\n'*1000;
+            import selector_backend, selector_compress, selector_decompress,
+            selector_stream_compress, selector_stream_decompress;
+            rng=random.Random(1); data=b'\n'.join(b','.join(str(rng.randrange(256)).encode()
+            for _ in range(64)) for _ in range(1000))+b'\n'; frame=selector_compress(data);
             assert native.native_available(); assert dense_parallel_native_available();
-            assert dense_plane_native_available(); assert selector_decompress(selector_compress(data))==data"
+            assert dense_plane_native_available(); assert selector_backend(frame)=='dma2-parallel';
+            assert selector_decompress(frame)==data; arbitrary=bytes(range(256))*100;
+            direct=selector_compress(arbitrary); assert selector_backend(direct)=='direct-zstd1';
+            assert selector_decompress(direct)==arbitrary; encoded=io.BytesIO();
+            selector_stream_compress(io.BytesIO(data*2),encoded,segment_size=65536);
+            restored=io.BytesIO(); selector_stream_decompress(io.BytesIO(encoded.getvalue()),
+            restored,max_output_size=len(data)*2); assert restored.getvalue()==data*2"
       - uses: actions/upload-artifact@v7
         with:
           name: wheel-smoke-${{ runner.os }}

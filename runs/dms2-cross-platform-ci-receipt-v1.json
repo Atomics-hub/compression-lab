@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "candidate": "DMS2 with DSS1 streaming and equally framed direct zstd-1 fallback",
+  "tested_commit": "4e816ca37b7e9d7b639b474d7dedc4ac077df8b4",
+  "recorded_at": "2026-07-17T09:46:33Z",
+  "successful_runs": [
+    {
+      "event": "push",
+      "run_id": 29570961417,
+      "url": "https://github.com/Atomics-hub/compression-lab/actions/runs/29570961417",
+      "conclusion": "success"
+    },
+    {
+      "event": "pull_request",
+      "run_id": 29570964309,
+      "url": "https://github.com/Atomics-hub/compression-lab/actions/runs/29570964309",
+      "conclusion": "success"
+    }
+  ],
+  "platform_jobs": {
+    "linux": {
+      "full_suite": {
+        "url": "https://github.com/Atomics-hub/compression-lab/actions/runs/29570961417/job/87854366834",
+        "conclusion": "success"
+      },
+      "native_wheel": {
+        "url": "https://github.com/Atomics-hub/compression-lab/actions/runs/29570961417/job/87854366873",
+        "conclusion": "success"
+      }
+    },
+    "macos": {
+      "full_suite": {
+        "url": "https://github.com/Atomics-hub/compression-lab/actions/runs/29570961417/job/87854366877",
+        "conclusion": "success"
+      },
+      "native_wheel": {
+        "url": "https://github.com/Atomics-hub/compression-lab/actions/runs/29570961417/job/87854366826",
+        "conclusion": "success"
+      }
+    },
+    "windows": {
+      "full_suite": {
+        "url": "https://github.com/Atomics-hub/compression-lab/actions/runs/29570961417/job/87854366869",
+        "conclusion": "success"
+      },
+      "native_wheel": {
+        "url": "https://github.com/Atomics-hub/compression-lab/actions/runs/29570961417/job/87854366856",
+        "conclusion": "success"
+      }
+    }
+  },
+  "wheel_smoke_scope": [
+    "DMS2 specialist route",
+    "equally framed direct zstd-1 fallback",
+    "DSS1 segmented stream roundtrip"
+  ],
+  "source_sha256": {
+    "src/compresslab/dense_matrix_transform.py": "0a0ab33cbec9b87fadebca540b13e3bbe7b9042365eb3edf0595ed89bf4b2c8e",
+    "src/compresslab/dense_native.py": "eea2f6880d5d41a0d951b9ec35f63aec132d7c3ffbf0cfc3118161b397b5c6d1",
+    "native-dense/src/lib.rs": "5ee73adc7a50ccaaaa8bb17b750b5af4cbe920e120bfa5d6a0562c8a5244c720",
+    "native-dense/Cargo.toml": "1d8c74473c23aca1fee3c7f6b181c42ebc377d0c384c085e15b3e82ca45faffd",
+    "native-dense/Cargo.lock": "76d9b00c6ce753885e5476174aa87ae55e6b4d7b4b351d3aab70a0ce4a7ebc16",
+    ".github/workflows/ci.yml": "44fae6a982fd830054ca8cd540d894c1f80e2b70b7accb3e8761e571cff1904b"
+  },
+  "public_validation": "unopened",
+  "private_holdout": "sealed",
+  "claim_ceiling": "cross-platform correctness and packaging reproduction for the tested DMS2 source; performance results remain same-machine development evidence and do not establish category-best, market-leading, or state-of-the-art performance"
+}

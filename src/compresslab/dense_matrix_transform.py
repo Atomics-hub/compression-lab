@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import hashlib
 import struct
+from concurrent.futures import ThreadPoolExecutor
 from decimal import Decimal
 from collections import defaultdict
+from typing import BinaryIO, Iterator
 
 from .dense_native import (
     dense_adaptive_native_available,
@@ -31,11 +33,20 @@ CONTEXT_MAGIC = b"DMC1"
 ADAPTIVE_MAGIC = b"DMA1"
 PARALLEL_MAGIC = b"DMA2"
 SELECTOR_MAGIC = b"DMS2"
+SELECTOR_STREAM_MAGIC = b"DSS1"
 VERSION = 1
 SEPARATOR_BYTES = frozenset(b" \t,;|\r\n")
 HEADER = struct.Struct(">4sBBQQ32s")
+STREAM_HEADER = struct.Struct(">4sBQ")
+STREAM_LENGTH = struct.Struct(">Q")
+STREAM_TRAILER = struct.Struct(">Q32s")
 MAX_DICTIONARY_ENTRIES = 1 << 20
 MAX_TRANSFORMED_BYTES = 2 * 1024 * 1024 * 1024
+DEFAULT_STREAM_SEGMENT_SIZE = 16 * 1024 * 1024
+MAX_STREAM_SEGMENT_SIZE = 256 * 1024 * 1024
+SELECTOR_STARTS_WITH_TOKEN = 1
+SELECTOR_PLANES = 2
+SELECTOR_DIRECT = 4
 
 
 def _encode_varint(value: int) -> bytes:
@@ -1336,25 +1347,71 @@ def _sample_alphabet_python(data: bytes, sample_size: int = 64 * 1024) -> int:
     return min(5, len(set(tokens)))
 
 
-def selector_compress(data: bytes, level: int = 19) -> bytes:
-    starts_with_token = not data or data[0] not in SEPARATOR_BYTES
-    alphabet = (
-        dense_sample_alphabet(data)
-        if dense_parallel_native_available()
-        else _sample_alphabet_python(data)
-    )
-    use_planes = alphabet <= 4
-    transformed = plane_transform(data) if use_planes else parallel_transform(data)
-    payload = zstd_compress(transformed, level=level)
-    flags = int(starts_with_token) | (int(use_planes) << 1)
+def _selector_frame(
+    data: bytes,
+    payload_source: bytes,
+    *,
+    flags: int,
+    level: int,
+) -> bytes:
+    payload = zstd_compress(payload_source, level=level)
     return HEADER.pack(
         SELECTOR_MAGIC,
         VERSION,
         flags,
         len(data),
-        len(transformed),
+        len(payload_source),
         hashlib.sha256(data).digest(),
     ) + payload
+
+
+def selector_compress(data: bytes, level: int = 19) -> bytes:
+    starts_with_token = not data or data[0] not in SEPARATOR_BYTES
+    start_flag = SELECTOR_STARTS_WITH_TOKEN if starts_with_token else 0
+
+    # The direct candidate is deliberately level 1: it is the fast, safe path
+    # for arbitrary input. Determine the specialist representation first, then
+    # overlap only the two entropy-coding steps. The direct frame also supplies
+    # the one shared full-file digest, avoiding a duplicate hash pass.
+    try:
+        alphabet = (
+            dense_sample_alphabet(data)
+            if dense_parallel_native_available()
+            else _sample_alphabet_python(data)
+        )
+        use_planes = alphabet <= 4
+        transformed = (
+            plane_transform(data) if use_planes else parallel_transform(data)
+        )
+    except (UnicodeDecodeError, ValueError):
+        return _selector_frame(
+            data,
+            data,
+            flags=start_flag | SELECTOR_DIRECT,
+            level=1,
+        )
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        direct_future = executor.submit(
+            _selector_frame,
+            data,
+            data,
+            flags=start_flag | SELECTOR_DIRECT,
+            level=1,
+        )
+        specialist_payload = zstd_compress(transformed, level=level)
+        direct = direct_future.result()
+    digest = direct[HEADER.size - 32 : HEADER.size]
+    specialist = HEADER.pack(
+        SELECTOR_MAGIC,
+        VERSION,
+        start_flag | (SELECTOR_PLANES if use_planes else 0),
+        len(data),
+        len(transformed),
+        digest,
+    ) + specialist_payload
+    if len(direct) < len(specialist):
+        return direct
+    return specialist
 
 
 def selector_decompress(frame: bytes) -> bytes:
@@ -1363,7 +1420,7 @@ def selector_decompress(frame: bytes) -> bytes:
     magic, version, flags, original_size, transformed_size, digest = (
         HEADER.unpack_from(frame)
     )
-    if magic != SELECTOR_MAGIC or version != VERSION or flags > 3:
+    if magic != SELECTOR_MAGIC or version != VERSION or flags > 7:
         raise ValueError("invalid DMS2 header")
     payload = frame[HEADER.size :]
     if zstd_frame_content_size(payload) != transformed_size:
@@ -1373,13 +1430,18 @@ def selector_decompress(frame: bytes) -> bytes:
     except RuntimeError as error:
         raise ValueError(f"invalid DMS2 payload: {error}") from error
     starts_with_token = bool(flags & 1)
-    output = (
-        plane_inverse_transform(transformed, starts_with_token, original_size)
-        if flags & 2
-        else parallel_inverse_transform(
+    if flags & SELECTOR_DIRECT:
+        if flags & SELECTOR_PLANES or transformed_size != original_size:
+            raise ValueError("invalid DMS2 direct frame")
+        output = transformed
+    elif flags & SELECTOR_PLANES:
+        output = plane_inverse_transform(
             transformed, starts_with_token, original_size
         )
-    )
+    else:
+        output = parallel_inverse_transform(
+            transformed, starts_with_token, original_size
+        )
     if hashlib.sha256(output).digest() != digest:
         raise ValueError("DMS2 checksum mismatch")
     return output
@@ -1391,9 +1453,125 @@ def selector_backend(frame: bytes) -> str:
     magic, version, flags, _original, _transformed, _digest = HEADER.unpack_from(
         frame
     )
-    if magic != SELECTOR_MAGIC or version != VERSION or flags > 3:
+    if magic != SELECTOR_MAGIC or version != VERSION or flags > 7:
         raise ValueError("invalid DMS2 header")
-    return "dmp1-planes" if flags & 2 else "dma2-parallel"
+    if flags & SELECTOR_DIRECT:
+        return "direct-zstd1"
+    return "dmp1-planes" if flags & SELECTOR_PLANES else "dma2-parallel"
+
+
+def _stream_segments(source: BinaryIO, segment_size: int) -> Iterator[bytes]:
+    pending = bytearray()
+    while chunk := source.read(segment_size):
+        pending.extend(chunk)
+        while len(pending) >= segment_size:
+            boundary = pending.rfind(b"\n", 0, segment_size + 1) + 1
+            if boundary == 0:
+                boundary = segment_size
+            yield bytes(pending[:boundary])
+            del pending[:boundary]
+    if pending:
+        yield bytes(pending)
+
+
+def selector_stream_compress(
+    source: BinaryIO,
+    destination: BinaryIO,
+    *,
+    segment_size: int = DEFAULT_STREAM_SEGMENT_SIZE,
+    level: int = 19,
+) -> dict[str, int]:
+    if not 1 <= segment_size <= MAX_STREAM_SEGMENT_SIZE:
+        raise ValueError("DSS1 segment size is outside the supported range")
+    destination.write(
+        STREAM_HEADER.pack(SELECTOR_STREAM_MAGIC, VERSION, segment_size)
+    )
+    digest = hashlib.sha256()
+    source_bytes = 0
+    frame_bytes = STREAM_HEADER.size
+    segments = 0
+    for segment in _stream_segments(source, segment_size):
+        frame = selector_compress(segment, level=level)
+        destination.write(STREAM_LENGTH.pack(len(frame)))
+        destination.write(frame)
+        digest.update(segment)
+        source_bytes += len(segment)
+        frame_bytes += STREAM_LENGTH.size + len(frame)
+        segments += 1
+    destination.write(STREAM_LENGTH.pack(0))
+    destination.write(STREAM_TRAILER.pack(source_bytes, digest.digest()))
+    frame_bytes += STREAM_LENGTH.size + STREAM_TRAILER.size
+    return {
+        "source_bytes": source_bytes,
+        "complete_bytes": frame_bytes,
+        "segments": segments,
+        "segment_size": segment_size,
+    }
+
+
+def _read_exact(source: BinaryIO, size: int) -> bytes:
+    output = bytearray()
+    while len(output) < size:
+        chunk = source.read(size - len(output))
+        if not chunk:
+            raise ValueError("truncated DSS1 stream")
+        output.extend(chunk)
+    return bytes(output)
+
+
+def selector_stream_decompress(
+    source: BinaryIO,
+    destination: BinaryIO,
+    *,
+    max_output_size: int = MAX_TRANSFORMED_BYTES,
+) -> dict[str, int]:
+    magic, version, segment_size = STREAM_HEADER.unpack(
+        _read_exact(source, STREAM_HEADER.size)
+    )
+    if (
+        magic != SELECTOR_STREAM_MAGIC
+        or version != VERSION
+        or not 1 <= segment_size <= MAX_STREAM_SEGMENT_SIZE
+    ):
+        raise ValueError("invalid DSS1 header")
+    digest = hashlib.sha256()
+    output_bytes = 0
+    frame_bytes = STREAM_HEADER.size
+    segments = 0
+    while True:
+        (frame_size,) = STREAM_LENGTH.unpack(
+            _read_exact(source, STREAM_LENGTH.size)
+        )
+        frame_bytes += STREAM_LENGTH.size
+        if frame_size == 0:
+            break
+        if frame_size > max_output_size + HEADER.size + 1024 * 1024:
+            raise ValueError("DSS1 segment frame exceeds output bound")
+        frame = _read_exact(source, frame_size)
+        frame_bytes += frame_size
+        restored = selector_decompress(frame)
+        if len(restored) > segment_size:
+            raise ValueError("DSS1 segment exceeds declared bound")
+        if output_bytes + len(restored) > max_output_size:
+            raise ValueError("DSS1 output exceeds configured bound")
+        destination.write(restored)
+        digest.update(restored)
+        output_bytes += len(restored)
+        segments += 1
+    declared_size, declared_digest = STREAM_TRAILER.unpack(
+        _read_exact(source, STREAM_TRAILER.size)
+    )
+    frame_bytes += STREAM_TRAILER.size
+    if source.read(1):
+        raise ValueError("trailing DSS1 bytes")
+    if declared_size != output_bytes or declared_digest != digest.digest():
+        raise ValueError("DSS1 stream checksum mismatch")
+    return {
+        "source_bytes": output_bytes,
+        "complete_bytes": frame_bytes,
+        "segments": segments,
+        "segment_size": segment_size,
+    }
 
 
 def adaptive_compress(data: bytes, level: int = 3) -> bytes:

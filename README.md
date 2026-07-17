@@ -13,38 +13,40 @@ specialists and are promoted only when frozen evidence supports them.
 On 4,895,341 fresh development bytes from three UCI matrix families, native
 DMS2 produced 189,738 bytes: **5.28% smaller than bzip2-9**, the strongest of
 ten tested standards. Seven measured complete-frame trials after one warmup
-ran at **51.03 MB/s compression and 255.55 MB/s decompression**.
+ran at **54.85 MB/s compression and 268.18 MB/s decompression**.
 
-| Codec | Complete bytes | DMS2 size result | Compress MB/s | Decompress MB/s | Exact |
-| --- | ---: | ---: | ---: | ---: | --- |
-| **DMS2 native** | **189,738** | candidate | **51.03** | **255.55** | ✅ |
-| bzip2-9 | 200,311 | **5.28% smaller** | 1.71 | 27.18 | ✅ |
-| Brotli-11 | 238,019 | **20.28% smaller** | 0.34 | 202.81 | ✅ |
-| zstd-19 | 244,177 | **22.29% smaller** | 2.59 | 829.70 | ✅ |
-| 7-Zip-9 | 244,868 | **22.51% smaller** | 5.19 | 124.55 | ✅ |
-| LZMA-9 | 245,200 | **22.62% smaller** | 1.04 | 74.93 | ✅ |
-| gzip-9 | 270,595 | **29.88% smaller** | 2.68 | 911.03 | ✅ |
-| TBS1 stream-dense | 320,264 | **40.76% smaller** | 44.38 | 220.66 | ✅ |
-| zstd-9 | 324,779 | **41.58% smaller** | 64.56 | 327.78 | ✅ |
-| zstd-3 | 383,836 | **50.57% smaller** | 321.72 | 565.71 | ✅ |
-| LZ4-1 | 971,749 | **80.47% smaller** | 166.92 | 199.39 | ✅ |
-| store | 4,895,341 | **96.12% smaller** | 986.33 | 1,364.52 | ✅ |
+| Codec | Complete bytes | DMS2 size result | Compress MB/s | Decompress MB/s | Peak RSS C/D MiB | Exact |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| **DMS2 native** | **189,738** | candidate | **54.85** | **268.18** | **51.9 / 39.2** | ✅ |
+| bzip2-9 | 200,311 | **5.28% smaller** | 1.71 | 27.18 | — | ✅ |
+| Brotli-11 | 238,019 | **20.28% smaller** | 0.34 | 202.81 | — | ✅ |
+| zstd-19 | 244,177 | **22.29% smaller** | 2.59 | 829.70 | — | ✅ |
+| 7-Zip-9 | 244,868 | **22.51% smaller** | 5.19 | 124.55 | — | ✅ |
+| LZMA-9 | 245,200 | **22.62% smaller** | 1.04 | 74.93 | — | ✅ |
+| gzip-9 | 270,595 | **29.88% smaller** | 2.68 | 911.03 | — | ✅ |
+| TBS1 stream-dense | 320,264 | **40.76% smaller** | 44.38 | 220.66 | — | ✅ |
+| zstd-9 | 324,779 | **41.58% smaller** | 64.56 | 327.78 | — | ✅ |
+| zstd-3 | 383,836 | **50.57% smaller** | 321.72 | 565.71 | — | ✅ |
+| LZ4-1 | 971,749 | **80.47% smaller** | 166.92 | 199.39 | — | ✅ |
+| store | 4,895,341 | **96.12% smaller** | 986.33 | 1,364.52 | — | ✅ |
 
 Full transparency: this is development evidence, not a world-best claim or
-public validation. Exactness, determinism, corruption rejection, and the
-frozen ratio and speed gates passed; memory, streaming, selector, regression,
-and cross-platform gates remain before the one-time unseen validation. See the
-[complete decision and raw-evidence link](docs/benchmarks/2026-07-17-dms2-native-development-gate.md).
+public validation. Ratio, speed, memory, bounded streaming, selector,
+direct-fallback, regression, exactness, determinism, and corruption gates all
+passed locally. Native-wheel and full-suite reproduction also passed on Linux,
+macOS, and Windows for commit `4e816ca`. Candidate lock remains before the
+one-time unseen validation. See the [complete decision and raw evidence](docs/benchmarks/2026-07-17-dms2-native-development-gate.md).
 
 Baseline speeds are same-machine contextual measurements from the preceding
-fresh census; DMS2 used repeated trials. Complete bytes include every frame
-header and checksum.
+fresh census; DMS2 used repeated trials. Baseline peak RSS was not rerun, so no
+comparative memory win is claimed. Complete bytes include every frame header
+and checksum.
 
 ## Evidence portfolio
 
 | Category | Evidence stage | Strongest result | Honest status |
 | --- | --- | --- | --- |
-| Dense numeric matrices | Fresh development | DMS2 5.28% smaller than bzip2-9 at 51.03/255.55 MB/s | Native ratio/speed gates passed; validation unopened |
+| Dense numeric matrices | Fresh development | DMS2 5.28% smaller than bzip2-9 at 54.85/268.18 MB/s | Local and cross-platform gates passed; candidate lock next; validation unopened |
 | Delimited record tables | Public validation | TBS1 won 3/4 families by 7.35%–16.50% | Aggregate remained 3.48% behind 7-Zip-9 |
 | JSON and machine logs | Public validation | JLS2 28.77% smaller than zstd-9 | Mixed against Brotli-11; decode gate missed |
 | General binary, source, archives | Development | Exact fallback | No category win established |

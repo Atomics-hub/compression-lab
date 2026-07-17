@@ -7,6 +7,7 @@ import json
 import platform
 from pathlib import Path
 import statistics
+import subprocess
 import sys
 import time
 
@@ -37,11 +38,32 @@ def median_int(values: list[int]) -> int:
     return int(statistics.median(values))
 
 
+def git_state() -> dict[str, object]:
+    commit = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=REPOSITORY,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+    dirty = bool(
+        subprocess.run(
+            ["git", "status", "--porcelain"],
+            cwd=REPOSITORY,
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout
+    )
+    return {"commit": commit, "dirty": dirty}
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--corpus", type=Path, required=True)
     parser.add_argument("--gates", type=Path, required=True)
     parser.add_argument("--baseline-results", type=Path, required=True)
+    parser.add_argument("--operational-evidence", type=Path)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--repetitions", type=int, default=7)
     parser.add_argument("--warmups", type=int, default=1)
@@ -50,6 +72,9 @@ def main() -> int:
         raise ValueError("at least three repetitions and one warmup are required")
     if not dense_parallel_native_available() or not dense_plane_native_available():
         raise RuntimeError("the native DMA2 and DMP1 paths must be built")
+    repository = git_state()
+    if repository["dirty"]:
+        raise SystemExit("native DMS2 gate requires a clean commit")
 
     manifest_path = args.corpus / "manifest.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -57,6 +82,13 @@ def main() -> int:
     baseline_payload = json.loads(
         args.baseline_results.read_text(encoding="utf-8")
     )
+    operational_payload = None
+    if args.operational_evidence is not None:
+        operational_payload = json.loads(
+            args.operational_evidence.read_text(encoding="utf-8")
+        )
+        if not operational_payload["gate_results"]["all_passed"]:
+            raise ValueError("DMS2 operational evidence did not pass")
     dense_ids = {
         item["id"]
         for item in manifest["items"]
@@ -190,7 +222,7 @@ def main() -> int:
     }
     result = {
         "schema_version": 1,
-        "name": "dms2-native-development-gate-v1",
+        "name": "dms2-safe-selector-development-gate-v2",
         "stage": "fresh-development-native-gate",
         "claim_ceiling": gates["claim_ceiling"],
         "candidate": {
@@ -199,6 +231,7 @@ def main() -> int:
             "selector_sample_bytes": 64 * 1024,
             "plane_rule": "use DMP1 when the bounded prefix has at most four numeric lexemes; otherwise use DMA2",
             "parallel_rule": "use seven lanes for alphabets at most eight and six lanes otherwise",
+            "direct_fallback": "materialize equally framed zstd-1 concurrently and choose the smaller complete frame",
         },
         "corpus_manifest": str(manifest_path),
         "corpus_manifest_sha256": sha256_file(manifest_path),
@@ -206,22 +239,37 @@ def main() -> int:
         "gates_sha256": sha256_file(args.gates),
         "baseline_results": str(args.baseline_results),
         "baseline_results_sha256": sha256_file(args.baseline_results),
+        "operational_evidence": (
+            str(args.operational_evidence)
+            if args.operational_evidence is not None
+            else None
+        ),
+        "operational_evidence_sha256": (
+            sha256_file(args.operational_evidence)
+            if args.operational_evidence is not None
+            else None
+        ),
         "runner": {
             "platform": platform.platform(),
             "python": platform.python_version(),
             "repetitions": args.repetitions,
             "warmups": args.warmups,
         },
+        "git": repository,
         "rows": rows,
         "aggregate": aggregate,
         "standards": standard_rows,
-        "remaining_gates": [
-            "peak RSS at most 512 MiB",
-            "bounded streaming memory",
-            "record-table regression at most 0.25%",
-            "leave-one-family-out selector evaluation",
-            "portable wheel verification on Linux and Windows",
-        ],
+        "remaining_gates": (
+            ["portable wheel verification on Linux and Windows"]
+            if operational_payload is not None
+            else [
+                "peak RSS at most 512 MiB",
+                "bounded streaming memory",
+                "record-table regression at most 0.25%",
+                "leave-one-family-out selector evaluation",
+                "portable wheel verification on Linux and Windows",
+            ]
+        ),
         "public_validation": "unopened",
         "private_holdout": "sealed",
     }
