@@ -58,12 +58,23 @@
     {
       "id": "tabular_csv",
       "label": "Tabular CSV and delimited records",
-      "status": "untested",
-      "specialist": null,
-      "current_evidence": null,
-      "current_result": "No category-scoped evidence yet.",
-      "tested_standards": [],
-      "next_gate": "Select licensed heterogeneous training and validation families, reproduce columnar and general-purpose baselines, and predeclare ratio, speed, and schema-robustness gates."
+      "status": "development",
+      "specialist": "TBL1 research path",
+      "current_evidence": "docs/benchmarks/2026-07-16-tabular-baseline-census.md",
+      "current_result": "The licensed development corpus is digest-pinned. A single-trial discovery census completed 40/40 exact round trips and found Brotli-11 smallest at 13,425,698 bytes, zstd-9 at 61.91/380.94 MB/s, and a large ratio-versus-encode-speed opportunity. No Compression Lab candidate was measured; the run was dirty-tree discovery only.",
+      "tested_standards": [
+        "store",
+        "lz4-1",
+        "gzip-9",
+        "bzip2-9",
+        "zstd-3",
+        "zstd-9",
+        "zstd-19",
+        "Brotli-11",
+        "LZMA-9",
+        "7-Zip-9"
+      ],
+      "next_gate": "Implement and reject TBL1 representation channels on development data only, then repeat the survivor and frontier baselines from a clean frozen commit without opening public validation."
     },
     {
       "id": "numeric_timeseries",

@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "name": "delimited-tabular-product-gates-v1",
+  "category": "tabular_csv",
+  "candidate_modes": {
+    "dense": "ratio-oriented exact-byte tabular specialist with equally framed direct fallback",
+    "balanced": "bounded-analysis exact-byte tabular specialist with equally framed direct fallback"
+  },
+  "exact_byte_baselines": [
+    "store",
+    "lz4-1",
+    "gzip-9",
+    "bzip2-9",
+    "zstd-3",
+    "zstd-9",
+    "zstd-19",
+    "brotli-11",
+    "xz-lzma2-9",
+    "7zip-lzma2-9"
+  ],
+  "semantic_context_baselines": [
+    "Parquet with zstd",
+    "Parquet with Brotli",
+    "Parquet with dictionary, RLE, delta, and byte-stream-split encodings where supported",
+    "BtrBlocks",
+    "FastLanes"
+  ],
+  "comparability_policy": "A semantic columnar format is contextual unless its complete artifact plus all schema, ordering, formatting, quoting, delimiter, line-ending, and reconstruction metadata restores the exact source bytes. Contextual results cannot satisfy the primary ratio gate.",
+  "dense_requirements": {
+    "minimum_aggregate_gain_vs_strongest_complete_exact_byte_baseline_percent": 5.0,
+    "minimum_families_with_five_percent_gain_vs_strongest_complete_exact_byte_baseline": 3,
+    "maximum_family_regression_vs_equally_framed_best_direct_fallback_percent": 2.0,
+    "minimum_compression_mbps": 50.0,
+    "minimum_decompression_mbps": 250.0,
+    "maximum_peak_rss_mib": 512.0
+  },
+  "balanced_requirements": {
+    "minimum_aggregate_gain_vs_zstd9_percent": 5.0,
+    "maximum_aggregate_size_regression_vs_dense_percent": 2.0,
+    "maximum_family_regression_vs_equally_framed_best_direct_fallback_percent": 1.0,
+    "minimum_compression_mbps": 100.0,
+    "minimum_decompression_mbps": 500.0,
+    "maximum_peak_rss_mib": 384.0
+  },
+  "shared_requirements": {
+    "required_public_validation_families": 4,
+    "minimum_repetitions": 5,
+    "require_exact_roundtrip": true,
+    "require_deterministic_output": true,
+    "require_complete_frame_accounting": true,
+    "require_no_material_expansion_vs_equally_framed_fallback": true,
+    "maximum_material_expansion_bytes": 64,
+    "require_bounded_streaming_memory": true,
+    "require_truncated_and_corrupt_frame_rejection": true,
+    "require_portable_reference_decoder": true,
+    "require_clean_frozen_commit": true
+  },
+  "decision_rule": "A mode passes only when every applicable requirement passes on the first authorized public-validation score. No representation, selector, parameter, threshold, corpus slice, baseline setting, evaluator, or gate may change after validation acquisition.",
+  "claim_rule": "A public-validation pass supports only a category-scoped result. State-of-the-art language additionally requires fresh private-holdout success and independent reproduction."
+}
