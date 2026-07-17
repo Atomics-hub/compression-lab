@@ -15,7 +15,7 @@ portability, or independent-evidence cells remain red or untested.
 | --- | --- | --- | --- | --- | --- | --- |
 | JSON and machine logs | Public-validation partial | ✅ JLS2 beat zstd-9 on 3/3, PBC on 3/3, and Brotli-11 in aggregate; Brotli family gate was 1/3 | ⚠️ compression passed; Linux decompression failed 250 MB/s gate | ⚠️ development-only JLS2 measurement; no same-run baseline memory | ❌ No | Development-only Linux decode profile, then a fresh independent corpus |
 | Plain text and source | Development | ❌ no win over the strongest tested ratio baselines | ⚠️ some Pareto development points, no category validation | ⚠️ partial development measurements | ❌ No | New representation or calibrated entropy-model hypothesis |
-| Tabular CSV | Development streaming pass | ✅ TBS1 beat Brotli-11 by 9.62% aggregate and the strongest exact baseline by >=5% on 3/4 families | ✅ 60.92/356.76 MB/s; five-run minima 56.94/335.57 | ✅ cold 409.72/120.22 MiB; 1 GiB 155.34/101.56 MiB | ❌ No | Freeze readiness and CI, then one-time public validation |
+| Tabular CSV | Development streaming pass; validation readiness frozen | ✅ TBS1 beat Brotli-11 by 9.62% aggregate and the strongest exact baseline by >=5% on 3/4 families | ✅ 60.92/356.76 MB/s; five-run minima 56.94/335.57 | ✅ cold 409.72/120.22 MiB; 1 GiB 155.34/101.56 MiB | ❌ No | Merge readiness, pin its commit, then run one-time public validation |
 | Numeric and time series | Smoke only | ⚠️ synthetic delta-transpose signal | — | — | ❌ No | Licensed heterogeneous numeric corpus and specialist audit |
 | General binary/archive | Development | ❌ current encoder loses to zstd-9 | ❌ not Pareto-optimal | ⚠️ bounded-frame evidence only | ❌ No | Keep safe fallback; wait for a materially new specialist hypothesis |
 | Incompressible/already compressed | Development safety tests | ✅ bounded store/direct fallback behavior | — category throughput unvalidated | — large-file category gate unvalidated | ❌ No | Freeze expansion, selector-cost, speed, and memory gates |
@@ -35,6 +35,9 @@ decision is in
 `docs/benchmarks/2026-07-16-tbl1-dense-development-decision.md`.
 The bounded streaming decision is in
 `docs/benchmarks/2026-07-16-tbl1-streaming-development-decision.md`.
+The one-shot runner, evaluator, candidate-path hashes, corpus identities, exact
+comparator roster, and pass/fail chart are frozen in the
+[TBL1 public-validation readiness decision](2026-07-16-tbl1-public-validation-readiness.md).
 Public-validation archives remain unopened.
 
 ## Universal-selector consequence
