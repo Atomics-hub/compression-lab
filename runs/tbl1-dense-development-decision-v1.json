@@ -1,0 +1,190 @@
+{
+  "schema_version": 1,
+  "category": "tabular_csv",
+  "candidate": "tbl1-dense",
+  "stage": "development-point-decision",
+  "overall_gate": "not_passed",
+  "point_metrics_pass": true,
+  "claim_ceiling": "On the frozen licensed four-family development corpus, TBL1-dense was 10.52% smaller than Brotli-11, achieved at least 5% wins against the strongest exact per-family baseline on three of four families, and passed the predeclared point thresholds. This is not public validation or a category-leading claim.",
+  "corpus": {
+    "name": "uci-tabular-v1-development",
+    "license": "CC-BY-4.0",
+    "families": 4,
+    "source_bytes": 187321615,
+    "manifest_sha256": "bac7f9bb94bac38dc621d927ff8cca70a8c2fde92c3689525a1de2d87d098f61",
+    "public_validation_opened": false,
+    "private_holdout_opened": false
+  },
+  "candidate_result": {
+    "commit": "89577e8258ed781cea540eadcddec72f285375f8",
+    "complete_bytes": 12012933,
+    "compression_mbps": 51.2985888653,
+    "decompression_mbps": 250.4077880803,
+    "compression_peak_rss_mib": 402.546875,
+    "decompression_peak_rss_mib": 230.515625,
+    "repetitions": 5,
+    "warmups": 1,
+    "trials": 20,
+    "exact_roundtrips": 20,
+    "deterministic": true,
+    "complete_frame_accounting": true,
+    "performance_result_sha256": "269fd8c777ef775fca048df0da4b5912908ef9709ce1fc3135ea09d570a54f07",
+    "memory_result_sha256": "d01f6c6c7ba51224c9516b06384285c62022c2bccbfd99bc400d09bed6051cbf"
+  },
+  "stability": {
+    "compression_repetition_median_mbps": 50.5371,
+    "compression_repetition_range_mbps": [47.1744, 53.9051],
+    "compression_cv_percent": 5.016,
+    "decompression_repetition_median_mbps": 253.5048,
+    "decompression_repetition_range_mbps": [238.4528, 346.94],
+    "decompression_cv_percent": 17.0425,
+    "stable_margin_pass": false
+  },
+  "baselines": [
+    {
+      "codec": "brotli-11",
+      "complete_bytes": 13425698,
+      "tbl1_improvement_percent": 10.5228420898,
+      "compression_mbps": 0.33,
+      "decompression_mbps": 293.21,
+      "compression_peak_rss_mib": 254.5,
+      "measurement_basis": "single-trial contextual development census"
+    },
+    {
+      "codec": "lzma-9",
+      "complete_bytes": 14275744,
+      "tbl1_improvement_percent": 15.8507395481,
+      "compression_mbps": 0.7750842823,
+      "decompression_mbps": 38.913147689,
+      "compression_peak_rss_mib": 801.78125,
+      "measurement_basis": "single-trial contextual development census"
+    },
+    {
+      "codec": "7zip-9",
+      "complete_bytes": 14301453,
+      "tbl1_improvement_percent": 16.0020104251,
+      "compression_mbps": 2.6880270851,
+      "decompression_mbps": 133.1266532144,
+      "compression_peak_rss_mib": 648.53125,
+      "measurement_basis": "single-trial contextual development census"
+    },
+    {
+      "codec": "zstd-19",
+      "complete_bytes": 14570801,
+      "tbl1_improvement_percent": 17.5547521375,
+      "compression_mbps": 2.07,
+      "decompression_mbps": 424.88,
+      "compression_peak_rss_mib": 240.4,
+      "measurement_basis": "single-trial contextual development census"
+    },
+    {
+      "codec": "bz2-9",
+      "complete_bytes": 17627845,
+      "tbl1_improvement_percent": 31.8525151543,
+      "compression_mbps": 1.4286329301,
+      "decompression_mbps": 20.8576375921,
+      "compression_peak_rss_mib": 255.453125,
+      "measurement_basis": "single-trial contextual development census"
+    },
+    {
+      "codec": "zstd-9",
+      "complete_bytes": 18038379,
+      "tbl1_improvement_percent": 33.4034782172,
+      "compression_mbps": 61.91,
+      "decompression_mbps": 380.94,
+      "compression_peak_rss_mib": 233.7,
+      "measurement_basis": "single-trial contextual development census"
+    },
+    {
+      "codec": "gzip-9",
+      "complete_bytes": 19811936,
+      "tbl1_improvement_percent": 39.3651736004,
+      "compression_mbps": 8.03397229,
+      "decompression_mbps": 362.9654517786,
+      "compression_peak_rss_mib": 269.0,
+      "measurement_basis": "single-trial contextual development census"
+    },
+    {
+      "codec": "zstd-3",
+      "complete_bytes": 22715433,
+      "tbl1_improvement_percent": 47.1155447488,
+      "compression_mbps": 185.13,
+      "decompression_mbps": 333.23,
+      "compression_peak_rss_mib": 327.3,
+      "measurement_basis": "single-trial contextual development census"
+    },
+    {
+      "codec": "lz4-1",
+      "complete_bytes": 38164405,
+      "tbl1_improvement_percent": 68.5232011347,
+      "compression_mbps": 764.9951238515,
+      "decompression_mbps": 393.4759729693,
+      "compression_peak_rss_mib": 37.171875,
+      "measurement_basis": "single-trial contextual development census"
+    },
+    {
+      "codec": "store",
+      "complete_bytes": 187321615,
+      "tbl1_improvement_percent": 93.5870011584,
+      "compression_mbps": 1242.3992988238,
+      "decompression_mbps": 719.7798066079,
+      "compression_peak_rss_mib": 25.03125,
+      "measurement_basis": "single-trial contextual development census"
+    }
+  ],
+  "families": [
+    {
+      "name": "AutoUniv mixed",
+      "candidate_bytes": 2115607,
+      "strongest_exact_baseline": "7zip-9",
+      "baseline_bytes": 2285071,
+      "improvement_percent": 7.416,
+      "selected_path": "column-zstd-9",
+      "family_gate_pass": true
+    },
+    {
+      "name": "Covertype",
+      "candidate_bytes": 4489331,
+      "strongest_exact_baseline": "brotli-11",
+      "baseline_bytes": 6588546,
+      "improvement_percent": 31.862,
+      "selected_path": "column-zstd-9",
+      "family_gate_pass": true
+    },
+    {
+      "name": "Facebook comment volume",
+      "candidate_bytes": 1318003,
+      "strongest_exact_baseline": "brotli-11",
+      "baseline_bytes": 1446175,
+      "improvement_percent": 8.863,
+      "selected_path": "column-zstd-16-threads-2",
+      "family_gate_pass": true
+    },
+    {
+      "name": "Gas sensor",
+      "candidate_bytes": 4089992,
+      "strongest_exact_baseline": "lzma-9",
+      "baseline_bytes": 2922704,
+      "improvement_percent": -39.939,
+      "selected_path": "direct-zstd-9",
+      "equal_framed_direct_bytes": 4089992,
+      "family_gate_pass": false
+    }
+  ],
+  "gates": {
+    "aggregate_ratio_pass": true,
+    "three_family_ratio_pass": true,
+    "compression_point_pass": true,
+    "decompression_point_pass": true,
+    "memory_point_pass": true,
+    "exact_roundtrip_pass": true,
+    "determinism_pass": true,
+    "complete_accounting_pass": true,
+    "stable_margin_pass": false,
+    "bounded_streaming_pass": false,
+    "large_file_pass": false,
+    "public_validation_pass": false,
+    "independent_reproduction_pass": false
+  },
+  "decision": "retain_for_streaming_and_stability_work"
+}
