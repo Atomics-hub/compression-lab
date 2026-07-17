@@ -134,6 +134,7 @@ Key documents:
 
 - [DMS2 native development gate](docs/benchmarks/2026-07-17-dms2-native-development-gate.md)
 - [DMS2 one-time validation readiness and frozen gates](docs/benchmarks/2026-07-17-dms2-public-validation-readiness.md)
+- [DMS2 clean-tree validation lock receipt](runs/dms2-public-validation-lock-v1.json)
 - [Dense-matrix frozen protocol](docs/benchmarks/2026-07-17-dense-matrix-representation-protocol.md)
 - [Fresh successor corpus protocol](docs/benchmarks/2026-07-17-tabular-successor-corpus-protocol.md)
 - [File-format contract](docs/file-format.md)

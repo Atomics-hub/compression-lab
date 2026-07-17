@@ -17,6 +17,7 @@ FETCHER = REPOSITORY / "scripts" / "fetch-dms2-public-validation.py"
 WORKER = REPOSITORY / "scripts" / "dms2-validation-worker.py"
 LOCK_PATH = REPOSITORY / "config" / "dms2-public-validation-lock.json"
 LOCK_VERIFIER = REPOSITORY / "scripts" / "verify-dms2-public-validation-lock.py"
+LOCK_RECEIPT = REPOSITORY / "runs" / "dms2-public-validation-lock-v1.json"
 READINESS = (
     REPOSITORY
     / "docs"
@@ -65,6 +66,19 @@ class DMS2PublicValidationTests(unittest.TestCase):
             receipt["authorization"]["expected_item_ids"],
             ["uci-gisette-train", "uci-madelon-train"],
         )
+
+    def test_clean_tree_lock_receipt_is_bound_to_the_lock_commit(self):
+        lock = json.loads(LOCK_PATH.read_text(encoding="utf-8"))
+        receipt = json.loads(LOCK_RECEIPT.read_text(encoding="utf-8"))
+        self.assertTrue(receipt["passed"])
+        self.assertEqual(receipt["tracked_status"], "")
+        self.assertEqual(
+            receipt["head_commit"],
+            "f4d17f4658cf18dd6d16d84c6adb0220809c7884",
+        )
+        self.assertEqual(receipt["readiness_commit"], lock["readiness_commit"])
+        self.assertEqual(receipt["lock_sha256"], digest(LOCK_PATH))
+        self.assertEqual(receipt["verified_paths"], lock["locked_paths"])
 
     def test_explicit_acquisition_still_refuses_a_drifted_lock(self):
         fetcher = load_module("fetch_dms2_drifted_lock", FETCHER)
