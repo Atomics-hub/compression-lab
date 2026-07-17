@@ -15,11 +15,6 @@ import hashlib
 from pathlib import Path
 from typing import Any, Callable, Dict, Optional
 
-try:
-    import resource
-except ImportError:  # pragma: no cover - exercised by Windows CI
-    resource = None  # type: ignore[assignment]
-
 from .adaptive_v3 import (
     BACKEND_SEGMENTED as BACKEND_SEGMENTED_V3,
     VERSION as ADAPTIVE_VERSION_V3,
@@ -49,6 +44,15 @@ from .tabular_transform import (
     compress_stream as _tbl1_stream_compress,
     decompress_stream as _tbl1_stream_decompress,
 )
+
+
+resource: Any
+try:
+    import resource as _resource
+except ImportError:  # pragma: no cover - exercised by Windows CI
+    resource = None
+else:
+    resource = _resource
 
 
 ADAPTIVE_MAGIC = b"CLAB"

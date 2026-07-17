@@ -37,7 +37,7 @@ jobs:
         run: python -m compileall -q src tests
       - name: Lint Python sources
         run: ruff check src tests scripts setup.py
-      - name: Type-check public surface
+      - name: Type-check complete source tree
         run: >-
           mypy src scripts/audit-dms2-operational.py
           scripts/probe-dense-matrix-native.py
