@@ -11,7 +11,7 @@ import os
 from pathlib import Path
 from typing import Optional, Union
 
-from .api import DEFAULT_MAX_OUTPUT_SIZE
+from ._constants import DEFAULT_MAX_OUTPUT_SIZE
 from .json_log_codec import (
     DEFAULT_SEGMENT_SIZE,
     JsonLogFrameInfo,
