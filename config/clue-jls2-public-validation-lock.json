@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "name": "clue-jls2-public-validation-readiness-lock-v1",
-  "readiness_commit": "4c2e66f062d2742355e4606cddd6a93249160f4d",
+  "readiness_commit": "65bc87e9cf15ed5c9c3f46f07dd1148fac814972",
   "claim_ceiling": "This lock authorizes one unchanged acquisition and first score on the two declared CLUE-LDS public-validation ranges. It does not itself provide performance evidence or support a category-win, market-leading, world-best, or state-of-the-art claim.",
   "authorization": {
     "maximum_acquisitions": 1,
@@ -15,7 +15,7 @@
     "prohibit_post_score_tuning": true
   },
   "locked_paths": {
-    ".github/workflows/clue-jls2-public-validation.yml": "ce2ceaf9bda4388afe9621c3a939ad7100b13e4b3b627a7bfe51a0e98cc2941c",
+    ".github/workflows/clue-jls2-public-validation.yml": "bbe3218219ff632fd597df4ace635f07fc19236b28f434d6078e9ac44e299293",
     "config/clue-jls2-public-validation-gates.json": "659f645ece4b6be1591d8045b02e593f179bc1510b0b1b4755db72dd6d38b5b6",
     "config/clue-pbc-public-validation-gates.json": "dd8f7d940e5e4eab1149773c02bd407f0ca800c0999add8ccbbc15d20a5683b5",
     "config/clue-json-log-corpus-v1.json": "9326b3c38835da96feabe0c3b8fcdae1f176d113301e95bc703169666c1f6cf5",
