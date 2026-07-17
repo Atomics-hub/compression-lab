@@ -31,8 +31,8 @@ def verify_release_evidence(
 ) -> str:
     """Reject incomplete, untraceable, or incorrect release benchmark results."""
 
-    if payload.get("schema_version") != 4:
-        raise ValueError("release benchmark must use results schema version 4")
+    if payload.get("schema_version") != 5:
+        raise ValueError("release benchmark must use results schema version 5")
 
     config = payload.get("config")
     if not isinstance(config, dict):
@@ -48,6 +48,24 @@ def verify_release_evidence(
         raise ValueError("release benchmark must use only the public validation split")
     if config.get("execution_mode") != "persistent-worker":
         raise ValueError("release benchmark must use persistent workers")
+    runner = config.get("runner")
+    if not isinstance(runner, dict) or runner.get("api_version") != 2:
+        raise ValueError("release benchmark runner identity is missing or unsupported")
+    for field in (
+        "source_sha256",
+        "legacy_runner_source_sha256",
+        "corpus_loader_source_sha256",
+    ):
+        if not _SHA256.fullmatch(str(runner.get(field, ""))):
+            raise ValueError(f"release benchmark runner {field} is invalid")
+
+    manifest = config.get("corpus_manifest")
+    if not isinstance(manifest, dict):
+        raise ValueError("release benchmark corpus manifest identity is missing")
+    if not str(manifest.get("path", "")):
+        raise ValueError("release benchmark corpus manifest path is missing")
+    if not _SHA256.fullmatch(str(manifest.get("sha256", ""))):
+        raise ValueError("release benchmark corpus manifest SHA-256 is invalid")
 
     codec_rows = payload.get("codecs")
     if not isinstance(codec_rows, list):
@@ -95,6 +113,10 @@ def verify_release_evidence(
         raise ValueError(
             f"release corpus requires at least {MINIMUM_CORPUS_CATEGORIES} categories"
         )
+    if manifest.get("selected_item_count") != len(corpus):
+        raise ValueError("release benchmark manifest item count differs from results")
+    if manifest.get("selected_item_ids") != [row["id"] for row in corpus]:
+        raise ValueError("release benchmark manifest item identities differ from results")
 
     failures = payload.get("failures")
     if failures != []:

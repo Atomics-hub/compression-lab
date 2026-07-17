@@ -114,12 +114,23 @@ python3 -m compresslab run \
   --warmups 1
 ```
 
+For a frozen or projected corpus, name the exact manifest explicitly. The
+runner records that file's SHA-256 and selected item IDs in `results.json`:
+
+```bash
+python3 -m compresslab run \
+  --corpus corpora/public-validation \
+  --manifest corpora/public-validation/scoring-manifest.json \
+  --output runs/public-validation
+```
+
 Every promoted result declares corpus licenses and hashes, candidate commit,
 codec versions, runner, repetitions, exact round trips, complete archive bytes,
 and its claim ceiling. Private holdout data stays outside the repository.
 
 Key documents:
 
+- [Benchmark manifest-binding gate and control chart](runs/benchmark-manifest-binding-v1/README.md)
 - [DMS2 public-validation decision and complete chart](runs/dms2-public-validation-v1/README.md)
 - [DMS2 immutable first-score bundle index](runs/dms2-public-validation-v1/bundle.json)
 - [DMS2 acquisition deviation](docs/benchmarks/2026-07-17-dms2-acquisition-deviation.md)

@@ -8,6 +8,7 @@ from compresslab.corpus import (
     generate_corpus,
     import_corpus,
     load_corpus,
+    load_corpus_manifest,
     verify_holdout,
 )
 
@@ -32,6 +33,19 @@ class CorpusTests(unittest.TestCase):
             item.path.write_bytes(b"tampered")
             with self.assertRaises(ValueError):
                 load_corpus(root)
+
+    def test_named_manifest_resolves_items_relative_to_itself(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            manifest = generate_corpus(root, size_scale=0.125)
+            payload = json.loads(manifest.read_text(encoding="utf-8"))
+            projected = root / "projected.json"
+            projected.write_text(
+                json.dumps({**payload, "items": payload["items"][:1]}) + "\n",
+                encoding="utf-8",
+            )
+            items = load_corpus_manifest(projected)
+            self.assertEqual([item.id for item in items], [payload["items"][0]["id"]])
 
     def test_import_requires_provenance_and_freezes_holdout(self):
         with tempfile.TemporaryDirectory() as directory:

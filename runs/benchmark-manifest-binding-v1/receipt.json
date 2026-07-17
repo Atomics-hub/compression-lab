@@ -1,0 +1,66 @@
+{
+  "checks": [
+    {
+      "check": "explicit manifest path honored",
+      "evidence": "name=scoring-manifest.json; exact_resolved_path=True",
+      "status": "pass"
+    },
+    {
+      "check": "exact manifest SHA-256 recorded",
+      "evidence": "afffc1515d77869b4d99f5797b6d15344960ee2da9bd2f856c892a9c7caf4a43",
+      "status": "pass"
+    },
+    {
+      "check": "sibling manifest ignored",
+      "evidence": "selected=['fixture-beta']; sibling_has=fixture-alpha,fixture-beta",
+      "status": "pass"
+    },
+    {
+      "check": "selected item identities recorded",
+      "evidence": "count=1; ids=['fixture-beta']",
+      "status": "pass"
+    },
+    {
+      "check": "manifest.json compatibility default retained",
+      "evidence": "selected=['fixture-alpha', 'fixture-beta']",
+      "status": "pass"
+    },
+    {
+      "check": "invalid manifest rejected before output",
+      "evidence": "rejected=True; output_exists=False",
+      "status": "pass"
+    },
+    {
+      "check": "CLI exposes exact manifest selection",
+      "evidence": "--manifest parsed as an exact Path",
+      "status": "pass"
+    },
+    {
+      "check": "runner dependency digests recorded",
+      "evidence": "api_version=2",
+      "status": "pass"
+    },
+    {
+      "check": "results schema identifies hardened semantics",
+      "evidence": "schema_version=5",
+      "status": "pass"
+    }
+  ],
+  "claim_ceiling": "Proves exact manifest selection, integrity, and result provenance on a synthetic fixture only. It does not prove benchmark representativeness, compression speed, compression ratio, or state-of-the-art performance.",
+  "fixture_manifest_sha256": "afffc1515d77869b4d99f5797b6d15344960ee2da9bd2f856c892a9c7caf4a43",
+  "gate": "benchmark-manifest-binding-v1",
+  "generated_at": "2026-07-17T11:58:15.319079+00:00",
+  "runner_identity": {
+    "api_version": 2,
+    "corpus_loader_source_sha256": "c1f44b87486a6b316eed9aef3887881e942c748740688a2917bdf95539569082",
+    "legacy_runner_source_sha256": "561e3970fc381ba6c77d346402adb84c8f5c6abae5846599d586529e1ec65f80",
+    "source_sha256": "1ff605c3b538cb7f3594e278059ee83827693176dcc4d2cac09029389c4b1887"
+  },
+  "schema_version": 1,
+  "status": "passed",
+  "summary": {
+    "failed": 0,
+    "passed": 9,
+    "total": 9
+  }
+}

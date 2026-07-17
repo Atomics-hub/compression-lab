@@ -1,11 +1,13 @@
+import hashlib
 import json
 import tempfile
 import unittest
 from pathlib import Path
 
 from compresslab.codecs import resolve_codecs
+from compresslab.cli import build_parser
 from compresslab.corpus import generate_corpus
-from compresslab.runner import run_benchmark
+from compresslab.benchmark_runner import run_benchmark
 
 
 class RunnerTests(unittest.TestCase):
@@ -39,9 +41,17 @@ class RunnerTests(unittest.TestCase):
             self.assertTrue((output / "summary.csv").is_file())
             self.assertTrue((output / "report.md").is_file())
             payload = json.loads((output / "results.json").read_text(encoding="utf-8"))
-            self.assertEqual(payload["schema_version"], 4)
+            self.assertEqual(payload["schema_version"], 5)
             self.assertIn("commit", payload["system"]["git"])
             self.assertEqual(payload["config"]["order_seed"], 20260715)
+            self.assertEqual(payload["config"]["runner"]["api_version"], 2)
+            self.assertEqual(
+                payload["config"]["corpus_manifest"]["selected_item_count"], 8
+            )
+            self.assertEqual(
+                payload["config"]["corpus_manifest"]["sha256"],
+                hashlib.sha256((corpus / "manifest.json").read_bytes()).hexdigest(),
+            )
             self.assertIn("per_codec", payload["stability"])
             self.assertEqual(len(payload["summary"]), 6)
             adaptive = next(
@@ -136,6 +146,87 @@ class RunnerTests(unittest.TestCase):
                 )
                 orders.append([(row["item_id"], row["codec_id"]) for row in rows])
             self.assertNotEqual(orders[0], orders[1])
+
+    def test_explicit_manifest_ignores_disagreeing_sibling_manifest(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            corpus = root / "corpus"
+            output = root / "run"
+            default_manifest = generate_corpus(corpus, size_scale=0.03125)
+            payload = json.loads(default_manifest.read_text(encoding="utf-8"))
+            selected_item = payload["items"][3]
+            projected_manifest = corpus / "scoring-manifest.json"
+            projected_manifest.write_text(
+                json.dumps(
+                    {**payload, "items": [selected_item]},
+                    indent=2,
+                    sort_keys=True,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            run = run_benchmark(
+                corpus,
+                output,
+                resolve_codecs(["store"]),
+                repetitions=1,
+                warmups=0,
+                bandwidths_mbps=[100.0],
+                timeout_seconds=30.0,
+                manifest_path=projected_manifest,
+            )
+
+            self.assertEqual([row["id"] for row in run.corpus], [selected_item["id"]])
+            self.assertEqual(len(run.trials), 1)
+            identity = run.config["corpus_manifest"]
+            self.assertEqual(identity["path"], str(projected_manifest.resolve()))
+            self.assertEqual(
+                identity["sha256"],
+                hashlib.sha256(projected_manifest.read_bytes()).hexdigest(),
+            )
+            self.assertEqual(identity["selected_item_ids"], [selected_item["id"]])
+            self.assertEqual(len(payload["items"]), 8)
+
+    def test_invalid_explicit_manifest_refuses_before_creating_output(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            corpus = root / "corpus"
+            output = root / "run"
+            default_manifest = generate_corpus(corpus, size_scale=0.03125)
+            payload = json.loads(default_manifest.read_text(encoding="utf-8"))
+            payload["items"][0]["sha256"] = "0" * 64
+            invalid_manifest = corpus / "invalid-manifest.json"
+            invalid_manifest.write_text(
+                json.dumps(payload, indent=2, sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(ValueError, "Corpus integrity check failed"):
+                run_benchmark(
+                    corpus,
+                    output,
+                    resolve_codecs(["store"]),
+                    repetitions=1,
+                    warmups=0,
+                    manifest_path=invalid_manifest,
+                )
+            self.assertFalse(output.exists())
+
+    def test_cli_accepts_an_explicit_manifest(self):
+        manifest = Path("corpus/scoring-manifest.json")
+        args = build_parser().parse_args(
+            [
+                "run",
+                "--corpus",
+                "corpus",
+                "--manifest",
+                str(manifest),
+                "--output",
+                "run",
+            ]
+        )
+        self.assertEqual(args.manifest, manifest)
 
 
 if __name__ == "__main__":

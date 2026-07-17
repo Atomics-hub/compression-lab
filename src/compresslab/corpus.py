@@ -303,11 +303,21 @@ def verify_holdout(root: Path, lock_path: Path) -> bool:
     return expected == holdout_commitment(root)
 
 
-def load_corpus(root: Path, splits: Iterable[str] = ("validation",)) -> List[CorpusItem]:
-    manifest_path = root / MANIFEST_NAME
+def load_corpus_manifest(
+    manifest_path: Path, splits: Iterable[str] = ("validation",)
+) -> List[CorpusItem]:
+    """Load and verify the exact manifest named by ``manifest_path``.
+
+    Item paths are resolved relative to the selected manifest, so callers can
+    safely use projected or frozen manifests whose filename is not
+    ``manifest.json``.
+    """
+
+    manifest_path = manifest_path.resolve()
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     if manifest.get("schema_version") not in SUPPORTED_CORPUS_SCHEMA_VERSIONS:
         raise ValueError(f"Unsupported corpus schema in {manifest_path}")
+    root = manifest_path.parent
     wanted = set(splits)
     items: List[CorpusItem] = []
     for raw in manifest["items"]:
@@ -337,3 +347,9 @@ def load_corpus(root: Path, splits: Iterable[str] = ("validation",)) -> List[Cor
     if not items:
         raise ValueError(f"No corpus items matched splits: {sorted(wanted)}")
     return items
+
+
+def load_corpus(root: Path, splits: Iterable[str] = ("validation",)) -> List[CorpusItem]:
+    """Load the conventional ``manifest.json`` below a corpus root."""
+
+    return load_corpus_manifest(root / MANIFEST_NAME, splits)
