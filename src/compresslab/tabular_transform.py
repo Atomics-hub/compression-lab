@@ -36,6 +36,8 @@ DENSE_DEFAULT_LEVEL = 9
 DENSE_EXTREME_LEVEL = 16
 DENSE_EXTREME_THREADS = 2
 DENSE_EXTREME_COLUMN_RATIO = 0.05
+DENSE_FALLBACK_THREADS = 2
+DENSE_FALLBACK_MULTITHREAD_MIN = 8 * 1024 * 1024
 STREAM_MAGIC = b"TBS1"
 STREAM_VERSION = 1
 STREAM_FLAGS = 0
@@ -46,6 +48,7 @@ DEFAULT_STREAM_RECORD_SLACK = 1024 * 1024
 MAX_STREAM_SEGMENT_SIZE = 256 * 1024 * 1024
 MAX_STREAM_RECORD_SLACK = 16 * 1024 * 1024
 STREAM_FRAME_SLACK = 256 * 1024
+STREAM_SOURCE_MANIFEST_DOMAIN = b"TBS1-source-manifest-v1\0"
 
 
 def _encode_varint(value: int) -> bytes:
@@ -305,6 +308,19 @@ def _compress_dense_column(
     return zstd_compress(transformed, level=level)
 
 
+def _compress_dense_direct(data: bytes) -> tuple[bytes, int]:
+    if len(data) >= DENSE_FALLBACK_MULTITHREAD_MIN:
+        return (
+            zstd_compress_multithread(
+                data,
+                level=DENSE_DEFAULT_LEVEL,
+                threads=DENSE_FALLBACK_THREADS,
+            ),
+            DENSE_FALLBACK_THREADS,
+        )
+    return zstd_compress(data, level=DENSE_DEFAULT_LEVEL), 1
+
+
 def compress_dense_auto_with_metadata(
     data: bytes,
     enforce_direct_fallback: bool = False,
@@ -337,9 +353,8 @@ def compress_dense_auto_with_metadata(
         direct_fallback_compared = True
         with ThreadPoolExecutor(max_workers=2) as executor:
             direct_future = executor.submit(
-                zstd_compress,
+                _compress_dense_direct,
                 data,
-                DENSE_DEFAULT_LEVEL,
             )
             column_future = executor.submit(
                 _compress_dense_column,
@@ -348,7 +363,7 @@ def compress_dense_auto_with_metadata(
                 level,
                 threads,
             )
-            direct_payload = direct_future.result()
+            direct_payload, direct_threads = direct_future.result()
             column_payload = column_future.result()
         if len(column_payload) < len(direct_payload):
             payload = column_payload
@@ -356,13 +371,16 @@ def compress_dense_auto_with_metadata(
             payload = direct_payload
             backend = BACKEND_DIRECT
             level = DENSE_DEFAULT_LEVEL
-            threads = 1
+            threads = direct_threads
             reason = "full-direct-fallback"
             direct_fallback_selected = True
     elif backend == BACKEND_COLUMN:
         payload = _compress_dense_column(data, delimiter, level, threads)
     else:
-        payload = zstd_compress(data, level=level)
+        if enforce_direct_fallback:
+            payload, threads = _compress_dense_direct(data)
+        else:
+            payload = zstd_compress(data, level=level)
     frame = _pack_frame(data, delimiter, backend, payload)
     return frame, {
         "selector_ns": selector_ns,
@@ -482,7 +500,7 @@ def compress_stream(
         raise ValueError("TBL1 stream source and destination must differ")
     declared_source_size = source_path.stat().st_size
     temporary_path, output = _temporary_destination(destination_path)
-    source_digest = hashlib.sha256()
+    source_manifest_digest = hashlib.sha256(STREAM_SOURCE_MANIFEST_DOMAIN)
     payload_digest = hashlib.sha256()
     source_bytes = 0
     payload_bytes = 0
@@ -516,7 +534,9 @@ def compress_stream(
                 output.write(frame)
                 payload_digest.update(segment_header)
                 payload_digest.update(frame)
-                source_digest.update(chunk)
+                inner_source_hash = frame[HEADER.size - 32 : HEADER.size]
+                source_manifest_digest.update(struct.pack(">Q", len(chunk)))
+                source_manifest_digest.update(inner_source_hash)
                 source_bytes += len(chunk)
                 payload_bytes += len(segment_header) + len(frame)
                 segment_count += 1
@@ -555,7 +575,7 @@ def compress_stream(
                 record_slack,
                 source_bytes,
                 payload_bytes,
-                source_digest.digest(),
+                source_manifest_digest.digest(),
                 payload_digest.digest(),
                 segment_count,
             )
@@ -625,7 +645,7 @@ def inspect_stream(source: Path | str) -> dict:
         record_slack,
         original_size,
         payload_size,
-        source_hash,
+        source_manifest_hash,
         payload_hash,
         segment_count,
     ) = STREAM_HEADER.unpack(header)
@@ -650,7 +670,7 @@ def inspect_stream(source: Path | str) -> dict:
         "record_slack": record_slack,
         "original_size": original_size,
         "payload_size": payload_size,
-        "source_sha256": source_hash.hex(),
+        "source_manifest_sha256": source_manifest_hash.hex(),
         "payload_sha256": payload_hash.hex(),
         "segment_count": segment_count,
     }
@@ -675,10 +695,12 @@ def decompress_stream(
     record_slack = int(info["record_slack"])
     payload_size = int(info["payload_size"])
     segment_count = int(info["segment_count"])
-    expected_source_hash = bytes.fromhex(str(info["source_sha256"]))
+    expected_source_manifest_hash = bytes.fromhex(
+        str(info["source_manifest_sha256"])
+    )
     expected_payload_hash = bytes.fromhex(str(info["payload_sha256"]))
     temporary_path, output = _temporary_destination(destination_path)
-    source_digest = hashlib.sha256()
+    source_manifest_digest = hashlib.sha256(STREAM_SOURCE_MANIFEST_DOMAIN)
     payload_digest = hashlib.sha256()
     restored_bytes = 0
     consumed_payload = 0
@@ -720,12 +742,16 @@ def decompress_stream(
                 frame = _read_exact(input_file, frame_size, "segment frame")
                 consumed_payload += frame_size
                 payload_digest.update(frame)
+                inner_source_hash = frame[HEADER.size - 32 : HEADER.size]
+                source_manifest_digest.update(
+                    struct.pack(">Q", segment_original_size)
+                )
+                source_manifest_digest.update(inner_source_hash)
                 backend = frame_backend(frame)
                 restored = decompress(frame, max_output_size=segment_original_size)
                 if len(restored) != segment_original_size:
                     raise ValueError("TBL1 stream segment size mismatch")
                 output.write(restored)
-                source_digest.update(restored)
                 restored_bytes += len(restored)
                 transformed_segments += int(backend == "column-transpose+zstd")
                 direct_segments += int(backend == "direct-zstd")
@@ -738,8 +764,11 @@ def decompress_stream(
                 raise ValueError("TBL1 stream output size mismatch")
             if payload_digest.digest() != expected_payload_hash:
                 raise ValueError("TBL1 stream payload SHA-256 mismatch")
-            if source_digest.digest() != expected_source_hash:
-                raise ValueError("TBL1 stream source SHA-256 mismatch")
+            if (
+                source_manifest_digest.digest()
+                != expected_source_manifest_hash
+            ):
+                raise ValueError("TBL1 stream source manifest SHA-256 mismatch")
             output.flush()
         os.replace(temporary_path, destination_path)
     except BaseException:

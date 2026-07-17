@@ -110,9 +110,11 @@ dense selector independently, so neither delimiter detection nor candidate
 generation sees more than one bounded segment.
 
 The outer stream declares the segment target, record-alignment slack, original
-size, complete payload size, segment count, source SHA-256, and payload
-SHA-256. The decoder must enforce all declared bounds before allocation,
-verify every inner TBL1 frame and both outer digests, reject truncation,
+size, complete payload size, segment count, an ordered source-manifest SHA-256,
+and a payload SHA-256. The source manifest commits to each ordered segment's
+declared length and already-verified inner source hash without hashing the full
+file a second time. The decoder must enforce all declared bounds before
+allocation, verify every inner TBL1 frame and both outer digests, reject truncation,
 corruption, count/size inconsistencies, and trailing bytes, and never clobber
 an existing destination after failure. Because every column candidate is
 compared concurrently with a complete direct zstd-9 fallback, a selected
