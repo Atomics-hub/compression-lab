@@ -1,7 +1,6 @@
 name: JLS2 one-time public validation
 
 on:
-  workflow_dispatch:
   push:
     branches:
       - agent/jls2-public-validation
@@ -36,6 +35,10 @@ concurrency:
 
 jobs:
   validate:
+    # The first valid score is canonical and may not be rerun. Retaining the
+    # workflow preserves the exact executable protocol while this guard keeps
+    # later branch pushes from reopening the consumed validation split.
+    if: github.run_id == '29542804015'
     name: Frozen first-score validation
     runs-on: ubuntu-22.04
     timeout-minutes: 150

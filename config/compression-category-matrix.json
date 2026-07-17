@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "name": "compression-lab-category-portfolio-v1",
+  "status_vocabulary": [
+    "untested",
+    "smoke-only",
+    "development",
+    "public-validation-partial",
+    "public-validation-pass",
+    "private-holdout-pass",
+    "independently-reproduced"
+  ],
+  "result_policy": "A category is won only after a frozen unseen-data pass against its strongest reproduced ratio baseline, its practical speed baseline, and every integrity, memory, portability, and accounting gate. Independent reproduction is required before a state-of-the-art claim.",
+  "scorecard_required_fields": [
+    "complete compressed bytes and byte-weighted ratio",
+    "compression and decompression MB/s with timing basis",
+    "peak memory or an explicit unmeasured marker",
+    "exact roundtrip and deterministic output",
+    "runner and cross-run comparability",
+    "per-standard win, loss, mixed, or untested outcome",
+    "corpus license and split status",
+    "evidence URL, commit, and digest",
+    "claim ceiling",
+    "next decision"
+  ],
+  "categories": [
+    {
+      "id": "json_logs",
+      "label": "JSON and machine-generated logs",
+      "status": "public-validation-partial",
+      "specialist": "JLS2",
+      "current_evidence": "runs/jls2-public-validation-summary.json",
+      "current_result": "Ratio passed decisively against zstd-9 and PBC-only and passed Brotli-11 in aggregate; overall gate failed Brotli family coverage and Linux decompression speed.",
+      "tested_standards": [
+        "zstd-9",
+        "Brotli-11",
+        "official PBC-only"
+      ],
+      "next_gate": "Profile and improve Linux decode using development data only, then freeze an independently sourced JSON/log corpus; never tune or rerun on Hadoop, OpenSSH, or OpenStack."
+    },
+    {
+      "id": "plain_text_source",
+      "label": "Plain text and source code",
+      "status": "development",
+      "specialist": "structured-text adaptive-v3 research path",
+      "current_evidence": "docs/benchmarks/2026-07-16-release-candidate.md",
+      "current_result": "No category win. Existing general candidate remains behind strongest ratio baselines on the expanded public study.",
+      "tested_standards": [
+        "gzip-9",
+        "zstd-3",
+        "zstd-9",
+        "Brotli-11",
+        "LZMA-9",
+        "7-Zip-9"
+      ],
+      "next_gate": "Research a new text representation or probability model and freeze separate source-code and natural-language development families before integration."
+    },
+    {
+      "id": "tabular_csv",
+      "label": "Tabular CSV and delimited records",
+      "status": "untested",
+      "specialist": null,
+      "current_evidence": null,
+      "current_result": "No category-scoped evidence yet.",
+      "tested_standards": [],
+      "next_gate": "Select licensed heterogeneous training and validation families, reproduce columnar and general-purpose baselines, and predeclare ratio, speed, and schema-robustness gates."
+    },
+    {
+      "id": "numeric_timeseries",
+      "label": "Numeric arrays and time-series data",
+      "status": "smoke-only",
+      "specialist": "delta-transpose research transform",
+      "current_evidence": "docs/benchmarks/2026-07-15-transform-smoke.md",
+      "current_result": "Synthetic transform signal only; no licensed category validation or market claim.",
+      "tested_standards": [
+        "development smoke baselines only"
+      ],
+      "next_gate": "Freeze licensed integer, floating-point, smooth, noisy, sparse, and missing-value families and reproduce relevant scientific/time-series specialists."
+    },
+    {
+      "id": "general_binary_archive",
+      "label": "General binary files and mixed archives",
+      "status": "development",
+      "specialist": "adaptive-v3 universal fallback",
+      "current_evidence": "docs/benchmarks/2026-07-16-release-candidate.md",
+      "current_result": "No win against zstd-9; the current general encoder is not Pareto-optimal.",
+      "tested_standards": [
+        "gzip-9",
+        "zstd-3",
+        "zstd-9",
+        "Brotli-11",
+        "LZMA-9",
+        "7-Zip-9"
+      ],
+      "next_gate": "Retain safe direct/store fallback while category specialists mature; do not spend ratio research on a universal transform without a new measured hypothesis."
+    },
+    {
+      "id": "incompressible_precompressed",
+      "label": "Incompressible and already-compressed data",
+      "status": "development",
+      "specialist": "store or direct fallback",
+      "current_evidence": "tests/test_adaptive.py",
+      "current_result": "Safety behavior is tested, but there is no category speed, memory, or large-file validation scorecard yet.",
+      "tested_standards": [],
+      "next_gate": "Freeze expansion, selector-cost, throughput, and large-file memory gates on licensed compressed-media and cryptographic-random families."
+    }
+  ]
+}
