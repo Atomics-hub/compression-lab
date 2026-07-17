@@ -1,0 +1,85 @@
+{
+  "aggregate_byte_api": {
+    "candidate_rounds_at_or_above_250_mbps": 7,
+    "maximum_paired_improvement_percent": 27.493308213080404,
+    "median_baseline_mbps": 277.0469781498593,
+    "median_candidate_mbps": 333.46279387288484,
+    "median_paired_improvement_percent": 21.65909565718995,
+    "minimum_paired_improvement_percent": 11.438963289012726,
+    "pairs": [
+      {
+        "baseline_mbps": 276.0926980504256,
+        "candidate_improvement_percent": 27.493308213080404,
+        "candidate_mbps": 351.99971447923855,
+        "round": 1
+      },
+      {
+        "baseline_mbps": 278.3599607081249,
+        "candidate_improvement_percent": 11.438963289012726,
+        "candidate_mbps": 310.20145442483755,
+        "round": 2
+      },
+      {
+        "baseline_mbps": 273.9203884341492,
+        "candidate_improvement_percent": 21.65909565718995,
+        "candidate_mbps": 333.24906738964785,
+        "round": 3
+      },
+      {
+        "baseline_mbps": 278.14778130505164,
+        "candidate_improvement_percent": 21.061559720059808,
+        "candidate_mbps": 336.73004237463647,
+        "round": 4
+      },
+      {
+        "baseline_mbps": 277.0469781498593,
+        "candidate_improvement_percent": 26.30255681618752,
+        "candidate_mbps": 349.91741698525664,
+        "round": 5
+      },
+      {
+        "baseline_mbps": 263.20888551409644,
+        "candidate_improvement_percent": 25.76662842135775,
+        "candidate_mbps": 331.0289410165106,
+        "round": 6
+      },
+      {
+        "baseline_mbps": 285.2271015822951,
+        "candidate_improvement_percent": 16.911328559944906,
+        "candidate_mbps": 333.46279387288484,
+        "round": 7
+      }
+    ]
+  },
+  "aggregate_product": {
+    "baseline_decompression_mbps": 245.143674709948,
+    "candidate_decompression_mbps": 366.7059309287397,
+    "encoded_bytes_unchanged": 2693313
+  },
+  "artifact_sha256": {
+    "README.md": "40d18ea56bb25610d865a08f57802e0e0266259a01da77202c9a9a854afb1dc0",
+    "ab-result.json": "ec3190f7998fabbff1be9458b8bbc673473ee5495ffdbf1a19cdcf89d43daac7",
+    "product-baseline.json": "36c5514e8a759643af7b94cc2ed3b5fc1561f15f8cf5b49187c7ad55f327fa31",
+    "product-candidate.json": "b5cb08d3ff8b6123540b6fa33c8a4df9a1f0009045b0e62c90eca7897167f06a"
+  },
+  "base_commit": "493f6ac5a2ea32c1d870698e38cb1732b6423c20",
+  "candidate_commit": "ae28430b55fa27755e9cce3fcb7cc5abb30c593c",
+  "candidate_product_gates": {
+    "clean_commit": true,
+    "compression_aggregate": true,
+    "compression_per_family": true,
+    "decompression_per_family": true,
+    "deterministic_frames": true,
+    "exact_accepted_bytes": true,
+    "preflight_load": true,
+    "repetitions": true,
+    "roundtrip": true
+  },
+  "claim_ceiling": "alternating byte-API decode-kernel evidence on consumed development families only; not fresh unseen, public-validation, independent-corpus, market-leading, world-best, or state-of-the-art evidence",
+  "gate": "jls2-decode-kernel-development-v1",
+  "manifest_sha256": "d6c71d91cd2995e3efae46353d5d8d94c00f8ee988cc74bdb5c2e45c4d6cbe9f",
+  "publisher_sha256": "b5dc39a57257e702ff2049fe66c321782dbc29fb935ce4300d2b1e856d14b821",
+  "schema_version": 1,
+  "source_bytes": 124614865,
+  "status": "passed"
+}

@@ -8,55 +8,47 @@ transform onto every kind of file.
 The stable general-file CLI is alpha. DMS2, TBS1, and JLS2 are experimental
 specialists and are promoted only when frozen evidence supports them.
 
-## Latest result: DMS2 did not pass public validation
+## Measured standings
 
-On **71,104,540 previously unopened Gisette and Madelon bytes**, DMS2 produced
-11,937,137 bytes. Brotli-11 produced 8,315,469 bytes, so DMS2 was **43.55%
-larger than the strongest two-item baseline**. The frozen gate did not pass.
+These are category-scoped results, not one blended leaderboard. Positive size
+values mean our specialist is smaller; every row used exact round trips and
+complete container bytes.
 
-| Codec | Complete bytes | DMS2 size vs codec | Compress MB/s | Decompress MB/s | Cold RSS C/D MiB | Exact |
-| --- | ---: | ---: | ---: | ---: | ---: | --- |
-| **DMS2** | **11,937,137** | candidate | **33.45** | **313.99** | **630.5 / 86.9** | ✅ |
-| store | 71,104,540 | 83.21% smaller | 1,594.70 | 815.60 | 26.1 / 26.1 | ✅ |
-| LZ4-1 | 18,918,739 | 36.90% smaller | 810.42 | 433.22 | 35.2 / 30.7 | ✅ |
-| gzip-9 | 10,371,868 | 15.09% larger | 3.18 | 382.82 | 106.9 / 170.8 | ✅ |
-| bzip2-9 | 8,627,565 | 38.36% larger | 1.47 | 22.71 | 115.4 / 163.9 | ✅ |
-| zstd-3 | 11,741,186 | 1.67% larger | 255.16 | 316.92 | 228.5 / 163.2 | ✅ |
-| zstd-9 | 10,772,378 | 10.81% larger | 45.53 | 359.80 | 228.2 / 162.2 | ✅ |
-| zstd-19 | 8,524,178 | 40.04% larger | 1.48 | 398.58 | 241.2 / 160.4 | ✅ |
-| Brotli-11 | **8,315,469** | **43.55% larger** | 0.40 | 248.06 | 218.2 / 25.2 | ✅ |
-| LZMA-9 | 8,444,740 | 41.36% larger | 0.47 | 39.77 | 749.1 / 224.4 | ✅ |
-| 7-Zip-9 | 8,476,984 | 40.82% larger | 1.45 | 119.63 | 648.5 / 74.6 | ✅ |
+| Category and comparison | Size result | Compress MB/s: ours / standard | Decompress MB/s: ours / standard | Verdict |
+| --- | ---: | ---: | ---: | --- |
+| JSON logs: JLS2 vs zstd-9 | **28.77% smaller** | 155.83 / 222.03 | 165.88 / 1,547.88 | Ratio win; frozen speed gate failed |
+| JSON logs: JLS2 vs Brotli-11 | **4.58% smaller aggregate**; won 1/3 families | 155.83 / 0.49 | 165.88 / 1,168.58 | Mixed; frozen gate failed |
+| JSON logs: JLS2 vs PBC-only | **83.82% smaller** | 155.83 / 0.56 complete | 165.88 / 94.63 | Ratio and decode win; overall gate still failed |
+| Delimited tables: TBS1 vs 7-Zip-9 | 3.48% larger aggregate; won 3/4 families against each family's strongest standard | 107.67 / 1.93 | 403.39 / 141.44 | Strong family signal; frozen gate failed |
+| Dense matrices: DMS2 vs Brotli-11 | 43.55% larger | 33.45 / 0.40 | 313.99 / 248.06 | Frozen gate failed |
+| General files | No strongest-standard win established | — | — | Exact fallback only |
 
-The family results were also decisive: DMS2 was 46.57% larger than Brotli-11
-on Gisette and 41.03% larger than bzip2-9 on Madelon. Compression speed, minimum
-repetition speed, and cold compression memory missed their gates. Exactness,
-determinism, corruption rejection, decompression speed, bounded fallback,
-complete accounting, portability, and cross-platform wheels passed.
+The full 10-standard TBS1 chart, 11-codec DMS2 chart, JLS2 standards chart,
+raw samples, memory measurements, manifests, and checksums are linked below.
 
-Full transparency: the acquisition wrapper downloaded four validation items,
-and the baseline runner opened that four-item manifest while DMS2 used the
-locked two-item projection. That independently invalidated the frozen aggregate
-corpus gate. The table above is a two-item diagnostic reconstructed only from
-the retained first attempt's exact per-item medians; speed is contextual because
-the baseline schedule contained the two extra unscored items. The complete raw
-results, manifests, decision, chart, and checksums are in the
-[immutable evidence bundle](runs/dms2-public-validation-v1/README.md).
+## Latest engineering result
+
+The JLS2 decoder now bulk-copies literal spans and avoids redundant nested
+restored-byte hashing. Compressed bytes did not change.
+
+| Development measurement | Before | After | Change | Result |
+| --- | ---: | ---: | ---: | --- |
+| Alternating byte API, seven-round median | 277.05 MB/s | 333.46 MB/s | **+21.66% paired median** | 7/7 candidate rounds above 250 MB/s |
+| Complete file product, aggregate | 245.14 MB/s | 366.71 MB/s | +49.59% contextual | Candidate development gate passed |
+| Complete encoded bytes | 2,693,313 | 2,693,313 | unchanged | Exact |
+
+This is development evidence on existing families, so it does not rewrite the
+retained public-validation result. See the
+[reproducible A/B bundle and family chart](runs/jls2-decode-kernel-development-v1/README.md).
 
 ## Evidence portfolio
 
-| Category | Evidence stage | Strongest result | Honest status |
-| --- | --- | --- | --- |
-| Dense numeric matrices | Public validation | No win: DMS2 was 43.55% larger than Brotli-11 on the locked two-item diagnostic | Frozen gate did not pass; both validation families are consumed |
-| Delimited record tables | Public validation | TBS1 won 3/4 families by 7.35%–16.50% | Aggregate remained 3.48% behind 7-Zip-9 |
-| JSON and machine logs | Public validation | JLS2 28.77% smaller than zstd-9 | Mixed against Brotli-11; decode gate missed |
-| General binary, source, archives | Development | Exact fallback | No category win established |
+- [Category scorecard](docs/benchmarks/2026-07-16-category-portfolio-status.md)
+- [JLS2 public-validation standards chart](docs/benchmarks/2026-07-16-jls2-public-validation-decision.md)
+- [TBS1 public-validation 10-standard chart](docs/benchmarks/2026-07-17-tbl1-public-validation-decision.md)
+- [DMS2 public-validation 11-codec chart and immutable bundle](runs/dms2-public-validation-v1/README.md)
 
-Read the [portfolio scorecard](docs/benchmarks/2026-07-16-category-portfolio-status.md),
-[TBS1 public-validation decision](docs/benchmarks/2026-07-17-tbl1-public-validation-decision.md),
-and [JLS2 public-validation decision](docs/benchmarks/2026-07-16-jls2-public-validation-decision.md)
-for the full receipts. Consumed validation families are never reused as fresh
-evidence.
+Consumed validation families are never reused as fresh evidence.
 
 ## Quick start
 
@@ -130,6 +122,7 @@ and its claim ceiling. Private holdout data stays outside the repository.
 
 Key documents:
 
+- [JLS2 decode-kernel A/B gate and family chart](runs/jls2-decode-kernel-development-v1/README.md)
 - [Benchmark manifest-binding gate and control chart](runs/benchmark-manifest-binding-v1/README.md)
 - [DMS2 public-validation decision and complete chart](runs/dms2-public-validation-v1/README.md)
 - [DMS2 immutable first-score bundle index](runs/dms2-public-validation-v1/bundle.json)

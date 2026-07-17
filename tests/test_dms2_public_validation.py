@@ -30,6 +30,16 @@ def digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def digest_at_commit(commit: str, path: str) -> str:
+    content = subprocess.run(
+        ["git", "show", f"{commit}:{path}"],
+        cwd=REPOSITORY,
+        check=True,
+        capture_output=True,
+    ).stdout
+    return hashlib.sha256(content).hexdigest()
+
+
 def load_module(name: str, path: Path):
     specification = importlib.util.spec_from_file_location(name, path)
     if specification is None or specification.loader is None:
@@ -105,10 +115,14 @@ class DMS2PublicValidationTests(unittest.TestCase):
     def test_candidate_and_development_evidence_are_frozen(self):
         gates = json.loads(GATES_PATH.read_text(encoding="utf-8"))
         benchmark = load_module("benchmark_dms2_validation", BENCHMARK)
-        self.assertEqual(
-            benchmark.verify_frozen_candidate(gates["candidate"]),
-            gates["candidate"]["frozen_paths"],
-        )
+        candidate = gates["candidate"]
+        for relative, expected in candidate["frozen_paths"].items():
+            self.assertEqual(
+                digest_at_commit(candidate["frozen_base_commit"], relative),
+                expected,
+            )
+        with self.assertRaisesRegex(ValueError, "working candidate path drifted"):
+            benchmark.verify_frozen_candidate(candidate)
         evidence = gates["development_evidence"]
         self.assertEqual(
             benchmark.verify_development_evidence(gates),
@@ -120,8 +134,8 @@ class DMS2PublicValidationTests(unittest.TestCase):
                 ],
             },
         )
-        self.assertEqual(gates["candidate"]["selector_sample_bytes"], 65536)
-        self.assertEqual(gates["candidate"]["direct_fallback_level"], 1)
+        self.assertEqual(candidate["selector_sample_bytes"], 65536)
+        self.assertEqual(candidate["direct_fallback_level"], 1)
 
     def test_validation_is_unopened_and_both_families_must_win(self):
         gates = json.loads(GATES_PATH.read_text(encoding="utf-8"))

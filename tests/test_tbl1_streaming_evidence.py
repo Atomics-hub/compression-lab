@@ -55,7 +55,7 @@ class Tbl1StreamingEvidenceTests(unittest.TestCase):
             ROOT
             / "docs"
             / "benchmarks"
-            / "2026-07-16-tbl1-streaming-development-decision.md"
+            / "2026-07-17-tbl1-public-validation-decision.md"
         ).read_text(encoding="utf-8")
         public_standards = (
             "Brotli-11",
@@ -70,11 +70,10 @@ class Tbl1StreamingEvidenceTests(unittest.TestCase):
             "store",
         )
         for standard in public_standards:
-            self.assertIn(standard, readme)
             self.assertIn(standard, decision)
-        self.assertIn("TBL1-dense whole-file", decision)
-        self.assertIn("TBS1 won 3/4 families", readme)
-        self.assertIn("Aggregate remained 3.48% behind 7-Zip-9", readme)
+        self.assertIn("TBS1 stream-dense", decision)
+        self.assertIn("TBS1 vs 7-Zip-9", readme)
+        self.assertIn("3.48% larger aggregate", readme)
         self.assertIn("2026-07-17-tbl1-public-validation-decision.md", readme)
 
 

@@ -41,7 +41,7 @@ class Tbl1DenseEvidenceTests(unittest.TestCase):
             ROOT
             / "docs"
             / "benchmarks"
-            / "2026-07-16-tbl1-dense-development-decision.md"
+            / "2026-07-17-tbl1-public-validation-decision.md"
         ).read_text(encoding="utf-8")
         for standard in (
             "Brotli-11",
@@ -55,10 +55,9 @@ class Tbl1DenseEvidenceTests(unittest.TestCase):
             "LZ4-1",
             "store",
         ):
-            self.assertIn(standard, readme)
             self.assertIn(standard, decision)
-        self.assertIn("TBS1 won 3/4 families", readme)
-        self.assertIn("Aggregate remained 3.48% behind 7-Zip-9", readme)
+        self.assertIn("TBS1 vs 7-Zip-9", readme)
+        self.assertIn("3.48% larger aggregate", readme)
         self.assertIn("2026-07-17-tbl1-public-validation-decision.md", readme)
 
 

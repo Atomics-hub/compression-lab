@@ -33,6 +33,9 @@ class DMS2NativeEvidenceTests(unittest.TestCase):
     def test_archived_development_chart_and_current_failure_are_visible(self):
         decision = DECISION.read_text(encoding="utf-8")
         readme = (REPOSITORY / "README.md").read_text(encoding="utf-8")
+        public = (
+            REPOSITORY / "runs" / "dms2-public-validation-v1" / "README.md"
+        ).read_text(encoding="utf-8")
         for row in self.evidence["standards"]:
             label = {
                 "bz2-9": "bzip2-9",
@@ -41,10 +44,11 @@ class DMS2NativeEvidenceTests(unittest.TestCase):
             }.get(row["codec_id"], row["codec_id"])
             self.assertIn(label, decision.lower())
         self.assertIn("189,738", decision)
-        self.assertIn("11,937,137", readme)
-        self.assertIn("43.55%", readme)
-        self.assertIn("did not pass public validation", readme)
-        self.assertIn("immutable evidence bundle", readme)
+        self.assertIn("11,937,137", public)
+        self.assertIn("43.55%", public)
+        self.assertIn("DMS2 vs Brotli-11", readme)
+        self.assertIn("43.55% larger", readme)
+        self.assertIn("dms2-public-validation-v1/README.md", readme)
         self.assertEqual(self.evidence["public_validation"], "unopened")
         self.assertEqual(self.evidence["private_holdout"], "sealed")
         self.assertGreater(len(self.evidence["remaining_gates"]), 0)

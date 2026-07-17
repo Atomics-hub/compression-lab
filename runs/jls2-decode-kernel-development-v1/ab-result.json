@@ -1,0 +1,1641 @@
+{
+  "base": {
+    "commit": "493f6ac5a2ea32c1d870698e38cb1732b6423c20",
+    "dirty": false,
+    "native_library_sha256": "6e7bcb08f3d401eae1e3e2b25eb767d1eb6ddcef312f9183842a5ee5a8a4c50b",
+    "root": "/private/tmp/compression-lab-jls2-base",
+    "source_sha256": {
+      "native/src/lib.rs": "4d624291ec8ea8301e3dc844f025b90e71c964bcbad012130488d7cd353b6a3e",
+      "src/compresslab/json_columnar.py": "d3d4f3add37486067afdd13201ddf3c2fbd50faf900efdbcc1e899bd2373b9c1",
+      "src/compresslab/json_log_codec.py": "65bb0ca09f7348c9ac4bc04893b883d025dce4d625a76a506e5f43e9cc38c413",
+      "src/compresslab/native.py": "3420b3d7acaa636a27f2788e9304b19c01014f6f3183c2aa822e9bf3cc4cf7d1"
+    }
+  },
+  "benchmark": "jls2-decode-kernel-development-v1",
+  "candidate": {
+    "commit": "ae28430b55fa27755e9cce3fcb7cc5abb30c593c",
+    "dirty": false,
+    "native_library_sha256": "c7fe2ea3dcada1a6ffb0bd4fa7141cb575702bb3b76450eeba2674622578155d",
+    "root": "/Users/guts/Documents/Codex/2026-07-14/i/outputs/compression-lab",
+    "source_sha256": {
+      "native/src/lib.rs": "ec3ba58920c8701c3eac6a6c4150c3b4474248e203376c158ec376a2b3411127",
+      "src/compresslab/json_columnar.py": "cf3b677a40397b36d9f527b3df1f562594d396049c60692e0482af111c5ed85e",
+      "src/compresslab/json_log_codec.py": "d8882a3de67233acf9963adeb0c8edc19eae1209753cd42246490538f4597f9e",
+      "src/compresslab/native.py": "3420b3d7acaa636a27f2788e9304b19c01014f6f3183c2aa822e9bf3cc4cf7d1"
+    }
+  },
+  "claim_ceiling": "alternating byte-API decode-kernel evidence on consumed development families only; not fresh unseen, public-validation, independent-corpus, market-leading, world-best, or state-of-the-art evidence",
+  "manifest": {
+    "families": [
+      "apache",
+      "healthapp",
+      "hpc",
+      "mac",
+      "zookeeper"
+    ],
+    "path": "/Users/guts/Documents/Codex/2026-07-14/i/outputs/compression-lab/corpora/logtrie-train-v1/manifest.json",
+    "sha256": "d6c71d91cd2995e3efae46353d5d8d94c00f8ee988cc74bdb5c2e45c4d6cbe9f",
+    "source_bytes": 124614865
+  },
+  "passed": true,
+  "raw_rounds": {
+    "baseline": [
+      {
+        "aggregate_mbps": 276.0926980504256,
+        "iterations": 5,
+        "rows": [
+          {
+            "encoded_bytes": 178101,
+            "encoded_sha256": "c50c523af0eef6a5698ce0f790728316c9287e6623a7be66bd6377343a71af4c",
+            "exact": true,
+            "family": "apache",
+            "mbps": 395.3396993878302,
+            "median_ns": 22734542,
+            "samples_ns": [
+              22734542,
+              22932541,
+              22902625,
+              22549209,
+              22582917
+            ],
+            "source_bytes": 8987867,
+            "source_sha256": "3189bd0b54c0a10cfb05b61f03cbcba8c9faba15534bd0bc5e1d08c74c4b9891"
+          },
+          {
+            "encoded_bytes": 1005536,
+            "encoded_sha256": "2a7511b6b5af0f98fa7a8d4857bd3b1c8d12fc6fbdebdecd1802b7bce911e9f2",
+            "exact": true,
+            "family": "healthapp",
+            "mbps": 264.69881274695035,
+            "median_ns": 120020833,
+            "samples_ns": [
+              106692584,
+              110373042,
+              120928334,
+              134986875,
+              120020833
+            ],
+            "source_bytes": 31769372,
+            "source_sha256": "69a113e59540c38031bfd3e6e699d6981863844ef9802e34338e3127747821ae"
+          },
+          {
+            "encoded_bytes": 624163,
+            "encoded_sha256": "0a40aea6aa7170b1c4c0914c51d58eb486986db79941b489d28310b942364062",
+            "exact": true,
+            "family": "hpc",
+            "mbps": 253.856850957903,
+            "median_ns": 194232875,
+            "samples_ns": [
+              191328458,
+              194232875,
+              195893666,
+              195824125,
+              191975875
+            ],
+            "source_bytes": 49307346,
+            "source_sha256": "5f1bf45e973144c8b260f0fc3f0b8521b7a1f6076c7a4305a264244f546a06f7"
+          },
+          {
+            "encoded_bytes": 687763,
+            "encoded_sha256": "5c997e7be09b7050da02ed3029cb5a7fe2ea967ef39e303870535b8e44d37207",
+            "exact": true,
+            "family": "mac",
+            "mbps": 284.23171507492015,
+            "median_ns": 81682834,
+            "samples_ns": [
+              78386084,
+              80705375,
+              81682834,
+              82968500,
+              83276125
+            ],
+            "source_bytes": 23216852,
+            "source_sha256": "7479ac2947bf03bdb178d210ef265f05109e9b4a4c47dc170dfc7b2858e476b7"
+          },
+          {
+            "encoded_bytes": 197750,
+            "encoded_sha256": "760dcebddfb48e2356ffe6a385c5ed3c15add9a521fc1598de8f61bb0c7cd447",
+            "exact": true,
+            "family": "zookeeper",
+            "mbps": 346.79526217166233,
+            "median_ns": 32680458,
+            "samples_ns": [
+              32680458,
+              31290541,
+              32548958,
+              34513125,
+              35209791
+            ],
+            "source_bytes": 11333428,
+            "source_sha256": "9fd35b852b66fb735e25cb3977c3b3e3c93ec81582f307d2d1eb27ef77ef6b76"
+          }
+        ]
+      },
+      {
+        "aggregate_mbps": 278.3599607081249,
+        "iterations": 5,
+        "rows": [
+          {
+            "encoded_bytes": 178101,
+            "encoded_sha256": "c50c523af0eef6a5698ce0f790728316c9287e6623a7be66bd6377343a71af4c",
+            "exact": true,
+            "family": "apache",
+            "mbps": 389.25084430961454,
+            "median_ns": 23090167,
+            "samples_ns": [
+              25596083,
+              23474750,
+              22347083,
+              22890291,
+              23090167
+            ],
+            "source_bytes": 8987867,
+            "source_sha256": "3189bd0b54c0a10cfb05b61f03cbcba8c9faba15534bd0bc5e1d08c74c4b9891"
+          },
+          {
+            "encoded_bytes": 1005536,
+            "encoded_sha256": "2a7511b6b5af0f98fa7a8d4857bd3b1c8d12fc6fbdebdecd1802b7bce911e9f2",
+            "exact": true,
+            "family": "healthapp",
+            "mbps": 272.59893020523725,
+            "median_ns": 116542541,
+            "samples_ns": [
+              115545250,
+              104812291,
+              118046042,
+              116542541,
+              116763834
+            ],
+            "source_bytes": 31769372,
+            "source_sha256": "69a113e59540c38031bfd3e6e699d6981863844ef9802e34338e3127747821ae"
+          },
+          {
+            "encoded_bytes": 624163,
+            "encoded_sha256": "0a40aea6aa7170b1c4c0914c51d58eb486986db79941b489d28310b942364062",
+            "exact": true,
+            "family": "hpc",
+            "mbps": 256.15796954285605,
+            "median_ns": 192488042,
+            "samples_ns": [
+              199359667,
+              196907000,
+              192355458,
+              190854750,
+              192488042
+            ],
+            "source_bytes": 49307346,
+            "source_sha256": "5f1bf45e973144c8b260f0fc3f0b8521b7a1f6076c7a4305a264244f546a06f7"
+          },
+          {
+            "encoded_bytes": 687763,
+            "encoded_sha256": "5c997e7be09b7050da02ed3029cb5a7fe2ea967ef39e303870535b8e44d37207",
+            "exact": true,
+            "family": "mac",
+            "mbps": 283.0198824776735,
+            "median_ns": 82032583,
+            "samples_ns": [
+              74476083,
+              75022500,
+              82032583,
+              83771959,
+              82929542
+            ],
+            "source_bytes": 23216852,
+            "source_sha256": "7479ac2947bf03bdb178d210ef265f05109e9b4a4c47dc170dfc7b2858e476b7"
+          },
+          {
+            "encoded_bytes": 197750,
+            "encoded_sha256": "760dcebddfb48e2356ffe6a385c5ed3c15add9a521fc1598de8f61bb0c7cd447",
+            "exact": true,
+            "family": "zookeeper",
+            "mbps": 338.0900919240388,
+            "median_ns": 33521917,
+            "samples_ns": [
+              37063750,
+              34507125,
+              33312708,
+              29626625,
+              33521917
+            ],
+            "source_bytes": 11333428,
+            "source_sha256": "9fd35b852b66fb735e25cb3977c3b3e3c93ec81582f307d2d1eb27ef77ef6b76"
+          }
+        ]
+      },
+      {
+        "aggregate_mbps": 273.9203884341492,
+        "iterations": 5,
+        "rows": [
+          {
+            "encoded_bytes": 178101,
+            "encoded_sha256": "c50c523af0eef6a5698ce0f790728316c9287e6623a7be66bd6377343a71af4c",
+            "exact": true,
+            "family": "apache",
+            "mbps": 283.75942603218704,
+            "median_ns": 31674250,
+            "samples_ns": [
+              32079417,
+              30730166,
+              31170458,
+              32588125,
+              31674250
+            ],
+            "source_bytes": 8987867,
+            "source_sha256": "3189bd0b54c0a10cfb05b61f03cbcba8c9faba15534bd0bc5e1d08c74c4b9891"
+          },
+          {
+            "encoded_bytes": 1005536,
+            "encoded_sha256": "2a7511b6b5af0f98fa7a8d4857bd3b1c8d12fc6fbdebdecd1802b7bce911e9f2",
+            "exact": true,
+            "family": "healthapp",
+            "mbps": 253.8834040314429,
+            "median_ns": 125133709,
+            "samples_ns": [
+              125373000,
+              112661125,
+              116629209,
+              125133709,
+              153831959
+            ],
+            "source_bytes": 31769372,
+            "source_sha256": "69a113e59540c38031bfd3e6e699d6981863844ef9802e34338e3127747821ae"
+          },
+          {
+            "encoded_bytes": 624163,
+            "encoded_sha256": "0a40aea6aa7170b1c4c0914c51d58eb486986db79941b489d28310b942364062",
+            "exact": true,
+            "family": "hpc",
+            "mbps": 263.6206081508908,
+            "median_ns": 187039042,
+            "samples_ns": [
+              200259250,
+              193607542,
+              187039042,
+              181539083,
+              183838833
+            ],
+            "source_bytes": 49307346,
+            "source_sha256": "5f1bf45e973144c8b260f0fc3f0b8521b7a1f6076c7a4305a264244f546a06f7"
+          },
+          {
+            "encoded_bytes": 687763,
+            "encoded_sha256": "5c997e7be09b7050da02ed3029cb5a7fe2ea967ef39e303870535b8e44d37207",
+            "exact": true,
+            "family": "mac",
+            "mbps": 302.8400254357503,
+            "median_ns": 76663750,
+            "samples_ns": [
+              76807750,
+              75190625,
+              73750250,
+              79213292,
+              76663750
+            ],
+            "source_bytes": 23216852,
+            "source_sha256": "7479ac2947bf03bdb178d210ef265f05109e9b4a4c47dc170dfc7b2858e476b7"
+          },
+          {
+            "encoded_bytes": 197750,
+            "encoded_sha256": "760dcebddfb48e2356ffe6a385c5ed3c15add9a521fc1598de8f61bb0c7cd447",
+            "exact": true,
+            "family": "zookeeper",
+            "mbps": 329.26669124137777,
+            "median_ns": 34420208,
+            "samples_ns": [
+              34806125,
+              34420208,
+              34046666,
+              33594417,
+              34536625
+            ],
+            "source_bytes": 11333428,
+            "source_sha256": "9fd35b852b66fb735e25cb3977c3b3e3c93ec81582f307d2d1eb27ef77ef6b76"
+          }
+        ]
+      },
+      {
+        "aggregate_mbps": 278.14778130505164,
+        "iterations": 5,
+        "rows": [
+          {
+            "encoded_bytes": 178101,
+            "encoded_sha256": "c50c523af0eef6a5698ce0f790728316c9287e6623a7be66bd6377343a71af4c",
+            "exact": true,
+            "family": "apache",
+            "mbps": 393.9685364917442,
+            "median_ns": 22813667,
+            "samples_ns": [
+              22610625,
+              22813667,
+              22857875,
+              22923375,
+              22325000
+            ],
+            "source_bytes": 8987867,
+            "source_sha256": "3189bd0b54c0a10cfb05b61f03cbcba8c9faba15534bd0bc5e1d08c74c4b9891"
+          },
+          {
+            "encoded_bytes": 1005536,
+            "encoded_sha256": "2a7511b6b5af0f98fa7a8d4857bd3b1c8d12fc6fbdebdecd1802b7bce911e9f2",
+            "exact": true,
+            "family": "healthapp",
+            "mbps": 237.98834758450013,
+            "median_ns": 133491292,
+            "samples_ns": [
+              120799917,
+              142742250,
+              158805959,
+              123942125,
+              133491292
+            ],
+            "source_bytes": 31769372,
+            "source_sha256": "69a113e59540c38031bfd3e6e699d6981863844ef9802e34338e3127747821ae"
+          },
+          {
+            "encoded_bytes": 624163,
+            "encoded_sha256": "0a40aea6aa7170b1c4c0914c51d58eb486986db79941b489d28310b942364062",
+            "exact": true,
+            "family": "hpc",
+            "mbps": 272.1899525532637,
+            "median_ns": 181150500,
+            "samples_ns": [
+              172536333,
+              237849459,
+              228702625,
+              177171916,
+              181150500
+            ],
+            "source_bytes": 49307346,
+            "source_sha256": "5f1bf45e973144c8b260f0fc3f0b8521b7a1f6076c7a4305a264244f546a06f7"
+          },
+          {
+            "encoded_bytes": 687763,
+            "encoded_sha256": "5c997e7be09b7050da02ed3029cb5a7fe2ea967ef39e303870535b8e44d37207",
+            "exact": true,
+            "family": "mac",
+            "mbps": 297.88379778820416,
+            "median_ns": 77939291,
+            "samples_ns": [
+              76324625,
+              72864166,
+              78314917,
+              79083750,
+              77939291
+            ],
+            "source_bytes": 23216852,
+            "source_sha256": "7479ac2947bf03bdb178d210ef265f05109e9b4a4c47dc170dfc7b2858e476b7"
+          },
+          {
+            "encoded_bytes": 197750,
+            "encoded_sha256": "760dcebddfb48e2356ffe6a385c5ed3c15add9a521fc1598de8f61bb0c7cd447",
+            "exact": true,
+            "family": "zookeeper",
+            "mbps": 347.4167126479063,
+            "median_ns": 32622000,
+            "samples_ns": [
+              35396333,
+              32622000,
+              32316084,
+              32452917,
+              34441125
+            ],
+            "source_bytes": 11333428,
+            "source_sha256": "9fd35b852b66fb735e25cb3977c3b3e3c93ec81582f307d2d1eb27ef77ef6b76"
+          }
+        ]
+      },
+      {
+        "aggregate_mbps": 277.0469781498593,
+        "iterations": 5,
+        "rows": [
+          {
+            "encoded_bytes": 178101,
+            "encoded_sha256": "c50c523af0eef6a5698ce0f790728316c9287e6623a7be66bd6377343a71af4c",
+            "exact": true,
+            "family": "apache",
+            "mbps": 340.1193727679099,
+            "median_ns": 26425625,
+            "samples_ns": [
+              34923750,
+              31182000,
+              26417500,
+              26425625,
+              25964625
+            ],
+            "source_bytes": 8987867,
+            "source_sha256": "3189bd0b54c0a10cfb05b61f03cbcba8c9faba15534bd0bc5e1d08c74c4b9891"
+          },
+          {
+            "encoded_bytes": 1005536,
+            "encoded_sha256": "2a7511b6b5af0f98fa7a8d4857bd3b1c8d12fc6fbdebdecd1802b7bce911e9f2",
+            "exact": true,
+            "family": "healthapp",
+            "mbps": 296.1822490805466,
+            "median_ns": 107262917,
+            "samples_ns": [
+              146086834,
+              107262917,
+              103107875,
+              105445375,
+              108617167
+            ],
+            "source_bytes": 31769372,
+            "source_sha256": "69a113e59540c38031bfd3e6e699d6981863844ef9802e34338e3127747821ae"
+          },
+          {
+            "encoded_bytes": 624163,
+            "encoded_sha256": "0a40aea6aa7170b1c4c0914c51d58eb486986db79941b489d28310b942364062",
+            "exact": true,
+            "family": "hpc",
+            "mbps": 266.2828221706968,
+            "median_ns": 185169083,
+            "samples_ns": [
+              185169083,
+              202456166,
+              234393458,
+              179705959,
+              176411750
+            ],
+            "source_bytes": 49307346,
+            "source_sha256": "5f1bf45e973144c8b260f0fc3f0b8521b7a1f6076c7a4305a264244f546a06f7"
+          },
+          {
+            "encoded_bytes": 687763,
+            "encoded_sha256": "5c997e7be09b7050da02ed3029cb5a7fe2ea967ef39e303870535b8e44d37207",
+            "exact": true,
+            "family": "mac",
+            "mbps": 263.4700832392376,
+            "median_ns": 88119500,
+            "samples_ns": [
+              73868125,
+              79025333,
+              88119500,
+              120531625,
+              110962334
+            ],
+            "source_bytes": 23216852,
+            "source_sha256": "7479ac2947bf03bdb178d210ef265f05109e9b4a4c47dc170dfc7b2858e476b7"
+          },
+          {
+            "encoded_bytes": 197750,
+            "encoded_sha256": "760dcebddfb48e2356ffe6a385c5ed3c15add9a521fc1598de8f61bb0c7cd447",
+            "exact": true,
+            "family": "zookeeper",
+            "mbps": 264.6775845258321,
+            "median_ns": 42819750,
+            "samples_ns": [
+              42819750,
+              44579000,
+              39884375,
+              42099250,
+              45820292
+            ],
+            "source_bytes": 11333428,
+            "source_sha256": "9fd35b852b66fb735e25cb3977c3b3e3c93ec81582f307d2d1eb27ef77ef6b76"
+          }
+        ]
+      },
+      {
+        "aggregate_mbps": 263.20888551409644,
+        "iterations": 5,
+        "rows": [
+          {
+            "encoded_bytes": 178101,
+            "encoded_sha256": "c50c523af0eef6a5698ce0f790728316c9287e6623a7be66bd6377343a71af4c",
+            "exact": true,
+            "family": "apache",
+            "mbps": 384.69076726356394,
+            "median_ns": 23363875,
+            "samples_ns": [
+              22871500,
+              22432459,
+              23363875,
+              24378750,
+              26153416
+            ],
+            "source_bytes": 8987867,
+            "source_sha256": "3189bd0b54c0a10cfb05b61f03cbcba8c9faba15534bd0bc5e1d08c74c4b9891"
+          },
+          {
+            "encoded_bytes": 1005536,
+            "encoded_sha256": "2a7511b6b5af0f98fa7a8d4857bd3b1c8d12fc6fbdebdecd1802b7bce911e9f2",
+            "exact": true,
+            "family": "healthapp",
+            "mbps": 235.03858293421175,
+            "median_ns": 135166625,
+            "samples_ns": [
+              124816667,
+              135166625,
+              117985750,
+              139299000,
+              145489500
+            ],
+            "source_bytes": 31769372,
+            "source_sha256": "69a113e59540c38031bfd3e6e699d6981863844ef9802e34338e3127747821ae"
+          },
+          {
+            "encoded_bytes": 624163,
+            "encoded_sha256": "0a40aea6aa7170b1c4c0914c51d58eb486986db79941b489d28310b942364062",
+            "exact": true,
+            "family": "hpc",
+            "mbps": 248.22543868757137,
+            "median_ns": 198639375,
+            "samples_ns": [
+              198639375,
+              181930125,
+              189766959,
+              235269834,
+              239231791
+            ],
+            "source_bytes": 49307346,
+            "source_sha256": "5f1bf45e973144c8b260f0fc3f0b8521b7a1f6076c7a4305a264244f546a06f7"
+          },
+          {
+            "encoded_bytes": 687763,
+            "encoded_sha256": "5c997e7be09b7050da02ed3029cb5a7fe2ea967ef39e303870535b8e44d37207",
+            "exact": true,
+            "family": "mac",
+            "mbps": 303.80911563490685,
+            "median_ns": 76419208,
+            "samples_ns": [
+              76419208,
+              73357250,
+              76188958,
+              80482000,
+              82608167
+            ],
+            "source_bytes": 23216852,
+            "source_sha256": "7479ac2947bf03bdb178d210ef265f05109e9b4a4c47dc170dfc7b2858e476b7"
+          },
+          {
+            "encoded_bytes": 197750,
+            "encoded_sha256": "760dcebddfb48e2356ffe6a385c5ed3c15add9a521fc1598de8f61bb0c7cd447",
+            "exact": true,
+            "family": "zookeeper",
+            "mbps": 284.3617696825899,
+            "median_ns": 39855667,
+            "samples_ns": [
+              40545250,
+              39855667,
+              39317750,
+              39172792,
+              42630041
+            ],
+            "source_bytes": 11333428,
+            "source_sha256": "9fd35b852b66fb735e25cb3977c3b3e3c93ec81582f307d2d1eb27ef77ef6b76"
+          }
+        ]
+      },
+      {
+        "aggregate_mbps": 285.2271015822951,
+        "iterations": 5,
+        "rows": [
+          {
+            "encoded_bytes": 178101,
+            "encoded_sha256": "c50c523af0eef6a5698ce0f790728316c9287e6623a7be66bd6377343a71af4c",
+            "exact": true,
+            "family": "apache",
+            "mbps": 373.7871129454731,
+            "median_ns": 24045417,
+            "samples_ns": [
+              25577166,
+              22810416,
+              24571000,
+              23225833,
+              24045417
+            ],
+            "source_bytes": 8987867,
+            "source_sha256": "3189bd0b54c0a10cfb05b61f03cbcba8c9faba15534bd0bc5e1d08c74c4b9891"
+          },
+          {
+            "encoded_bytes": 1005536,
+            "encoded_sha256": "2a7511b6b5af0f98fa7a8d4857bd3b1c8d12fc6fbdebdecd1802b7bce911e9f2",
+            "exact": true,
+            "family": "healthapp",
+            "mbps": 282.1688908430406,
+            "median_ns": 112589917,
+            "samples_ns": [
+              114989000,
+              107132708,
+              112589917,
+              116051083,
+              111583458
+            ],
+            "source_bytes": 31769372,
+            "source_sha256": "69a113e59540c38031bfd3e6e699d6981863844ef9802e34338e3127747821ae"
+          },
+          {
+            "encoded_bytes": 624163,
+            "encoded_sha256": "0a40aea6aa7170b1c4c0914c51d58eb486986db79941b489d28310b942364062",
+            "exact": true,
+            "family": "hpc",
+            "mbps": 257.9264958114793,
+            "median_ns": 191168208,
+            "samples_ns": [
+              193482667,
+              192155417,
+              181309417,
+              191168208,
+              188836375
+            ],
+            "source_bytes": 49307346,
+            "source_sha256": "5f1bf45e973144c8b260f0fc3f0b8521b7a1f6076c7a4305a264244f546a06f7"
+          },
+          {
+            "encoded_bytes": 687763,
+            "encoded_sha256": "5c997e7be09b7050da02ed3029cb5a7fe2ea967ef39e303870535b8e44d37207",
+            "exact": true,
+            "family": "mac",
+            "mbps": 304.6636058388653,
+            "median_ns": 76204875,
+            "samples_ns": [
+              74198084,
+              75069541,
+              76204875,
+              79117375,
+              78320125
+            ],
+            "source_bytes": 23216852,
+            "source_sha256": "7479ac2947bf03bdb178d210ef265f05109e9b4a4c47dc170dfc7b2858e476b7"
+          },
+          {
+            "encoded_bytes": 197750,
+            "encoded_sha256": "760dcebddfb48e2356ffe6a385c5ed3c15add9a521fc1598de8f61bb0c7cd447",
+            "exact": true,
+            "family": "zookeeper",
+            "mbps": 344.6006779921166,
+            "median_ns": 32888583,
+            "samples_ns": [
+              35909833,
+              31650750,
+              32013375,
+              33390667,
+              32888583
+            ],
+            "source_bytes": 11333428,
+            "source_sha256": "9fd35b852b66fb735e25cb3977c3b3e3c93ec81582f307d2d1eb27ef77ef6b76"
+          }
+        ]
+      }
+    ],
+    "candidate": [
+      {
+        "aggregate_mbps": 351.99971447923855,
+        "iterations": 5,
+        "rows": [
+          {
+            "encoded_bytes": 178101,
+            "encoded_sha256": "c50c523af0eef6a5698ce0f790728316c9287e6623a7be66bd6377343a71af4c",
+            "exact": true,
+            "family": "apache",
+            "mbps": 387.1000821846136,
+            "median_ns": 23218458,
+            "samples_ns": [
+              24404209,
+              22583125,
+              22943291,
+              24686667,
+              23218458
+            ],
+            "source_bytes": 8987867,
+            "source_sha256": "3189bd0b54c0a10cfb05b61f03cbcba8c9faba15534bd0bc5e1d08c74c4b9891"
+          },
+          {
+            "encoded_bytes": 1005536,
+            "encoded_sha256": "2a7511b6b5af0f98fa7a8d4857bd3b1c8d12fc6fbdebdecd1802b7bce911e9f2",
+            "exact": true,
+            "family": "healthapp",
+            "mbps": 350.07588653649844,
+            "median_ns": 90749958,
+            "samples_ns": [
+              90749958,
+              86201875,
+              93407875,
+              92671459,
+              89470500
+            ],
+            "source_bytes": 31769372,
+            "source_sha256": "69a113e59540c38031bfd3e6e699d6981863844ef9802e34338e3127747821ae"
+          },
+          {
+            "encoded_bytes": 624163,
+            "encoded_sha256": "0a40aea6aa7170b1c4c0914c51d58eb486986db79941b489d28310b942364062",
+            "exact": true,
+            "family": "hpc",
+            "mbps": 317.67502249132656,
+            "median_ns": 155213166,
+            "samples_ns": [
+              194048125,
+              155213166,
+              241081750,
+              154491667,
+              153117708
+            ],
+            "source_bytes": 49307346,
+            "source_sha256": "5f1bf45e973144c8b260f0fc3f0b8521b7a1f6076c7a4305a264244f546a06f7"
+          },
+          {
+            "encoded_bytes": 687763,
+            "encoded_sha256": "5c997e7be09b7050da02ed3029cb5a7fe2ea967ef39e303870535b8e44d37207",
+            "exact": true,
+            "family": "mac",
+            "mbps": 392.1415064069189,
+            "median_ns": 59205291,
+            "samples_ns": [
+              55268541,
+              57536791,
+              59205291,
+              63054166,
+              62319958
+            ],
+            "source_bytes": 23216852,
+            "source_sha256": "7479ac2947bf03bdb178d210ef265f05109e9b4a4c47dc170dfc7b2858e476b7"
+          },
+          {
+            "encoded_bytes": 197750,
+            "encoded_sha256": "760dcebddfb48e2356ffe6a385c5ed3c15add9a521fc1598de8f61bb0c7cd447",
+            "exact": true,
+            "family": "zookeeper",
+            "mbps": 442.1435141384806,
+            "median_ns": 25632917,
+            "samples_ns": [
+              27293125,
+              25632917,
+              24245542,
+              25060166,
+              25931875
+            ],
+            "source_bytes": 11333428,
+            "source_sha256": "9fd35b852b66fb735e25cb3977c3b3e3c93ec81582f307d2d1eb27ef77ef6b76"
+          }
+        ]
+      },
+      {
+        "aggregate_mbps": 310.20145442483755,
+        "iterations": 5,
+        "rows": [
+          {
+            "encoded_bytes": 178101,
+            "encoded_sha256": "c50c523af0eef6a5698ce0f790728316c9287e6623a7be66bd6377343a71af4c",
+            "exact": true,
+            "family": "apache",
+            "mbps": 475.00397295861933,
+            "median_ns": 18921667,
+            "samples_ns": [
+              24476292,
+              20267208,
+              18836208,
+              18921667,
+              18372667
+            ],
+            "source_bytes": 8987867,
+            "source_sha256": "3189bd0b54c0a10cfb05b61f03cbcba8c9faba15534bd0bc5e1d08c74c4b9891"
+          },
+          {
+            "encoded_bytes": 1005536,
+            "encoded_sha256": "2a7511b6b5af0f98fa7a8d4857bd3b1c8d12fc6fbdebdecd1802b7bce911e9f2",
+            "exact": true,
+            "family": "healthapp",
+            "mbps": 291.9320533414237,
+            "median_ns": 108824542,
+            "samples_ns": [
+              88730291,
+              90449875,
+              328065542,
+              173092375,
+              108824542
+            ],
+            "source_bytes": 31769372,
+            "source_sha256": "69a113e59540c38031bfd3e6e699d6981863844ef9802e34338e3127747821ae"
+          },
+          {
+            "encoded_bytes": 624163,
+            "encoded_sha256": "0a40aea6aa7170b1c4c0914c51d58eb486986db79941b489d28310b942364062",
+            "exact": true,
+            "family": "hpc",
+            "mbps": 278.2060233316998,
+            "median_ns": 177233208,
+            "samples_ns": [
+              221270583,
+              163033208,
+              155584250,
+              177233208,
+              207249584
+            ],
+            "source_bytes": 49307346,
+            "source_sha256": "5f1bf45e973144c8b260f0fc3f0b8521b7a1f6076c7a4305a264244f546a06f7"
+          },
+          {
+            "encoded_bytes": 687763,
+            "encoded_sha256": "5c997e7be09b7050da02ed3029cb5a7fe2ea967ef39e303870535b8e44d37207",
+            "exact": true,
+            "family": "mac",
+            "mbps": 323.6132716325533,
+            "median_ns": 71742583,
+            "samples_ns": [
+              81813209,
+              83111750,
+              63028542,
+              66025917,
+              71742583
+            ],
+            "source_bytes": 23216852,
+            "source_sha256": "7479ac2947bf03bdb178d210ef265f05109e9b4a4c47dc170dfc7b2858e476b7"
+          },
+          {
+            "encoded_bytes": 197750,
+            "encoded_sha256": "760dcebddfb48e2356ffe6a385c5ed3c15add9a521fc1598de8f61bb0c7cd447",
+            "exact": true,
+            "family": "zookeeper",
+            "mbps": 453.3303200451993,
+            "median_ns": 25000375,
+            "samples_ns": [
+              32438708,
+              25000375,
+              24020750,
+              24981250,
+              26452875
+            ],
+            "source_bytes": 11333428,
+            "source_sha256": "9fd35b852b66fb735e25cb3977c3b3e3c93ec81582f307d2d1eb27ef77ef6b76"
+          }
+        ]
+      },
+      {
+        "aggregate_mbps": 333.24906738964785,
+        "iterations": 5,
+        "rows": [
+          {
+            "encoded_bytes": 178101,
+            "encoded_sha256": "c50c523af0eef6a5698ce0f790728316c9287e6623a7be66bd6377343a71af4c",
+            "exact": true,
+            "family": "apache",
+            "mbps": 481.4864179232168,
+            "median_ns": 18666917,
+            "samples_ns": [
+              16845791,
+              17558459,
+              18666917,
+              18835625,
+              18710208
+            ],
+            "source_bytes": 8987867,
+            "source_sha256": "3189bd0b54c0a10cfb05b61f03cbcba8c9faba15534bd0bc5e1d08c74c4b9891"
+          },
+          {
+            "encoded_bytes": 1005536,
+            "encoded_sha256": "2a7511b6b5af0f98fa7a8d4857bd3b1c8d12fc6fbdebdecd1802b7bce911e9f2",
+            "exact": true,
+            "family": "healthapp",
+            "mbps": 315.30267263053395,
+            "median_ns": 100758334,
+            "samples_ns": [
+              105060875,
+              100758334,
+              103732667,
+              92783209,
+              92495125
+            ],
+            "source_bytes": 31769372,
+            "source_sha256": "69a113e59540c38031bfd3e6e699d6981863844ef9802e34338e3127747821ae"
+          },
+          {
+            "encoded_bytes": 624163,
+            "encoded_sha256": "0a40aea6aa7170b1c4c0914c51d58eb486986db79941b489d28310b942364062",
+            "exact": true,
+            "family": "hpc",
+            "mbps": 315.90465329344005,
+            "median_ns": 156083000,
+            "samples_ns": [
+              210725125,
+              156051334,
+              150844417,
+              170565584,
+              156083000
+            ],
+            "source_bytes": 49307346,
+            "source_sha256": "5f1bf45e973144c8b260f0fc3f0b8521b7a1f6076c7a4305a264244f546a06f7"
+          },
+          {
+            "encoded_bytes": 687763,
+            "encoded_sha256": "5c997e7be09b7050da02ed3029cb5a7fe2ea967ef39e303870535b8e44d37207",
+            "exact": true,
+            "family": "mac",
+            "mbps": 312.8961066309074,
+            "median_ns": 74199875,
+            "samples_ns": [
+              74199875,
+              74928333,
+              77198083,
+              64487500,
+              61032625
+            ],
+            "source_bytes": 23216852,
+            "source_sha256": "7479ac2947bf03bdb178d210ef265f05109e9b4a4c47dc170dfc7b2858e476b7"
+          },
+          {
+            "encoded_bytes": 197750,
+            "encoded_sha256": "760dcebddfb48e2356ffe6a385c5ed3c15add9a521fc1598de8f61bb0c7cd447",
+            "exact": true,
+            "family": "zookeeper",
+            "mbps": 467.7243200858405,
+            "median_ns": 24231000,
+            "samples_ns": [
+              24280041,
+              22408208,
+              23644000,
+              24620667,
+              24231000
+            ],
+            "source_bytes": 11333428,
+            "source_sha256": "9fd35b852b66fb735e25cb3977c3b3e3c93ec81582f307d2d1eb27ef77ef6b76"
+          }
+        ]
+      },
+      {
+        "aggregate_mbps": 336.73004237463647,
+        "iterations": 5,
+        "rows": [
+          {
+            "encoded_bytes": 178101,
+            "encoded_sha256": "c50c523af0eef6a5698ce0f790728316c9287e6623a7be66bd6377343a71af4c",
+            "exact": true,
+            "family": "apache",
+            "mbps": 384.79645344968617,
+            "median_ns": 23357458,
+            "samples_ns": [
+              23992833,
+              21706209,
+              22149125,
+              23357458,
+              24263958
+            ],
+            "source_bytes": 8987867,
+            "source_sha256": "3189bd0b54c0a10cfb05b61f03cbcba8c9faba15534bd0bc5e1d08c74c4b9891"
+          },
+          {
+            "encoded_bytes": 1005536,
+            "encoded_sha256": "2a7511b6b5af0f98fa7a8d4857bd3b1c8d12fc6fbdebdecd1802b7bce911e9f2",
+            "exact": true,
+            "family": "healthapp",
+            "mbps": 350.6837076634879,
+            "median_ns": 90592666,
+            "samples_ns": [
+              90592666,
+              83633125,
+              89342166,
+              91169333,
+              90827875
+            ],
+            "source_bytes": 31769372,
+            "source_sha256": "69a113e59540c38031bfd3e6e699d6981863844ef9802e34338e3127747821ae"
+          },
+          {
+            "encoded_bytes": 624163,
+            "encoded_sha256": "0a40aea6aa7170b1c4c0914c51d58eb486986db79941b489d28310b942364062",
+            "exact": true,
+            "family": "hpc",
+            "mbps": 293.66675724509554,
+            "median_ns": 167902375,
+            "samples_ns": [
+              175208833,
+              159808917,
+              155444459,
+              167902375,
+              183080458
+            ],
+            "source_bytes": 49307346,
+            "source_sha256": "5f1bf45e973144c8b260f0fc3f0b8521b7a1f6076c7a4305a264244f546a06f7"
+          },
+          {
+            "encoded_bytes": 687763,
+            "encoded_sha256": "5c997e7be09b7050da02ed3029cb5a7fe2ea967ef39e303870535b8e44d37207",
+            "exact": true,
+            "family": "mac",
+            "mbps": 386.6953757237468,
+            "median_ns": 60039125,
+            "samples_ns": [
+              53226583,
+              51604125,
+              60039125,
+              65642167,
+              65241625
+            ],
+            "source_bytes": 23216852,
+            "source_sha256": "7479ac2947bf03bdb178d210ef265f05109e9b4a4c47dc170dfc7b2858e476b7"
+          },
+          {
+            "encoded_bytes": 197750,
+            "encoded_sha256": "760dcebddfb48e2356ffe6a385c5ed3c15add9a521fc1598de8f61bb0c7cd447",
+            "exact": true,
+            "family": "zookeeper",
+            "mbps": 402.1530859816815,
+            "median_ns": 28181875,
+            "samples_ns": [
+              27943000,
+              27498250,
+              28181875,
+              28643333,
+              29881708
+            ],
+            "source_bytes": 11333428,
+            "source_sha256": "9fd35b852b66fb735e25cb3977c3b3e3c93ec81582f307d2d1eb27ef77ef6b76"
+          }
+        ]
+      },
+      {
+        "aggregate_mbps": 349.91741698525664,
+        "iterations": 5,
+        "rows": [
+          {
+            "encoded_bytes": 178101,
+            "encoded_sha256": "c50c523af0eef6a5698ce0f790728316c9287e6623a7be66bd6377343a71af4c",
+            "exact": true,
+            "family": "apache",
+            "mbps": 482.10305389555276,
+            "median_ns": 18643041,
+            "samples_ns": [
+              18643041,
+              18743292,
+              18678792,
+              18259333,
+              18604250
+            ],
+            "source_bytes": 8987867,
+            "source_sha256": "3189bd0b54c0a10cfb05b61f03cbcba8c9faba15534bd0bc5e1d08c74c4b9891"
+          },
+          {
+            "encoded_bytes": 1005536,
+            "encoded_sha256": "2a7511b6b5af0f98fa7a8d4857bd3b1c8d12fc6fbdebdecd1802b7bce911e9f2",
+            "exact": true,
+            "family": "healthapp",
+            "mbps": 344.61006459391564,
+            "median_ns": 92189333,
+            "samples_ns": [
+              90548333,
+              86066541,
+              93002291,
+              92189333,
+              92968375
+            ],
+            "source_bytes": 31769372,
+            "source_sha256": "69a113e59540c38031bfd3e6e699d6981863844ef9802e34338e3127747821ae"
+          },
+          {
+            "encoded_bytes": 624163,
+            "encoded_sha256": "0a40aea6aa7170b1c4c0914c51d58eb486986db79941b489d28310b942364062",
+            "exact": true,
+            "family": "hpc",
+            "mbps": 315.3620704297243,
+            "median_ns": 156351542,
+            "samples_ns": [
+              182128958,
+              156351542,
+              149028791,
+              169938167,
+              144490708
+            ],
+            "source_bytes": 49307346,
+            "source_sha256": "5f1bf45e973144c8b260f0fc3f0b8521b7a1f6076c7a4305a264244f546a06f7"
+          },
+          {
+            "encoded_bytes": 687763,
+            "encoded_sha256": "5c997e7be09b7050da02ed3029cb5a7fe2ea967ef39e303870535b8e44d37207",
+            "exact": true,
+            "family": "mac",
+            "mbps": 382.73978779130266,
+            "median_ns": 60659625,
+            "samples_ns": [
+              60574417,
+              58253167,
+              62291083,
+              62704625,
+              60659625
+            ],
+            "source_bytes": 23216852,
+            "source_sha256": "7479ac2947bf03bdb178d210ef265f05109e9b4a4c47dc170dfc7b2858e476b7"
+          },
+          {
+            "encoded_bytes": 197750,
+            "encoded_sha256": "760dcebddfb48e2356ffe6a385c5ed3c15add9a521fc1598de8f61bb0c7cd447",
+            "exact": true,
+            "family": "zookeeper",
+            "mbps": 400.71578083467153,
+            "median_ns": 28282959,
+            "samples_ns": [
+              28157791,
+              25637917,
+              28556375,
+              28282959,
+              30014292
+            ],
+            "source_bytes": 11333428,
+            "source_sha256": "9fd35b852b66fb735e25cb3977c3b3e3c93ec81582f307d2d1eb27ef77ef6b76"
+          }
+        ]
+      },
+      {
+        "aggregate_mbps": 331.0289410165106,
+        "iterations": 5,
+        "rows": [
+          {
+            "encoded_bytes": 178101,
+            "encoded_sha256": "c50c523af0eef6a5698ce0f790728316c9287e6623a7be66bd6377343a71af4c",
+            "exact": true,
+            "family": "apache",
+            "mbps": 406.9286559931884,
+            "median_ns": 22087083,
+            "samples_ns": [
+              22088667,
+              22087083,
+              21740250,
+              21319667,
+              23847458
+            ],
+            "source_bytes": 8987867,
+            "source_sha256": "3189bd0b54c0a10cfb05b61f03cbcba8c9faba15534bd0bc5e1d08c74c4b9891"
+          },
+          {
+            "encoded_bytes": 1005536,
+            "encoded_sha256": "2a7511b6b5af0f98fa7a8d4857bd3b1c8d12fc6fbdebdecd1802b7bce911e9f2",
+            "exact": true,
+            "family": "healthapp",
+            "mbps": 308.3510680761284,
+            "median_ns": 103029875,
+            "samples_ns": [
+              98919083,
+              103029875,
+              129034083,
+              121438458,
+              97403209
+            ],
+            "source_bytes": 31769372,
+            "source_sha256": "69a113e59540c38031bfd3e6e699d6981863844ef9802e34338e3127747821ae"
+          },
+          {
+            "encoded_bytes": 624163,
+            "encoded_sha256": "0a40aea6aa7170b1c4c0914c51d58eb486986db79941b489d28310b942364062",
+            "exact": true,
+            "family": "hpc",
+            "mbps": 312.82483494159925,
+            "median_ns": 157619666,
+            "samples_ns": [
+              154655083,
+              150431042,
+              205018125,
+              204008375,
+              157619666
+            ],
+            "source_bytes": 49307346,
+            "source_sha256": "5f1bf45e973144c8b260f0fc3f0b8521b7a1f6076c7a4305a264244f546a06f7"
+          },
+          {
+            "encoded_bytes": 687763,
+            "encoded_sha256": "5c997e7be09b7050da02ed3029cb5a7fe2ea967ef39e303870535b8e44d37207",
+            "exact": true,
+            "family": "mac",
+            "mbps": 341.2908744806424,
+            "median_ns": 68026583,
+            "samples_ns": [
+              57614500,
+              55439583,
+              68026583,
+              70438000,
+              75256667
+            ],
+            "source_bytes": 23216852,
+            "source_sha256": "7479ac2947bf03bdb178d210ef265f05109e9b4a4c47dc170dfc7b2858e476b7"
+          },
+          {
+            "encoded_bytes": 197750,
+            "encoded_sha256": "760dcebddfb48e2356ffe6a385c5ed3c15add9a521fc1598de8f61bb0c7cd447",
+            "exact": true,
+            "family": "zookeeper",
+            "mbps": 441.2670024758376,
+            "median_ns": 25683833,
+            "samples_ns": [
+              29860500,
+              25683833,
+              24638084,
+              25268000,
+              26074167
+            ],
+            "source_bytes": 11333428,
+            "source_sha256": "9fd35b852b66fb735e25cb3977c3b3e3c93ec81582f307d2d1eb27ef77ef6b76"
+          }
+        ]
+      },
+      {
+        "aggregate_mbps": 333.46279387288484,
+        "iterations": 5,
+        "rows": [
+          {
+            "encoded_bytes": 178101,
+            "encoded_sha256": "c50c523af0eef6a5698ce0f790728316c9287e6623a7be66bd6377343a71af4c",
+            "exact": true,
+            "family": "apache",
+            "mbps": 479.6204197519875,
+            "median_ns": 18739542,
+            "samples_ns": [
+              21833000,
+              21857500,
+              18739542,
+              18519709,
+              18259042
+            ],
+            "source_bytes": 8987867,
+            "source_sha256": "3189bd0b54c0a10cfb05b61f03cbcba8c9faba15534bd0bc5e1d08c74c4b9891"
+          },
+          {
+            "encoded_bytes": 1005536,
+            "encoded_sha256": "2a7511b6b5af0f98fa7a8d4857bd3b1c8d12fc6fbdebdecd1802b7bce911e9f2",
+            "exact": true,
+            "family": "healthapp",
+            "mbps": 333.3650755205396,
+            "median_ns": 95299041,
+            "samples_ns": [
+              85705583,
+              83880542,
+              95299041,
+              130240666,
+              130185833
+            ],
+            "source_bytes": 31769372,
+            "source_sha256": "69a113e59540c38031bfd3e6e699d6981863844ef9802e34338e3127747821ae"
+          },
+          {
+            "encoded_bytes": 624163,
+            "encoded_sha256": "0a40aea6aa7170b1c4c0914c51d58eb486986db79941b489d28310b942364062",
+            "exact": true,
+            "family": "hpc",
+            "mbps": 287.71735543700413,
+            "median_ns": 171374250,
+            "samples_ns": [
+              171374250,
+              162616167,
+              144307792,
+              179124375,
+              226094958
+            ],
+            "source_bytes": 49307346,
+            "source_sha256": "5f1bf45e973144c8b260f0fc3f0b8521b7a1f6076c7a4305a264244f546a06f7"
+          },
+          {
+            "encoded_bytes": 687763,
+            "encoded_sha256": "5c997e7be09b7050da02ed3029cb5a7fe2ea967ef39e303870535b8e44d37207",
+            "exact": true,
+            "family": "mac",
+            "mbps": 388.6980284260496,
+            "median_ns": 59729791,
+            "samples_ns": [
+              57034958,
+              56653416,
+              59729791,
+              64086416,
+              68280709
+            ],
+            "source_bytes": 23216852,
+            "source_sha256": "7479ac2947bf03bdb178d210ef265f05109e9b4a4c47dc170dfc7b2858e476b7"
+          },
+          {
+            "encoded_bytes": 197750,
+            "encoded_sha256": "760dcebddfb48e2356ffe6a385c5ed3c15add9a521fc1598de8f61bb0c7cd447",
+            "exact": true,
+            "family": "zookeeper",
+            "mbps": 396.87272044487565,
+            "median_ns": 28556833,
+            "samples_ns": [
+              30967291,
+              25680458,
+              27161041,
+              28556833,
+              29028250
+            ],
+            "source_bytes": 11333428,
+            "source_sha256": "9fd35b852b66fb735e25cb3977c3b3e3c93ec81582f307d2d1eb27ef77ef6b76"
+          }
+        ]
+      }
+    ]
+  },
+  "runtime": {
+    "logical_cpus": 10,
+    "platform": "macOS-26.5.2-arm64-arm-64bit",
+    "python": "3.12.12 (main, Oct 28 2025, 11:52:25) [Clang 20.1.4 ]"
+  },
+  "schema_version": 1,
+  "settings": {
+    "alternating_first_position": true,
+    "exact_sha256_after_every_decode": true,
+    "iterations_per_family_per_round": 5,
+    "rounds": 7,
+    "timing_scope": "in-memory JLS2 byte API; SHA-256 verification included",
+    "warmup_per_family_per_process": 1
+  },
+  "summary": {
+    "aggregate": {
+      "candidate_rounds_at_or_above_250_mbps": 7,
+      "maximum_paired_improvement_percent": 27.493308213080404,
+      "median_baseline_mbps": 277.0469781498593,
+      "median_candidate_mbps": 333.46279387288484,
+      "median_paired_improvement_percent": 21.65909565718995,
+      "minimum_paired_improvement_percent": 11.438963289012726,
+      "pairs": [
+        {
+          "baseline_mbps": 276.0926980504256,
+          "candidate_improvement_percent": 27.493308213080404,
+          "candidate_mbps": 351.99971447923855,
+          "round": 1
+        },
+        {
+          "baseline_mbps": 278.3599607081249,
+          "candidate_improvement_percent": 11.438963289012726,
+          "candidate_mbps": 310.20145442483755,
+          "round": 2
+        },
+        {
+          "baseline_mbps": 273.9203884341492,
+          "candidate_improvement_percent": 21.65909565718995,
+          "candidate_mbps": 333.24906738964785,
+          "round": 3
+        },
+        {
+          "baseline_mbps": 278.14778130505164,
+          "candidate_improvement_percent": 21.061559720059808,
+          "candidate_mbps": 336.73004237463647,
+          "round": 4
+        },
+        {
+          "baseline_mbps": 277.0469781498593,
+          "candidate_improvement_percent": 26.30255681618752,
+          "candidate_mbps": 349.91741698525664,
+          "round": 5
+        },
+        {
+          "baseline_mbps": 263.20888551409644,
+          "candidate_improvement_percent": 25.76662842135775,
+          "candidate_mbps": 331.0289410165106,
+          "round": 6
+        },
+        {
+          "baseline_mbps": 285.2271015822951,
+          "candidate_improvement_percent": 16.911328559944906,
+          "candidate_mbps": 333.46279387288484,
+          "round": 7
+        }
+      ]
+    },
+    "families": [
+      {
+        "encoded_bytes": 178101,
+        "encoded_sha256": "c50c523af0eef6a5698ce0f790728316c9287e6623a7be66bd6377343a71af4c",
+        "exact": true,
+        "family": "apache",
+        "maximum_paired_improvement_percent": 69.6812065966758,
+        "median_baseline_mbps": 384.69076726356394,
+        "median_candidate_mbps": 475.00397295861933,
+        "median_paired_improvement_percent": 22.03029997304149,
+        "minimum_paired_improvement_percent": -2.3281257746455175,
+        "rounds": [
+          {
+            "baseline_mbps": 395.3396993878302,
+            "candidate_improvement_percent": -2.0841866415073795,
+            "candidate_mbps": 387.1000821846136
+          },
+          {
+            "baseline_mbps": 389.25084430961454,
+            "candidate_improvement_percent": 22.03029997304149,
+            "candidate_mbps": 475.00397295861933
+          },
+          {
+            "baseline_mbps": 283.75942603218704,
+            "candidate_improvement_percent": 69.6812065966758,
+            "candidate_mbps": 481.4864179232168
+          },
+          {
+            "baseline_mbps": 393.9685364917442,
+            "candidate_improvement_percent": -2.3281257746455175,
+            "candidate_mbps": 384.79645344968617
+          },
+          {
+            "baseline_mbps": 340.1193727679099,
+            "candidate_improvement_percent": 41.74524960815138,
+            "candidate_mbps": 482.10305389555276
+          },
+          {
+            "baseline_mbps": 384.69076726356394,
+            "candidate_improvement_percent": 5.780718078525804,
+            "candidate_mbps": 406.9286559931884
+          },
+          {
+            "baseline_mbps": 373.7871129454731,
+            "candidate_improvement_percent": 28.313792300793693,
+            "candidate_mbps": 479.6204197519875
+          }
+        ],
+        "source_bytes": 8987867,
+        "source_sha256": "3189bd0b54c0a10cfb05b61f03cbcba8c9faba15534bd0bc5e1d08c74c4b9891"
+      },
+      {
+        "encoded_bytes": 1005536,
+        "encoded_sha256": "2a7511b6b5af0f98fa7a8d4857bd3b1c8d12fc6fbdebdecd1802b7bce911e9f2",
+        "exact": true,
+        "family": "healthapp",
+        "maximum_paired_improvement_percent": 47.35331003505294,
+        "median_baseline_mbps": 264.69881274695035,
+        "median_candidate_mbps": 333.3650755205396,
+        "median_paired_improvement_percent": 24.19191944956134,
+        "minimum_paired_improvement_percent": 7.092149305806417,
+        "rounds": [
+          {
+            "baseline_mbps": 264.69881274695035,
+            "candidate_improvement_percent": 32.25442264116529,
+            "candidate_mbps": 350.07588653649844
+          },
+          {
+            "baseline_mbps": 272.59893020523725,
+            "candidate_improvement_percent": 7.092149305806417,
+            "candidate_mbps": 291.9320533414237
+          },
+          {
+            "baseline_mbps": 253.8834040314429,
+            "candidate_improvement_percent": 24.19191944956134,
+            "candidate_mbps": 315.30267263053395
+          },
+          {
+            "baseline_mbps": 237.98834758450013,
+            "candidate_improvement_percent": 47.35331003505294,
+            "candidate_mbps": 350.6837076634879
+          },
+          {
+            "baseline_mbps": 296.1822490805466,
+            "candidate_improvement_percent": 16.35068126591175,
+            "candidate_mbps": 344.61006459391564
+          },
+          {
+            "baseline_mbps": 235.03858293421175,
+            "candidate_improvement_percent": 31.19168105367496,
+            "candidate_mbps": 308.3510680761284
+          },
+          {
+            "baseline_mbps": 282.1688908430406,
+            "candidate_improvement_percent": 18.14380902321988,
+            "candidate_mbps": 333.3650755205396
+          }
+        ],
+        "source_bytes": 31769372,
+        "source_sha256": "69a113e59540c38031bfd3e6e699d6981863844ef9802e34338e3127747821ae"
+      },
+      {
+        "encoded_bytes": 624163,
+        "encoded_sha256": "0a40aea6aa7170b1c4c0914c51d58eb486986db79941b489d28310b942364062",
+        "exact": true,
+        "family": "hpc",
+        "maximum_paired_improvement_percent": 26.024486690639236,
+        "median_baseline_mbps": 257.9264958114793,
+        "median_candidate_mbps": 312.82483494159925,
+        "median_paired_improvement_percent": 18.4312483467544,
+        "minimum_paired_improvement_percent": 7.890373796082395,
+        "rounds": [
+          {
+            "baseline_mbps": 253.856850957903,
+            "candidate_improvement_percent": 25.139432437065288,
+            "candidate_mbps": 317.67502249132656
+          },
+          {
+            "baseline_mbps": 256.15796954285605,
+            "candidate_improvement_percent": 8.607209773012748,
+            "candidate_mbps": 278.2060233316998
+          },
+          {
+            "baseline_mbps": 263.6206081508908,
+            "candidate_improvement_percent": 19.833064459294093,
+            "candidate_mbps": 315.90465329344005
+          },
+          {
+            "baseline_mbps": 272.1899525532637,
+            "candidate_improvement_percent": 7.890373796082395,
+            "candidate_mbps": 293.66675724509554
+          },
+          {
+            "baseline_mbps": 266.2828221706968,
+            "candidate_improvement_percent": 18.4312483467544,
+            "candidate_mbps": 315.3620704297243
+          },
+          {
+            "baseline_mbps": 248.22543868757137,
+            "candidate_improvement_percent": 26.024486690639236,
+            "candidate_mbps": 312.82483494159925
+          },
+          {
+            "baseline_mbps": 257.9264958114793,
+            "candidate_improvement_percent": 11.550135449170451,
+            "candidate_mbps": 287.71735543700413
+          }
+        ],
+        "source_bytes": 49307346,
+        "source_sha256": "5f1bf45e973144c8b260f0fc3f0b8521b7a1f6076c7a4305a264244f546a06f7"
+      },
+      {
+        "encoded_bytes": 687763,
+        "encoded_sha256": "5c997e7be09b7050da02ed3029cb5a7fe2ea967ef39e303870535b8e44d37207",
+        "exact": true,
+        "family": "mac",
+        "maximum_paired_improvement_percent": 45.26878463228216,
+        "median_baseline_mbps": 297.88379778820416,
+        "median_candidate_mbps": 382.73978779130266,
+        "median_paired_improvement_percent": 27.582691524904224,
+        "minimum_paired_improvement_percent": 3.320591847358223,
+        "rounds": [
+          {
+            "baseline_mbps": 284.23171507492015,
+            "candidate_improvement_percent": 37.9654294748758,
+            "candidate_mbps": 392.1415064069189
+          },
+          {
+            "baseline_mbps": 283.0198824776735,
+            "candidate_improvement_percent": 14.342946085451103,
+            "candidate_mbps": 323.6132716325533
+          },
+          {
+            "baseline_mbps": 302.8400254357503,
+            "candidate_improvement_percent": 3.320591847358223,
+            "candidate_mbps": 312.8961066309074
+          },
+          {
+            "baseline_mbps": 297.88379778820416,
+            "candidate_improvement_percent": 29.814168677508192,
+            "candidate_mbps": 386.6953757237468
+          },
+          {
+            "baseline_mbps": 263.4700832392376,
+            "candidate_improvement_percent": 45.26878463228216,
+            "candidate_mbps": 382.73978779130266
+          },
+          {
+            "baseline_mbps": 303.80911563490685,
+            "candidate_improvement_percent": 12.337272621792582,
+            "candidate_mbps": 341.2908744806424
+          },
+          {
+            "baseline_mbps": 304.6636058388653,
+            "candidate_improvement_percent": 27.582691524904224,
+            "candidate_mbps": 388.6980284260496
+          }
+        ],
+        "source_bytes": 23216852,
+        "source_sha256": "7479ac2947bf03bdb178d210ef265f05109e9b4a4c47dc170dfc7b2858e476b7"
+      },
+      {
+        "encoded_bytes": 197750,
+        "encoded_sha256": "760dcebddfb48e2356ffe6a385c5ed3c15add9a521fc1598de8f61bb0c7cd447",
+        "exact": true,
+        "family": "zookeeper",
+        "maximum_paired_improvement_percent": 55.17803359023554,
+        "median_baseline_mbps": 338.0900919240388,
+        "median_candidate_mbps": 441.2670024758376,
+        "median_paired_improvement_percent": 34.08565671514927,
+        "minimum_paired_improvement_percent": 15.168873943409622,
+        "rounds": [
+          {
+            "baseline_mbps": 346.79526217166233,
+            "candidate_improvement_percent": 27.494104553141586,
+            "candidate_mbps": 442.1435141384806
+          },
+          {
+            "baseline_mbps": 338.0900919240388,
+            "candidate_improvement_percent": 34.08565671514927,
+            "candidate_mbps": 453.3303200451993
+          },
+          {
+            "baseline_mbps": 329.26669124137777,
+            "candidate_improvement_percent": 42.050299203499655,
+            "candidate_mbps": 467.7243200858405
+          },
+          {
+            "baseline_mbps": 347.4167126479063,
+            "candidate_improvement_percent": 15.755250493446592,
+            "candidate_mbps": 402.1530859816815
+          },
+          {
+            "baseline_mbps": 264.6775845258321,
+            "candidate_improvement_percent": 51.39770205797775,
+            "candidate_mbps": 400.71578083467153
+          },
+          {
+            "baseline_mbps": 284.3617696825899,
+            "candidate_improvement_percent": 55.17803359023554,
+            "candidate_mbps": 441.2670024758376
+          },
+          {
+            "baseline_mbps": 344.6006779921166,
+            "candidate_improvement_percent": 15.168873943409622,
+            "candidate_mbps": 396.87272044487565
+          }
+        ],
+        "source_bytes": 11333428,
+        "source_sha256": "9fd35b852b66fb735e25cb3977c3b3e3c93ec81582f307d2d1eb27ef77ef6b76"
+      }
+    ]
+  }
+}
