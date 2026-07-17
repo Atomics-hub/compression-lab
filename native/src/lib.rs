@@ -56,9 +56,14 @@ fn encode_varint(mut value: usize, output: &mut Vec<u8>) {
 }
 
 fn decode_varint(data: &[u8], offset: &mut usize) -> Option<usize> {
-    let mut value = 0_usize;
-    let mut shift = 0_u32;
-    for _ in 0..10 {
+    let first = *data.get(*offset)?;
+    *offset += 1;
+    if first < 0x80 {
+        return Some(first as usize);
+    }
+    let mut value = (first & 0x7f) as usize;
+    let mut shift = 7_u32;
+    for _ in 1..10 {
         let byte = *data.get(*offset)?;
         *offset += 1;
         value |= ((byte & 0x7f) as usize).checked_shl(shift)?;
