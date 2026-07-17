@@ -54,7 +54,7 @@ gate are in the [complete evidence bundle](runs/clue-json-log-development-census
 
 | Category | Best result so far | Evidence status |
 | --- | --- | --- |
-| JSON and machine logs | JLS2 is 18.08% smaller than the strongest standard on fresh CLUE-LDS development data | Ratio lead; decode gate open |
+| JSON and machine logs | JLS2 is 18.08% smaller than the strongest standard on fresh CLUE-LDS development data | Ratio lead; cold-process decode gate open |
 | Delimited tables | TBS1 vs 7-Zip-9: 3.48% larger aggregate; TBS1 won 3/4 families against each family's strongest standard | Frozen gate failed (public validation) |
 | Dense matrices | DMS2 vs Brotli-11: 43.55% larger; 33.45 / 313.99 MB/s compression / decompression | Frozen gate failed (public validation) |
 | General files | Exact `.clab` fallback; no strongest-standard win established | Alpha product |
@@ -134,6 +134,7 @@ stays outside the repository.
 - [Fresh successor corpus protocol](docs/benchmarks/2026-07-17-tabular-successor-corpus-protocol.md)
 - [DMS2 public-validation 11-codec chart](runs/dms2-public-validation-v1/README.md)
 - [JLS2 decoder A/B gate](runs/jls2-decode-kernel-development-v1/README.md)
+- [CLUE-LDS decode-scheduling rejection chart](runs/clue-jls2-decode-scheduling-v1/README.md)
 - [Benchmark manifest-binding gate](runs/benchmark-manifest-binding-v1/README.md)
 - [File-format contract](docs/file-format.md)
 - [Release readiness](docs/release-readiness.md)
