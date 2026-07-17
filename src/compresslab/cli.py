@@ -30,7 +30,7 @@ from .experimental import (
     inspect_json_log_frame,
 )
 from .gates import evaluate_candidate, load_json, write_gate_report
-from .runner import run_benchmark
+from .benchmark_runner import run_benchmark
 
 
 DEFAULT_CODECS = "store,adaptive-v0,adaptive-v1,adaptive-v2,adaptive-v3,gzip-1,gzip-6,gzip-9,bz2-1,bz2-9,lzma-0,lzma-6,lzma-9"
@@ -278,6 +278,11 @@ def build_parser() -> argparse.ArgumentParser:
 
     run = subparsers.add_parser("run", help="run a benchmark")
     run.add_argument("--corpus", type=Path, required=True)
+    run.add_argument(
+        "--manifest",
+        type=Path,
+        help="exact corpus manifest to use (defaults to CORPUS/manifest.json)",
+    )
     run.add_argument("--output", type=Path, required=True)
     run.add_argument("--codecs", default=DEFAULT_CODECS)
     run.add_argument("--splits", default="validation")
@@ -397,6 +402,7 @@ def main(argv=None) -> int:
             bootstrap_samples=args.bootstrap_samples,
             minimum_trial_time_ms=args.minimum_trial_time_ms,
             max_batch_iterations=args.max_batch_iterations,
+            manifest_path=args.manifest,
         )
         print(args.output / "report.md")
         return 1 if benchmark.failures else 0

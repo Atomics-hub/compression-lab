@@ -14,6 +14,7 @@ scripts/build-native.sh
 
 PYTHONPATH=src python3 -m compresslab run \
   --corpus corpora/public-starter-v1 \
+  --manifest corpora/public-starter-v1/manifest.json \
   --output "$OUTPUT" \
   --codecs adaptive-v3,gzip-9,zstd-3,zstd-9,brotli-6,brotli-11,lzma-9,7zip-9 \
   --splits validation \

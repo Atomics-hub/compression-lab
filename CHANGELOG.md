@@ -7,6 +7,9 @@ this project uses [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- Exact `--manifest` benchmark selection, results-schema-v5 corpus identity
+  receipts, and release gates that reject missing or inconsistent manifest and
+  runner provenance.
 - Stable Python byte and file APIs for version-3 compression and version-1 to
   version-3 decompression.
 - `clab` and `compression-lab` commands with `compress`, `decompress`, and

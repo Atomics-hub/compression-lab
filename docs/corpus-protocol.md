@@ -94,3 +94,17 @@ At a decision gate, verify the commitment before running:
       --lock /private/compression-holdout-v1.lock.json
 
 A mismatch invalidates the gate. Never tune thresholds on holdout results.
+
+## Manifest-bound scoring
+
+Any frozen, projected, public-validation, or holdout score must pass the exact
+manifest filename with `--manifest`; providing only `--corpus` is reserved for
+ordinary development runs that intentionally use `manifest.json`. Results
+schema version 5 records the resolved manifest path, its SHA-256, the selected
+item IDs, and source digests for the manifest-bound runner, frozen version-4
+engine, and corpus loader. Release evidence is rejected when those identities
+are absent or disagree with the result corpus.
+
+This rule prevents a projected manifest from being silently replaced by a
+sibling `manifest.json`. It proves corpus selection and integrity, not
+benchmark representativeness or compression performance.

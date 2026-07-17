@@ -51,8 +51,20 @@ def valid_payload():
                     }
                 )
     return {
-        "schema_version": 4,
+        "schema_version": 5,
         "config": {
+            "runner": {
+                "api_version": 2,
+                "source_sha256": "b" * 64,
+                "legacy_runner_source_sha256": "e" * 64,
+                "corpus_loader_source_sha256": "c" * 64,
+            },
+            "corpus_manifest": {
+                "path": "/corpora/public-validation/scoring-manifest.json",
+                "sha256": "d" * 64,
+                "selected_item_count": len(corpus),
+                "selected_item_ids": [row["id"] for row in corpus],
+            },
             "repetitions": 7,
             "warmups": 1,
             "splits": ["validation"],
@@ -95,6 +107,12 @@ class ReleaseEvidenceTests(unittest.TestCase):
         payload = copy.deepcopy(payload)
         payload["trials"][0]["roundtrip_ok"] = False
         with self.assertRaisesRegex(ValueError, "unsuccessful trial"):
+            verify_release_evidence(payload)
+
+    def test_manifest_identity_must_match_result_corpus(self):
+        payload = valid_payload()
+        payload["config"]["corpus_manifest"]["selected_item_ids"].pop()
+        with self.assertRaisesRegex(ValueError, "item identities differ"):
             verify_release_evidence(payload)
 
 
