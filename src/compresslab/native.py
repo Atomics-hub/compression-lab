@@ -94,6 +94,26 @@ def _load_library() -> Optional[ctypes.CDLL]:
         ctypes.c_size_t,
     ]
     library.clab_json_columnar_reassemble.restype = ctypes.c_int
+    if hasattr(library, "clab_tabular_transform") and hasattr(
+        library, "clab_tabular_reassemble"
+    ):
+        library.clab_tabular_transform.argtypes = [
+            ctypes.c_void_p,
+            ctypes.c_size_t,
+            ctypes.c_uint8,
+            ctypes.c_void_p,
+            ctypes.c_size_t,
+            ctypes.POINTER(ctypes.c_size_t),
+        ]
+        library.clab_tabular_transform.restype = ctypes.c_int
+        library.clab_tabular_reassemble.argtypes = [
+            ctypes.c_void_p,
+            ctypes.c_size_t,
+            ctypes.c_uint8,
+            ctypes.c_void_p,
+            ctypes.c_size_t,
+        ]
+        library.clab_tabular_reassemble.restype = ctypes.c_int
     library.clab_structured_text_encode.argtypes = [
         ctypes.c_void_p,
         ctypes.c_size_t,
@@ -165,6 +185,15 @@ def _load_library() -> Optional[ctypes.CDLL]:
 
 def native_available() -> bool:
     return _load_library() is not None
+
+
+def tabular_native_available() -> bool:
+    library = _load_library()
+    return (
+        library is not None
+        and hasattr(library, "clab_tabular_transform")
+        and hasattr(library, "clab_tabular_reassemble")
+    )
 
 
 def _call(name: str, data: bytes) -> bytes:
@@ -263,6 +292,65 @@ def json_columnar_reassemble(data: bytes, expected_size: int) -> bytes:
     if result != 0:
         raise ValueError(
             f"native JSON-column reassembly failed with status {result}"
+        )
+    return output.raw[:expected_size]
+
+
+def tabular_transform(data: bytes, delimiter: int) -> bytes:
+    if not 0 <= delimiter <= 255:
+        raise ValueError("delimiter must be one byte")
+    library = _load_library()
+    if library is None or not hasattr(library, "clab_tabular_transform"):
+        raise RuntimeError("compression-lab native library is not built")
+    source = ctypes.create_string_buffer(data, max(1, len(data)))
+    capacity = len(data) * 2 + 1024 * 1024
+    output = ctypes.create_string_buffer(max(1, capacity))
+    output_len = ctypes.c_size_t()
+    result = library.clab_tabular_transform(
+        source,
+        len(data),
+        delimiter,
+        output,
+        capacity,
+        ctypes.byref(output_len),
+    )
+    if result == 3:
+        capacity = output_len.value
+        output = ctypes.create_string_buffer(max(1, capacity))
+        result = library.clab_tabular_transform(
+            source,
+            len(data),
+            delimiter,
+            output,
+            capacity,
+            ctypes.byref(output_len),
+        )
+    if result != 0:
+        raise RuntimeError(f"native tabular transform failed with status {result}")
+    return output.raw[: output_len.value]
+
+
+def tabular_reassemble(data: bytes, delimiter: int, expected_size: int) -> bytes:
+    if not 0 <= delimiter <= 255:
+        raise ValueError("delimiter must be one byte")
+    if expected_size < 0:
+        raise ValueError("expected size cannot be negative")
+    library = _load_library()
+    if library is None or not hasattr(library, "clab_tabular_reassemble"):
+        raise RuntimeError("compression-lab native library is not built")
+    source = ctypes.create_string_buffer(data, max(1, len(data)))
+    output = ctypes.create_string_buffer(max(1, expected_size))
+    result = library.clab_tabular_reassemble(
+        source,
+        len(data),
+        delimiter,
+        output,
+        expected_size,
+    )
+    if result != 0:
+        raise ValueError(
+            "native tabular reassembly rejected invalid, truncated, or trailing "
+            f"data with status {result}"
         )
     return output.raw[:expected_size]
 

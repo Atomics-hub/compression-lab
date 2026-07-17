@@ -5,6 +5,9 @@ import struct
 from typing import Tuple
 
 from .native import (
+    tabular_native_available,
+    tabular_reassemble,
+    tabular_transform,
     zstd_compress,
     zstd_decompress,
     zstd_frame_content_size,
@@ -44,7 +47,7 @@ def _decode_varint(data: bytes | memoryview, offset: int) -> Tuple[int, int]:
     raise ValueError("TBL1 varint is too large")
 
 
-def transform(data: bytes, delimiter: int) -> bytes:
+def reference_transform(data: bytes, delimiter: int) -> bytes:
     if not 0 <= delimiter <= 255:
         raise ValueError("delimiter must be one byte")
     delimiter_bytes = bytes((delimiter,))
@@ -85,7 +88,9 @@ def transform(data: bytes, delimiter: int) -> bytes:
     return bytes(output)
 
 
-def inverse_transform(data: bytes, delimiter: int, expected_size: int) -> bytes:
+def reference_inverse_transform(
+    data: bytes, delimiter: int, expected_size: int
+) -> bytes:
     if not 0 <= delimiter <= 255:
         raise ValueError("delimiter must be one byte")
     if expected_size < 0:
@@ -162,6 +167,18 @@ def inverse_transform(data: bytes, delimiter: int, expected_size: int) -> bytes:
             f"TBL1 output size mismatch: expected {expected_size}, got {len(output)}"
         )
     return bytes(output)
+
+
+def transform(data: bytes, delimiter: int) -> bytes:
+    if tabular_native_available():
+        return tabular_transform(data, delimiter)
+    return reference_transform(data, delimiter)
+
+
+def inverse_transform(data: bytes, delimiter: int, expected_size: int) -> bytes:
+    if tabular_native_available():
+        return tabular_reassemble(data, delimiter, expected_size)
+    return reference_inverse_transform(data, delimiter, expected_size)
 
 
 def compress(data: bytes, delimiter: int, level: int = 9) -> bytes:

@@ -1,7 +1,11 @@
 import struct
 import unittest
 
-from compresslab.native import zstd_compress
+from compresslab.native import (
+    tabular_reassemble as native_tabular_reassemble,
+    tabular_transform as native_tabular_transform,
+    zstd_compress,
+)
 from compresslab.tabular_transform import (
     BACKEND_COLUMN,
     HEADER,
@@ -9,11 +13,35 @@ from compresslab.tabular_transform import (
     decompress,
     frame_backend,
     inverse_transform,
+    reference_inverse_transform,
+    reference_transform,
     transform,
 )
 
 
 class TabularTransformTests(unittest.TestCase):
+    def test_native_transform_is_byte_identical_to_reference(self):
+        fixtures = [
+            (b"", ord(",")),
+            (b"a,b\n1,2\n", ord(",")),
+            (b"a;b;c\n1;2\n;;\n", ord(";")),
+            (b'"a,b",c\n"line",2\n', ord(",")),
+            (b"\x00,\xff\nraw,binary", ord(",")),
+        ]
+        for source, delimiter in fixtures:
+            with self.subTest(source=source):
+                reference = reference_transform(source, delimiter)
+                native = native_tabular_transform(source, delimiter)
+                self.assertEqual(native, reference)
+                self.assertEqual(
+                    native_tabular_reassemble(native, delimiter, len(source)),
+                    source,
+                )
+                self.assertEqual(
+                    reference_inverse_transform(reference, delimiter, len(source)),
+                    source,
+                )
+
     def test_transform_roundtrips_exact_table_bytes(self):
         fixtures = [
             b"",
@@ -67,6 +95,8 @@ class TabularTransformTests(unittest.TestCase):
     def test_inverse_rejects_invalid_metadata_and_unused_columns(self):
         with self.assertRaises(ValueError):
             inverse_transform(b"\x01\x01\x01\x00\x00", ord(","), 0)
+        with self.assertRaises(ValueError):
+            inverse_transform(b"\xe8\x07\x00\x00", ord(","), 1024)
         valid = bytearray(transform(b"a,b\n", ord(",")))
         valid.append(0)
         with self.assertRaisesRegex(ValueError, "trailing"):
