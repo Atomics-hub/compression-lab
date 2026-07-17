@@ -50,7 +50,11 @@
       "Modules/_decimal/libmpdec",
       "Modules/expat"
     ],
-    "llvm-22.1.8-source": [],
+    "llvm-22.1.8-source": [
+      "llvm/utils/mlgo-utils/combine_training_corpus.py",
+      "llvm/utils/mlgo-utils/extract_ir.py",
+      "llvm/utils/mlgo-utils/make_corpus.py"
+    ],
     "rust-1.97.1-source": [
       "src/llvm-project",
       "src/tools/cargo",

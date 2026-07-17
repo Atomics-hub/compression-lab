@@ -93,6 +93,12 @@ then replays those blobs in bytewise path order. Archive member names are never
 created on disk, the final bytes are unchanged, and the repeated decompression
 cost is eliminated.
 
+LLVM subsequently exposed three selected Python symlink aliases under
+`llvm/utils/mlgo-utils`; their regular module targets under `mlgo/corpus` are
+already selected. The aliases are explicitly frozen as exclusions rather than
+being dereferenced or counted twice. A full LLVM link audit found no other
+post-exclusion selected-extension links.
+
 The deterministic extractor keeps namespace-zero, non-redirect latest revision
 text in publisher order, performs only XML decoding, and applies no Unicode,
 whitespace, case, markup, or line-ending normalization. A frozen 4 KiB exact
