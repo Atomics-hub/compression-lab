@@ -1,0 +1,276 @@
+{
+  "candidate": {
+    "aggregate_gain_percent": -3.481899320942128,
+    "codec": "tbl1-stream-dense",
+    "cold_compression_peak_rss_mib": 293.703125,
+    "cold_decompression_peak_rss_mib": 139.8125,
+    "complete_bytes": 27985887,
+    "compression_mbps": 107.67040292956152,
+    "decompression_mbps": 403.3928367757696,
+    "minimum_repetition_compression_mbps": 64.3616118947009,
+    "minimum_repetition_decompression_mbps": 163.5050488652479,
+    "strongest_fixed_baseline": "7zip-9",
+    "strongest_fixed_baseline_bytes": 27044234
+  },
+  "claim_ceiling": "A passing first score supports only a category-scoped public-validation result for four previously unopened CC-BY-4.0 UCI delimited-table families. It is not private-holdout, independently reproduced, universal, market-leading, or state-of-the-art evidence.",
+  "comparison_chart": [
+    {
+      "candidate_improvement_percent": 0.0,
+      "candidate_smaller": null,
+      "codec": "tbl1-stream-dense",
+      "complete_bytes": 27985887,
+      "compression_mbps": 107.67040292956152,
+      "decompression_mbps": 403.3928367757696,
+      "roundtrip_failures": 0,
+      "tested": true,
+      "worker_high_water_compression_rss_mib": 415.15625,
+      "worker_high_water_decompression_rss_mib": 415.15625
+    },
+    {
+      "candidate_improvement_percent": 89.57434757005022,
+      "candidate_smaller": true,
+      "codec": "store",
+      "complete_bytes": 268432956,
+      "compression_mbps": 1382.9345550159676,
+      "decompression_mbps": 812.0562945723595,
+      "roundtrip_failures": 0,
+      "tested": true,
+      "worker_high_water_compression_rss_mib": 25.953125,
+      "worker_high_water_decompression_rss_mib": 25.953125
+    },
+    {
+      "candidate_improvement_percent": 70.58109736523997,
+      "candidate_smaller": true,
+      "codec": "lz4-1",
+      "complete_bytes": 95128929,
+      "compression_mbps": 878.2535236798548,
+      "decompression_mbps": 423.24668126097697,
+      "roundtrip_failures": 0,
+      "tested": true,
+      "worker_high_water_compression_rss_mib": 64.71875,
+      "worker_high_water_decompression_rss_mib": 64.71875
+    },
+    {
+      "candidate_improvement_percent": 43.95390327112784,
+      "candidate_smaller": true,
+      "codec": "gzip-9",
+      "complete_bytes": 49933695,
+      "compression_mbps": 6.260901606210877,
+      "decompression_mbps": 333.41996675214887,
+      "roundtrip_failures": 0,
+      "tested": true,
+      "worker_high_water_compression_rss_mib": 251.6875,
+      "worker_high_water_decompression_rss_mib": 251.6875
+    },
+    {
+      "candidate_improvement_percent": 18.38938440659386,
+      "candidate_smaller": true,
+      "codec": "bz2-9",
+      "complete_bytes": 34291969,
+      "compression_mbps": 2.391787707405812,
+      "decompression_mbps": 23.67788220418394,
+      "roundtrip_failures": 0,
+      "tested": true,
+      "worker_high_water_compression_rss_mib": 287.734375,
+      "worker_high_water_decompression_rss_mib": 287.734375
+    },
+    {
+      "candidate_improvement_percent": 37.126727471817446,
+      "candidate_smaller": true,
+      "codec": "zstd-3",
+      "complete_bytes": 44511580,
+      "compression_mbps": 247.36450823004714,
+      "decompression_mbps": 343.4484700889616,
+      "roundtrip_failures": 0,
+      "tested": true,
+      "worker_high_water_compression_rss_mib": 297.25,
+      "worker_high_water_decompression_rss_mib": 297.25
+    },
+    {
+      "candidate_improvement_percent": 22.36342651812627,
+      "candidate_smaller": true,
+      "codec": "zstd-9",
+      "complete_bytes": 36047298,
+      "compression_mbps": 51.19822559062508,
+      "decompression_mbps": 344.36438432352406,
+      "roundtrip_failures": 0,
+      "tested": true,
+      "worker_high_water_compression_rss_mib": 301.875,
+      "worker_high_water_decompression_rss_mib": 301.875
+    },
+    {
+      "candidate_improvement_percent": 3.304296863986679,
+      "candidate_smaller": true,
+      "codec": "zstd-19",
+      "complete_bytes": 28942224,
+      "compression_mbps": 1.3121308329224823,
+      "decompression_mbps": 372.6157866826527,
+      "roundtrip_failures": 0,
+      "tested": true,
+      "worker_high_water_compression_rss_mib": 321.265625,
+      "worker_high_water_decompression_rss_mib": 321.265625
+    },
+    {
+      "candidate_improvement_percent": 1.1633710807715645,
+      "candidate_smaller": true,
+      "codec": "brotli-11",
+      "complete_bytes": 28315299,
+      "compression_mbps": 0.4292989988681609,
+      "decompression_mbps": 258.15393344017616,
+      "roundtrip_failures": 0,
+      "tested": true,
+      "worker_high_water_compression_rss_mib": 238.65625,
+      "worker_high_water_decompression_rss_mib": 238.65625
+    },
+    {
+      "candidate_improvement_percent": -3.4635129379822724,
+      "candidate_smaller": false,
+      "codec": "lzma-9",
+      "complete_bytes": 27049040,
+      "compression_mbps": 0.5403053282248275,
+      "decompression_mbps": 45.23238703899515,
+      "roundtrip_failures": 0,
+      "tested": true,
+      "worker_high_water_compression_rss_mib": 879.75,
+      "worker_high_water_decompression_rss_mib": 879.75
+    },
+    {
+      "candidate_improvement_percent": -3.481899320942128,
+      "candidate_smaller": false,
+      "codec": "7zip-9",
+      "complete_bytes": 27044234,
+      "compression_mbps": 1.9267824579600865,
+      "decompression_mbps": 141.43900782419507,
+      "roundtrip_failures": 0,
+      "tested": true,
+      "worker_high_water_compression_rss_mib": 648.59375,
+      "worker_high_water_decompression_rss_mib": 648.59375
+    }
+  ],
+  "decision_rule": "The first eligible score is final. Every applicable gate must pass. No representation, selector, parameter, threshold, corpus family, corpus slice, baseline setting, evaluator, or pass threshold may change after public-validation acquisition. A failed or interrupted scored attempt is retained and cannot be replaced by a tuned rerun.",
+  "families": [
+    {
+      "candidate_bytes": 4316507,
+      "complete": true,
+      "family": "metropt_timestamp_sensor",
+      "id": "uci-metropt3",
+      "improvement_percent": 16.49529190134292,
+      "original_bytes": 67108801,
+      "passed": true,
+      "strongest_baseline": "bz2-9",
+      "strongest_baseline_bytes": 5169178
+    },
+    {
+      "candidate_bytes": 7049407,
+      "complete": true,
+      "family": "electricity_semicolon_decimal",
+      "id": "uci-electricity-load",
+      "improvement_percent": 10.290883056301851,
+      "original_bytes": 67107069,
+      "passed": true,
+      "strongest_baseline": "lzma-9",
+      "strongest_baseline_bytes": 7858072
+    },
+    {
+      "candidate_bytes": 3804890,
+      "complete": true,
+      "family": "oulad_relational_events",
+      "id": "uci-oulad-student-vle",
+      "improvement_percent": 7.346321944434433,
+      "original_bytes": 67108841,
+      "passed": true,
+      "strongest_baseline": "lzma-9",
+      "strongest_baseline_bytes": 4106572
+    },
+    {
+      "candidate_bytes": 12815083,
+      "complete": true,
+      "family": "character_font_mixed_pixels",
+      "id": "uci-character-font-ocrb",
+      "improvement_percent": -32.15429912217733,
+      "original_bytes": 67108245,
+      "passed": false,
+      "strongest_baseline": "7zip-9",
+      "strongest_baseline_bytes": 9697061
+    }
+  ],
+  "gate_results": {
+    "aggregate_ratio": false,
+    "all_baselines_present": true,
+    "clean_tracked_commit": true,
+    "cold_compression_memory": true,
+    "cold_decompression_memory": true,
+    "complete_frame_accounting": true,
+    "compression_speed": true,
+    "decompression_speed": true,
+    "deterministic_output": true,
+    "eligible_preflight_load": true,
+    "equally_framed_fallback": true,
+    "exact_roundtrip": true,
+    "family_ratio_count": true,
+    "first_score_completed": true,
+    "frozen_candidate_paths": true,
+    "frozen_codec_roster": true,
+    "frozen_corpus": true,
+    "frozen_execution": true,
+    "gates_digest": true,
+    "manifest_digest": true,
+    "manifest_identity": true,
+    "minimum_repetition_compression_speed": true,
+    "minimum_repetition_decompression_speed": false,
+    "no_benchmark_failures": true,
+    "portable_reference_decoder": true,
+    "private_holdout_sealed": true,
+    "result_digests": true,
+    "shared_corpus": true
+  },
+  "gates_path": "config/tbl1-public-validation-gates.json",
+  "gates_sha256": "0d3e6cf971b967df1cd5c4801a666342fd10359e0a8aec5c5cd1b68410469bc5",
+  "passed": false,
+  "private_holdout": {
+    "required_for_state_of_the_art_claim": true,
+    "status": "sealed"
+  },
+  "receipt_path": "/tmp/tbl1-public-validation-v1/receipt.json",
+  "receipt_sha256": "16656332e6d5ecadaee3e555122a8540037e6b9dcefc91e5ef15fc0115bea5d8",
+  "repetitions": [
+    {
+      "compression_mbps": 102.07552069167689,
+      "decompression_mbps": 400.1498481548446,
+      "items": 4,
+      "original_bytes": 268432956,
+      "repetition": 1
+    },
+    {
+      "compression_mbps": 102.13070120426599,
+      "decompression_mbps": 384.96834308076654,
+      "items": 4,
+      "original_bytes": 268432956,
+      "repetition": 2
+    },
+    {
+      "compression_mbps": 108.61784514935093,
+      "decompression_mbps": 410.61249320192024,
+      "items": 4,
+      "original_bytes": 268432956,
+      "repetition": 3
+    },
+    {
+      "compression_mbps": 64.3616118947009,
+      "decompression_mbps": 163.5050488652479,
+      "items": 4,
+      "original_bytes": 268432956,
+      "repetition": 4
+    },
+    {
+      "compression_mbps": 99.83599721928698,
+      "decompression_mbps": 486.7998456801819,
+      "items": 4,
+      "original_bytes": 268432956,
+      "repetition": 5
+    }
+  ],
+  "schema_version": 1,
+  "stage": "public-validation",
+  "status": "not_passed"
+}
