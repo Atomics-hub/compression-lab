@@ -7,6 +7,7 @@ import json
 import platform
 from pathlib import Path
 import statistics
+import subprocess
 import sys
 import time
 
@@ -37,6 +38,26 @@ def median_int(values: list[int]) -> int:
     return int(statistics.median(values))
 
 
+def git_state() -> dict[str, object]:
+    commit = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=REPOSITORY,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+    dirty = bool(
+        subprocess.run(
+            ["git", "status", "--porcelain"],
+            cwd=REPOSITORY,
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout
+    )
+    return {"commit": commit, "dirty": dirty}
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--corpus", type=Path, required=True)
@@ -50,6 +71,9 @@ def main() -> int:
         raise ValueError("at least three repetitions and one warmup are required")
     if not dense_parallel_native_available() or not dense_plane_native_available():
         raise RuntimeError("the native DMA2 and DMP1 paths must be built")
+    repository = git_state()
+    if repository["dirty"]:
+        raise SystemExit("native DMS2 gate requires a clean commit")
 
     manifest_path = args.corpus / "manifest.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -199,6 +223,7 @@ def main() -> int:
             "selector_sample_bytes": 64 * 1024,
             "plane_rule": "use DMP1 when the bounded prefix has at most four numeric lexemes; otherwise use DMA2",
             "parallel_rule": "use seven lanes for alphabets at most eight and six lanes otherwise",
+            "direct_fallback": "materialize equally framed zstd-1 concurrently and choose the smaller complete frame",
         },
         "corpus_manifest": str(manifest_path),
         "corpus_manifest_sha256": sha256_file(manifest_path),
@@ -212,6 +237,7 @@ def main() -> int:
             "repetitions": args.repetitions,
             "warmups": args.warmups,
         },
+        "git": repository,
         "rows": rows,
         "aggregate": aggregate,
         "standards": standard_rows,
