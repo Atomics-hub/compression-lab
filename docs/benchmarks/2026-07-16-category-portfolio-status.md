@@ -4,9 +4,10 @@
 
 Compression Lab is not yet on track to claim wins in every category. It now has
 strong category-specific ratio signals in JSON/logs and delimited tables, but
-both missed their complete frozen gates. The right architecture remains a
-portfolio of specialists behind a deterministic selector with direct and store
-fallbacks.
+both missed their complete frozen gates. DMS2's dense-matrix development win
+also failed to generalize: both unseen families lost decisively. The right
+architecture remains a portfolio of specialists behind a deterministic
+selector with direct and store fallbacks.
 
 This chart is the control surface for future category work. A green ratio cell
 does not make the complete category green when speed, memory, integrity,
@@ -17,7 +18,7 @@ portability, or independent-evidence cells remain red or untested.
 | JSON and machine logs | Public-validation partial | ✅ JLS2 beat zstd-9 on 3/3, PBC on 3/3, and Brotli-11 in aggregate; Brotli family gate was 1/3 | ⚠️ compression passed; Linux decompression failed 250 MB/s gate | ⚠️ development-only JLS2 measurement; no same-run baseline memory | ❌ No | Development-only Linux decode profile, then a fresh independent corpus |
 | Plain text and source | Development | ❌ no win over the strongest tested ratio baselines | ⚠️ some Pareto development points, no category validation | ⚠️ partial development measurements | ❌ No | New representation or calibrated entropy-model hypothesis |
 | Tabular CSV | Public-validation partial | ⚠️ TBS1 won 3/4 families by 7.35%–16.50%, but lost aggregate to 7-Zip-9 by 3.48% after a 32.15% OCRB loss | ⚠️ 107.67/403.39 MB/s average; minimum compression passed, one decompression repetition failed at 163.51 MB/s | ✅ cold 293.70/139.81 MiB | ❌ No | Preserve the three-family signal; split image-like matrices into a separate category and use only fresh families for a successor |
-| Numeric and time series | Smoke only | ⚠️ synthetic delta-transpose signal | — | — | ❌ No | Licensed heterogeneous numeric corpus and specialist audit |
+| Dense numeric matrices and time series | Public-validation partial | ❌ DMS2 was 46.57% larger than Brotli-11 on Gisette and 41.03% larger than bzip2-9 on Madelon; a baseline corpus-scope defect also invalidated the frozen aggregate | ❌ 33.45 MB/s aggregate and 27.77 MB/s minimum missed 50/45 MB/s gates; decompression passed | ❌ cold compression RSS was 630.45 MiB versus 512 MiB gate; decompression passed | ❌ No | Retain the first score, never tune on Gisette/Madelon, repair corpus plumbing, and require a materially new specialist on fresh development and validation families |
 | General binary/archive | Development | ❌ current encoder loses to zstd-9 | ❌ not Pareto-optimal | ⚠️ bounded-frame evidence only | ❌ No | Keep safe fallback; wait for a materially new specialist hypothesis |
 | Incompressible/already compressed | Development safety tests | ✅ bounded store/direct fallback behavior | — category throughput unvalidated | — large-file category gate unvalidated | ❌ No | Freeze expansion, selector-cost, speed, and memory gates |
 
@@ -41,6 +42,9 @@ The frozen setup is recorded in the
 The first score, complete ten-standard chart, family results, failed gates, and
 raw evidence are in the
 [TBL1 public-validation decision](2026-07-17-tbl1-public-validation-decision.md).
+The DMS2 first score, full two-item diagnostic chart, manifest-scope deviation,
+and checksummed raw bundle are in
+[`runs/dms2-public-validation-v1`](../../runs/dms2-public-validation-v1/README.md).
 
 ## Universal-selector consequence
 

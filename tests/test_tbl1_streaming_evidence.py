@@ -73,8 +73,9 @@ class Tbl1StreamingEvidenceTests(unittest.TestCase):
             self.assertIn(standard, readme)
             self.assertIn(standard, decision)
         self.assertIn("TBL1-dense whole-file", decision)
-        self.assertIn("overall frozen gate was **not passed**", readme)
-        self.assertIn("268,432,956 previously unseen UCI table bytes", readme)
+        self.assertIn("TBS1 won 3/4 families", readme)
+        self.assertIn("Aggregate remained 3.48% behind 7-Zip-9", readme)
+        self.assertIn("2026-07-17-tbl1-public-validation-decision.md", readme)
 
 
 if __name__ == "__main__":

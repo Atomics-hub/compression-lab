@@ -59,11 +59,15 @@ class DMS2OperationalEvidenceTests(unittest.TestCase):
         decision = DECISION.read_text(encoding="utf-8")
         readme = (REPOSITORY / "README.md").read_text(encoding="utf-8")
         self.assertEqual(speed["aggregate"]["complete_bytes"], 189_738)
-        for text in (decision, readme):
+        for text in (decision,):
             self.assertIn("54.85", text)
             self.assertIn("268.18", text)
             self.assertIn("5.28% smaller", text)
             self.assertIn("not a world-best claim", text)
+        self.assertIn("33.45", readme)
+        self.assertIn("313.99", readme)
+        self.assertIn("43.55%", readme)
+        self.assertIn("frozen gate did not pass", readme.lower())
 
     def test_cross_platform_receipt_binds_green_jobs_and_source(self):
         receipt = json.loads(CROSS_PLATFORM.read_text(encoding="utf-8"))

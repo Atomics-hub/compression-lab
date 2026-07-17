@@ -1,0 +1,48 @@
+{
+  "candidate_surface_changed": false,
+  "claim_ceiling": "This receipt records an acquisition-scope deviation and a deterministic pre-score projection. It is not compression-performance evidence.",
+  "gates_changed": false,
+  "name": "dms2-public-validation-first-acquisition-deviation-v1",
+  "projected_manifest_sha256": "aa2d2c6e7abb823c063679517b8cc6904fc8bc4c9d1e7bf5b81c4efb08e4cd16",
+  "schema_version": 1,
+  "scored_attempts_started_before_projection": 0,
+  "selected_items": [
+    {
+      "archive_sha256": "430bb631b3e494659f13763c117f06f5aa8a269b0d8e13ccf5b71d95303f3808",
+      "family": "gisette_dense_digit_features",
+      "id": "uci-gisette-train",
+      "sha256": "f9512bb45abf2e480360ddb9feb2097b1b67b49e40f4471e992ec12351392d18",
+      "size_bytes": 67102545,
+      "track": "dense_feature_matrix"
+    },
+    {
+      "archive_sha256": "eb99a0153ebe7d9f4e74551b4b10c54a958b2990b156ce7d76b4e8d71a6f6e82",
+      "family": "madelon_dense_synthetic_features",
+      "id": "uci-madelon-train",
+      "sha256": "0b6e37711efdc7ab74250c51e7d6966bffd9f8f2b0e9971e882c3a7a380c2314",
+      "size_bytes": 4001995,
+      "track": "dense_feature_matrix"
+    }
+  ],
+  "selection_rule": "exact ordered lock.authorization.expected_item_ids",
+  "source_manifest_sha256": "187ea52098338107d41893bb358536e710edb949e6bbc0b1400e7a9e6ba177c7",
+  "status": "acquired_with_pre_score_manifest_projection",
+  "unexpectedly_acquired_but_unscored_items": [
+    {
+      "archive_sha256": "e90e55fd65ec462ae283ebeb2cca409319e3460ed898d8754f62fb35cc83a65d",
+      "family": "student_academic_records",
+      "id": "uci-student-dropout",
+      "sha256": "3ef126de5cefff26eb11fbb4237f1a1401cb64b488e2f1d598c23cedeb4c45ae",
+      "size_bytes": 533230,
+      "track": "record_table"
+    },
+    {
+      "archive_sha256": "a0db79ee96ea297c22458ac77a28fba20d41246e75d24b2655ca3ab624cc08fd",
+      "family": "room_occupancy_sensor_records",
+      "id": "uci-room-occupancy",
+      "sha256": "c090ee5c94b61762bfec9d22767864490b51030f98cca030f02822468db25d9c",
+      "size_bytes": 931630,
+      "track": "record_table"
+    }
+  ]
+}

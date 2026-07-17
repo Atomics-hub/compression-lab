@@ -8,61 +8,49 @@ transform onto every kind of file.
 The stable general-file CLI is alpha. DMS2, TBS1, and JLS2 are experimental
 specialists and are promoted only when frozen evidence supports them.
 
-## Latest result: dense numeric matrices
+## Latest result: DMS2 did not pass public validation
 
-On 4,895,341 fresh development bytes from three UCI matrix families, native
-DMS2 produced 189,738 bytes: **5.28% smaller than bzip2-9**, the strongest of
-ten tested standards. Seven measured complete-frame trials after one warmup
-ran at **54.85 MB/s compression and 268.18 MB/s decompression**.
+On **71,104,540 previously unopened Gisette and Madelon bytes**, DMS2 produced
+11,937,137 bytes. Brotli-11 produced 8,315,469 bytes, so DMS2 was **43.55%
+larger than the strongest two-item baseline**. The frozen gate did not pass.
 
-| Codec | Complete bytes | DMS2 size result | Compress MB/s | Decompress MB/s | Peak RSS C/D MiB | Exact |
+| Codec | Complete bytes | DMS2 size vs codec | Compress MB/s | Decompress MB/s | Cold RSS C/D MiB | Exact |
 | --- | ---: | ---: | ---: | ---: | ---: | --- |
-| **DMS2 native** | **189,738** | candidate | **54.85** | **268.18** | **51.9 / 39.2** | ✅ |
-| bzip2-9 | 200,311 | **5.28% smaller** | 1.71 | 27.18 | — | ✅ |
-| Brotli-11 | 238,019 | **20.28% smaller** | 0.34 | 202.81 | — | ✅ |
-| zstd-19 | 244,177 | **22.29% smaller** | 2.59 | 829.70 | — | ✅ |
-| 7-Zip-9 | 244,868 | **22.51% smaller** | 5.19 | 124.55 | — | ✅ |
-| LZMA-9 | 245,200 | **22.62% smaller** | 1.04 | 74.93 | — | ✅ |
-| gzip-9 | 270,595 | **29.88% smaller** | 2.68 | 911.03 | — | ✅ |
-| TBS1 stream-dense | 320,264 | **40.76% smaller** | 44.38 | 220.66 | — | ✅ |
-| zstd-9 | 324,779 | **41.58% smaller** | 64.56 | 327.78 | — | ✅ |
-| zstd-3 | 383,836 | **50.57% smaller** | 321.72 | 565.71 | — | ✅ |
-| LZ4-1 | 971,749 | **80.47% smaller** | 166.92 | 199.39 | — | ✅ |
-| store | 4,895,341 | **96.12% smaller** | 986.33 | 1,364.52 | — | ✅ |
+| **DMS2** | **11,937,137** | candidate | **33.45** | **313.99** | **630.5 / 86.9** | ✅ |
+| store | 71,104,540 | 83.21% smaller | 1,594.70 | 815.60 | 26.1 / 26.1 | ✅ |
+| LZ4-1 | 18,918,739 | 36.90% smaller | 810.42 | 433.22 | 35.2 / 30.7 | ✅ |
+| gzip-9 | 10,371,868 | 15.09% larger | 3.18 | 382.82 | 106.9 / 170.8 | ✅ |
+| bzip2-9 | 8,627,565 | 38.36% larger | 1.47 | 22.71 | 115.4 / 163.9 | ✅ |
+| zstd-3 | 11,741,186 | 1.67% larger | 255.16 | 316.92 | 228.5 / 163.2 | ✅ |
+| zstd-9 | 10,772,378 | 10.81% larger | 45.53 | 359.80 | 228.2 / 162.2 | ✅ |
+| zstd-19 | 8,524,178 | 40.04% larger | 1.48 | 398.58 | 241.2 / 160.4 | ✅ |
+| Brotli-11 | **8,315,469** | **43.55% larger** | 0.40 | 248.06 | 218.2 / 25.2 | ✅ |
+| LZMA-9 | 8,444,740 | 41.36% larger | 0.47 | 39.77 | 749.1 / 224.4 | ✅ |
+| 7-Zip-9 | 8,476,984 | 40.82% larger | 1.45 | 119.63 | 648.5 / 74.6 | ✅ |
 
-Full transparency: this is development evidence, not a world-best claim or
-public validation. Ratio, speed, memory, bounded streaming, selector,
-direct-fallback, regression, exactness, determinism, and corruption gates all
-passed locally. Native-wheel and full-suite reproduction also passed on Linux,
-macOS, and Windows for commit `4e816ca`. The exact candidate, gates, evaluator,
-and acquisition path are now locked; Gisette and Madelon remain unopened before
-their one-time score. See the [complete decision and raw evidence](docs/benchmarks/2026-07-17-dms2-native-development-gate.md).
+The family results were also decisive: DMS2 was 46.57% larger than Brotli-11
+on Gisette and 41.03% larger than bzip2-9 on Madelon. Compression speed, minimum
+repetition speed, and cold compression memory missed their gates. Exactness,
+determinism, corruption rejection, decompression speed, bounded fallback,
+complete accounting, portability, and cross-platform wheels passed.
 
-Baseline speeds are same-machine contextual measurements from the preceding
-fresh census; DMS2 used repeated trials. Baseline peak RSS was not rerun, so no
-comparative memory win is claimed. Complete bytes include every frame header
-and checksum.
+Full transparency: the acquisition wrapper downloaded four validation items,
+and the baseline runner opened that four-item manifest while DMS2 used the
+locked two-item projection. That independently invalidated the frozen aggregate
+corpus gate. The table above is a two-item diagnostic reconstructed only from
+the retained first attempt's exact per-item medians; speed is contextual because
+the baseline schedule contained the two extra unscored items. The complete raw
+results, manifests, decision, chart, and checksums are in the
+[immutable evidence bundle](runs/dms2-public-validation-v1/README.md).
 
 ## Evidence portfolio
 
 | Category | Evidence stage | Strongest result | Honest status |
 | --- | --- | --- | --- |
-| Dense numeric matrices | Fresh development | DMS2 5.28% smaller than bzip2-9 at 54.85/268.18 MB/s | Local and cross-platform gates passed; candidate locked; validation unopened |
+| Dense numeric matrices | Public validation | No win: DMS2 was 43.55% larger than Brotli-11 on the locked two-item diagnostic | Frozen gate did not pass; both validation families are consumed |
 | Delimited record tables | Public validation | TBS1 won 3/4 families by 7.35%–16.50% | Aggregate remained 3.48% behind 7-Zip-9 |
 | JSON and machine logs | Public validation | JLS2 28.77% smaller than zstd-9 | Mixed against Brotli-11; decode gate missed |
 | General binary, source, archives | Development | Exact fallback | No category win established |
-
-The TBS1 public run covered **268,432,956 previously unseen UCI table bytes**.
-It won three families, but the overall frozen gate was **not passed** because
-aggregate output remained behind 7-Zip-9 and one decode repetition missed its
-floor.
-
-### Fresh successor development checkpoint
-
-Before DMS2, unchanged TBS1 was 2.87% larger than bzip2 on the six-family
-successor corpus and 59.88% larger on its dense-matrix track. That checkpoint
-was development guidance, not validation; DMS2 is the direct response to the
-dense-matrix gap.
 
 Read the [portfolio scorecard](docs/benchmarks/2026-07-16-category-portfolio-status.md),
 [TBS1 public-validation decision](docs/benchmarks/2026-07-17-tbl1-public-validation-decision.md),
@@ -132,9 +120,10 @@ and its claim ceiling. Private holdout data stays outside the repository.
 
 Key documents:
 
+- [DMS2 public-validation decision and complete chart](runs/dms2-public-validation-v1/README.md)
+- [DMS2 immutable first-score bundle index](runs/dms2-public-validation-v1/bundle.json)
+- [DMS2 acquisition deviation](docs/benchmarks/2026-07-17-dms2-acquisition-deviation.md)
 - [DMS2 native development gate](docs/benchmarks/2026-07-17-dms2-native-development-gate.md)
-- [DMS2 one-time validation readiness and frozen gates](docs/benchmarks/2026-07-17-dms2-public-validation-readiness.md)
-- [DMS2 clean-tree validation lock receipt](runs/dms2-public-validation-lock-v1.json)
 - [Dense-matrix frozen protocol](docs/benchmarks/2026-07-17-dense-matrix-representation-protocol.md)
 - [Fresh successor corpus protocol](docs/benchmarks/2026-07-17-tabular-successor-corpus-protocol.md)
 - [File-format contract](docs/file-format.md)

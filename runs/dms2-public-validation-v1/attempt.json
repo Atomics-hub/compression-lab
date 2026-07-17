@@ -1,0 +1,82 @@
+{
+  "baseline_codec_ids": [
+    "store",
+    "lz4-1",
+    "gzip-9",
+    "bz2-9",
+    "zstd-3",
+    "zstd-9",
+    "zstd-19",
+    "brotli-11",
+    "lzma-9",
+    "7zip-9"
+  ],
+  "benchmark_script_sha256": "a446ce158c521d2c53f7fbc5874eca6f949cff12e993f151af74a11bba68bc9b",
+  "claim_ceiling": "A passing first score supports only a category-scoped public-validation result for two previously unopened CC-BY-4.0 UCI dense numeric matrix families. It is not private-holdout, independently reproduced, universal, market-leading, or state-of-the-art evidence.",
+  "completed": false,
+  "development_evidence_paths": {
+    "runs/dms2-cross-platform-ci-receipt-v1.json": "1d3ac324ad02b3f4ae54d252947f6748227016b71d980938cf968449ef17b075",
+    "runs/dms2-operational-development-gate-v1.json": "91f6b885da42e07d43b7076bf4524ee7b98bb9514a2f4448a3cf50c847e01192",
+    "runs/dms2-safe-selector-development-gate-v2.json": "9cd63a00a43a0612adc8cc29a5cac65554982d2131cca2f86cb74cd779ae7ad6"
+  },
+  "first_score": true,
+  "frozen_candidate_paths": {
+    ".gitattributes": "d60f352d0db1404c70afb4bb8b2ca3fd1c610572aa40720e8a0b7baa7885418c",
+    "native-dense/Cargo.lock": "76d9b00c6ce753885e5476174aa87ae55e6b4d7b4b351d3aab70a0ce4a7ebc16",
+    "native-dense/Cargo.toml": "1d8c74473c23aca1fee3c7f6b181c42ebc377d0c384c085e15b3e82ca45faffd",
+    "native-dense/src/lib.rs": "5ee73adc7a50ccaaaa8bb17b750b5af4cbe920e120bfa5d6a0562c8a5244c720",
+    "native/Cargo.lock": "830795453d6689554f4724ea5124ceb08b7b4d0ffe03ed031ed010d587519bbf",
+    "native/Cargo.toml": "9aef2315c7dd6c20546e221d179ca69a4fb04544317898521d92bc55574154fe",
+    "native/src/lib.rs": "4d624291ec8ea8301e3dc844f025b90e71c964bcbad012130488d7cd353b6a3e",
+    "pyproject.toml": "45f59bde45228dc5be2d62d85117f5019129d8164eb28add8e195453bff6725c",
+    "src/compresslab/dense_matrix_transform.py": "0a0ab33cbec9b87fadebca540b13e3bbe7b9042365eb3edf0595ed89bf4b2c8e",
+    "src/compresslab/dense_native.py": "eea2f6880d5d41a0d951b9ec35f63aec132d7c3ffbf0cfc3118161b397b5c6d1",
+    "src/compresslab/native.py": "3420b3d7acaa636a27f2788e9304b19c01014f6f3183c2aa822e9bf3cc4cf7d1",
+    "tests/test_dense_matrix_transform.py": "83e73a312c67d622507218818daf34eb1c7c7d8790571bb4d11e03f12bd4a935"
+  },
+  "gates_path": "/Users/guts/Documents/Codex/2026-07-14/i/outputs/compression-lab/config/dms2-public-validation-gates.json",
+  "gates_sha256": "e21eb894bbbdea189965463ca88ac714781596af14b3dd8f4fc04ecc46b64721",
+  "lock_receipt": {
+    "authorization": {
+      "expected_item_ids": [
+        "uci-gisette-train",
+        "uci-madelon-train"
+      ],
+      "maximum_acquisitions": 1,
+      "maximum_scored_attempts": 1,
+      "prohibit_post_score_tuning": true,
+      "retain_failed_or_interrupted_attempt": true,
+      "split": "public_validation"
+    },
+    "claim_ceiling": "This lock authorizes one unchanged acquisition and first score on the two declared DMS2 public-validation matrices. It does not itself provide performance evidence.",
+    "head_commit": "e77f4d01645b394982ee47af7ac060ba8a189359",
+    "lock_path": "/Users/guts/Documents/Codex/2026-07-14/i/outputs/compression-lab/config/dms2-public-validation-lock.json",
+    "lock_sha256": "e7cc4ecea0567dc30761066760e8afbdcce983f736cf2125ca0767eacb407cd1",
+    "passed": true,
+    "readiness_commit": "ac52cd9c87fd48504bd0ee5f937a890d73831409",
+    "schema_version": 1,
+    "tracked_status": "",
+    "verified_paths": {
+      ".gitattributes": "d60f352d0db1404c70afb4bb8b2ca3fd1c610572aa40720e8a0b7baa7885418c",
+      "config/dms2-public-validation-gates.json": "e21eb894bbbdea189965463ca88ac714781596af14b3dd8f4fc04ecc46b64721",
+      "config/tabular-successor-corpus-v1.json": "f2ede2a954f46413a4d6fd87692523e4d1e93d69ed4248af1da66dc2dd800e24",
+      "docs/benchmarks/2026-07-17-dms2-public-validation-readiness.md": "93856d232938d73a9e908e5edb20fad5daaaaac4ad2dafc2cf35747cdf8960e4",
+      "scripts/benchmark-dms2-public-validation.py": "a446ce158c521d2c53f7fbc5874eca6f949cff12e993f151af74a11bba68bc9b",
+      "scripts/dms2-validation-worker.py": "8b86badbebf8daee9641eba89f8416b3778bbc755f58af28f47f6b465198efdb",
+      "scripts/evaluate-dms2-public-validation.py": "f5dcfd2c95b0499315b43829a61223accca640d4d436d07a829c6fef00e9a791",
+      "scripts/fetch-dms2-public-validation.py": "3b91ccb080ab3c83c05191a314888c909bf6e6fb9c7ee835a3ee17447aa7cc78",
+      "scripts/fetch_tabular_corpus.py": "796f8a629b458509d4f71669acae36da1316630e6f03c827363c77947c9d8c22",
+      "scripts/fetch_tabular_successor_corpus.py": "c7fc1ba93837c065c8083fed0f1e2ca519bc5a69b6c16a14880cf150171922d3",
+      "scripts/verify-dms2-public-validation-lock.py": "742438ca21300751a18681053fceeea06fe095eb75144afe8826791ab3903915"
+    }
+  },
+  "manifest_path": "/private/tmp/dms2-public-validation-v1/manifest.dms2.json",
+  "manifest_sha256": "aa2d2c6e7abb823c063679517b8cc6904fc8bc4c9d1e7bf5b81c4efb08e4cd16",
+  "normalized_preflight_load_1m": 0.32392578125,
+  "repository": {
+    "commit": "e77f4d01645b394982ee47af7ac060ba8a189359",
+    "tracked_status": ""
+  },
+  "schema_version": 1,
+  "worker_script_sha256": "8b86badbebf8daee9641eba89f8416b3778bbc755f58af28f47f6b465198efdb"
+}

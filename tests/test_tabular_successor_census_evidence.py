@@ -56,9 +56,9 @@ class TabularSuccessorCensusEvidenceTests(unittest.TestCase):
             "one local development trial",
         ):
             self.assertIn(text, decision)
-        self.assertIn("Fresh successor development checkpoint", readme)
-        self.assertIn("2.87% larger", readme)
-        self.assertIn("not validation", readme)
+        self.assertIn("Fresh successor corpus protocol", readme)
+        self.assertIn("Consumed validation families are never reused", readme)
+        self.assertNotIn("validation unopened", readme)
 
 
 if __name__ == "__main__":

@@ -57,7 +57,8 @@ class Tbl1DenseEvidenceTests(unittest.TestCase):
         ):
             self.assertIn(standard, readme)
             self.assertIn(standard, decision)
-        self.assertIn("overall frozen gate was **not passed**", readme)
+        self.assertIn("TBS1 won 3/4 families", readme)
+        self.assertIn("Aggregate remained 3.48% behind 7-Zip-9", readme)
         self.assertIn("2026-07-17-tbl1-public-validation-decision.md", readme)
 
 
