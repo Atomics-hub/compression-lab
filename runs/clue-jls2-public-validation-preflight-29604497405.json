@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "name": "clue-jls2-public-validation-pre-acquisition-failure-v1",
+  "run_id": 29604497405,
+  "run_url": "https://github.com/Atomics-hub/compression-lab/actions/runs/29604497405",
+  "head_commit": "78efc554b054504067cabe3bbf166af78de138c2",
+  "conclusion": "failure",
+  "failure_phase": "pre-acquisition provenance",
+  "failure_exit_code": 127,
+  "failure": "The pinned Brotli 1.2.0 CLI loaded the Ubuntu system Brotli shared library instead of its co-installed 1.2.0 libraries and failed with an undefined-symbol error.",
+  "acquisition_started": false,
+  "validation_manifest_created": false,
+  "scored_output_created": false,
+  "authorization_consumed": {
+    "acquisitions": 0,
+    "scored_attempts": 0
+  },
+  "completed_preflight": {
+    "readiness_lock_verified": true,
+    "standard_codecs_built": true,
+    "candidate_built": true,
+    "pbc_built": true,
+    "pbc_official_unit_tests_passed": true,
+    "pbc_official_integration_tests_passed": true,
+    "frozen_source_and_harness_verified": true
+  },
+  "retained_artifact": {
+    "name": "clue-jls2-public-validation-v1-29604497405",
+    "retention_days": 90,
+    "sha256sums_sha256": "32574fe1eb8e2a93650f493aa86a859d3f0751d92e2b0d3ccfd766885bb9fdb7",
+    "readiness_lock_receipt_sha256": "6a6fa513ca6426b8c9c50031bde19108355f5c3bb3c390c4542a9b4870efa50e",
+    "pbc_build_log_sha256": "96c7b932b3dde25ae65aa22b182411a4153e43c231f676c437c4e7cd648703b0",
+    "pbc_tests_log_sha256": "c0429897414bc33e818b5f20a637f84f7828d4b960a179a7a17886afddb262b6",
+    "partial_provenance_sha256": "40c2caad395138a1ac152866147c6a0f212e8c88137edf97d3ed20226cd913a6"
+  },
+  "claim_ceiling": "This retained run is pre-acquisition infrastructure evidence only. It contains no CLUE-LDS validation bytes or performance score and supports no compression claim."
+}
