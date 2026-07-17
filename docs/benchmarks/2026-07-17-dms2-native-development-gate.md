@@ -16,8 +16,8 @@ specialists, chooses the smaller complete frame, and uses that fallback for
 arbitrary nonnumeric input.
 
 On the three fresh development matrices, seven measured complete-frame trials
-after one warmup produced 189,738 aggregate bytes, 55.29 MB/s compression, and
-273.56 MB/s decompression. Every frame was deterministic, restored the exact
+after one warmup produced 189,738 aggregate bytes, 54.85 MB/s compression, and
+268.18 MB/s decompression. Every frame was deterministic, restored the exact
 source bytes, and rejected a corrupted payload.
 
 ## Full standards chart
@@ -28,7 +28,7 @@ one local trial per codec and family, so speed comparisons are contextual.
 
 | Codec | Complete bytes | DMS2 size result | Compress MB/s | Decompress MB/s | Peak RSS C/D MiB | Exact |
 | --- | ---: | ---: | ---: | ---: | ---: | --- |
-| **DMS2 native** | **189,738** | candidate | **55.29** | **273.56** | **51.9 / 39.2** | ✅ |
+| **DMS2 native** | **189,738** | candidate | **54.85** | **268.18** | **51.9 / 39.2** | ✅ |
 | bzip2-9 | 200,311 | **5.28% smaller** | 1.71 | 27.18 | — | ✅ |
 | Brotli-11 | 238,019 | **20.28% smaller** | 0.34 | 202.81 | — | ✅ |
 | zstd-19 | 244,177 | **22.29% smaller** | 2.59 | 829.70 | — | ✅ |
@@ -48,10 +48,10 @@ isolated processes, so this chart makes no comparative memory claim.
 
 | Family | Source bytes | Route | DMS2 bytes | bzip2-9 bytes | Result | Encode / decode MB/s |
 | --- | ---: | --- | ---: | ---: | ---: | ---: |
-| Multiple Features pixels | 1,442,000 | DMA2 parallel | 79,561 | 77,935 | 2.09% larger | 45.61 / 267.39 |
-| Optical Digits | 563,639 | DMA2 parallel | **79,638** | 89,361 | **10.88% smaller** | 28.63 / 158.41 |
-| Semeion digits | 2,889,702 | DMP1 planes | **30,539** | 33,015 | **7.50% smaller** | 77.61 / 323.10 |
-| **Aggregate** | **4,895,341** | **DMS2** | **189,738** | **200,311** | **5.28% smaller** | **55.29 / 273.56** |
+| Multiple Features pixels | 1,442,000 | DMA2 parallel | 79,561 | 77,935 | 2.09% larger | 45.63 / 263.35 |
+| Optical Digits | 563,639 | DMA2 parallel | **79,638** | 89,361 | **10.88% smaller** | 28.37 / 155.02 |
+| Semeion digits | 2,889,702 | DMP1 planes | **30,539** | 33,015 | **7.50% smaller** | 76.49 / 316.07 |
+| **Aggregate** | **4,895,341** | **DMS2** | **189,738** | **200,311** | **5.28% smaller** | **54.85 / 268.18** |
 
 ## Frozen gate status
 
@@ -59,8 +59,8 @@ isolated processes, so this chart makes no comparative memory claim.
 | --- | --- |
 | At most 190,295 bytes aggregate | ✅ 189,738 |
 | At least two 5% family wins | ✅ 2 of 3 |
-| At least 50 MB/s compression | ✅ 55.29 MB/s |
-| At least 250 MB/s decompression | ✅ 273.56 MB/s |
+| At least 50 MB/s compression | ✅ 54.85 MB/s |
+| At least 250 MB/s decompression | ✅ 268.18 MB/s |
 | Exact deterministic frames and corruption rejection | ✅ |
 | Peak RSS at most 512 MiB | ✅ 51.9 / 39.2 MiB cold frame encode/decode |
 | Bounded streaming memory | ✅ 208.6 / 114.8 MiB on 184.9 MB; no growth vs 92.5 MB |

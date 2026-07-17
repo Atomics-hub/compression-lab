@@ -13,11 +13,11 @@ specialists and are promoted only when frozen evidence supports them.
 On 4,895,341 fresh development bytes from three UCI matrix families, native
 DMS2 produced 189,738 bytes: **5.28% smaller than bzip2-9**, the strongest of
 ten tested standards. Seven measured complete-frame trials after one warmup
-ran at **55.29 MB/s compression and 273.56 MB/s decompression**.
+ran at **54.85 MB/s compression and 268.18 MB/s decompression**.
 
 | Codec | Complete bytes | DMS2 size result | Compress MB/s | Decompress MB/s | Peak RSS C/D MiB | Exact |
 | --- | ---: | ---: | ---: | ---: | ---: | --- |
-| **DMS2 native** | **189,738** | candidate | **55.29** | **273.56** | **51.9 / 39.2** | ✅ |
+| **DMS2 native** | **189,738** | candidate | **54.85** | **268.18** | **51.9 / 39.2** | ✅ |
 | bzip2-9 | 200,311 | **5.28% smaller** | 1.71 | 27.18 | — | ✅ |
 | Brotli-11 | 238,019 | **20.28% smaller** | 0.34 | 202.81 | — | ✅ |
 | zstd-19 | 244,177 | **22.29% smaller** | 2.59 | 829.70 | — | ✅ |
@@ -45,7 +45,7 @@ and checksum.
 
 | Category | Evidence stage | Strongest result | Honest status |
 | --- | --- | --- | --- |
-| Dense numeric matrices | Fresh development | DMS2 5.28% smaller than bzip2-9 at 55.29/273.56 MB/s | All local gates passed; cross-platform lock pending; validation unopened |
+| Dense numeric matrices | Fresh development | DMS2 5.28% smaller than bzip2-9 at 54.85/268.18 MB/s | All local gates passed; cross-platform lock pending; validation unopened |
 | Delimited record tables | Public validation | TBS1 won 3/4 families by 7.35%–16.50% | Aggregate remained 3.48% behind 7-Zip-9 |
 | JSON and machine logs | Public validation | JLS2 28.77% smaller than zstd-9 | Mixed against Brotli-11; decode gate missed |
 | General binary, source, archives | Development | Exact fallback | No category win established |

@@ -59,8 +59,8 @@ class DMS2OperationalEvidenceTests(unittest.TestCase):
         readme = (REPOSITORY / "README.md").read_text(encoding="utf-8")
         self.assertEqual(speed["aggregate"]["complete_bytes"], 189_738)
         for text in (decision, readme):
-            self.assertIn("55.29", text)
-            self.assertIn("273.56", text)
+            self.assertIn("54.85", text)
+            self.assertIn("268.18", text)
             self.assertIn("5.28% smaller", text)
             self.assertIn("not a world-best claim", text)
 
