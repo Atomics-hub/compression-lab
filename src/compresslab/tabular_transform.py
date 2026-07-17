@@ -1,8 +1,13 @@
 from __future__ import annotations
 
 import hashlib
+import os
 import struct
+import tempfile
 import time
+from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
+from typing import BinaryIO, Iterator
 from typing import Tuple
 
 from .native import (
@@ -31,6 +36,16 @@ DENSE_DEFAULT_LEVEL = 9
 DENSE_EXTREME_LEVEL = 16
 DENSE_EXTREME_THREADS = 2
 DENSE_EXTREME_COLUMN_RATIO = 0.05
+STREAM_MAGIC = b"TBS1"
+STREAM_VERSION = 1
+STREAM_FLAGS = 0
+STREAM_HEADER = struct.Struct(">4sBBHQQQQ32s32sI")
+STREAM_SEGMENT_HEADER = struct.Struct(">QQ")
+DEFAULT_STREAM_SEGMENT_SIZE = 32 * 1024 * 1024
+DEFAULT_STREAM_RECORD_SLACK = 1024 * 1024
+MAX_STREAM_SEGMENT_SIZE = 256 * 1024 * 1024
+MAX_STREAM_RECORD_SLACK = 16 * 1024 * 1024
+STREAM_FRAME_SLACK = 256 * 1024
 
 
 def _encode_varint(value: int) -> bytes:
@@ -274,7 +289,26 @@ def compress_auto(data: bytes, level: int = 9) -> bytes:
     return frame
 
 
-def compress_dense_auto_with_metadata(data: bytes) -> tuple[bytes, dict]:
+def _compress_dense_column(
+    data: bytes,
+    delimiter: int,
+    level: int,
+    threads: int,
+) -> bytes:
+    transformed = transform(data, delimiter)
+    if threads > 1:
+        return zstd_compress_multithread(
+            transformed,
+            level=level,
+            threads=threads,
+        )
+    return zstd_compress(transformed, level=level)
+
+
+def compress_dense_auto_with_metadata(
+    data: bytes,
+    enforce_direct_fallback: bool = False,
+) -> tuple[bytes, dict]:
     selector_start = time.perf_counter_ns()
     sample = _representative_sample(data)
     delimiter = _detect_delimiter_from_sample(sample)
@@ -297,11 +331,38 @@ def compress_dense_auto_with_metadata(data: bytes) -> tuple[bytes, dict]:
         reason = "direct-or-ambiguous"
     selector_ns = time.perf_counter_ns() - selector_start
 
-    source = transform(data, delimiter) if backend == BACKEND_COLUMN else data
-    if threads > 1:
-        payload = zstd_compress_multithread(source, level=level, threads=threads)
+    direct_fallback_compared = False
+    direct_fallback_selected = False
+    if backend == BACKEND_COLUMN and enforce_direct_fallback:
+        direct_fallback_compared = True
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            direct_future = executor.submit(
+                zstd_compress,
+                data,
+                DENSE_DEFAULT_LEVEL,
+            )
+            column_future = executor.submit(
+                _compress_dense_column,
+                data,
+                delimiter,
+                level,
+                threads,
+            )
+            direct_payload = direct_future.result()
+            column_payload = column_future.result()
+        if len(column_payload) < len(direct_payload):
+            payload = column_payload
+        else:
+            payload = direct_payload
+            backend = BACKEND_DIRECT
+            level = DENSE_DEFAULT_LEVEL
+            threads = 1
+            reason = "full-direct-fallback"
+            direct_fallback_selected = True
+    elif backend == BACKEND_COLUMN:
+        payload = _compress_dense_column(data, delimiter, level, threads)
     else:
-        payload = zstd_compress(source, level=level)
+        payload = zstd_compress(data, level=level)
     frame = _pack_frame(data, delimiter, backend, payload)
     return frame, {
         "selector_ns": selector_ns,
@@ -312,6 +373,8 @@ def compress_dense_auto_with_metadata(data: bytes) -> tuple[bytes, dict]:
         "selector_reason": reason,
         "compression_level": level,
         "compression_threads": threads,
+        "direct_fallback_compared": direct_fallback_compared,
+        "direct_fallback_selected": direct_fallback_selected,
     }
 
 
@@ -365,3 +428,330 @@ def decompress(
     if hashlib.sha256(output).digest() != expected_hash:
         raise ValueError("TBL1 SHA-256 mismatch")
     return output
+
+
+def _validate_stream_configuration(segment_size: int, record_slack: int) -> None:
+    if not 1 <= segment_size <= MAX_STREAM_SEGMENT_SIZE:
+        raise ValueError("TBL1 stream segment size is outside the supported bound")
+    if not 0 <= record_slack <= MAX_STREAM_RECORD_SLACK:
+        raise ValueError("TBL1 stream record slack is outside the supported bound")
+
+
+def _record_aligned_chunks(
+    source: BinaryIO,
+    segment_size: int,
+    record_slack: int,
+) -> Iterator[bytes]:
+    while True:
+        head = source.read(segment_size)
+        if not head:
+            return
+        if (
+            len(head) == segment_size
+            and record_slack
+            and not head.endswith(b"\n")
+        ):
+            tail = source.readline(record_slack)
+            if tail:
+                head += tail
+        yield head
+
+
+def _temporary_destination(destination: Path) -> tuple[Path, BinaryIO]:
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    descriptor, temporary_name = tempfile.mkstemp(
+        prefix=f".{destination.name}.",
+        suffix=".tmp",
+        dir=destination.parent,
+    )
+    return Path(temporary_name), os.fdopen(descriptor, "w+b")
+
+
+def compress_stream(
+    source: Path | str,
+    destination: Path | str,
+    segment_size: int = DEFAULT_STREAM_SEGMENT_SIZE,
+    record_slack: int = DEFAULT_STREAM_RECORD_SLACK,
+) -> dict:
+    """Compress a delimited file with memory bounded by one TBL1 segment."""
+
+    _validate_stream_configuration(segment_size, record_slack)
+    source_path = Path(source)
+    destination_path = Path(destination)
+    if source_path.resolve() == destination_path.resolve():
+        raise ValueError("TBL1 stream source and destination must differ")
+    declared_source_size = source_path.stat().st_size
+    temporary_path, output = _temporary_destination(destination_path)
+    source_digest = hashlib.sha256()
+    payload_digest = hashlib.sha256()
+    source_bytes = 0
+    payload_bytes = 0
+    segment_count = 0
+    transformed_segments = 0
+    direct_segments = 0
+    direct_fallback_compared_segments = 0
+    direct_fallback_selected_segments = 0
+    selector_ns = 0
+    maximum_sample_bytes = 0
+    weighted_direct_sample = 0.0
+    weighted_column_sample = 0.0
+    sample_weight = 0
+    delimiters: set[int] = set()
+    levels: set[int] = set()
+    maximum_threads = 0
+    try:
+        with output, source_path.open("rb") as input_file:
+            output.write(b"\0" * STREAM_HEADER.size)
+            for chunk in _record_aligned_chunks(
+                input_file,
+                segment_size,
+                record_slack,
+            ):
+                frame, metadata = compress_dense_auto_with_metadata(
+                    chunk,
+                    enforce_direct_fallback=True,
+                )
+                segment_header = STREAM_SEGMENT_HEADER.pack(len(chunk), len(frame))
+                output.write(segment_header)
+                output.write(frame)
+                payload_digest.update(segment_header)
+                payload_digest.update(frame)
+                source_digest.update(chunk)
+                source_bytes += len(chunk)
+                payload_bytes += len(segment_header) + len(frame)
+                segment_count += 1
+                backend = frame_backend(frame)
+                transformed_segments += int(backend == "column-transpose+zstd")
+                direct_segments += int(backend == "direct-zstd")
+                direct_fallback_compared_segments += int(
+                    metadata["direct_fallback_compared"]
+                )
+                direct_fallback_selected_segments += int(
+                    metadata["direct_fallback_selected"]
+                )
+                selector_ns += int(metadata["selector_ns"])
+                sample_bytes = int(metadata["selector_sample_bytes"])
+                maximum_sample_bytes = max(maximum_sample_bytes, sample_bytes)
+                weighted_direct_sample += float(metadata["sample_ratio"]) * sample_bytes
+                weighted_column_sample += (
+                    float(metadata["transformed_sample_ratio"]) * sample_bytes
+                )
+                sample_weight += sample_bytes
+                delimiters.add(frame_delimiter(frame))
+                levels.add(int(metadata["compression_level"]))
+                maximum_threads = max(
+                    maximum_threads,
+                    int(metadata["compression_threads"]),
+                )
+
+            if source_bytes != declared_source_size:
+                raise RuntimeError("TBL1 stream source changed while being compressed")
+            header = STREAM_HEADER.pack(
+                STREAM_MAGIC,
+                STREAM_VERSION,
+                STREAM_FLAGS,
+                0,
+                segment_size,
+                record_slack,
+                source_bytes,
+                payload_bytes,
+                source_digest.digest(),
+                payload_digest.digest(),
+                segment_count,
+            )
+            output.seek(0)
+            output.write(header)
+            output.flush()
+        os.replace(temporary_path, destination_path)
+    except BaseException:
+        temporary_path.unlink(missing_ok=True)
+        raise
+
+    if transformed_segments == segment_count and segment_count:
+        selected_backend = "tbl1-stream-column"
+    elif direct_segments == segment_count and segment_count:
+        selected_backend = "tbl1-stream-direct"
+    elif segment_count:
+        selected_backend = "tbl1-stream-mixed"
+    else:
+        selected_backend = "tbl1-stream-empty"
+    return {
+        "selected_backend": selected_backend,
+        "selector_ns": selector_ns,
+        "selector_stages": int(segment_count > 0),
+        "selector_sample_bytes": maximum_sample_bytes,
+        "sample_ratio": (
+            weighted_direct_sample / sample_weight if sample_weight else 0.0
+        ),
+        "transformed_sample_ratio": (
+            weighted_column_sample / sample_weight if sample_weight else 0.0
+        ),
+        "selector_reason": "bounded-per-segment-dense",
+        "delimiter": next(iter(delimiters)) if len(delimiters) == 1 else 0,
+        "compression_level": next(iter(levels)) if len(levels) == 1 else 0,
+        "compression_threads": maximum_threads,
+        "segment_count": segment_count,
+        "candidate_segment_count": segment_count,
+        "transformed_segments": transformed_segments,
+        "stored_segments": direct_segments,
+        "direct_fallback_compared_segments": (
+            direct_fallback_compared_segments
+        ),
+        "direct_fallback_selected_segments": (
+            direct_fallback_selected_segments
+        ),
+        "stream_segment_size": segment_size,
+        "stream_record_slack": record_slack,
+    }
+
+
+def _read_exact(source: BinaryIO, size: int, label: str) -> bytes:
+    data = source.read(size)
+    if len(data) != size:
+        raise ValueError(f"truncated TBL1 stream {label}")
+    return data
+
+
+def inspect_stream(source: Path | str) -> dict:
+    source_path = Path(source)
+    with source_path.open("rb") as input_file:
+        header = _read_exact(input_file, STREAM_HEADER.size, "header")
+    (
+        magic,
+        version,
+        flags,
+        reserved,
+        segment_size,
+        record_slack,
+        original_size,
+        payload_size,
+        source_hash,
+        payload_hash,
+        segment_count,
+    ) = STREAM_HEADER.unpack(header)
+    if magic != STREAM_MAGIC or version != STREAM_VERSION:
+        raise ValueError("unsupported TBL1 stream")
+    if flags != STREAM_FLAGS or reserved != 0:
+        raise ValueError("unsupported TBL1 stream flags")
+    _validate_stream_configuration(segment_size, record_slack)
+    if payload_size != source_path.stat().st_size - STREAM_HEADER.size:
+        raise ValueError("TBL1 stream payload size mismatch")
+    if (original_size == 0) != (segment_count == 0):
+        raise ValueError("invalid TBL1 stream segment count")
+    maximum_segment_count = (
+        (original_size + segment_size - 1) // segment_size
+        if original_size
+        else 0
+    )
+    if segment_count > maximum_segment_count:
+        raise ValueError("TBL1 stream segment count exceeds output bound")
+    return {
+        "segment_size": segment_size,
+        "record_slack": record_slack,
+        "original_size": original_size,
+        "payload_size": payload_size,
+        "source_sha256": source_hash.hex(),
+        "payload_sha256": payload_hash.hex(),
+        "segment_count": segment_count,
+    }
+
+
+def decompress_stream(
+    source: Path | str,
+    destination: Path | str,
+    max_output_size: int = DEFAULT_MAX_OUTPUT_SIZE,
+) -> dict:
+    """Restore a TBL1 stream while holding at most one segment in memory."""
+
+    source_path = Path(source)
+    destination_path = Path(destination)
+    if source_path.resolve() == destination_path.resolve():
+        raise ValueError("TBL1 stream source and destination must differ")
+    info = inspect_stream(source_path)
+    original_size = int(info["original_size"])
+    if original_size > max_output_size:
+        raise ValueError("TBL1 stream declared output exceeds configured limit")
+    segment_size = int(info["segment_size"])
+    record_slack = int(info["record_slack"])
+    payload_size = int(info["payload_size"])
+    segment_count = int(info["segment_count"])
+    expected_source_hash = bytes.fromhex(str(info["source_sha256"]))
+    expected_payload_hash = bytes.fromhex(str(info["payload_sha256"]))
+    temporary_path, output = _temporary_destination(destination_path)
+    source_digest = hashlib.sha256()
+    payload_digest = hashlib.sha256()
+    restored_bytes = 0
+    consumed_payload = 0
+    transformed_segments = 0
+    direct_segments = 0
+    try:
+        with output, source_path.open("rb") as input_file:
+            _read_exact(input_file, STREAM_HEADER.size, "header")
+            for segment_index in range(segment_count):
+                segment_header = _read_exact(
+                    input_file,
+                    STREAM_SEGMENT_HEADER.size,
+                    "segment header",
+                )
+                consumed_payload += len(segment_header)
+                payload_digest.update(segment_header)
+                segment_original_size, frame_size = STREAM_SEGMENT_HEADER.unpack(
+                    segment_header
+                )
+                if not 1 <= segment_original_size <= segment_size + record_slack:
+                    raise ValueError("TBL1 stream segment exceeds configured bound")
+                if (
+                    segment_index + 1 < segment_count
+                    and segment_original_size < segment_size
+                ):
+                    raise ValueError("TBL1 stream has an undersized interior segment")
+                if restored_bytes + segment_original_size > original_size:
+                    raise ValueError("TBL1 stream segments exceed declared output")
+                maximum_frame_size = (
+                    segment_original_size
+                    + segment_original_size // 64
+                    + STREAM_FRAME_SLACK
+                    + HEADER.size
+                )
+                if not HEADER.size <= frame_size <= maximum_frame_size:
+                    raise ValueError("TBL1 stream frame size exceeds configured bound")
+                if consumed_payload + frame_size > payload_size:
+                    raise ValueError("TBL1 stream frame exceeds declared payload")
+                frame = _read_exact(input_file, frame_size, "segment frame")
+                consumed_payload += frame_size
+                payload_digest.update(frame)
+                backend = frame_backend(frame)
+                restored = decompress(frame, max_output_size=segment_original_size)
+                if len(restored) != segment_original_size:
+                    raise ValueError("TBL1 stream segment size mismatch")
+                output.write(restored)
+                source_digest.update(restored)
+                restored_bytes += len(restored)
+                transformed_segments += int(backend == "column-transpose+zstd")
+                direct_segments += int(backend == "direct-zstd")
+
+            if consumed_payload != payload_size:
+                raise ValueError("TBL1 stream payload accounting mismatch")
+            if input_file.read(1):
+                raise ValueError("trailing TBL1 stream data")
+            if restored_bytes != original_size:
+                raise ValueError("TBL1 stream output size mismatch")
+            if payload_digest.digest() != expected_payload_hash:
+                raise ValueError("TBL1 stream payload SHA-256 mismatch")
+            if source_digest.digest() != expected_source_hash:
+                raise ValueError("TBL1 stream source SHA-256 mismatch")
+            output.flush()
+        os.replace(temporary_path, destination_path)
+    except BaseException:
+        temporary_path.unlink(missing_ok=True)
+        raise
+    return {
+        "selected_backend": "tbl1-stream-decode",
+        "selector_ns": 0,
+        "segment_count": segment_count,
+        "candidate_segment_count": segment_count,
+        "transformed_segments": transformed_segments,
+        "stored_segments": direct_segments,
+        "stream_segment_size": segment_size,
+        "stream_record_slack": record_slack,
+    }

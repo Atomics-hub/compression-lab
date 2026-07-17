@@ -46,6 +46,8 @@ from .tabular_transform import (
     decompress as _tbl1_decompress,
     frame_backend as _tbl1_frame_backend,
     frame_delimiter as _tbl1_frame_delimiter,
+    compress_stream as _tbl1_stream_compress,
+    decompress_stream as _tbl1_stream_decompress,
 )
 
 
@@ -589,6 +591,21 @@ def run(codec_id: str, operation: str, source: Path, destination: Path) -> dict:
         else:
             output, detail = _adaptive_decompress(source.read_bytes())
         destination.write_bytes(output)
+    elif codec.implementation == "tbl1-stream-dense":
+        if operation == "compress":
+            detail = _tbl1_stream_compress(source, destination)
+        elif operation == "decompress":
+            detail = _tbl1_stream_decompress(source, destination)
+        else:
+            raise ValueError(f"Unsupported operation: {operation}")
+        detail.update(
+            {
+                "transform_engine": (
+                    "rust" if tabular_native_available() else "python-fallback"
+                ),
+                "codec_engine": zstd_engine(),
+            }
+        )
     elif codec.implementation in {"tbl1", "tbl1-dense"}:
         if operation == "compress":
             if codec.implementation == "tbl1-dense":

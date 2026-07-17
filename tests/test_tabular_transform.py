@@ -1,5 +1,8 @@
 import struct
+import tempfile
 import unittest
+from pathlib import Path
+from unittest.mock import patch
 
 from compresslab.native import (
     tabular_reassemble as native_tabular_reassemble,
@@ -9,13 +12,18 @@ from compresslab.native import (
 from compresslab.tabular_transform import (
     BACKEND_COLUMN,
     HEADER,
+    STREAM_HEADER,
+    STREAM_SEGMENT_HEADER,
     compress,
     compress_auto,
     compress_auto_with_metadata,
     compress_dense_auto_with_metadata,
+    compress_stream,
     decompress,
+    decompress_stream,
     frame_backend,
     frame_delimiter,
+    inspect_stream,
     inverse_transform,
     reference_inverse_transform,
     reference_transform,
@@ -56,6 +64,31 @@ class TabularTransformTests(unittest.TestCase):
         self.assertIn(metadata["compression_level"], {9, 16})
         self.assertIn(metadata["compression_threads"], {1, 2})
         self.assertEqual(decompress(first), source)
+
+    def test_dense_selector_enforces_equally_framed_direct_fallback(self):
+        source = b"a,b,c\n" * 125
+        with (
+            patch(
+                "compresslab.tabular_transform._sample_backend",
+                return_value=(BACKEND_COLUMN, b"d" * 200, b"c" * 100),
+            ),
+            patch(
+                "compresslab.tabular_transform.transform",
+                side_effect=lambda data, _delimiter: data + b"expanded" * 100,
+            ),
+            patch(
+                "compresslab.tabular_transform.zstd_compress",
+                side_effect=lambda data, level: bytes((level,)) + data,
+            ),
+        ):
+            frame, metadata = compress_dense_auto_with_metadata(
+                source,
+                enforce_direct_fallback=True,
+            )
+        self.assertEqual(frame_backend(frame), "direct-zstd")
+        self.assertTrue(metadata["direct_fallback_compared"])
+        self.assertTrue(metadata["direct_fallback_selected"])
+        self.assertEqual(metadata["selector_reason"], "full-direct-fallback")
 
     def test_native_transform_is_byte_identical_to_reference(self):
         fixtures = [
@@ -159,6 +192,134 @@ class TabularTransformTests(unittest.TestCase):
         frame[6] = BACKEND_COLUMN + 99
         with self.assertRaisesRegex(ValueError, "backend"):
             decompress(bytes(frame))
+
+    def test_segmented_stream_is_deterministic_bounded_and_exact(self):
+        source_bytes = (
+            b"name,value,state\r\n"
+            + b"alpha,100,ready\r\n" * 80
+            + b"oversized," + b"x" * 300 + b",tail\n"
+            + b"unterminated,last,row"
+        )
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            source = root / "source.csv"
+            first = root / "first.tbs1"
+            second = root / "second.tbs1"
+            restored = root / "restored.csv"
+            source.write_bytes(source_bytes)
+
+            metadata = compress_stream(
+                source,
+                first,
+                segment_size=128,
+                record_slack=32,
+            )
+            compress_stream(
+                source,
+                second,
+                segment_size=128,
+                record_slack=32,
+            )
+            info = inspect_stream(first)
+            decode_metadata = decompress_stream(first, restored)
+
+            self.assertEqual(first.read_bytes(), second.read_bytes())
+            self.assertEqual(restored.read_bytes(), source_bytes)
+            self.assertGreater(info["segment_count"], 2)
+            self.assertEqual(info["segment_size"], 128)
+            self.assertEqual(info["record_slack"], 32)
+            self.assertEqual(metadata["segment_count"], info["segment_count"])
+            self.assertEqual(
+                decode_metadata["transformed_segments"]
+                + decode_metadata["stored_segments"],
+                info["segment_count"],
+            )
+            self.assertEqual(
+                metadata["direct_fallback_compared_segments"],
+                metadata["transformed_segments"],
+            )
+            self.assertLessEqual(metadata["selector_sample_bytes"], 160)
+
+    def test_segmented_stream_handles_empty_input(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            source = root / "empty.csv"
+            encoded = root / "empty.tbs1"
+            restored = root / "restored.csv"
+            source.write_bytes(b"")
+            metadata = compress_stream(source, encoded, segment_size=64)
+            info = inspect_stream(encoded)
+            decompress_stream(encoded, restored)
+            self.assertEqual(metadata["segment_count"], 0)
+            self.assertEqual(info["segment_count"], 0)
+            self.assertEqual(restored.read_bytes(), b"")
+
+    def test_segmented_stream_rejects_corruption_without_clobbering_output(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            source = root / "source.csv"
+            encoded = root / "source.tbs1"
+            corrupted = root / "corrupted.tbs1"
+            destination = root / "existing.csv"
+            source.write_bytes(b"a,b,c\n1,2,3\n" * 100)
+            compress_stream(source, encoded, segment_size=256, record_slack=32)
+            damaged = bytearray(encoded.read_bytes())
+            damaged[-1] ^= 1
+            corrupted.write_bytes(damaged)
+            destination.write_bytes(b"keep me")
+
+            with self.assertRaises((RuntimeError, ValueError)):
+                decompress_stream(corrupted, destination)
+            self.assertEqual(destination.read_bytes(), b"keep me")
+
+            with self.assertRaisesRegex(ValueError, "configured limit"):
+                decompress_stream(
+                    encoded,
+                    destination,
+                    max_output_size=source.stat().st_size - 1,
+                )
+            self.assertEqual(destination.read_bytes(), b"keep me")
+
+            truncated = root / "truncated.tbs1"
+            truncated.write_bytes(encoded.read_bytes()[:-1])
+            with self.assertRaises(ValueError):
+                decompress_stream(truncated, destination)
+
+    def test_segmented_stream_rejects_header_bounds(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            source = root / "source.csv"
+            encoded = root / "source.tbs1"
+            source.write_bytes(b"a,b\n1,2\n")
+            compress_stream(source, encoded, segment_size=64)
+            frame = bytearray(encoded.read_bytes())
+            struct.pack_into(">Q", frame, 8, 0)
+            encoded.write_bytes(frame)
+            with self.assertRaisesRegex(ValueError, "segment size"):
+                inspect_stream(encoded)
+
+            self.assertGreater(STREAM_HEADER.size, HEADER.size)
+
+            compress_stream(source, encoded, segment_size=4, record_slack=0)
+            frame = bytearray(encoded.read_bytes())
+            struct.pack_into(
+                ">Q",
+                frame,
+                STREAM_HEADER.size + 8,
+                1024 * 1024,
+            )
+            encoded.write_bytes(frame)
+            with self.assertRaisesRegex(ValueError, "frame size"):
+                decompress_stream(encoded, root / "oversized.csv")
+
+            compress_stream(source, encoded, segment_size=4, record_slack=0)
+            frame = bytearray(encoded.read_bytes())
+            struct.pack_into(">Q", frame, STREAM_HEADER.size, 1)
+            encoded.write_bytes(frame)
+            with self.assertRaisesRegex(ValueError, "undersized interior"):
+                decompress_stream(encoded, root / "undersized.csv")
+
+            self.assertEqual(STREAM_SEGMENT_HEADER.size, 16)
 
 
 if __name__ == "__main__":

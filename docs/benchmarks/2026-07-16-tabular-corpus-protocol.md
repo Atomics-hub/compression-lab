@@ -100,6 +100,32 @@ accounting, bounded streaming memory, corruption rejection, a portable
 reference decoder, and no material expansion versus the equally framed direct
 fallback. Five repetitions are required for every candidate operation.
 
+### Frozen streaming contract
+
+The development streaming candidate is `TBS1` version 1: a segmented outer
+stream containing complete, independently verified TBL1 frames. It reads a
+32 MiB target chunk and may extend at most 1 MiB to finish a record; a longer
+record is split losslessly at that hard bound. Each segment runs the bounded
+dense selector independently, so neither delimiter detection nor candidate
+generation sees more than one bounded segment.
+
+The outer stream declares the segment target, record-alignment slack, original
+size, complete payload size, segment count, source SHA-256, and payload
+SHA-256. The decoder must enforce all declared bounds before allocation,
+verify every inner TBL1 frame and both outer digests, reject truncation,
+corruption, count/size inconsistencies, and trailing bytes, and never clobber
+an existing destination after failure. Because every column candidate is
+compared concurrently with a complete direct zstd-9 fallback, a selected
+segment cannot exceed that fallback; the decoder therefore also rejects any
+frame larger than the direct-frame allocation bound before reading it.
+
+The streaming development gate allows at most 2% aggregate size regression
+relative to whole-file TBL1-dense. It retains the 50 MB/s compression,
+250 MB/s decompression, and 512 MiB memory limits, and additionally requires
+the minimum—not merely median—five-run repetition aggregate to clear both
+speed thresholds. A deterministic exact round trip of at least 1 GiB must
+demonstrate that peak memory is bounded independently of total file size.
+
 ## Required scorecard
 
 At every development or validation decision, publish one chart with:
