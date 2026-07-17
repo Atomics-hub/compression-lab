@@ -1370,8 +1370,26 @@ def selector_compress(data: bytes, level: int = 19) -> bytes:
     start_flag = SELECTOR_STARTS_WITH_TOKEN if starts_with_token else 0
 
     # The direct candidate is deliberately level 1: it is the fast, safe path
-    # for arbitrary input.  ctypes releases the GIL for both native operations,
-    # so materialize it beside the specialist without adding their CPU times.
+    # for arbitrary input. Determine the specialist representation first, then
+    # overlap only the two entropy-coding steps. The direct frame also supplies
+    # the one shared full-file digest, avoiding a duplicate hash pass.
+    try:
+        alphabet = (
+            dense_sample_alphabet(data)
+            if dense_parallel_native_available()
+            else _sample_alphabet_python(data)
+        )
+        use_planes = alphabet <= 4
+        transformed = (
+            plane_transform(data) if use_planes else parallel_transform(data)
+        )
+    except (UnicodeDecodeError, ValueError):
+        return _selector_frame(
+            data,
+            data,
+            flags=start_flag | SELECTOR_DIRECT,
+            level=1,
+        )
     with ThreadPoolExecutor(max_workers=1) as executor:
         direct_future = executor.submit(
             _selector_frame,
@@ -1380,26 +1398,18 @@ def selector_compress(data: bytes, level: int = 19) -> bytes:
             flags=start_flag | SELECTOR_DIRECT,
             level=1,
         )
-        try:
-            alphabet = (
-                dense_sample_alphabet(data)
-                if dense_parallel_native_available()
-                else _sample_alphabet_python(data)
-            )
-            use_planes = alphabet <= 4
-            transformed = (
-                plane_transform(data) if use_planes else parallel_transform(data)
-            )
-            specialist = _selector_frame(
-                data,
-                transformed,
-                flags=start_flag | (SELECTOR_PLANES if use_planes else 0),
-                level=level,
-            )
-        except (UnicodeDecodeError, ValueError):
-            specialist = None
+        specialist_payload = zstd_compress(transformed, level=level)
         direct = direct_future.result()
-    if specialist is None or len(direct) < len(specialist):
+    digest = direct[HEADER.size - 32 : HEADER.size]
+    specialist = HEADER.pack(
+        SELECTOR_MAGIC,
+        VERSION,
+        start_flag | (SELECTOR_PLANES if use_planes else 0),
+        len(data),
+        len(transformed),
+        digest,
+    ) + specialist_payload
+    if len(direct) < len(specialist):
         return direct
     return specialist
 
