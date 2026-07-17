@@ -74,7 +74,7 @@
         "LZMA-9",
         "7-Zip-9"
       ],
-      "next_gate": "Complete the frozen public-validation readiness audit, require a green cross-platform wheel matrix, then acquire and score the four unopened public-validation families exactly once without tuning."
+      "next_gate": "Merge the frozen one-shot public-validation runner and evaluator with a green cross-platform wheel matrix, pin that exact readiness commit, then acquire and score the four unopened public-validation families exactly once without tuning."
     },
     {
       "id": "numeric_timeseries",

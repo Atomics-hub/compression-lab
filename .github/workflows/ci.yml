@@ -25,6 +25,8 @@ jobs:
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
@@ -34,9 +36,9 @@ jobs:
       - name: Compile Python sources
         run: python -m compileall -q src tests
       - name: Lint Python sources
-        run: ruff check src tests setup.py
+        run: ruff check src tests scripts setup.py
       - name: Type-check public surface
-        run: mypy src/compresslab/api.py src/compresslab/experimental.py src/compresslab/json_log_codec.py src/compresslab/cli.py
+        run: mypy src/compresslab/api.py src/compresslab/experimental.py src/compresslab/json_log_codec.py src/compresslab/cli.py scripts/benchmark-tbl1-public-validation.py scripts/evaluate-tbl1-public-validation.py
       - name: Check Rust formatting
         run: cargo fmt --manifest-path native/Cargo.toml --all -- --check
       - name: Lint Rust library

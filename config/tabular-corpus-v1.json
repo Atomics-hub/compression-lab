@@ -144,7 +144,7 @@
       "title": "Open University Learning Analytics dataset",
       "doi": "10.24432/C5KK69",
       "creator": "Jakub Kuzilek, Martin Hlosta, and Zdenek Zdrahal",
-      "page_url": "https://archive.ics.uci.edu/dataset/349/tennis%2Bmajor%2Btournament%2Bmatch%2Bstatistics",
+      "page_url": "https://archive.ics.uci.edu/dataset/349/open%2Buniversity%2Blearning%2Banalytics%2Bdataset",
       "archive_url": "https://archive.ics.uci.edu/static/public/349/open%2Buniversity%2Blearning%2Banalytics%2Bdataset.zip",
       "archive_sha256": null,
       "member": "studentVle.csv",

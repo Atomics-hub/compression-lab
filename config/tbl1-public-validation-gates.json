@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "name": "tbl1-stream-dense-one-time-public-validation-v1",
+  "category": "tabular_csv",
+  "claim_ceiling": "A passing first score supports only a category-scoped public-validation result for four previously unopened CC-BY-4.0 UCI delimited-table families. It is not private-holdout, independently reproduced, universal, market-leading, or state-of-the-art evidence.",
+  "candidate": {
+    "codec_id": "tbl1-stream-dense",
+    "format": "TBS1 version 1",
+    "frozen_base_commit": "80b9f5f89f9ef3cf81fb4d6878ea65b6f8a9199e",
+    "segment_target_bytes": 16777216,
+    "record_alignment_slack_bytes": 1048576,
+    "maximum_concurrent_segments": 2,
+    "frozen_paths": {
+      "native/Cargo.lock": "830795453d6689554f4724ea5124ceb08b7b4d0ffe03ed031ed010d587519bbf",
+      "native/Cargo.toml": "9aef2315c7dd6c20546e221d179ca69a4fb04544317898521d92bc55574154fe",
+      "native/src/lib.rs": "4d624291ec8ea8301e3dc844f025b90e71c964bcbad012130488d7cd353b6a3e",
+      "pyproject.toml": "45f59bde45228dc5be2d62d85117f5019129d8164eb28add8e195453bff6725c",
+      "src/compresslab/codecs.py": "9103221b88f7d839baa01b0a0e49fe78134ce43f78eb8d6e8010e5fd7067f0ff",
+      "src/compresslab/metrics.py": "a9624b27ad259acae1d0fa8277be2f1f88fe2ded72ff97193ab681a5b885c9ff",
+      "src/compresslab/models.py": "929a6aac2f6ed8cbde84169f9d837cb85dcf7124915d139d9aa7feb48a38981a",
+      "src/compresslab/native.py": "3420b3d7acaa636a27f2788e9304b19c01014f6f3183c2aa822e9bf3cc4cf7d1",
+      "src/compresslab/runner.py": "561e3970fc381ba6c77d346402adb84c8f5c6abae5846599d586529e1ec65f80",
+      "src/compresslab/tabular_transform.py": "1d300e4bdeecc1d5099563889d5a1980a57298c0e498522ba15fe5868021f280",
+      "src/compresslab/worker.py": "f00a30113fe89d0c8d05aecb356648c4ae2cd300a2f96ffdccb38525debad090",
+      "tests/test_tabular_transform.py": "93047643d8f49f70ea9e0a934d02c9e911170c20b2e7d6de9d8a9705c9dde2fc"
+    }
+  },
+  "validation": {
+    "corpus_config_path": "config/tabular-corpus-v1.json",
+    "corpus_config_sha256": "a72f6faee6b638bfe481d225766c77f3ef6bd54b419d7e676e66f15d8dc5741e",
+    "expected_items": [
+      {"id": "uci-metropt3", "family": "metropt_timestamp_sensor"},
+      {"id": "uci-electricity-load", "family": "electricity_semicolon_decimal"},
+      {"id": "uci-oulad-student-vle", "family": "oulad_relational_events"},
+      {"id": "uci-character-font-ocrb", "family": "character_font_mixed_pixels"}
+    ],
+    "expected_license_spdx": "CC-BY-4.0",
+    "expected_split": "validation",
+    "maximum_item_bytes": 67108864,
+    "minimum_repetitions": 5,
+    "warmups": 1,
+    "memory_repetitions": 1,
+    "order_seed": 20260717,
+    "execution_mode": "persistent-worker",
+    "memory_execution_mode": "cold-process",
+    "timeout_seconds": 1200.0,
+    "max_normalized_preflight_load_1m": 0.75
+  },
+  "baselines": {
+    "codec_ids": [
+      "store",
+      "lz4-1",
+      "gzip-9",
+      "bz2-9",
+      "zstd-3",
+      "zstd-9",
+      "zstd-19",
+      "brotli-11",
+      "lzma-9",
+      "7zip-9"
+    ],
+    "comparison_rule": "Aggregate size is compared with the smallest complete fixed exact-byte baseline. Each family is compared with that family's smallest complete exact-byte baseline. No semantic columnar result can satisfy the primary gate unless its complete artifact restores the exact source bytes."
+  },
+  "requirements": {
+    "minimum_aggregate_gain_vs_strongest_complete_exact_byte_baseline_percent": 5.0,
+    "minimum_families_with_five_percent_gain_vs_strongest_complete_exact_byte_baseline": 3,
+    "minimum_family_gain_percent": 5.0,
+    "maximum_segment_regression_vs_equally_framed_fallback_bytes": 0,
+    "minimum_aggregate_compression_mbps": 50.0,
+    "minimum_aggregate_decompression_mbps": 250.0,
+    "minimum_repetition_compression_mbps": 50.0,
+    "minimum_repetition_decompression_mbps": 250.0,
+    "maximum_cold_compression_peak_rss_mib": 512.0,
+    "maximum_cold_decompression_peak_rss_mib": 512.0,
+    "require_exact_roundtrip_for_every_trial": true,
+    "require_deterministic_output": true,
+    "require_complete_frame_accounting": true,
+    "require_all_baselines_present": true,
+    "require_no_benchmark_failures": true,
+    "require_clean_tracked_commit": true,
+    "require_frozen_candidate_paths": true,
+    "require_portable_reference_decoder": true
+  },
+  "decision_rule": "The first eligible score is final. Every applicable gate must pass. No representation, selector, parameter, threshold, corpus family, corpus slice, baseline setting, evaluator, or pass threshold may change after public-validation acquisition. A failed or interrupted scored attempt is retained and cannot be replaced by a tuned rerun.",
+  "private_holdout": {
+    "status": "sealed",
+    "required_for_state_of_the_art_claim": true
+  }
+}
