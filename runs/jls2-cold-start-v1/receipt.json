@@ -1,0 +1,25 @@
+{
+  "artifacts": {
+    "docs/benchmarks/2026-07-17-jls2-cold-start-protocol.md": "5f9275e6fc5fd4a312d7b7b4ead43d77c796e3f13a9386b3ab7bc2d605cebe42",
+    "runs/jls2-cold-start-v1/README.md": "5c55d9a78a32179098af544ac76afce63a641065d388397a1eadf24216a79c1f",
+    "runs/jls2-cold-start-v1/cold-start-scorecard.svg": "269a7593b42d1229bf1f73a93e2c49af4b0951d5960402cf7e4e1b536de2cf47",
+    "runs/jls2-cold-start-v1/results.json": "d204a24bf6d12c3db7666dcea32653e9f45e6671fb5e78735b83ddebb9837d1d"
+  },
+  "baseline_commit": "5778b86c1bb9d9b842afd17afb3b3456f02b0cf1",
+  "candidate_product_commit": "604271cbc89a11c739848f68a7739ed523fb9a1b",
+  "claim_ceiling": "Development-only cold-process delivery evidence on the three frozen CLUE-LDS development ranges; not public validation, private holdout, independent reproduction, universal, market-leading, world-best, or state-of-the-art evidence",
+  "decision": "lazy-loading-retained-decode-gate-failed",
+  "protocol": "jls2-cold-start-v1",
+  "publication_sources": {
+    "scripts/benchmark-jls2-cold-start.py": "5d669124fa9dd281a71e774831d0ff50c92fe00337002a3e4796bff194399ff6",
+    "scripts/publish-jls2-cold-start.py": "79d58443d505f508763abb302a22959686f39ddf65670e597544a4d6cbd8359a",
+    "src/compresslab/__init__.py": "f87b67aa6980bfbf7d7dc7cbb12673ee2fba12e283255b5898063fe2f0f78c75",
+    "src/compresslab/_constants.py": "f24820c05c7f98ab07b630a28dc0d683769a0399a9bdef1764b8a920526b2f33",
+    "src/compresslab/api.py": "db628018e086e04295216841c6de214c1997a737bf684b42c2f9554acf480b8c",
+    "src/compresslab/cli.py": "4a675c958254f08a1d8c24c903f232e04f65aa274c53824b982da8cc14f4d558",
+    "src/compresslab/experimental.py": "953b4084176b674ed24f569d41811eb6e9f4f1186450f7191e277a55614b6e21",
+    "src/compresslab/worker.py": "3d5cf89abd2d992e9ea017205105f212df90f3dd3ee15608b0eb742c4a193b61",
+    "tests/test_lazy_imports.py": "8658dc59e61be63455288dd26f75eda2cd115a88e8878044eb4311836ad7b24c"
+  },
+  "schema_version": 1
+}
