@@ -7,6 +7,8 @@ this project uses [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- Reproducible alternating JLS2 decode-kernel A/B evidence with raw samples,
+  exact fixture and source hashes, a complete-product gate, and a public chart.
 - Exact `--manifest` benchmark selection, results-schema-v5 corpus identity
   receipts, and release gates that reject missing or inconsistent manifest and
   runner provenance.
@@ -29,6 +31,14 @@ this project uses [Semantic Versioning](https://semver.org/).
 - Bounded two-segment compression and decompression pipelines, concurrent
   JSON-column stream compression, a single-segment decode fast path, and a
   checksummed hosted complete-product benchmark workflow.
+
+### Changed
+
+- JLS2 decode now bulk-copies JSON literal spans and lets the outer frame own
+  restored-byte authentication, preserving exact encoded bytes while improving
+  the development byte-API paired median by 21.66%.
+- The project README now leads with a concise category-scoped standards table
+  and links detailed caveats to immutable evidence bundles.
 
 ### Security
 

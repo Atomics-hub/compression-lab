@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import unittest
 
 from compresslab.json_columnar import (
@@ -60,6 +61,20 @@ class JsonColumnarTests(unittest.TestCase):
                     decompress(candidate)
         with self.assertRaises(ValueError):
             decompress(encoded, max_output_size=len(source) - 1)
+
+    def test_parent_frame_can_own_restored_byte_authentication(self) -> None:
+        source = b'{"id":1,"event":"tick"}\n' * 100
+        encoded, _ = compress(source)
+        corrupted_inner_identity = bytearray(encoded)
+        corrupted_inner_identity[16] ^= 1
+        with self.assertRaisesRegex(ValueError, "frame SHA-256"):
+            decompress(bytes(corrupted_inner_identity))
+        restored = decompress(
+            bytes(corrupted_inner_identity),
+            _verify_original_sha=False,
+        )
+        self.assertEqual(restored, source)
+        self.assertEqual(hashlib.sha256(restored).digest(), hashlib.sha256(source).digest())
 
     def test_native_transform_is_byte_identical_to_reference(self) -> None:
         if not native_available():

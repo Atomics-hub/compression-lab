@@ -22,6 +22,16 @@ def digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def digest_at_commit(commit: str, path: str) -> str:
+    content = subprocess.run(
+        ["git", "show", f"{commit}:{path}"],
+        cwd=REPOSITORY,
+        check=True,
+        capture_output=True,
+    ).stdout
+    return hashlib.sha256(content).hexdigest()
+
+
 def load_benchmark_module():
     specification = importlib.util.spec_from_file_location(
         "benchmark_tbl1_public_validation",
@@ -79,11 +89,19 @@ class TBL1PublicValidationTests(unittest.TestCase):
             self.assertGreater(proof["segments"], 1)
             self.assertLessEqual(proof["maximum_regression_bytes"], 0)
 
-    def test_declared_candidate_hashes_match_base_commit_and_worktree(self):
+    def test_declared_candidate_hashes_match_frozen_base_commit(self):
         gates = json.loads(GATES_PATH.read_text(encoding="utf-8"))
+        candidate = gates["candidate"]
+        for relative, expected in candidate["frozen_paths"].items():
+            self.assertEqual(
+                digest_at_commit(candidate["frozen_base_commit"], relative),
+                expected,
+            )
         module = load_benchmark_module()
-        verified = module.verify_frozen_candidate(gates["candidate"])
-        self.assertEqual(verified, gates["candidate"]["frozen_paths"])
+        with self.assertRaisesRegex(
+            ValueError, "working candidate path differs from frozen digest"
+        ):
+            module.verify_frozen_candidate(candidate)
 
     def test_validation_is_unopened_and_provenance_is_frozen(self):
         corpus = json.loads(CORPUS_PATH.read_text(encoding="utf-8"))

@@ -486,6 +486,7 @@ def decompress(
     frame: bytes,
     *,
     max_output_size: Optional[int] = None,
+    _verify_original_sha: bool = True,
 ) -> bytes:
     if len(frame) < HEADER.size:
         raise ValueError("JSON-column frame is truncated")
@@ -559,6 +560,9 @@ def decompress(
         restored = native_reassemble(raw_transform, original_size)
     else:
         restored = _reassemble_python(skeleton, channels, original_size)
-    if hashlib.sha256(restored).digest() != expected_sha256:
+    if (
+        _verify_original_sha
+        and hashlib.sha256(restored).digest() != expected_sha256
+    ):
         raise ValueError("JSON-column frame SHA-256 mismatch")
     return restored

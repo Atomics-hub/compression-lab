@@ -67,7 +67,7 @@ class DMS2OperationalEvidenceTests(unittest.TestCase):
         self.assertIn("33.45", readme)
         self.assertIn("313.99", readme)
         self.assertIn("43.55%", readme)
-        self.assertIn("frozen gate did not pass", readme.lower())
+        self.assertIn("frozen gate failed", readme.lower())
 
     def test_cross_platform_receipt_binds_green_jobs_and_source(self):
         receipt = json.loads(CROSS_PLATFORM.read_text(encoding="utf-8"))
