@@ -1,4 +1,5 @@
 import hashlib
+import io
 import unittest
 
 from compresslab.dense_matrix_transform import (
@@ -28,6 +29,8 @@ from compresslab.dense_matrix_transform import (
     selector_backend,
     selector_compress,
     selector_decompress,
+    selector_stream_compress,
+    selector_stream_decompress,
     transform,
 )
 
@@ -136,8 +139,22 @@ class DenseMatrixTransformTests(unittest.TestCase):
         )
 
     def test_dense_selector_is_deterministic_exact_and_self_describing(self):
-        binary = b"0.0000 1.0000 0.0000 \n1.0000 0.0000 1.0000 \n" * 20
-        varied = b"0,1,16,4\n1,0,2,4\n0,1,15,3\n" * 20
+        state = 1
+        binary_rows = []
+        varied_rows = []
+        for _ in range(1000):
+            binary_values = []
+            varied_values = []
+            for _ in range(64):
+                state = (1103515245 * state + 12345) & 0x7FFFFFFF
+                binary_values.append(
+                    b"1.0000" if state & 1 else b"0.0000"
+                )
+                varied_values.append(str((state >> 8) & 255).encode())
+            binary_rows.append(b" ".join(binary_values))
+            varied_rows.append(b",".join(varied_values))
+        binary = b"\n".join(binary_rows) + b"\n"
+        varied = b"\n".join(varied_rows) + b"\n"
         for source, backend in (
             (binary, "dmp1-planes"),
             (varied, "dma2-parallel"),
@@ -149,6 +166,49 @@ class DenseMatrixTransformTests(unittest.TestCase):
                 self.assertEqual(selector_decompress(first), source)
                 with self.assertRaises(ValueError):
                     selector_decompress(first[:-1])
+
+    def test_dense_selector_uses_equally_framed_direct_fallback(self):
+        source = bytes(range(256)) * 100
+        frame = selector_compress(source)
+        self.assertEqual(selector_backend(frame), "direct-zstd1")
+        self.assertEqual(selector_decompress(frame), source)
+
+    def test_dense_stream_is_bounded_deterministic_and_exact(self):
+        source = (
+            b"0,1,16,4\n1,0,2,4\n0,1,15,3\n" * 100
+            + bytes(range(256)) * 20
+        )
+        first = io.BytesIO()
+        metadata = selector_stream_compress(
+            io.BytesIO(source), first, segment_size=1024
+        )
+        second = io.BytesIO()
+        selector_stream_compress(io.BytesIO(source), second, segment_size=1024)
+        self.assertEqual(first.getvalue(), second.getvalue())
+        self.assertGreater(metadata["segments"], 1)
+        restored = io.BytesIO()
+        decode = selector_stream_decompress(
+            io.BytesIO(first.getvalue()),
+            restored,
+            max_output_size=len(source),
+        )
+        self.assertEqual(restored.getvalue(), source)
+        self.assertEqual(decode["source_bytes"], len(source))
+
+    def test_dense_stream_rejects_corruption_and_output_overflow(self):
+        source = b"0 1 0 1\n" * 1000
+        encoded = io.BytesIO()
+        selector_stream_compress(io.BytesIO(source), encoded, segment_size=512)
+        corrupt = bytearray(encoded.getvalue())
+        corrupt[-1] ^= 1
+        with self.assertRaisesRegex(ValueError, "checksum"):
+            selector_stream_decompress(io.BytesIO(corrupt), io.BytesIO())
+        with self.assertRaisesRegex(ValueError, "output exceeds"):
+            selector_stream_decompress(
+                io.BytesIO(encoded.getvalue()),
+                io.BytesIO(),
+                max_output_size=len(source) - 1,
+            )
 
 
 if __name__ == "__main__":
