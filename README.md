@@ -1,58 +1,70 @@
 # Compression Lab
 
-Compression Lab is an open, evidence-driven lossless compression project. It
-combines category specialists, a deterministic content selector, exact
-fallback, and a self-describing `.clab` container instead of forcing one
-transform onto every kind of file.
+**Category-specialized lossless compression with reproducible evidence.**
 
-The stable general-file CLI is alpha. DMS2, TBS1, and JLS2 are experimental
-specialists and are promoted only when frozen evidence supports them.
+Compression Lab combines specialist codecs, a deterministic content selector,
+exact fallback, and a self-describing `.clab` container. The general-file CLI
+is alpha; JLS2, TBS1, and DMS2 are research codecs promoted only through frozen
+benchmark gates.
+
+## Current measured lead: structured JSON event logs
+
+On a fresh 203.6 MB development slice of the licensed CLUE-LDS cloud-event
+dataset, JLS2 produced the smallest complete archive among all 11 tested
+configurations:
+
+- **18.08% smaller than Brotli-11**, the closest standard;
+- smallest on **3 of 3** frozen development ranges;
+- **99 of 99** measured round trips restored the exact original bytes; and
+- **109.90 MB/s** compression, while missing the frozen 250 MB/s decode gate at
+  **116.43 MB/s**.
+
+![Compressed-size comparison for JLS2 and nine established codecs](docs/assets/clue-json-log-compressed-size.svg)
+
+### Full same-run scorecard
+
+Lower archive size is better. `JLS2 smaller by` compares complete archive bytes
+with JLS2; positive values are a JLS2 size win. Every speed and memory value was
+measured by the same cold-process runner on the same machine.
+
+<!-- clue-scorecard:start -->
+
+| Codec | Complete bytes | Ratio | JLS2 smaller by | Compress MB/s | Decompress MB/s | Peak RSS C / D MiB | Exact |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | :---: |
+| **JLS2** | **3,523,721** | **57.77x** | — | 109.90 | 116.43 | 416.5 / 186.3 | yes |
+| Brotli-11 | 4,301,558 | 47.33x | **18.08%** | 0.37 | 253.86 | 186.8 / 25.2 | yes |
+| zstd-19 | 4,900,286 | 41.54x | **28.09%** | 1.05 | 268.83 | 244.1 / 163.1 | yes |
+| bzip2-9 | 5,379,654 | 37.84x | **34.50%** | 1.37 | 25.26 | 104.1 / 166.8 | yes |
+| LZMA-9 | 5,572,968 | 36.53x | **36.77%** | 1.59 | 82.29 | 743.9 / 227.7 | yes |
+| 7-Zip-9 | 5,574,110 | 36.52x | **36.78%** | 6.44 | 164.58 | 750.0 / 73.4 | yes |
+| zstd-9 | 5,684,983 | 35.81x | **38.02%** | 124.70 | 300.48 | 242.3 / 163.4 | yes |
+| zstd-3 | 7,538,545 | 27.00x | **53.26%** | 313.60 | 248.62 | 233.7 / 164.3 | yes |
+| gzip-9 | 8,272,033 | 24.61x | **57.40%** | 49.19 | 288.08 | 99.2 / 167.4 | yes |
+| LZ4-1 | 14,061,683 | 14.48x | **74.94%** | 387.73 | 278.96 | 25.2 / 25.3 | yes |
+| Store | 203,578,132 | 1.00x | **98.27%** | 416.08 | 479.03 | 26.0 / 26.0 | yes |
+
+<!-- clue-scorecard:end -->
+
+This is fresh, licensed **development evidence**, not public validation or an
+independently reproduced state-of-the-art claim. The exact corpus ranges,
+versions, runner commit, raw trials, memory scope, checksums, and failed decode
+gate are in the [complete evidence bundle](runs/clue-json-log-development-census-v1/README.md).
 
 ## Measured standings
 
-These are category-scoped results, not one blended leaderboard. Positive size
-values mean our specialist is smaller; every row used exact round trips and
-complete container bytes.
+| Category | Best result so far | Evidence status |
+| --- | --- | --- |
+| JSON and machine logs | JLS2 is 18.08% smaller than the strongest standard on fresh CLUE-LDS development data | Ratio lead; decode gate open |
+| Delimited tables | TBS1 vs 7-Zip-9: 3.48% larger aggregate; TBS1 won 3/4 families against each family's strongest standard | Frozen gate failed (public validation) |
+| Dense matrices | DMS2 vs Brotli-11: 43.55% larger; 33.45 / 313.99 MB/s compression / decompression | Frozen gate failed (public validation) |
+| General files | Exact `.clab` fallback; no strongest-standard win established | Alpha product |
+| Text, source, time series, binary, media | No category claim yet | Not tested |
 
-| Category and comparison | Size result | Compress MB/s: ours / standard | Decompress MB/s: ours / standard | Verdict |
-| --- | ---: | ---: | ---: | --- |
-| Fresh cloud-event JSON logs: JLS2 vs Brotli-11 (development) | **18.08% smaller**; won 3/3 ranges | 109.90 / 0.37 | 116.43 / 253.86 | Ratio win; 250 MB/s decode gate failed |
-| JSON logs: JLS2 vs zstd-9 | **28.77% smaller** | 155.83 / 222.03 | 165.88 / 1,547.88 | Ratio win; frozen speed gate failed |
-| JSON logs: JLS2 vs Brotli-11 | **4.58% smaller aggregate**; won 1/3 families | 155.83 / 0.49 | 165.88 / 1,168.58 | Mixed; frozen gate failed |
-| JSON logs: JLS2 vs PBC-only | **83.82% smaller** | 155.83 / 0.56 complete | 165.88 / 94.63 | Ratio and decode win; overall gate still failed |
-| Delimited tables: TBS1 vs 7-Zip-9 | 3.48% larger aggregate; won 3/4 families against each family's strongest standard | 107.67 / 1.93 | 403.39 / 141.44 | Strong family signal; frozen gate failed |
-| Dense matrices: DMS2 vs Brotli-11 | 43.55% larger | 33.45 / 0.40 | 313.99 / 248.06 | Frozen gate failed |
-| General files | No strongest-standard win established | — | — | Exact fallback only |
+See the [category portfolio](docs/benchmarks/2026-07-16-category-portfolio-status.md)
+for the full gate history. Consumed validation families are never reused as
+fresh evidence.
 
-The full 10-standard TBS1 chart, 11-codec DMS2 chart, JLS2 standards chart,
-raw samples, memory measurements, manifests, and checksums are linked below.
-
-## Latest engineering result
-
-The JLS2 decoder now bulk-copies literal spans and avoids redundant nested
-restored-byte hashing. Compressed bytes did not change.
-
-| Development measurement | Before | After | Change | Result |
-| --- | ---: | ---: | ---: | --- |
-| Alternating byte API, seven-round median | 277.05 MB/s | 333.46 MB/s | **+21.66% paired median** | 7/7 candidate rounds above 250 MB/s |
-| Complete file product, aggregate | 245.14 MB/s | 366.71 MB/s | +49.59% contextual | Candidate development gate passed |
-| Complete encoded bytes | 2,693,313 | 2,693,313 | unchanged | Exact |
-
-This is development evidence on existing families, so it does not rewrite the
-retained public-validation result. See the
-[reproducible A/B bundle and family chart](runs/jls2-decode-kernel-development-v1/README.md).
-
-## Evidence portfolio
-
-- [Category scorecard](docs/benchmarks/2026-07-16-category-portfolio-status.md)
-- [JLS2 public-validation standards chart](docs/benchmarks/2026-07-16-jls2-public-validation-decision.md)
-- [Fresh CLUE-LDS 11-codec development chart](runs/clue-json-log-development-census-v1/README.md)
-- [TBS1 public-validation 10-standard chart](docs/benchmarks/2026-07-17-tbl1-public-validation-decision.md)
-- [DMS2 public-validation 11-codec chart and immutable bundle](runs/dms2-public-validation-v1/README.md)
-
-Consumed validation families are never reused as fresh evidence.
-
-## Quick start
+## Use it
 
 Python 3.9 or newer is required. Native builds also require Rust stable.
 
@@ -75,9 +87,9 @@ clab decompress report.json.clab -o restored.json
 
 Standard input and output use `-`. Compression refuses to overwrite a file
 unless `--force` is supplied. The decoder rejects declared output above 2 GiB
-by default; use `--max-output-size` to set a different explicit bound.
+by default; set a different explicit bound with `--max-output-size`.
 
-## Python API
+### Python API
 
 ```python
 import compresslab
@@ -87,55 +99,46 @@ original = compresslab.decompress(frame, max_output_size=10_000_000)
 ```
 
 Experimental specialists remain separate from the stable API while their
-formats and gates are still moving.
+formats and evidence gates are moving.
 
-## Reproduce the research
+## Reproduce the work
 
-Run the complete local verification suite:
+Run the complete verification suite:
 
 ```bash
 scripts/build-native.sh
-python3 -m unittest discover -s tests -v
+PYTHONPATH=src python3 -m unittest discover -s tests -v
 ```
 
-Run the deterministic benchmark harness on a corpus:
+Run the manifest-bound benchmark harness:
 
 ```bash
-python3 -m compresslab run \
-  --corpus corpora/smoke \
-  --output runs/smoke \
+PYTHONPATH=src python3 -m compresslab run \
+  --corpus corpora/public-validation \
+  --manifest corpora/public-validation/scoring-manifest.json \
+  --output runs/public-validation \
   --repetitions 3 \
   --warmups 1
 ```
 
-For a frozen or projected corpus, name the exact manifest explicitly. The
-runner records that file's SHA-256 and selected item IDs in `results.json`:
+Every promoted result records licenses, corpus and manifest hashes, selected
+item IDs, candidate commit, codec versions, runner scope, repetitions, exact
+round trips, complete archive bytes, and claim ceiling. Private holdout data
+stays outside the repository.
 
-```bash
-python3 -m compresslab run \
-  --corpus corpora/public-validation \
-  --manifest corpora/public-validation/scoring-manifest.json \
-  --output runs/public-validation
-```
+## Evidence index
 
-Every promoted result declares corpus licenses and hashes, candidate commit,
-codec versions, runner, repetitions, exact round trips, complete archive bytes,
-and its claim ceiling. Private holdout data stays outside the repository.
-
-Key documents:
-
-- [JLS2 decode-kernel A/B gate and family chart](runs/jls2-decode-kernel-development-v1/README.md)
-- [Benchmark manifest-binding gate and control chart](runs/benchmark-manifest-binding-v1/README.md)
-- [DMS2 public-validation decision and complete chart](runs/dms2-public-validation-v1/README.md)
-- [DMS2 immutable first-score bundle index](runs/dms2-public-validation-v1/bundle.json)
-- [DMS2 acquisition deviation](docs/benchmarks/2026-07-17-dms2-acquisition-deviation.md)
-- [DMS2 native development gate](docs/benchmarks/2026-07-17-dms2-native-development-gate.md)
-- [Dense-matrix frozen protocol](docs/benchmarks/2026-07-17-dense-matrix-representation-protocol.md)
+- [Fresh CLUE-LDS 11-codec development census](runs/clue-json-log-development-census-v1/README.md)
+- [JLS2 public-validation standards chart](docs/benchmarks/2026-07-16-jls2-public-validation-decision.md)
+- [TBS1 public-validation 10-standard chart](docs/benchmarks/2026-07-17-tbl1-public-validation-decision.md)
 - [Fresh successor corpus protocol](docs/benchmarks/2026-07-17-tabular-successor-corpus-protocol.md)
+- [DMS2 public-validation 11-codec chart](runs/dms2-public-validation-v1/README.md)
+- [JLS2 decoder A/B gate](runs/jls2-decode-kernel-development-v1/README.md)
+- [Benchmark manifest-binding gate](runs/benchmark-manifest-binding-v1/README.md)
 - [File-format contract](docs/file-format.md)
 - [Release readiness](docs/release-readiness.md)
 - [Security policy](SECURITY.md)
-- [Complete benchmark and rejected-hypothesis archive](docs/benchmarks/)
+- [Complete benchmark archive](docs/benchmarks/)
 
 ## License
 
