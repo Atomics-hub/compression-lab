@@ -15,6 +15,8 @@ BENCHMARK = REPOSITORY / "scripts" / "benchmark-dms2-public-validation.py"
 EVALUATOR = REPOSITORY / "scripts" / "evaluate-dms2-public-validation.py"
 FETCHER = REPOSITORY / "scripts" / "fetch-dms2-public-validation.py"
 WORKER = REPOSITORY / "scripts" / "dms2-validation-worker.py"
+LOCK_PATH = REPOSITORY / "config" / "dms2-public-validation-lock.json"
+LOCK_VERIFIER = REPOSITORY / "scripts" / "verify-dms2-public-validation-lock.py"
 READINESS = (
     REPOSITORY
     / "docs"
@@ -37,6 +39,55 @@ def load_module(name: str, path: Path):
 
 
 class DMS2PublicValidationTests(unittest.TestCase):
+    def test_final_lock_pins_the_merged_readiness_surface(self):
+        lock = json.loads(LOCK_PATH.read_text(encoding="utf-8"))
+        self.assertRegex(lock["readiness_commit"], r"^[0-9a-f]{40}$")
+        ancestor = subprocess.run(
+            ["git", "merge-base", "--is-ancestor", lock["readiness_commit"], "HEAD"],
+            cwd=REPOSITORY,
+            check=False,
+        )
+        self.assertEqual(ancestor.returncode, 0)
+        for relative, expected in lock["locked_paths"].items():
+            committed = subprocess.run(
+                ["git", "show", f"{lock['readiness_commit']}:{relative}"],
+                cwd=REPOSITORY,
+                check=True,
+                capture_output=True,
+            ).stdout
+            self.assertEqual(hashlib.sha256(committed).hexdigest(), expected)
+            self.assertEqual(digest(REPOSITORY / relative), expected)
+        verifier = load_module("verify_dms2_final_lock", LOCK_VERIFIER)
+        receipt = verifier.verify_lock(LOCK_PATH, require_clean=False)
+        self.assertTrue(receipt["passed"])
+        self.assertEqual(receipt["authorization"]["maximum_scored_attempts"], 1)
+        self.assertEqual(
+            receipt["authorization"]["expected_item_ids"],
+            ["uci-gisette-train", "uci-madelon-train"],
+        )
+
+    def test_explicit_acquisition_still_refuses_a_drifted_lock(self):
+        fetcher = load_module("fetch_dms2_drifted_lock", FETCHER)
+        lock = json.loads(LOCK_PATH.read_text(encoding="utf-8"))
+        lock["locked_paths"]["config/dms2-public-validation-gates.json"] = "0" * 64
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            drifted = root / "drifted-lock.json"
+            drifted.write_text(json.dumps(lock), encoding="utf-8")
+            with self.assertRaisesRegex(
+                ValueError,
+                "requires a clean tracked tree|digest mismatch",
+            ):
+                fetcher.acquire(
+                    config=CORPUS_PATH,
+                    lock=drifted,
+                    output=root / "output",
+                    cache=root / "cache",
+                    allow_public_validation=True,
+                )
+            self.assertFalse((root / "output").exists())
+            self.assertFalse((root / "cache").exists())
+
     def test_candidate_and_development_evidence_are_frozen(self):
         gates = json.loads(GATES_PATH.read_text(encoding="utf-8"))
         benchmark = load_module("benchmark_dms2_validation", BENCHMARK)

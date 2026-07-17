@@ -34,8 +34,9 @@ Full transparency: this is development evidence, not a world-best claim or
 public validation. Ratio, speed, memory, bounded streaming, selector,
 direct-fallback, regression, exactness, determinism, and corruption gates all
 passed locally. Native-wheel and full-suite reproduction also passed on Linux,
-macOS, and Windows for commit `4e816ca`. Candidate lock remains before the
-one-time unseen validation. See the [complete decision and raw evidence](docs/benchmarks/2026-07-17-dms2-native-development-gate.md).
+macOS, and Windows for commit `4e816ca`. The exact candidate, gates, evaluator,
+and acquisition path are now locked; Gisette and Madelon remain unopened before
+their one-time score. See the [complete decision and raw evidence](docs/benchmarks/2026-07-17-dms2-native-development-gate.md).
 
 Baseline speeds are same-machine contextual measurements from the preceding
 fresh census; DMS2 used repeated trials. Baseline peak RSS was not rerun, so no
@@ -46,7 +47,7 @@ and checksum.
 
 | Category | Evidence stage | Strongest result | Honest status |
 | --- | --- | --- | --- |
-| Dense numeric matrices | Fresh development | DMS2 5.28% smaller than bzip2-9 at 54.85/268.18 MB/s | Local and cross-platform gates passed; candidate lock next; validation unopened |
+| Dense numeric matrices | Fresh development | DMS2 5.28% smaller than bzip2-9 at 54.85/268.18 MB/s | Local and cross-platform gates passed; candidate locked; validation unopened |
 | Delimited record tables | Public validation | TBS1 won 3/4 families by 7.35%–16.50% | Aggregate remained 3.48% behind 7-Zip-9 |
 | JSON and machine logs | Public validation | JLS2 28.77% smaller than zstd-9 | Mixed against Brotli-11; decode gate missed |
 | General binary, source, archives | Development | Exact fallback | No category win established |
@@ -132,6 +133,7 @@ and its claim ceiling. Private holdout data stays outside the repository.
 Key documents:
 
 - [DMS2 native development gate](docs/benchmarks/2026-07-17-dms2-native-development-gate.md)
+- [DMS2 one-time validation readiness and frozen gates](docs/benchmarks/2026-07-17-dms2-public-validation-readiness.md)
 - [Dense-matrix frozen protocol](docs/benchmarks/2026-07-17-dense-matrix-representation-protocol.md)
 - [Fresh successor corpus protocol](docs/benchmarks/2026-07-17-tabular-successor-corpus-protocol.md)
 - [File-format contract](docs/file-format.md)
