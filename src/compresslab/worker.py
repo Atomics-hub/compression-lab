@@ -33,11 +33,18 @@ from .native import (
     native_available,
     structured_text_zstd_stream_decode,
     structured_text_zstd_stream_decode_into,
+    tabular_native_available,
     zstd_available,
     zstd_compress,
     zstd_decompress,
     zstd_engine,
     zstd_ffi_available,
+)
+from .tabular_transform import (
+    compress_auto as _tbl1_compress,
+    decompress as _tbl1_decompress,
+    frame_backend as _tbl1_frame_backend,
+    frame_delimiter as _tbl1_frame_delimiter,
 )
 
 
@@ -580,6 +587,31 @@ def run(codec_id: str, operation: str, source: Path, destination: Path) -> dict:
                 )
         else:
             output, detail = _adaptive_decompress(source.read_bytes())
+        destination.write_bytes(output)
+    elif codec.implementation == "tbl1":
+        if operation == "compress":
+            output = _tbl1_compress(source.read_bytes(), level=codec.level)
+            detail = {
+                "selected_backend": _tbl1_frame_backend(output),
+                "selector_ns": 0,
+                "transform_engine": (
+                    "rust" if tabular_native_available() else "python-fallback"
+                ),
+                "codec_engine": zstd_engine(),
+                "delimiter": _tbl1_frame_delimiter(output),
+            }
+        elif operation == "decompress":
+            output = _tbl1_decompress(source.read_bytes())
+            detail = {
+                "selected_backend": "tbl1-decode",
+                "selector_ns": 0,
+                "transform_engine": (
+                    "rust" if tabular_native_available() else "python-fallback"
+                ),
+                "codec_engine": zstd_engine(),
+            }
+        else:
+            raise ValueError(f"Unsupported operation: {operation}")
         destination.write_bytes(output)
     elif codec.implementation == "external-zstd" and zstd_available():
         detail = _run_zstd_ffi(codec, operation, source, destination)

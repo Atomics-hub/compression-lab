@@ -10,8 +10,10 @@ from compresslab.tabular_transform import (
     BACKEND_COLUMN,
     HEADER,
     compress,
+    compress_auto,
     decompress,
     frame_backend,
+    frame_delimiter,
     inverse_transform,
     reference_inverse_transform,
     reference_transform,
@@ -20,6 +22,15 @@ from compresslab.tabular_transform import (
 
 
 class TabularTransformTests(unittest.TestCase):
+    def test_auto_delimiter_is_deterministic_and_roundtrips(self):
+        semicolon = b"time;value;state\n" + b"1;2;ok\n" * 100
+        frame = compress_auto(semicolon, level=3)
+        self.assertEqual(frame_delimiter(frame), ord(";"))
+        self.assertEqual(decompress(frame), semicolon)
+        no_delimiter = compress_auto(b"plain text", level=3)
+        self.assertEqual(frame_delimiter(no_delimiter), ord(","))
+        self.assertEqual(decompress(no_delimiter), b"plain text")
+
     def test_native_transform_is_byte_identical_to_reference(self):
         fixtures = [
             (b"", ord(",")),

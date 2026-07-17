@@ -21,6 +21,8 @@ BACKEND_COLUMN = 1
 HEADER = struct.Struct(">4sBBBQ32s")
 DEFAULT_MAX_OUTPUT_SIZE = 2 * 1024 * 1024 * 1024
 TRANSFORM_SLACK = 1024 * 1024
+AUTO_DELIMITERS = (ord(","), ord(";"), ord("\t"), ord("|"))
+DETECTION_SAMPLE_BYTES = 1024 * 1024
 
 
 def _encode_varint(value: int) -> bytes:
@@ -201,6 +203,21 @@ def compress(data: bytes, delimiter: int, level: int = 9) -> bytes:
     ) + payload
 
 
+def detect_delimiter(data: bytes) -> int:
+    if len(data) <= DETECTION_SAMPLE_BYTES:
+        sample = data
+    else:
+        block = DETECTION_SAMPLE_BYTES // 3
+        middle = len(data) // 2 - block // 2
+        sample = data[:block] + data[middle : middle + block] + data[-block:]
+    counts = [sample.count(bytes((delimiter,))) for delimiter in AUTO_DELIMITERS]
+    return AUTO_DELIMITERS[max(range(len(counts)), key=counts.__getitem__)]
+
+
+def compress_auto(data: bytes, level: int = 9) -> bytes:
+    return compress(data, detect_delimiter(data), level=level)
+
+
 def frame_backend(frame: bytes) -> str:
     if len(frame) < HEADER.size:
         raise ValueError("truncated TBL1 frame")
@@ -212,6 +229,15 @@ def frame_backend(frame: bytes) -> str:
     if backend == BACKEND_COLUMN:
         return "column-transpose+zstd"
     raise ValueError("unsupported TBL1 backend")
+
+
+def frame_delimiter(frame: bytes) -> int:
+    if len(frame) < HEADER.size:
+        raise ValueError("truncated TBL1 frame")
+    magic, version, delimiter, _backend, _size, _digest = HEADER.unpack_from(frame)
+    if magic != MAGIC or version != VERSION:
+        raise ValueError("unsupported TBL1 frame")
+    return delimiter
 
 
 def decompress(

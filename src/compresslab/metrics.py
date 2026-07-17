@@ -28,6 +28,7 @@ def median_trials(trials: Sequence[Dict[str, Any]]) -> List[Dict[str, Any]]:
         "selector_sample_bytes",
         "sample_ratio",
         "transformed_sample_ratio",
+        "delimiter",
         "segment_count",
         "candidate_segment_count",
         "transformed_segments",
