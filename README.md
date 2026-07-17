@@ -92,19 +92,23 @@ frame = compress_json_logs(jsonl_bytes)
 restored = decompress_json_logs(frame)
 ```
 
-Development-corpus results are promising but are not a public superiority
-claim. The frozen five-family LogTrie development run produced a complete JLS2
-payload 28.90% smaller than zstd-9 and 6.45% smaller than Brotli-11. Blind
-validation remains required before promotion. The independent official PBC
-reproduction passed every exactness gate; its best fixed method produced
-35,380,846 complete bytes versus 2,693,313 for JLS2, making JLS2 92.39%
-smaller on these exposed development families. A checksummed hosted development
-run also passed every frozen
-complete-product speed gate at 183.66 MB/s aggregate compression and
-564.59 MB/s aggregate decompression while preserving the exact accepted bytes.
-These rates are reproducibility evidence for the recorded runner, not general
-market claims. The controlling evidence and exact limits are recorded in
-`docs/benchmarks/2026-07-16-jls2-complete-product-speed-decision.md` and
+The one-time three-family public validation is complete, and its frozen overall
+gate failed. JLS2 was 28.77% smaller than zstd-9 in aggregate and at least
+18.41% smaller on every unseen family. It was 83.82% smaller than complete
+PBC-only and 4.58% smaller than Brotli-11 in aggregate. However, it beat
+Brotli-11 on only one of three families, not the required two, and measured
+165.88 MB/s aggregate decompression on the Linux runner, below the frozen
+250 MB/s requirement. Compression passed at 155.83 MB/s. Every exactness,
+determinism, no-expansion, provenance, and complete-accounting gate passed.
+
+This is strong category evidence, not a state-of-the-art or market-leading
+claim. The first score is retained; JLS2 will not be tuned or rerun on the
+consumed Hadoop, OpenSSH, or OpenStack validation families. The private holdout
+remains sealed. The standardized comparison chart, exact gate results, runner
+limits, and checksums are recorded in
+`docs/benchmarks/2026-07-16-jls2-public-validation-decision.md` and
+`runs/jls2-public-validation-summary.json`. Development-only evidence remains
+in `docs/benchmarks/2026-07-16-jls2-complete-product-speed-decision.md` and
 `docs/benchmarks/2026-07-16-pbc-competitor-development-decision.md`.
 
 The format contract is in `docs/file-format.md`; security boundaries are in
@@ -146,6 +150,11 @@ Run the tests:
 
     scripts/build-native.sh
     python3 -m unittest discover -s tests -v
+
+Render a standardized category scorecard from its checksummed JSON summary:
+
+    python3 scripts/render-category-scorecard.py \
+      runs/jls2-public-validation-summary.json
 
 Rebuild the digest-pinned public starter corpus:
 

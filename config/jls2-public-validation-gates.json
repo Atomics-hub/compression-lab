@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "name": "jls2-logtrie-public-validation-v1",
+  "claim_ceiling": "one-time unseen public LogTrie family validation only; not independent-corpus, market-leading, world-best, or state-of-the-art evidence",
+  "candidate": {
+    "name": "JLS2",
+    "frozen_base_commit": "6fbb672fb2d7fbb116b58bcf83418a8cce5f227d",
+    "accepted_development_result_sha256": "0e289ebeab04b34815522f3cba22fd4cc64ebac8072d90c5ef4d695b79c6182d",
+    "segment_target_bytes": 16777216,
+    "internal_zstd_level": 6,
+    "frozen_paths": [
+      "src/compresslab/experimental.py",
+      "src/compresslab/json_columnar.py",
+      "src/compresslab/json_log_codec.py",
+      "src/compresslab/native.py",
+      "native/Cargo.lock",
+      "native/Cargo.toml",
+      "native/src/lib.rs"
+    ]
+  },
+  "validation": {
+    "config": "config/logtrie-json-log-validation-v1.json",
+    "expected_families": [
+      "hadoop",
+      "openssh",
+      "openstack"
+    ],
+    "minimum_repetitions": 5
+  },
+  "baselines": {
+    "zstd_level": 9,
+    "brotli_level": 11,
+    "pbc_method": "pbc_only",
+    "pbc_pattern_size": 100,
+    "pbc_train_data_number": 2000,
+    "pbc_train_thread_num": 64,
+    "pbc_training_repetitions": 2
+  },
+  "requirements": {
+    "max_normalized_preflight_load_1m": 1.0,
+    "minimum_gain_vs_zstd9_percent_per_family": 5.0,
+    "minimum_aggregate_gain_vs_zstd9_percent": 10.0,
+    "minimum_families_smaller_than_brotli11": 2,
+    "require_aggregate_smaller_than_brotli11": true,
+    "minimum_aggregate_compression_mbps": 100.0,
+    "minimum_aggregate_decompression_mbps": 250.0,
+    "require_exact_roundtrip": true,
+    "require_deterministic_jls2": true,
+    "require_no_expansion_vs_equally_framed_direct": true,
+    "require_jls2_smaller_than_fixed_pbc_per_family": true,
+    "require_jls2_smaller_than_fixed_pbc_aggregate": true,
+    "require_clean_commit": true
+  },
+  "decision_rule": "all requirements must pass on the first score; no candidate, threshold, method, setting, or corpus slice may change afterward",
+  "private_holdout": "remains sealed"
+}

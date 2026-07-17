@@ -420,6 +420,7 @@ def main() -> int:
                     "family": family,
                     "method": method,
                     "original_bytes": original_bytes,
+                    "source_sha256": item["sha256"],
                     **record_info,
                     "pattern_bytes": pattern_bytes,
                     "pattern_sha256": pattern_digests[0],

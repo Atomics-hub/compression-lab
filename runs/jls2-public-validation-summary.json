@@ -1,0 +1,160 @@
+{
+  "schema_version": 1,
+  "name": "jls2-logtrie-public-validation-scorecard",
+  "title": "JLS2 JSON/log one-time public validation",
+  "category": "newline-delimited flat JSON logs",
+  "stage": "public-validation",
+  "overall_gate": "fail",
+  "result_summary": "Strong unseen ratio win over zstd-9 and PBC-only, but the frozen overall gate failed Brotli family coverage and decompression speed.",
+  "claim_ceiling": "One-time unseen public LogTrie family evidence only; not independent-corpus, market-leading, world-best, or state-of-the-art evidence.",
+  "evidence": {
+    "github_run_id": 29542804015,
+    "github_run_url": "https://github.com/Atomics-hub/compression-lab/actions/runs/29542804015",
+    "artifact_name": "jls2-public-validation-29542804015",
+    "artifact_id": 8393380961,
+    "artifact_sha256s_file": "c6a1ec5dd269a10742c623d4263a21f24dba5f2461bd360b9845ef069774d45e",
+    "decision_sha256": "1e9ea7932f40d30b85b820d31f8389434ddeef0375e974e166ed7baaefb18900",
+    "jls2_result_sha256": "97b99863f2b959757d959204310746da1e752632db2bfe336cfa5f7760d4322e",
+    "pbc_result_sha256": "8d94e7dc4c64096e6c7ffca558898655e8cade1d7c41171dca380d71e0323cb0",
+    "manifest_sha256": "7d963ee49cb46e02e3435cfd6f4508eda1f435e982a5a5ac3386b098aa00398b",
+    "workflow_commit": "2a268f69a2672ab2cc37c640f085bcc5cbf167e5",
+    "frozen_candidate_commit": "6fbb672fb2d7fbb116b58bcf83418a8cce5f227d",
+    "runner": "Ubuntu 22.04, Linux 6.8.0-1062-azure x86_64, 4 logical CPUs",
+    "checksums_verified_after_download": true
+  },
+  "corpus": {
+    "publication": "LogTrie datasets version 1",
+    "doi": "10.5281/zenodo.18522101",
+    "license_spdx": "CC-BY-4.0",
+    "families": [
+      "hadoop",
+      "openssh",
+      "openstack"
+    ],
+    "original_bytes": 214372886,
+    "private_holdout": "sealed"
+  },
+  "candidate": {
+    "codec": "JLS2",
+    "segment_target_bytes": 16777216,
+    "repetitions": 5,
+    "deterministic": true,
+    "exact_roundtrip": true,
+    "no_expansion_vs_equally_framed_direct": true,
+    "portable_ci": "Linux, macOS, and Windows standard CI passed on the scored commit"
+  },
+  "standards": [
+    {
+      "codec": "JLS2",
+      "setting": "frozen 16 MiB JSON-columnar selector",
+      "complete_bytes": 3999168,
+      "compression_ratio": 53.604371209211514,
+      "compression_mbps": 155.82969527225637,
+      "compression_basis": "five complete trials; aggregate source bytes divided by sum of family medians",
+      "decompression_mbps": 165.88031156509018,
+      "decompression_basis": "five complete trials; aggregate source bytes divided by sum of family medians",
+      "peak_memory_mib": null,
+      "memory_basis": "not measured in this validation; development worst-case RSS was 386.4 MB compression and 171.4 MB decompression",
+      "jls2_size_outcome": "candidate",
+      "jls2_compression_outcome": "candidate",
+      "jls2_decompression_outcome": "candidate",
+      "exact_roundtrip": true,
+      "speed_comparability": "candidate reference"
+    },
+    {
+      "codec": "zstd",
+      "setting": "level 9",
+      "complete_bytes": 5614733,
+      "compression_ratio": 38.18042389549067,
+      "compression_mbps": 222.03390753199875,
+      "compression_basis": "one complete baseline trial per family",
+      "decompression_mbps": 1547.8790443525395,
+      "decompression_basis": "one complete baseline trial per family",
+      "peak_memory_mib": null,
+      "memory_basis": "not measured",
+      "jls2_size_outcome": "win: 28.77% smaller",
+      "jls2_compression_outcome": "loss: 29.82% slower",
+      "jls2_decompression_outcome": "loss: 89.28% slower",
+      "exact_roundtrip": true,
+      "speed_comparability": "same host and bytes, but baseline timing is single-trial context rather than a repeated speed gate"
+    },
+    {
+      "codec": "Brotli",
+      "setting": "quality 11",
+      "complete_bytes": 4191238,
+      "compression_ratio": 51.14786752744654,
+      "compression_mbps": 0.49047557592402713,
+      "compression_basis": "one complete baseline trial per family",
+      "decompression_mbps": 1168.5809515163303,
+      "decompression_basis": "one complete baseline trial per family",
+      "peak_memory_mib": null,
+      "memory_basis": "not measured",
+      "jls2_size_outcome": "mixed: 4.58% smaller in aggregate but smaller on only 1 of 3 families",
+      "jls2_compression_outcome": "win: 317.71x faster",
+      "jls2_decompression_outcome": "loss: 85.80% slower",
+      "exact_roundtrip": true,
+      "speed_comparability": "same host and bytes, but baseline timing is single-trial context rather than a repeated speed gate"
+    },
+    {
+      "codec": "PBC",
+      "setting": "official pbc_only; pattern plus payload",
+      "complete_bytes": 24718693,
+      "compression_ratio": 8.672500847840135,
+      "compression_mbps": 0.5610999076812121,
+      "compression_basis": "two pattern-training trials plus five online trials; complete rate includes median training and median online time",
+      "online_compression_mbps": 88.29514832175884,
+      "decompression_mbps": 94.6332929673138,
+      "decompression_basis": "five complete trials per family",
+      "peak_memory_mib": null,
+      "memory_basis": "not measured",
+      "jls2_size_outcome": "win: 83.82% smaller",
+      "jls2_compression_outcome": "win: 277.72x faster than complete training plus online rate; 1.76x faster than online-only rate",
+      "jls2_decompression_outcome": "win: 1.75x faster",
+      "exact_roundtrip": true,
+      "speed_comparability": "same hosted runner and bytes in a separate quiet-host stage; PBC training deliberately uses 64 threads on 4 logical CPUs"
+    }
+  ],
+  "family_results": [
+    {
+      "family": "hadoop",
+      "original_bytes": 33908970,
+      "jls2_bytes": 755784,
+      "gain_vs_zstd9_percent": 28.783872663848616,
+      "gain_vs_brotli11_percent": -2.0474737382193298,
+      "gain_vs_pbc_percent": 88.1759785805148
+    },
+    {
+      "family": "openssh",
+      "original_bytes": 132211920,
+      "jls2_bytes": 1869933,
+      "gain_vs_zstd9_percent": 34.846289223852125,
+      "gain_vs_brotli11_percent": 12.994766936268476,
+      "gain_vs_pbc_percent": 84.25996102391022
+    },
+    {
+      "family": "openstack",
+      "original_bytes": 48251996,
+      "jls2_bytes": 1373451,
+      "gain_vs_zstd9_percent": 18.41431207178609,
+      "gain_vs_brotli11_percent": -5.536503409023673,
+      "gain_vs_pbc_percent": 78.69512733121006
+    }
+  ],
+  "gate_results": {
+    "frozen_candidate": true,
+    "first_score_completed": true,
+    "exact_roundtrip": true,
+    "deterministic_jls2": true,
+    "no_expansion": true,
+    "zstd9_per_family_at_least_5_percent": true,
+    "zstd9_aggregate_at_least_10_percent": true,
+    "brotli11_at_least_2_of_3_families": false,
+    "brotli11_aggregate": true,
+    "compression_at_least_100_mbps": true,
+    "decompression_at_least_250_mbps": false,
+    "pbc_per_family": true,
+    "pbc_aggregate": true,
+    "all_provenance_and_accounting": true
+  },
+  "decision": "Retain the failed first score. Do not tune or rerun JLS2 on these validation families. Preserve the ratio representation as validated evidence, profile Linux decode using development data only, and require a fresh independently sourced corpus for any successor claim."
+}
