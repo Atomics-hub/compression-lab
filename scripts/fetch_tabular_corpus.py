@@ -103,6 +103,7 @@ def build(
     output.mkdir(parents=True, exist_ok=True)
     cache.mkdir(parents=True, exist_ok=True)
     maximum = int(config["selection"]["max_item_bytes"])
+    benchmark_split = "train" if config_key == "development" else "validation"
     manifest_items = []
     for source in config[config_key]:
         archive_path = cache / f"{source['id']}.zip"
@@ -154,9 +155,15 @@ def build(
             {
                 "id": source["id"],
                 "family": source["family"],
-                "split": config_key,
+                "path": item_path.name,
+                "category": config["category"],
+                "split": benchmark_split,
+                "size_bytes": len(item),
+                "sha256": item_sha256,
+                "dataset": source["title"],
                 "license_spdx": config["provider"]["license_spdx"],
                 "doi": source["doi"],
+                "source_url": source["page_url"],
                 "page_url": source["page_url"],
                 "archive_url": source["archive_url"],
                 "archive_path": str(archive_path),
@@ -164,11 +171,20 @@ def build(
                 "publisher_digest_pinned": expected_archive_sha256 is not None,
                 "member": source["member"],
                 "member_compression": source["member_compression"],
-                "item_path": str(item_path),
+                "item_path": item_path.name,
                 "item_bytes": len(item),
                 "item_sha256": item_sha256,
                 "item_digest_pinned": expected_item_sha256 is not None,
                 "source_complete": source_complete,
+                "provenance": {
+                    "provider": config["provider"]["name"],
+                    "archive_url": source["archive_url"],
+                    "archive_sha256": archive_sha256,
+                    "member": source["member"],
+                    "member_compression": source["member_compression"],
+                    "selection_rule": config["selection"]["slice_rule"],
+                    "source_split": config_key,
+                },
             }
         )
         print(
@@ -178,11 +194,13 @@ def build(
         )
 
     manifest = {
-        "schema_version": 1,
+        "schema_version": 2,
+        "generator": "compression-lab-tabular-corpus",
         "name": config["name"],
         "category": config["category"],
         "claim_ceiling": config["claim_ceiling"],
-        "split": config_key,
+        "source_split": config_key,
+        "benchmark_split": benchmark_split,
         "config_path": str(config_path),
         "config_sha256": file_sha256(config_path),
         "selection": config["selection"],

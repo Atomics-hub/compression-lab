@@ -1,0 +1,184 @@
+{
+  "schema_version": 1,
+  "title": "Delimited-tabular development baseline census",
+  "category": "tabular_csv",
+  "stage": "development-baseline-census",
+  "overall_gate": "unscored",
+  "candidate": null,
+  "result_summary": "All 40 exact round trips passed. Brotli-11 was the smallest fixed baseline at 13,425,698 bytes, while zstd-9 and zstd-3 defined the practical balanced speed frontier. This single-trial dirty-tree census selects baselines and cannot promote a candidate or support a performance claim.",
+  "claim_ceiling": "single-trial local development baseline discovery only; no Compression Lab candidate was measured; not accepted development, public-validation, private-holdout, independent, market-leading, or state-of-the-art evidence",
+  "corpus": {
+    "name": "uci-delimited-tabular-v1 development",
+    "families": [
+      "autouniv_mixed",
+      "covertype_integer_binary",
+      "facebook_dense_numeric",
+      "gas_sensor_wide_float"
+    ],
+    "original_bytes": 187321615,
+    "license_spdx": "CC-BY-4.0",
+    "manifest_sha256": "bac7f9bb94bac38dc621d927ff8cca70a8c2fde92c3689525a1de2d87d098f61",
+    "public_validation": "unopened",
+    "private_holdout": "sealed"
+  },
+  "evidence": {
+    "run_id": "20260717T005709Z-bbca5520",
+    "runner": "macOS 26.5.2 arm64, 10 logical CPUs, persistent Python worker per codec",
+    "workflow_commit": "0ea040f0484f99795687c9563de36e75b0596509",
+    "git_dirty": true,
+    "timing_basis": "one complete trial per family and codec; parent wall clock excluding Python worker startup but including IPC, file I/O, and native CLI startup",
+    "repetitions": 1,
+    "warmups": 0,
+    "roundtrip_failures": 0,
+    "source_results_sha256": "1bebda79d6bb38152b8fd11731a0f3040229594f8ea70ed01bb4fba5216fad15",
+    "source_summary_sha256": "7d5abd8d97caf8b139ae6dc2e3be6ef060e89f97166b4e2f1bbdfae2f8b96f34",
+    "source_report_sha256": "25c256a72fe17e7033aa701b2cf3eb04cdab0dce38343639bb18a1796078b64b"
+  },
+  "standards": [
+    {
+      "codec": "brotli-11",
+      "complete_bytes": 13425698,
+      "compressed_percent": 7.167191036656394,
+      "compression_mbps": 0.3334060817375458,
+      "decompression_mbps": 293.21150468000315,
+      "peak_memory_mib": 254.46875,
+      "exact_roundtrip": true,
+      "pareto": true,
+      "position": "best fixed ratio"
+    },
+    {
+      "codec": "lzma-9",
+      "complete_bytes": 14275744,
+      "compressed_percent": 7.620980632694203,
+      "compression_mbps": 0.7750842823154696,
+      "decompression_mbps": 38.9131476890021,
+      "peak_memory_mib": 801.78125,
+      "exact_roundtrip": true,
+      "pareto": true,
+      "position": "dense frontier"
+    },
+    {
+      "codec": "7zip-9",
+      "complete_bytes": 14301453,
+      "compressed_percent": 7.634705156690006,
+      "compression_mbps": 2.688027085145223,
+      "decompression_mbps": 133.1266532144381,
+      "peak_memory_mib": 648.53125,
+      "exact_roundtrip": true,
+      "pareto": true,
+      "position": "dense frontier"
+    },
+    {
+      "codec": "zstd-19",
+      "complete_bytes": 14570801,
+      "compressed_percent": 7.77849422235656,
+      "compression_mbps": 2.066887884383905,
+      "decompression_mbps": 424.877246022057,
+      "peak_memory_mib": 240.375,
+      "exact_roundtrip": true,
+      "pareto": true,
+      "position": "dense decode frontier"
+    },
+    {
+      "codec": "bz2-9",
+      "complete_bytes": 17627845,
+      "compressed_percent": 9.410470329331721,
+      "compression_mbps": 1.4286329300874074,
+      "decompression_mbps": 20.857637592147146,
+      "peak_memory_mib": 255.453125,
+      "exact_roundtrip": true,
+      "pareto": false,
+      "position": "dominated"
+    },
+    {
+      "codec": "zstd-9",
+      "complete_bytes": 18038379,
+      "compressed_percent": 9.629630301874132,
+      "compression_mbps": 61.91356021937415,
+      "decompression_mbps": 380.9444318471843,
+      "peak_memory_mib": 233.703125,
+      "exact_roundtrip": true,
+      "pareto": true,
+      "position": "balanced frontier"
+    },
+    {
+      "codec": "gzip-9",
+      "complete_bytes": 19811936,
+      "compressed_percent": 10.57642813937943,
+      "compression_mbps": 8.03397228996726,
+      "decompression_mbps": 362.9654517785653,
+      "peak_memory_mib": 269.0,
+      "exact_roundtrip": true,
+      "pareto": false,
+      "position": "dominated"
+    },
+    {
+      "codec": "zstd-3",
+      "complete_bytes": 22715433,
+      "compressed_percent": 12.126434528124264,
+      "compression_mbps": 185.1298625571855,
+      "decompression_mbps": 333.2341401645283,
+      "peak_memory_mib": 327.265625,
+      "exact_roundtrip": true,
+      "pareto": true,
+      "position": "fast balanced frontier"
+    },
+    {
+      "codec": "lz4-1",
+      "complete_bytes": 38164405,
+      "compressed_percent": 20.373732630908613,
+      "compression_mbps": 764.9951238515489,
+      "decompression_mbps": 393.47597296929075,
+      "peak_memory_mib": 37.171875,
+      "exact_roundtrip": true,
+      "pareto": true,
+      "position": "fast frontier"
+    },
+    {
+      "codec": "store",
+      "complete_bytes": 187321615,
+      "compressed_percent": 100.0,
+      "compression_mbps": 1242.3992988237906,
+      "decompression_mbps": 719.7798066079151,
+      "peak_memory_mib": 25.03125,
+      "exact_roundtrip": true,
+      "pareto": true,
+      "position": "copy frontier"
+    }
+  ],
+  "family_results": [
+    {
+      "family": "autouniv_mixed",
+      "original_bytes": 11238737,
+      "best_codec": "7zip-9",
+      "best_bytes": 2285071
+    },
+    {
+      "family": "covertype_integer_binary",
+      "original_bytes": 67108763,
+      "best_codec": "brotli-11",
+      "best_bytes": 6588546
+    },
+    {
+      "family": "facebook_dense_numeric",
+      "original_bytes": 53242583,
+      "best_codec": "brotli-11",
+      "best_bytes": 1446175
+    },
+    {
+      "family": "gas_sensor_wide_float",
+      "original_bytes": 55731532,
+      "best_codec": "lzma-9",
+      "best_bytes": 2922704
+    }
+  ],
+  "targets": {
+    "dense_maximum_bytes_for_five_percent_gain_vs_brotli11": 12754413,
+    "balanced_maximum_bytes_for_five_percent_gain_vs_zstd9": 17136460,
+    "dense_minimum_compression_mbps": 50.0,
+    "dense_minimum_decompression_mbps": 250.0,
+    "balanced_minimum_compression_mbps": 100.0,
+    "balanced_minimum_decompression_mbps": 500.0
+  },
+  "decision": "Retain Brotli-11 as the fixed aggregate ratio target, per-family best bytes as the family targets, zstd-9 and zstd-3 as balanced speed references, and LZ4-1 as the fast reference. Implement and reject TBL1 channels on development data only before any clean repeated decision run."
+}

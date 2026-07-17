@@ -27,6 +27,7 @@ def config_for(archive: Path, digest: str, compression: str = "none"):
     item = {
         "id": "fixture",
         "family": "fixture_family",
+        "title": "Fixture table",
         "doi": "10.1234/example",
         "page_url": "https://example.test/dataset",
         "archive_url": archive.as_uri(),
@@ -39,8 +40,14 @@ def config_for(archive: Path, digest: str, compression: str = "none"):
         "name": "fixture-tabular",
         "category": "tabular_csv",
         "claim_ceiling": "test only",
-        "provider": {"license_spdx": "CC-BY-4.0"},
-        "selection": {"max_item_bytes": 12},
+        "provider": {
+            "name": "Fixture provider",
+            "license_spdx": "CC-BY-4.0",
+        },
+        "selection": {
+            "max_item_bytes": 12,
+            "slice_rule": "fixture record-aligned prefix",
+        },
         "development": [item],
         "public_validation": [item | {"id": "validation-fixture"}],
     }
