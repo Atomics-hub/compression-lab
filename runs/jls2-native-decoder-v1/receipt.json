@@ -1,0 +1,37 @@
+{
+  "artifacts": {
+    "docs/benchmarks/2026-07-17-jls2-native-decoder-protocol.md": "e280e64b60c2771bd88ef48c0e50af4f4f083ab0c290d4e697e1e8bc873ef7e4",
+    "runs/clue-json-log-development-census-v1/comparison.json": "66d8986ae2bf6beb2cc2a4fd4280f9dfe34f013f947e9097c80353853bf74a36",
+    "runs/jls2-native-decoder-v1/README.md": "06c9a540cd0316fcbd0d6f170734358972d2f924504ba64182963be89f6cd944",
+    "runs/jls2-native-decoder-v1/native-decoder-scorecard.svg": "0083c202cc7a07f8b035b94e0bfbbf1016ce332c67038a1fef47aff8a378d8db",
+    "runs/jls2-native-decoder-v1/release-SHA256SUMS": "8755526c06c6c5e9997e492e4a2e1a0669bba736ef9d23ff9a6b61860cbf7c57",
+    "runs/jls2-native-decoder-v1/results.json": "d5d64e3b756f75ff1ee6585e895b88caea1996201c3f08de1e6e35b5e648a0dc"
+  },
+  "baseline_commit": "604271cbc89a11c739848f68a7739ed523fb9a1b",
+  "candidate_implementation_commit": "86d86f80dad86735e53829c6009eb29cee0ea324",
+  "ci": {
+    "cross_platform_conclusion": "success",
+    "cross_platform_run_id": 29597215089,
+    "release_artifact_conclusion": "success",
+    "release_artifact_run_id": 29597540285
+  },
+  "claim_ceiling": "Development-only cold-process delivery evidence on the three frozen CLUE-LDS development ranges; not public validation, private holdout, independent reproduction, universal, market-leading, world-best, or state-of-the-art evidence",
+  "decision": "standalone-native-decode-development-gate-passed",
+  "protocol": "jls2-standalone-native-decoder-v1",
+  "publication_sources": {
+    ".github/workflows/ci.yml": "44fae6a982fd830054ca8cd540d894c1f80e2b70b7accb3e8761e571cff1904b",
+    ".github/workflows/jls2-native-decoder.yml": "215cdccbf07da3c71729ad9eb2e75832b3c003bd4a2b9d9e099f69261f2f99ce",
+    ".github/workflows/release.yml": "0a825986489b15417f32b305f82946f528a39b43c735247240159387e982d129",
+    "README.md": "349fe23733c93bdd10071885f79183426730a28970438a51d870fa47306dc1c5",
+    "native/Cargo.lock": "a905547d069da6d55bf6739307ffe9c75202cc15e87a6ae399e10b8890544783",
+    "native/Cargo.toml": "f5ab389ff2beb11294e775cd75d01e81de3d4c6976eb7e3f9bfb26fb72f435f3",
+    "native/src/bin/clab-jls2.rs": "45d835cc512406f747a0cab7173b2594897c2064fcddff1c53a94e8b9d43c7c9",
+    "native/src/jls2.rs": "e57b5d7d0bf1797eceba7bb2a3b0eeffd06a44cb7d4dc046a62ceda0c90bfbbc",
+    "scripts/benchmark-jls2-native-decoder.py": "0ae16a0574a61b9e46cccce7f3abaddb1fc0facc760828f2a1b3241cef334297",
+    "scripts/publish-jls2-native-decoder.py": "232ff78ea99617c5d8bd2c557d35f4ee65633b3e3948ffcff7633499df7ec9e4",
+    "tests/test_jls2_native_decoder.py": "f257c6dd64b5da5cce4d41098f5d7298b641736f0a34b89bc47e13b4ba53c4dd",
+    "tests/test_jls2_native_decoder_benchmark.py": "2e4e150e792d77cfb15bf4668bcb39e3e81b7bbfab8e62fb0cf7b0fcbbdc2655",
+    "tests/test_jls2_native_decoder_evidence.py": "a7513a5ce1c9380bf10e2606b989ddf85ff17eba396efd0d51458ca541713290"
+  },
+  "schema_version": 1
+}

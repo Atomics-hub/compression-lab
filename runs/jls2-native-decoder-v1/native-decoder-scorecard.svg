@@ -1,0 +1,206 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="940" viewBox="0 0 1440 940" role="img" aria-labelledby="title desc">
+<title id="title">JLS2 standalone native decoder development gate and immutable standards size census</title>
+<desc id="desc">The standalone native decoder passed all seven 250 megabyte per second rounds. A separate lower panel preserves the complete eleven-codec same-run standards census, including size, compression and decompression speed, memory, exactness, and runner comparability.</desc>
+<style>
+text{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;fill:#24292f}.title{font-size:24px;font-weight:600}.subtitle,.axis,.note{font-size:13px;fill:#57606a}.section{font-size:17px;font-weight:600}.label,.value{font-size:14px}.table{font-size:12px}.header{font-size:11px;font-weight:600;fill:#57606a}.grid{stroke:#d0d7de;stroke-width:1}.target{stroke:#cf222e;stroke-width:2;stroke-dasharray:6 5}.baseline{fill:#8c959f}.candidate{fill:#1f883d}.minimum{fill:#24292f}.line{stroke:#afb8c1;stroke-width:3}.standard{fill:#6e7781}.winner,.pass{fill:#1f883d}.fail{fill:#cf222e}.card{fill:#f6f8fa;stroke:#d0d7de}.divider,.rowline{stroke:#d0d7de}
+@media(prefers-color-scheme:dark){text{fill:#f0f6fc}.subtitle,.axis,.note,.header{fill:#8c959f}.grid,.divider,.rowline{stroke:#30363d}.target,.fail{fill:#f85149;stroke:#f85149}.baseline{fill:#6e7681}.candidate,.winner,.pass{fill:#3fb950}.minimum{fill:#f0f6fc}.line{stroke:#484f58}.standard{fill:#8c959f}.card{fill:#161b22;stroke:#30363d}}
+</style>
+<text class="title" x="24" y="34">Standalone JLS2 decode clears the frozen product gate</text>
+<text class="subtitle" x="24" y="58">Top: paired cold-process product paths · 7 rounds × 3 CLUE-LDS development ranges</text>
+<text class="subtitle" x="24" y="78">Bottom: immutable 11-codec complete-archive census · every metric uses its original same-run path</text>
+<text class="section" x="24" y="112">Cold-process decompression throughput (MB/s, higher is better)</text>
+<line class="grid" x1="260.0" y1="126" x2="260.0" y2="242"/>
+<text class="axis" x="260.0" y="264" text-anchor="middle">0</text>
+<line class="grid" x1="420.0" y1="126" x2="420.0" y2="242"/>
+<text class="axis" x="420.0" y="264" text-anchor="middle">100</text>
+<line class="grid" x1="580.0" y1="126" x2="580.0" y2="242"/>
+<text class="axis" x="580.0" y="264" text-anchor="middle">200</text>
+<line class="grid" x1="740.0" y1="126" x2="740.0" y2="242"/>
+<text class="axis" x="740.0" y="264" text-anchor="middle">300</text>
+<line class="grid" x1="900.0" y1="126" x2="900.0" y2="242"/>
+<text class="axis" x="900.0" y="264" text-anchor="middle">400</text>
+<line class="grid" x1="1060.0" y1="126" x2="1060.0" y2="242"/>
+<text class="axis" x="1060.0" y="264" text-anchor="middle">500</text>
+<line class="grid" x1="1220.0" y1="126" x2="1220.0" y2="242"/>
+<text class="axis" x="1220.0" y="264" text-anchor="middle">600</text>
+<line class="target" x1="660.0" y1="118" x2="660.0" y2="242"/>
+<text class="axis" x="660.0" y="112" text-anchor="middle">frozen 250 target</text>
+<text class="label" x="24" y="154">Pinned lazy Python CLI</text>
+<rect class="baseline" x="260" y="134" width="543.2" height="28" rx="4"/>
+<circle class="minimum" cx="725.3" cy="148" r="5"/>
+<text class="value" x="813.2" y="154">339.5 median</text>
+<text class="label" x="24" y="212">Standalone native</text>
+<rect class="candidate" x="260" y="192" width="936.7" height="28" rx="4"/>
+<circle class="minimum" cx="897.4" cy="206" r="5"/>
+<text class="value" x="1206.7" y="212">585.4 median</text>
+<rect class="card" x="24" y="292" width="318" height="66" rx="6"/>
+<text class="note" x="38" y="315">Exact</text>
+<text class="section" x="38" y="341">48 / 48</text>
+<rect class="card" x="366" y="292" width="318" height="66" rx="6"/>
+<text class="note" x="380" y="315">Rounds ≥250</text>
+<text class="section" x="380" y="341">7 / 7</text>
+<rect class="card" x="708" y="292" width="318" height="66" rx="6"/>
+<text class="note" x="722" y="315">Paired gain</text>
+<text class="section" x="722" y="341">+69.98%</text>
+<rect class="card" x="1050" y="292" width="318" height="66" rx="6"/>
+<text class="note" x="1064" y="315">Peak RSS</text>
+<text class="section" x="1064" y="341">146.5 MiB</text>
+<line class="divider" x1="24" y1="388" x2="1416" y2="388"/>
+<text class="section" x="24" y="420">Immutable complete 11-codec standards scorecard</text>
+<text class="note" x="24" y="442">Size bars use a log scale. C/D speeds and peak C/D RSS remain the original same-run measurements; native delivery speed above is a separate A/B.</text>
+<text class="header" x="24" y="470">CODEC</text>
+<text class="header" x="130" y="470">SIZE (LOG)</text>
+<text class="header" x="415" y="470">MB · RATIO</text>
+<text class="header" x="535" y="470">JLS2 SIZE</text>
+<text class="header" x="655" y="470">C MB/S</text>
+<text class="header" x="735" y="470">JLS2 C</text>
+<text class="header" x="855" y="470">D MB/S</text>
+<text class="header" x="935" y="470">JLS2 D</text>
+<text class="header" x="1065" y="470">PEAK C/D MIB</text>
+<text class="header" x="1195" y="470">EXACT</text>
+<text class="header" x="1260" y="470">RUNNER</text>
+<line class="rowline" x1="24" y1="511" x2="1416" y2="511"/>
+<text class="label" x="24" y="501">jls2</text>
+<line class="line" x1="130" y1="496" x2="130.0" y2="496"/>
+<circle class="winner" cx="130.0" cy="496" r="6"/>
+<text class="table" x="415" y="501">3.52 · 57.77x</text>
+<text class="table winner" x="535" y="501">candidate</text>
+<text class="table" x="655" y="501">109.90</text>
+<text class="table winner" x="735" y="501">candidate</text>
+<text class="table" x="855" y="501">116.43</text>
+<text class="table winner" x="935" y="501">candidate</text>
+<text class="table" x="1065" y="501">416.5/186.3</text>
+<text class="table pass" x="1195" y="501">yes</text>
+<text class="table pass" x="1260" y="501">same run</text>
+<line class="rowline" x1="24" y1="546" x2="1416" y2="546"/>
+<text class="label" x="24" y="536">brotli-11</text>
+<line class="line" x1="130" y1="531" x2="143.3" y2="531"/>
+<circle class="standard" cx="143.3" cy="531" r="6"/>
+<text class="table" x="415" y="536">4.30 · 47.33x</text>
+<text class="table winner" x="535" y="536">+18.1%</text>
+<text class="table" x="655" y="536">0.37</text>
+<text class="table winner" x="735" y="536">297.46x faster</text>
+<text class="table" x="855" y="536">253.86</text>
+<text class="table fail" x="935" y="536">54.1% slower</text>
+<text class="table" x="1065" y="536">186.8/25.2</text>
+<text class="table pass" x="1195" y="536">yes</text>
+<text class="table pass" x="1260" y="536">same run</text>
+<line class="rowline" x1="24" y1="581" x2="1416" y2="581"/>
+<text class="label" x="24" y="571">zstd-19</text>
+<line class="line" x1="130" y1="566" x2="151.9" y2="566"/>
+<circle class="standard" cx="151.9" cy="566" r="6"/>
+<text class="table" x="415" y="571">4.90 · 41.54x</text>
+<text class="table winner" x="535" y="571">+28.1%</text>
+<text class="table" x="655" y="571">1.05</text>
+<text class="table winner" x="735" y="571">104.52x faster</text>
+<text class="table" x="855" y="571">268.83</text>
+<text class="table fail" x="935" y="571">56.7% slower</text>
+<text class="table" x="1065" y="571">244.1/163.1</text>
+<text class="table pass" x="1195" y="571">yes</text>
+<text class="table pass" x="1260" y="571">same run</text>
+<line class="rowline" x1="24" y1="616" x2="1416" y2="616"/>
+<text class="label" x="24" y="606">bz2-9</text>
+<line class="line" x1="130" y1="601" x2="158.2" y2="601"/>
+<circle class="standard" cx="158.2" cy="601" r="6"/>
+<text class="table" x="415" y="606">5.38 · 37.84x</text>
+<text class="table winner" x="535" y="606">+34.5%</text>
+<text class="table" x="655" y="606">1.37</text>
+<text class="table winner" x="735" y="606">80.13x faster</text>
+<text class="table" x="855" y="606">25.26</text>
+<text class="table winner" x="935" y="606">4.61x faster</text>
+<text class="table" x="1065" y="606">104.1/166.8</text>
+<text class="table pass" x="1195" y="606">yes</text>
+<text class="table pass" x="1260" y="606">same run</text>
+<line class="rowline" x1="24" y1="651" x2="1416" y2="651"/>
+<text class="label" x="24" y="641">lzma-9</text>
+<line class="line" x1="130" y1="636" x2="160.5" y2="636"/>
+<circle class="standard" cx="160.5" cy="636" r="6"/>
+<text class="table" x="415" y="641">5.57 · 36.53x</text>
+<text class="table winner" x="535" y="641">+36.8%</text>
+<text class="table" x="655" y="641">1.59</text>
+<text class="table winner" x="735" y="641">69.01x faster</text>
+<text class="table" x="855" y="641">82.29</text>
+<text class="table winner" x="935" y="641">1.41x faster</text>
+<text class="table" x="1065" y="641">743.9/227.7</text>
+<text class="table pass" x="1195" y="641">yes</text>
+<text class="table pass" x="1260" y="641">same run</text>
+<line class="rowline" x1="24" y1="686" x2="1416" y2="686"/>
+<text class="label" x="24" y="676">7zip-9</text>
+<line class="line" x1="130" y1="671" x2="160.5" y2="671"/>
+<circle class="standard" cx="160.5" cy="671" r="6"/>
+<text class="table" x="415" y="676">5.57 · 36.52x</text>
+<text class="table winner" x="535" y="676">+36.8%</text>
+<text class="table" x="655" y="676">6.44</text>
+<text class="table winner" x="735" y="676">17.06x faster</text>
+<text class="table" x="855" y="676">164.58</text>
+<text class="table fail" x="935" y="676">29.3% slower</text>
+<text class="table" x="1065" y="676">750.0/73.4</text>
+<text class="table pass" x="1195" y="676">yes</text>
+<text class="table pass" x="1260" y="676">same run</text>
+<line class="rowline" x1="24" y1="721" x2="1416" y2="721"/>
+<text class="label" x="24" y="711">zstd-9</text>
+<line class="line" x1="130" y1="706" x2="161.8" y2="706"/>
+<circle class="standard" cx="161.8" cy="706" r="6"/>
+<text class="table" x="415" y="711">5.68 · 35.81x</text>
+<text class="table winner" x="535" y="711">+38.0%</text>
+<text class="table" x="655" y="711">124.70</text>
+<text class="table fail" x="735" y="711">11.9% slower</text>
+<text class="table" x="855" y="711">300.48</text>
+<text class="table fail" x="935" y="711">61.3% slower</text>
+<text class="table" x="1065" y="711">242.3/163.4</text>
+<text class="table pass" x="1195" y="711">yes</text>
+<text class="table pass" x="1260" y="711">same run</text>
+<line class="rowline" x1="24" y1="756" x2="1416" y2="756"/>
+<text class="label" x="24" y="746">zstd-3</text>
+<line class="line" x1="130" y1="741" x2="180.6" y2="741"/>
+<circle class="standard" cx="180.6" cy="741" r="6"/>
+<text class="table" x="415" y="746">7.54 · 27.00x</text>
+<text class="table winner" x="535" y="746">+53.3%</text>
+<text class="table" x="655" y="746">313.60</text>
+<text class="table fail" x="735" y="746">65.0% slower</text>
+<text class="table" x="855" y="746">248.62</text>
+<text class="table fail" x="935" y="746">53.2% slower</text>
+<text class="table" x="1065" y="746">233.7/164.3</text>
+<text class="table pass" x="1195" y="746">yes</text>
+<text class="table pass" x="1260" y="746">same run</text>
+<line class="rowline" x1="24" y1="791" x2="1416" y2="791"/>
+<text class="label" x="24" y="781">gzip-9</text>
+<line class="line" x1="130" y1="776" x2="186.8" y2="776"/>
+<circle class="standard" cx="186.8" cy="776" r="6"/>
+<text class="table" x="415" y="781">8.27 · 24.61x</text>
+<text class="table winner" x="535" y="781">+57.4%</text>
+<text class="table" x="655" y="781">49.19</text>
+<text class="table winner" x="735" y="781">2.23x faster</text>
+<text class="table" x="855" y="781">288.08</text>
+<text class="table fail" x="935" y="781">59.6% slower</text>
+<text class="table" x="1065" y="781">99.2/167.4</text>
+<text class="table pass" x="1195" y="781">yes</text>
+<text class="table pass" x="1260" y="781">same run</text>
+<line class="rowline" x1="24" y1="826" x2="1416" y2="826"/>
+<text class="label" x="24" y="816">lz4-1</text>
+<line class="line" x1="130" y1="811" x2="222.1" y2="811"/>
+<circle class="standard" cx="222.1" cy="811" r="6"/>
+<text class="table" x="415" y="816">14.06 · 14.48x</text>
+<text class="table winner" x="535" y="816">+74.9%</text>
+<text class="table" x="655" y="816">387.73</text>
+<text class="table fail" x="735" y="816">71.7% slower</text>
+<text class="table" x="855" y="816">278.96</text>
+<text class="table fail" x="935" y="816">58.3% slower</text>
+<text class="table" x="1065" y="816">25.2/25.3</text>
+<text class="table pass" x="1195" y="816">yes</text>
+<text class="table pass" x="1260" y="816">same run</text>
+<line class="rowline" x1="24" y1="861" x2="1416" y2="861"/>
+<text class="label" x="24" y="851">store</text>
+<line class="line" x1="130" y1="846" x2="400.0" y2="846"/>
+<circle class="standard" cx="400.0" cy="846" r="6"/>
+<text class="table" x="415" y="851">203.58 · 1.00x</text>
+<text class="table winner" x="535" y="851">+98.3%</text>
+<text class="table" x="655" y="851">416.08</text>
+<text class="table fail" x="735" y="851">73.6% slower</text>
+<text class="table" x="855" y="851">479.03</text>
+<text class="table fail" x="935" y="851">75.7% slower</text>
+<text class="table" x="1065" y="851">26.0/26.0</text>
+<text class="table pass" x="1195" y="851">yes</text>
+<text class="table pass" x="1260" y="851">same run</text>
+<text class="note" x="24" y="922">JLS2 remains 18.08% smaller than Brotli-11 · public-validation ranges unopened · no universal or world-best claim</text>
+</svg>
