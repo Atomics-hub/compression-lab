@@ -63,6 +63,7 @@ def main() -> int:
     parser.add_argument("--corpus", type=Path, required=True)
     parser.add_argument("--gates", type=Path, required=True)
     parser.add_argument("--baseline-results", type=Path, required=True)
+    parser.add_argument("--operational-evidence", type=Path)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--repetitions", type=int, default=7)
     parser.add_argument("--warmups", type=int, default=1)
@@ -81,6 +82,13 @@ def main() -> int:
     baseline_payload = json.loads(
         args.baseline_results.read_text(encoding="utf-8")
     )
+    operational_payload = None
+    if args.operational_evidence is not None:
+        operational_payload = json.loads(
+            args.operational_evidence.read_text(encoding="utf-8")
+        )
+        if not operational_payload["gate_results"]["all_passed"]:
+            raise ValueError("DMS2 operational evidence did not pass")
     dense_ids = {
         item["id"]
         for item in manifest["items"]
@@ -214,7 +222,7 @@ def main() -> int:
     }
     result = {
         "schema_version": 1,
-        "name": "dms2-native-development-gate-v1",
+        "name": "dms2-safe-selector-development-gate-v2",
         "stage": "fresh-development-native-gate",
         "claim_ceiling": gates["claim_ceiling"],
         "candidate": {
@@ -231,6 +239,16 @@ def main() -> int:
         "gates_sha256": sha256_file(args.gates),
         "baseline_results": str(args.baseline_results),
         "baseline_results_sha256": sha256_file(args.baseline_results),
+        "operational_evidence": (
+            str(args.operational_evidence)
+            if args.operational_evidence is not None
+            else None
+        ),
+        "operational_evidence_sha256": (
+            sha256_file(args.operational_evidence)
+            if args.operational_evidence is not None
+            else None
+        ),
         "runner": {
             "platform": platform.platform(),
             "python": platform.python_version(),
@@ -241,13 +259,17 @@ def main() -> int:
         "rows": rows,
         "aggregate": aggregate,
         "standards": standard_rows,
-        "remaining_gates": [
-            "peak RSS at most 512 MiB",
-            "bounded streaming memory",
-            "record-table regression at most 0.25%",
-            "leave-one-family-out selector evaluation",
-            "portable wheel verification on Linux and Windows",
-        ],
+        "remaining_gates": (
+            ["portable wheel verification on Linux and Windows"]
+            if operational_payload is not None
+            else [
+                "peak RSS at most 512 MiB",
+                "bounded streaming memory",
+                "record-table regression at most 0.25%",
+                "leave-one-family-out selector evaluation",
+                "portable wheel verification on Linux and Windows",
+            ]
+        ),
         "public_validation": "unopened",
         "private_holdout": "sealed",
     }
