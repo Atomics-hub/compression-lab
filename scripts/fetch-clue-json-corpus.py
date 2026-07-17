@@ -5,10 +5,12 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.util
 import json
 import os
 from pathlib import Path, PurePosixPath
 import shutil
+import subprocess
 import tempfile
 import urllib.request
 import zipfile
@@ -17,6 +19,24 @@ from typing import Any, BinaryIO, IO
 
 REPOSITORY = Path(__file__).resolve().parents[1]
 CHUNK_SIZE = 1024 * 1024
+DEFAULT_VALIDATION_LOCK = (
+    REPOSITORY / "config" / "clue-jls2-public-validation-lock.json"
+)
+LOCK_VERIFIER = (
+    REPOSITORY / "scripts" / "verify-clue-jls2-public-validation-lock.py"
+)
+
+
+def verify_validation_lock(lock_path: Path) -> dict[str, Any]:
+    specification = importlib.util.spec_from_file_location(
+        "verify_clue_jls2_public_validation_lock",
+        LOCK_VERIFIER,
+    )
+    if specification is None or specification.loader is None:
+        raise ValueError("unable to load the CLUE JLS2 readiness-lock verifier")
+    module = importlib.util.module_from_spec(specification)
+    specification.loader.exec_module(module)
+    return module.verify_lock(lock_path)
 
 
 def file_digest(path: Path, algorithm: str) -> str:
@@ -176,6 +196,7 @@ def build(
     cache: Path,
     *,
     allow_public_validation: bool = False,
+    validation_lock: Path = DEFAULT_VALIDATION_LOCK,
 ) -> Path:
     normalized_split = split.replace("-", "_")
     if normalized_split not in {"development", "public_validation"}:
@@ -185,6 +206,13 @@ def build(
             "refusing to acquire CLUE public validation without "
             "--allow-public-validation"
         )
+    if normalized_split == "public_validation":
+        try:
+            verify_validation_lock(validation_lock)
+        except (KeyError, OSError, ValueError, subprocess.CalledProcessError) as error:
+            raise ValueError(
+                f"refusing CLUE public validation without a valid final readiness lock: {error}"
+            ) from error
 
     config = json.loads(config_path.read_text(encoding="utf-8"))
     selections = config["selection"][normalized_split]
@@ -269,6 +297,7 @@ def main() -> int:
         default=REPOSITORY / "corpora" / "_download-cache" / "clue-v1",
     )
     parser.add_argument("--allow-public-validation", action="store_true")
+    parser.add_argument("--validation-lock", type=Path, default=DEFAULT_VALIDATION_LOCK)
     args = parser.parse_args()
     manifest = build(
         args.config,
@@ -276,6 +305,7 @@ def main() -> int:
         args.output,
         args.cache,
         allow_public_validation=args.allow_public_validation,
+        validation_lock=args.validation_lock,
     )
     print(manifest)
     return 0

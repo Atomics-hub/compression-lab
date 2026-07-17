@@ -2,7 +2,8 @@
 
 ## Decision
 
-Do not report a direct CLP, LogLite, or DeLog win yet. None is currently
+Audit refreshed on 2026-07-17. Do not report a direct CLP, LogLite, DeLog,
+LogFold, or LogPrism win yet. None is currently
 eligible for the same byte-exact local benchmark, for different reasons.
 
 PBC was found after the initial audit and passed the frozen hosted
@@ -11,6 +12,11 @@ five exposed development families.
 
 The PBC result is a comparative development result. The remaining entries are
 eligibility findings. No public superiority claim follows from either.
+
+The general-purpose roster is not stale: the CLUE development census used
+zstd 1.5.7, Brotli 1.2.0, LZ4 1.10.0, and 7-Zip 26.02, alongside the pinned
+in-process gzip, bzip2, and LZMA implementations. Version freshness does not
+make unlike runners comparable, and it does not replace the specialist audit.
 
 The machine-readable record is
 `config/log-competitor-reproduction-v1.json`.
@@ -130,14 +136,47 @@ The current local reproduction blockers are:
 Do not vendor or modify DeLog. Reproduction may proceed only through a pinned
 external environment after license clarification.
 
+## LogFold
+
+Pinned observed state:
+
+- repository: <https://github.com/shanshw/LogFold>;
+- commit: `1832f4f380e360dd12d098d987e8c0f6dcc1f3cf`;
+- license: Apache-2.0;
+- paper: <https://arxiv.org/abs/2603.20618>.
+
+The paper reports experiments over 16 public log datasets and an average ratio
+improvement over its chosen baselines. That makes LogFold important specialist
+context. However, the official repository contained only `LICENSE` and
+`README.md` when rechecked on 2026-07-17. It exposed no runnable source,
+release, corpus manifest, or benchmark artifact. LogFold is therefore visible
+but unavailable for reproduction. It cannot enter the primary leaderboard,
+and its absence cannot be labeled a JLS2 win.
+
+## LogPrism
+
+Observed state:
+
+- repository: <https://github.com/Lycc42/LogPrism>;
+- paper: <https://arxiv.org/abs/2601.17482>;
+- commit and software license: unavailable because the repository is empty.
+
+The paper reports the best ratio on 13 of 16 benchmark datasets and strong
+throughput. The official GitHub repository was still empty when rechecked on
+2026-07-17: it exposed no commit, source, release, license, or benchmark
+artifact. LogPrism is important paper-reported context but is not yet
+reproducible or eligible. Its absence is not a JLS2 win.
+
 ## Next action
 
-1. Freeze JLS2 and PBC-only, then open the three-family public validation split
-   exactly once.
-2. Preserve zstd-9 and Brotli-11 as exact validation baselines.
-3. Add CLP only as a separate semantic-log comparison if Docker becomes
+1. Freeze JLS2, the complete eleven-codec standard roster, and PBC-only before
+   opening the two sealed CLUE-LDS validation ranges exactly once.
+2. Recheck LogFold, LogPrism, LogLite, and DeLog immediately before that lock;
+   retain unavailable entries in the result with explicit untested markers.
+3. Preserve all ten exact standard baselines, not only zstd-9 and Brotli-11.
+4. Add CLP only as a separate semantic-log comparison if Docker becomes
    available.
-4. Seek a licensed, byte-exact LogLite or DeLog execution path on suitable
+5. Seek a licensed, byte-exact LogLite or DeLog execution path on suitable
    Linux hardware before opening validation.
-5. Keep every unavailable or ineligible competitor visible; absence is not a
+6. Keep every unavailable or ineligible competitor visible; absence is not a
    win.

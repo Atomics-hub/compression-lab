@@ -29,14 +29,22 @@
       "label": "JSON and machine-generated logs",
       "status": "public-validation-partial",
       "specialist": "JLS2",
-      "current_evidence": "runs/jls2-public-validation-summary.json",
-      "current_result": "Ratio passed decisively against zstd-9 and PBC-only and passed Brotli-11 in aggregate; overall gate failed Brotli family coverage and Linux decompression speed.",
+      "current_evidence": "runs/jls2-native-decoder-v1/README.md",
+      "current_result": "The retained LogTrie public-validation score passed decisively against zstd-9 and PBC-only and passed Brotli-11 in aggregate, but failed Brotli family coverage. On the fresh CLUE-LDS development corpus, JLS2 was the smallest of the complete eleven-codec census and 18.08% smaller than Brotli-11. The standalone decoder then passed its development delivery gate locally at 585.43 MB/s median and on GitHub-hosted Apple ARM64 at 689.96 MB/s median, with every measured aggregate round above 250 MB/s. The two CLUE public-validation ranges remain sealed, so no fresh category validation pass exists.",
       "tested_standards": [
+        "store",
+        "LZ4-1",
+        "gzip-9",
+        "bzip2-9",
+        "zstd-3",
         "zstd-9",
+        "zstd-19",
         "Brotli-11",
-        "official PBC-only"
+        "LZMA-9",
+        "7-Zip-9",
+        "official PBC-only on retained LogTrie evidence"
       ],
-      "next_gate": "Profile and improve Linux decode using development data only, then freeze an independently sourced JSON/log corpus; never tune or rerun on Hadoop, OpenSSH, or OpenStack."
+      "next_gate": "Freeze the unchanged JLS2 implementation, the complete eleven-codec standard roster, eligible PBC context, unavailable-specialist markers, two sealed CLUE ranges, exact evaluator, operational thresholds, and a maximum of one scored attempt before validation acquisition. Never tune or rerun on Hadoop, OpenSSH, OpenStack, or a consumed CLUE validation range."
     },
     {
       "id": "plain_text_source",
