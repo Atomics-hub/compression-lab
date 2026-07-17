@@ -3,7 +3,7 @@
   "name": "text-and-source-category-protocol-v1",
   "declared_at": "2026-07-17",
   "amended_at": "2026-07-17",
-  "amendment": "The originally declared 20260620 Wikimedia paths returned HTTP 404 before any archive acquisition. They were replaced with the completed 20260701 monthly dump. Only the three development project indexes were inspected; every public-validation archive remains sealed and unprobed. The two binary framings were also made self-delimiting before acquisition.",
+  "amendment": "The originally declared 20260620 Wikimedia paths returned HTTP 404 before any archive acquisition. They were replaced with the completed 20260701 monthly dump. Only the three development project indexes were inspected; every public-validation archive remains sealed and unprobed. The two binary framings were also made self-delimiting before acquisition. The first development acquisition then stopped atomically because the official Rust archive contains a case-only collision inside an excluded rustfmt test fixture. Because archives are streamed and never extracted, collision rejection was narrowed to post-exclusion candidate source paths before the acquisition resumed.",
   "claim_ceiling": "unacquired corpus and benchmark design for two separate categories: English Wikimedia wikitext and multi-language source-code bundles; no benchmark result, category win, public-validation, private-holdout, independent-reproduction, market-leading, world-best, or state-of-the-art evidence",
   "category_separation": {
     "rule": "Natural-language text and source code are independent tracks, gates, scorecards, and claims. A pass on either track says nothing about the other.",
@@ -13,7 +13,7 @@
   "common_integrity_policy": {
     "acquisition_order": "Commit this declaration before downloading any declared development archive. Record publisher checksum evidence when available, acquired archive SHA-256, extraction-tool version, ordered source manifest, exact derived-item byte count, and derived-item SHA-256 before the first codec probe.",
     "validation_lock": "Do not download, list, sample, checksum, parse, or otherwise inspect a public-validation archive until the candidate, selector, corpus builder, baselines, gates, runner, evaluator, and publication path are frozen at a clean commit. Retain the first authorized acquisition and score whether it passes, fails, or is interrupted.",
-    "archive_rules": "Reject absolute paths, parent traversal, symbolic or hard links, duplicate normalized paths, non-regular selected members, case-fold collisions, unsupported encodings, and any archive whose observed identity disagrees with its declaration.",
+    "archive_rules": "Reject absolute paths, parent traversal, symbolic or hard links, duplicate normalized paths, non-regular selected members, case-fold collisions among post-exclusion candidate source paths, unsupported encodings, and any archive whose observed identity disagrees with its declaration. Archives are streamed and never extracted to host paths.",
     "exactness": "Every scored compressor must restore the exact derived input bytes. Complete frame bytes, dictionaries, models, preprocessors required for decoding, metadata, and side assets count toward compressed size.",
     "private_holdout": "Sealed and unnamed. No source identity, URL, byte, digest, statistic, language mix, or family count is stored in the public repository."
   },
@@ -23,7 +23,7 @@
     "bundle_rule": {
       "format": "source-bundle-v1",
       "path_rules": "config/text-source-path-rules-v1.json",
-      "path_rules_sha256": "e863feb12562342ca9843144923b4fe34739149e8c803f5737df9bea9ea6c4f2",
+      "path_rules_sha256": "f997e475d5e2630e48c017e539fbbf0adbf2610c22a7fbf654d020689d61532e",
       "selected_extensions": [
         ".c",
         ".cc",

@@ -198,13 +198,35 @@ class TextSourceBuilderTests(unittest.TestCase):
                 collision,
                 [("root/Alpha.py", b"a"), ("root/alpha.py", b"b")],
             )
-            with self.assertRaisesRegex(ValueError, "case-fold archive collision"):
+            with self.assertRaisesRegex(ValueError, "case-fold selected-path collision"):
                 BUILDERS.build_source_bundle(
                     archive_path=collision,
                     destination=root / "collision.axsrc",
                     source={"id": "fixture-source"},
                     rules_path=RULES,
                 )
+
+    def test_excluded_case_collision_is_safe_because_members_are_never_extracted(self):
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            archive = root / "excluded-collision.tar.xz"
+            write_tar(
+                archive,
+                [
+                    ("root/tests/ABCD.py", b"excluded"),
+                    ("root/tests/abcd.py", b"excluded"),
+                    ("root/src/main.rs", b"fn main() {}\n"),
+                ],
+            )
+            destination = root / "safe.axsrc"
+            BUILDERS.build_source_bundle(
+                archive_path=archive,
+                destination=destination,
+                source={"id": "fixture-source"},
+                rules_path=RULES,
+            )
+            decoded, _ = decode_source_bundle(destination)
+            self.assertEqual(decoded, [("src/main.rs", b"fn main() {}\n")])
 
     def test_source_bundle_cap_keeps_longest_ordered_whole_file_prefix(self):
         with tempfile.TemporaryDirectory() as raw:

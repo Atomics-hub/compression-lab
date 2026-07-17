@@ -80,7 +80,6 @@ def _validated_member_path(member: tarfile.TarInfo) -> tuple[str, ...]:
 def _safe_tar_members(archive: tarfile.TarFile) -> list[tuple[tarfile.TarInfo, tuple[str, ...]]]:
     members: list[tuple[tarfile.TarInfo, tuple[str, ...]]] = []
     exact_paths: set[str] = set()
-    casefold_paths: dict[str, str] = {}
     roots: set[str] = set()
     for member in archive.getmembers():
         parts = _validated_member_path(member)
@@ -88,11 +87,6 @@ def _safe_tar_members(archive: tarfile.TarFile) -> list[tuple[tarfile.TarInfo, t
         if normalized in exact_paths:
             raise ValueError(f"duplicate archive path: {normalized}")
         exact_paths.add(normalized)
-        folded = normalized.casefold()
-        previous = casefold_paths.get(folded)
-        if previous is not None and previous != normalized:
-            raise ValueError(f"case-fold archive collision: {previous} vs {normalized}")
-        casefold_paths[folded] = normalized
         roots.add(parts[0])
         if member.issym() or member.islnk():
             raise ValueError(f"archive links are forbidden: {normalized}")
@@ -144,11 +138,19 @@ def build_source_bundle(
     with tarfile.open(archive_path, mode="r:*") as archive:
         members = _safe_tar_members(archive)
         selected: list[tuple[bytes, str, tarfile.TarInfo]] = []
+        selected_casefold_paths: dict[str, str] = {}
         for member, parts in members:
             if not member.isreg():
                 continue
             relative = "/".join(parts[1:])
             if _is_selected_source(relative, source["id"], rules):
+                folded = relative.casefold()
+                previous = selected_casefold_paths.get(folded)
+                if previous is not None and previous != relative:
+                    raise ValueError(
+                        f"case-fold selected-path collision: {previous} vs {relative}"
+                    )
+                selected_casefold_paths[folded] = relative
                 selected.append((relative.encode("utf-8"), relative, member))
         selected.sort(key=lambda row: row[0])
         if not selected:

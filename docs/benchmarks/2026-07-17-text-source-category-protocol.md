@@ -75,6 +75,14 @@ development project indexes were inspected to make that correction; no
 public-validation archive, checksum file, listing, byte, or statistic was
 opened.
 
+The first development acquisition stopped before LLVM or Wikimedia when the
+official Rust source tarball exposed a case-only name collision inside an
+excluded rustfmt test fixture (`ABCD` versus `abcd`). Since the builder streams
+members directly and never extracts an archive to host paths, the rule was
+narrowed to reject case-fold collisions among post-exclusion candidate source
+paths. The interrupted staging directory was removed; cached archives remained
+subject to the same publisher size and digest checks on resume.
+
 The deterministic extractor keeps namespace-zero, non-redirect latest revision
 text in publisher order, performs only XML decoding, and applies no Unicode,
 whitespace, case, markup, or line-ending normalization. A frozen 4 KiB exact
