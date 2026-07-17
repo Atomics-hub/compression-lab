@@ -292,7 +292,12 @@ def main() -> int:
         work = Path(temporary_directory)
         for item in manifest["items"]:
             family = item["family"]
-            source_path = Path(item["path"]).resolve()
+            raw_source_path = Path(item["path"])
+            source_path = (
+                raw_source_path
+                if raw_source_path.is_absolute()
+                else args.manifest.parent / raw_source_path
+            ).resolve()
             if source_path.stat().st_size != item["size_bytes"]:
                 raise ValueError(f"corpus size mismatch: {source_path}")
             if sha256_file(source_path) != item["sha256"]:

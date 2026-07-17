@@ -1,7 +1,8 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "name": "log-competitor-reproduction-v1",
-  "claim_ceiling": "PBC exact development comparison plus eligibility audit; no validation or public superiority claim",
+  "audited_at": "2026-07-17",
+  "claim_ceiling": "PBC exact development comparison plus an eligibility audit that keeps unavailable emerging specialists visible; no CLUE public-validation, private-holdout, independent-reproduction, market-leading, world-best, or state-of-the-art claim",
   "direct_comparison_requirements": {
     "same_input_bytes": true,
     "byte_exact_roundtrip": true,
@@ -12,6 +13,32 @@
     "pinned_source_or_image_digest": true,
     "documented_software_license": true
   },
+  "current_standard_roster": [
+    {
+      "codec_id": "zstd-3/zstd-9/zstd-19",
+      "version": "1.5.7",
+      "official_source": "https://github.com/facebook/zstd/releases/tag/v1.5.7",
+      "status": "current and reproduced in the CLUE development census"
+    },
+    {
+      "codec_id": "brotli-11",
+      "version": "1.2.0",
+      "official_source": "https://github.com/google/brotli/releases/tag/v1.2.0",
+      "status": "current and reproduced in the CLUE development census"
+    },
+    {
+      "codec_id": "lz4-1",
+      "version": "1.10.0",
+      "official_source": "https://github.com/lz4/lz4/releases/tag/v1.10.0",
+      "status": "current and reproduced in the CLUE development census"
+    },
+    {
+      "codec_id": "7zip-9",
+      "version": "26.02",
+      "official_source": "https://www.7-zip.org/download.html",
+      "status": "current and reproduced in the CLUE development census"
+    }
+  ],
   "competitors": [
     {
       "name": "PBC",
@@ -63,6 +90,42 @@
       "roundtrip_status": "authors document full-file SHA-256 verification",
       "reason": "no top-level software license was found; do not vendor or patch",
       "comparison_role": "pending license clarification and pinned container digests"
+    },
+    {
+      "name": "LogFold",
+      "repository": "https://github.com/shanshw/LogFold",
+      "paper": "https://arxiv.org/abs/2603.20618",
+      "version": "main observed 2026-07-17",
+      "commit": "1832f4f380e360dd12d098d987e8c0f6dcc1f3cf",
+      "license_spdx": "Apache-2.0",
+      "official_build": null,
+      "local_status": "official repository contains only LICENSE and README.md; no runnable source, release, or benchmark artifact is published",
+      "roundtrip_status": "not independently verified",
+      "reason": "the paper reports strong results on 16 public log datasets, but the official repository cannot currently reproduce them",
+      "comparison_role": "visible unavailable specialist; not eligible for the primary leaderboard and absence is not a JLS2 win"
+    },
+    {
+      "name": "LogPrism",
+      "repository": "https://github.com/Lycc42/LogPrism",
+      "paper": "https://arxiv.org/abs/2601.17482",
+      "version": "empty repository observed 2026-07-17",
+      "commit": null,
+      "license_spdx": null,
+      "official_build": null,
+      "local_status": "official GitHub repository is empty and exposes no commit, source, release, license, or benchmark artifact",
+      "roundtrip_status": "not independently verified",
+      "reason": "the paper reports strong results on 16 benchmark datasets, but no runnable official artifact is currently available",
+      "comparison_role": "visible unavailable specialist; not eligible for the primary leaderboard and absence is not a JLS2 win"
     }
-  ]
+  ],
+  "eligibility_policy": {
+    "unavailable_is_not_a_win": true,
+    "paper_reported_results_are_context_only_until_reproduced": true,
+    "recheck_before_public_validation": [
+      "LogFold",
+      "LogPrism",
+      "LogLite",
+      "DeLog"
+    ]
+  }
 }

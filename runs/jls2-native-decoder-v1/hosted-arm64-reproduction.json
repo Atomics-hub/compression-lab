@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "name": "jls2-native-decoder-hosted-arm64-reproduction-v1",
+  "claim_scope": "development-only hosted product-gate reproduction",
+  "workflow_run": {
+    "attempt": 2,
+    "conclusion": "success",
+    "run_id": 29598982414,
+    "url": "https://github.com/Atomics-hub/compression-lab/actions/runs/29598982414"
+  },
+  "source": {
+    "candidate_commit": "e254c43458e2ae4f8088b7fcc22b665614e8f169",
+    "implementation_commit": "86d86f80dad86735e53829c6009eb29cee0ea324",
+    "baseline_commit": "604271cbc89a11c739848f68a7739ed523fb9a1b",
+    "results_sha256": "469b672292275ceea1ad27b251c62e995ff8091eb86fb5b2f23ad3918fbd2276",
+    "provenance_sha256": "de178c37ed9330db3d03f12421d9e028a5db5ad0c7f95aceffad00842c45cd40",
+    "benchmark_log_sha256": "3ba1721bbeac9f4f7e30fd5a5f2e1b53ba078e588cb7bce7f26bf07db7639409"
+  },
+  "host": {
+    "platform": "macOS-15.7.7-arm64-arm-64bit",
+    "python": "3.12.10",
+    "rust": "1.97.0"
+  },
+  "native": {
+    "all_exact": true,
+    "all_rounds_at_or_above_250_mbps": true,
+    "rounds_at_or_above_250_mbps": 7,
+    "median_aggregate_mbps": 689.9585404250344,
+    "minimum_aggregate_mbps": 623.5226924112496,
+    "median_paired_improvement_percent": 58.57851930362743,
+    "aggregate_cv_percent": 5.240988475844804,
+    "peak_rss_bytes": 120012800
+  },
+  "gates": {
+    "aggregate_cv_at_or_below_20_percent": true,
+    "all_exact": true,
+    "all_family_medians_at_or_above_250_mbps": true,
+    "all_rounds_at_or_above_250_mbps": true,
+    "median_paired_improvement_at_or_above_10_percent": true,
+    "peak_rss_at_or_below_512_mib": true
+  },
+  "passed": true,
+  "claim_ceiling": "This hosted run reproduces the development-only standalone JLS2 decode gate on GitHub-hosted Apple ARM64. It is not fresh public validation, private holdout, independent reproduction, or universal, market-leading, world-best, or state-of-the-art evidence."
+}
