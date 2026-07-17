@@ -331,7 +331,8 @@ def main() -> int:
             if item["id"] == "uci-semeion"
         )
         streaming_rows: list[dict[str, Any]] = []
-        for repetitions in (1, args.stream_repetitions):
+        saturated_repetitions = max(2, args.stream_repetitions // 2)
+        for repetitions in (saturated_repetitions, args.stream_repetitions):
             source = work / f"stream-{repetitions}.matrix"
             encoded = work / f"stream-{repetitions}.dss1"
             restored = work / f"stream-{repetitions}.restored"
