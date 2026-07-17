@@ -157,7 +157,7 @@ def select_ranges(
         items.append(
             {
                 **selection,
-                "path": str(destination_path),
+                "path": destination_path.name,
                 "record_count": counts[identifier],
                 "size_bytes": sizes[identifier],
                 "sha256": hashes[identifier].hexdigest(),
@@ -203,6 +203,19 @@ def build(
             items = select_ranges(source, selections, output)
     for item in items:
         item["split"] = normalized_split
+        item["dataset"] = config["name"]
+        item["source_url"] = config["provider"]["record_url"]
+        item["provenance"] = {
+            "doi": config["provider"]["doi"],
+            "archive_sha256": digests["sha256"],
+            "selection_rule": config["selection"]["rule"],
+        }
+
+    resolved_config = config_path.resolve()
+    try:
+        config_reference = str(resolved_config.relative_to(REPOSITORY))
+    except ValueError:
+        config_reference = str(resolved_config)
 
     manifest = {
         "schema_version": 1,
@@ -211,7 +224,7 @@ def build(
         "split": normalized_split,
         "claim_ceiling": config["claim_ceiling"],
         "provider": config["provider"],
-        "config_path": str(config_path),
+        "config_path": config_reference,
         "config_sha256": file_digest(config_path, "sha256"),
         "archive": {
             "filename": archive_config["filename"],

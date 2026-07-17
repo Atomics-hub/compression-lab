@@ -39,7 +39,11 @@ def config_for(archive: Path):
         "name": "fixture-clue",
         "category": "structured_cloud_event_logs",
         "claim_ceiling": "fixture only",
-        "provider": {"license_spdx": "CC-BY-4.0"},
+        "provider": {
+            "license_spdx": "CC-BY-4.0",
+            "doi": "10.0000/fixture",
+            "record_url": "https://example.test/fixture",
+        },
         "archive": {
             "filename": "clue.zip",
             "url": archive.as_uri(),
@@ -147,6 +151,19 @@ class ClueJsonCorpusTests(unittest.TestCase):
             )
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
             self.assertEqual([row["record_count"] for row in manifest["items"]], [2, 2])
+            self.assertEqual(
+                [row["path"] for row in manifest["items"]],
+                ["early.jsonl", "late.jsonl"],
+            )
+            self.assertTrue(
+                all(row["dataset"] == "fixture-clue" for row in manifest["items"])
+            )
+            self.assertTrue(
+                all(
+                    row["source_url"] == manifest["provider"]["record_url"]
+                    for row in manifest["items"]
+                )
+            )
             self.assertEqual(
                 [
                     json.loads(line)["id"]
