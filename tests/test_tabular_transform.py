@@ -11,6 +11,7 @@ from compresslab.tabular_transform import (
     HEADER,
     compress,
     compress_auto,
+    compress_auto_with_metadata,
     decompress,
     frame_backend,
     frame_delimiter,
@@ -30,6 +31,17 @@ class TabularTransformTests(unittest.TestCase):
         no_delimiter = compress_auto(b"plain text", level=3)
         self.assertEqual(frame_delimiter(no_delimiter), ord(","))
         self.assertEqual(decompress(no_delimiter), b"plain text")
+
+    def test_bounded_selector_uses_one_full_backend(self):
+        source = b"kind,value,state\n" + b"alpha,100,ready\n" * 10000
+        frame, metadata = compress_auto_with_metadata(source, level=3)
+        self.assertEqual(decompress(frame), source)
+        self.assertEqual(metadata["selector_sample_bytes"], len(source))
+        self.assertIn(
+            metadata["selector_reason"],
+            {"sample-column-clear-win", "sample-direct-or-ambiguous"},
+        )
+        self.assertGreater(metadata["selector_ns"], 0)
 
     def test_native_transform_is_byte_identical_to_reference(self):
         fixtures = [

@@ -41,7 +41,7 @@ from .native import (
     zstd_ffi_available,
 )
 from .tabular_transform import (
-    compress_auto as _tbl1_compress,
+    compress_auto_with_metadata as _tbl1_compress,
     decompress as _tbl1_decompress,
     frame_backend as _tbl1_frame_backend,
     frame_delimiter as _tbl1_frame_delimiter,
@@ -590,15 +590,17 @@ def run(codec_id: str, operation: str, source: Path, destination: Path) -> dict:
         destination.write_bytes(output)
     elif codec.implementation == "tbl1":
         if operation == "compress":
-            output = _tbl1_compress(source.read_bytes(), level=codec.level)
+            output, selector_detail = _tbl1_compress(
+                source.read_bytes(), level=codec.level
+            )
             detail = {
                 "selected_backend": _tbl1_frame_backend(output),
-                "selector_ns": 0,
                 "transform_engine": (
                     "rust" if tabular_native_available() else "python-fallback"
                 ),
                 "codec_engine": zstd_engine(),
                 "delimiter": _tbl1_frame_delimiter(output),
+                **selector_detail,
             }
         elif operation == "decompress":
             output = _tbl1_decompress(source.read_bytes())

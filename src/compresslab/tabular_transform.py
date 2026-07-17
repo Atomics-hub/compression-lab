@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import struct
+import time
 from typing import Tuple
 
 from .native import (
@@ -23,6 +24,7 @@ DEFAULT_MAX_OUTPUT_SIZE = 2 * 1024 * 1024 * 1024
 TRANSFORM_SLACK = 1024 * 1024
 AUTO_DELIMITERS = (ord(","), ord(";"), ord("\t"), ord("|"))
 DETECTION_SAMPLE_BYTES = 1024 * 1024
+SAMPLE_COLUMN_MARGIN = 0.98
 
 
 def _encode_varint(value: int) -> bytes:
@@ -183,16 +185,7 @@ def inverse_transform(data: bytes, delimiter: int, expected_size: int) -> bytes:
     return reference_inverse_transform(data, delimiter, expected_size)
 
 
-def compress(data: bytes, delimiter: int, level: int = 9) -> bytes:
-    transformed = transform(data, delimiter)
-    direct_payload = zstd_compress(data, level=level)
-    column_payload = zstd_compress(transformed, level=level)
-    if len(column_payload) < len(direct_payload):
-        backend = BACKEND_COLUMN
-        payload = column_payload
-    else:
-        backend = BACKEND_DIRECT
-        payload = direct_payload
+def _pack_frame(data: bytes, delimiter: int, backend: int, payload: bytes) -> bytes:
     return HEADER.pack(
         MAGIC,
         VERSION,
@@ -203,19 +196,66 @@ def compress(data: bytes, delimiter: int, level: int = 9) -> bytes:
     ) + payload
 
 
-def detect_delimiter(data: bytes) -> int:
+def compress(data: bytes, delimiter: int, level: int = 9) -> bytes:
+    transformed = transform(data, delimiter)
+    direct_payload = zstd_compress(data, level=level)
+    column_payload = zstd_compress(transformed, level=level)
+    if len(column_payload) < len(direct_payload):
+        return _pack_frame(data, delimiter, BACKEND_COLUMN, column_payload)
+    return _pack_frame(data, delimiter, BACKEND_DIRECT, direct_payload)
+
+
+def _representative_sample(data: bytes) -> bytes:
     if len(data) <= DETECTION_SAMPLE_BYTES:
-        sample = data
-    else:
-        block = DETECTION_SAMPLE_BYTES // 3
-        middle = len(data) // 2 - block // 2
-        sample = data[:block] + data[middle : middle + block] + data[-block:]
+        return data
+    block = DETECTION_SAMPLE_BYTES // 3
+    middle = len(data) // 2 - block // 2
+    return data[:block] + data[middle : middle + block] + data[-block:]
+
+
+def _detect_delimiter_from_sample(sample: bytes) -> int:
     counts = [sample.count(bytes((delimiter,))) for delimiter in AUTO_DELIMITERS]
     return AUTO_DELIMITERS[max(range(len(counts)), key=counts.__getitem__)]
 
 
+def detect_delimiter(data: bytes) -> int:
+    return _detect_delimiter_from_sample(_representative_sample(data))
+
+
+def compress_auto_with_metadata(data: bytes, level: int = 9) -> tuple[bytes, dict]:
+    selector_start = time.perf_counter_ns()
+    sample = _representative_sample(data)
+    delimiter = _detect_delimiter_from_sample(sample)
+    direct_sample = zstd_compress(sample, level=level)
+    column_sample = zstd_compress(transform(sample, delimiter), level=level)
+    column_limit = len(direct_sample) * SAMPLE_COLUMN_MARGIN
+    if len(column_sample) < column_limit:
+        backend = BACKEND_COLUMN
+        reason = "sample-column-clear-win"
+    else:
+        backend = BACKEND_DIRECT
+        reason = "sample-direct-or-ambiguous"
+    selector_ns = time.perf_counter_ns() - selector_start
+
+    if backend == BACKEND_COLUMN:
+        payload = zstd_compress(transform(data, delimiter), level=level)
+    else:
+        payload = zstd_compress(data, level=level)
+    frame = _pack_frame(data, delimiter, backend, payload)
+    sample_size = max(1, len(sample))
+    return frame, {
+        "selector_ns": selector_ns,
+        "selector_stages": 1,
+        "selector_sample_bytes": len(sample),
+        "sample_ratio": len(direct_sample) / sample_size,
+        "transformed_sample_ratio": len(column_sample) / sample_size,
+        "selector_reason": reason,
+    }
+
+
 def compress_auto(data: bytes, level: int = 9) -> bytes:
-    return compress(data, detect_delimiter(data), level=level)
+    frame, _metadata = compress_auto_with_metadata(data, level=level)
+    return frame
 
 
 def frame_backend(frame: bytes) -> str:
