@@ -103,11 +103,12 @@ fallback. Five repetitions are required for every candidate operation.
 ### Frozen streaming contract
 
 The development streaming candidate is `TBS1` version 1: a segmented outer
-stream containing complete, independently verified TBL1 frames. It reads a
-32 MiB target chunk and may extend at most 1 MiB to finish a record; a longer
-record is split losslessly at that hard bound. Each segment runs the bounded
-dense selector independently, so neither delimiter detection nor candidate
-generation sees more than one bounded segment.
+stream containing complete, independently verified TBL1 frames. It keeps at
+most two 16 MiB target chunks in flight; either may extend at most 1 MiB to
+finish a record, and a longer record is split losslessly at that hard bound.
+Each segment runs the bounded dense selector independently, so neither
+delimiter detection nor candidate generation sees more than one bounded
+segment.
 
 The outer stream declares the segment target, record-alignment slack, original
 size, complete payload size, segment count, an ordered source-manifest SHA-256,
@@ -119,7 +120,10 @@ corruption, count/size inconsistencies, and trailing bytes, and never clobber
 an existing destination after failure. Because every column candidate is
 compared concurrently with a complete direct zstd-9 fallback, a selected
 segment cannot exceed that fallback; the decoder therefore also rejects any
-frame larger than the direct-frame allocation bound before reading it.
+frame larger than the fallback-frame allocation bound before reading it. A
+column candidate compares concurrently against zstd-3 and raw store; a segment
+classified as direct uses dense zstd-9 with raw-store protection. The direct
+and store choices are ordinary TBL1 backends and require no out-of-band data.
 
 The streaming development gate allows at most 2% aggregate size regression
 relative to whole-file TBL1-dense. It retains the 50 MB/s compression,

@@ -150,7 +150,7 @@ _register(
             if not _CODECS["zstd-9"].available
             else ""
         ),
-        version="stream-tbs1-v1-dense-selector1-32m",
+        version="stream-tbs1-v1-dense-selector1-16m-c2",
     )
 )
 

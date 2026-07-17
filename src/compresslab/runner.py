@@ -370,9 +370,11 @@ def _trial(
         compression_threads=int(cmeta.get("compression_threads", 0)),
         stream_segment_size=int(cmeta.get("stream_segment_size", 0)),
         stream_record_slack=int(cmeta.get("stream_record_slack", 0)),
+        stream_concurrency=int(cmeta.get("stream_concurrency", 0)),
         segment_count=int(cmeta.get("segment_count", 0)),
         candidate_segment_count=int(cmeta.get("candidate_segment_count", 0)),
         transformed_segments=int(cmeta.get("transformed_segments", 0)),
+        direct_segments=int(cmeta.get("direct_segments", 0)),
         stored_segments=int(cmeta.get("stored_segments", 0)),
         direct_fallback_compared_segments=int(
             cmeta.get("direct_fallback_compared_segments", 0)
@@ -450,9 +452,11 @@ def _failed_trial(
         compression_threads=int(cmeta.get("compression_threads", 0)),
         stream_segment_size=int(cmeta.get("stream_segment_size", 0)),
         stream_record_slack=int(cmeta.get("stream_record_slack", 0)),
+        stream_concurrency=int(cmeta.get("stream_concurrency", 0)),
         segment_count=int(cmeta.get("segment_count", 0)),
         candidate_segment_count=int(cmeta.get("candidate_segment_count", 0)),
         transformed_segments=int(cmeta.get("transformed_segments", 0)),
+        direct_segments=int(cmeta.get("direct_segments", 0)),
         stored_segments=int(cmeta.get("stored_segments", 0)),
         direct_fallback_compared_segments=int(
             cmeta.get("direct_fallback_compared_segments", 0)

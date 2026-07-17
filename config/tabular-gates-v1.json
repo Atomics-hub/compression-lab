@@ -44,8 +44,9 @@
   },
   "streaming_requirements": {
     "format": "TBS1 version 1 segmented TBL1 stream",
-    "target_segment_bytes": 33554432,
+    "target_segment_bytes": 16777216,
     "maximum_record_alignment_slack_bytes": 1048576,
+    "maximum_concurrent_segments": 2,
     "minimum_large_file_bytes": 1073741824,
     "maximum_size_regression_vs_whole_file_dense_percent": 2.0,
     "minimum_compression_mbps": 50.0,

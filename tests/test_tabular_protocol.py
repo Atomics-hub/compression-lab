@@ -79,7 +79,7 @@ class TabularProtocolTests(unittest.TestCase):
         self.assertIn("independent reproduction", self.gates["claim_rule"])
 
         streaming = self.gates["streaming_requirements"]
-        self.assertEqual(streaming["target_segment_bytes"], 32 * 1024 * 1024)
+        self.assertEqual(streaming["target_segment_bytes"], 16 * 1024 * 1024)
         self.assertEqual(
             streaming["maximum_record_alignment_slack_bytes"],
             1024 * 1024,
@@ -89,6 +89,7 @@ class TabularProtocolTests(unittest.TestCase):
             1024 * 1024 * 1024,
         )
         self.assertTrue(streaming["require_inner_and_outer_integrity_checks"])
+        self.assertEqual(streaming["maximum_concurrent_segments"], 2)
         self.assertTrue(
             streaming["require_atomic_failure_without_output_clobber"]
         )

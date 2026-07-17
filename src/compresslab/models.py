@@ -72,9 +72,11 @@ class TrialResult:
     compression_threads: int = 0
     stream_segment_size: int = 0
     stream_record_slack: int = 0
+    stream_concurrency: int = 0
     segment_count: int = 0
     candidate_segment_count: int = 0
     transformed_segments: int = 0
+    direct_segments: int = 0
     stored_segments: int = 0
     direct_fallback_compared_segments: int = 0
     direct_fallback_selected_segments: int = 0

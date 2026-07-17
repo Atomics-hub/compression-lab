@@ -52,7 +52,8 @@ class CodecProbeTests(unittest.TestCase):
             )
             self.assertEqual(restored.read_bytes(), source.read_bytes())
             self.assertEqual(compression["segment_count"], 1)
-            self.assertEqual(compression["stream_segment_size"], 32 * 1024 * 1024)
+            self.assertEqual(compression["stream_segment_size"], 16 * 1024 * 1024)
+            self.assertEqual(compression["stream_concurrency"], 2)
             self.assertEqual(decompression["selected_backend"], "tbl1-stream-decode")
 
     def test_external_versions_are_probed_once_per_executable(self):

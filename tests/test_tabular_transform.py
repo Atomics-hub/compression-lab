@@ -1,8 +1,13 @@
+import hashlib
 import struct
 import tempfile
+import time
 import unittest
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from unittest.mock import patch
+
+import compresslab.native as native_module
 
 from compresslab.native import (
     tabular_reassemble as native_tabular_reassemble,
@@ -78,7 +83,9 @@ class TabularTransformTests(unittest.TestCase):
             ),
             patch(
                 "compresslab.tabular_transform.zstd_compress",
-                side_effect=lambda data, level: bytes((level,)) + data,
+                side_effect=lambda data, level: (
+                    b"C" * 1500 if b"expanded" in data else b"D" * 500
+                ),
             ),
         ):
             frame, metadata = compress_dense_auto_with_metadata(
@@ -89,6 +96,40 @@ class TabularTransformTests(unittest.TestCase):
         self.assertTrue(metadata["direct_fallback_compared"])
         self.assertTrue(metadata["direct_fallback_selected"])
         self.assertEqual(metadata["selector_reason"], "full-direct-fallback")
+
+    def test_concurrent_segments_load_python_zstandard_once(self):
+        original_import = __import__
+
+        def delayed_import(name, *args, **kwargs):
+            if name == "zstandard":
+                time.sleep(0.02)
+            return original_import(name, *args, **kwargs)
+
+        with (
+            patch.object(native_module, "_PYTHON_ZSTD", None),
+            patch.object(native_module, "_PYTHON_ZSTD_LOAD_ATTEMPTED", False),
+            patch("builtins.__import__", side_effect=delayed_import),
+            ThreadPoolExecutor(max_workers=4) as executor,
+        ):
+            modules = list(
+                executor.map(
+                    lambda _index: native_module._load_python_zstd(),
+                    range(8),
+                )
+            )
+        self.assertTrue(all(module is not None for module in modules))
+        self.assertEqual(len({id(module) for module in modules}), 1)
+
+    def test_dense_stream_selector_stores_incompressible_segment(self):
+        source = hashlib.shake_256(b"tbl1-store-fixture").digest(100_000)
+        frame, metadata = compress_dense_auto_with_metadata(
+            source,
+            enforce_direct_fallback=True,
+        )
+        self.assertEqual(frame_backend(frame), "store")
+        self.assertEqual(len(frame), HEADER.size + len(source))
+        self.assertEqual(metadata["compression_level"], 0)
+        self.assertEqual(decompress(frame), source)
 
     def test_native_transform_is_byte_identical_to_reference(self):
         fixtures = [
@@ -231,6 +272,7 @@ class TabularTransformTests(unittest.TestCase):
             self.assertEqual(metadata["segment_count"], info["segment_count"])
             self.assertEqual(
                 decode_metadata["transformed_segments"]
+                + decode_metadata["direct_segments"]
                 + decode_metadata["stored_segments"],
                 info["segment_count"],
             )

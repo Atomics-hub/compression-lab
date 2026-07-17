@@ -4,6 +4,7 @@ import ctypes
 import ctypes.util
 import os
 import sys
+import threading
 from pathlib import Path
 from typing import Callable, Optional, Tuple
 
@@ -16,6 +17,7 @@ _ZSTD_LOAD_ATTEMPTED = False
 _ZSTD_STREAM_FUNCTIONS: Optional[Tuple[ctypes.c_void_p, ...]] = None
 _PYTHON_ZSTD = None
 _PYTHON_ZSTD_LOAD_ATTEMPTED = False
+_PYTHON_ZSTD_LOAD_LOCK = threading.Lock()
 _ZSTD_CONTENTSIZE_UNKNOWN = (1 << 64) - 1
 _ZSTD_CONTENTSIZE_ERROR = (1 << 64) - 2
 _STRUCTURED_TEXT_STREAM_CHUNK_SIZE = 4 * 1024 * 1024
@@ -541,13 +543,17 @@ def _load_python_zstd():
     global _PYTHON_ZSTD, _PYTHON_ZSTD_LOAD_ATTEMPTED
     if _PYTHON_ZSTD_LOAD_ATTEMPTED:
         return _PYTHON_ZSTD
-    _PYTHON_ZSTD_LOAD_ATTEMPTED = True
-    try:
-        import zstandard
-    except ImportError:
-        return None
-    _PYTHON_ZSTD = zstandard
-    return _PYTHON_ZSTD
+    with _PYTHON_ZSTD_LOAD_LOCK:
+        if _PYTHON_ZSTD_LOAD_ATTEMPTED:
+            return _PYTHON_ZSTD
+        try:
+            import zstandard
+        except ImportError:
+            _PYTHON_ZSTD = None
+        else:
+            _PYTHON_ZSTD = zstandard
+        _PYTHON_ZSTD_LOAD_ATTEMPTED = True
+        return _PYTHON_ZSTD
 
 
 def zstd_engine() -> str:
