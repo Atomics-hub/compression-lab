@@ -60,8 +60,8 @@
       "label": "Tabular CSV and delimited records",
       "status": "development",
       "specialist": "TBL1 research path",
-      "current_evidence": "docs/benchmarks/2026-07-16-tabular-baseline-census.md",
-      "current_result": "The licensed development corpus is digest-pinned. A single-trial discovery census completed 40/40 exact round trips and found Brotli-11 smallest at 13,425,698 bytes, zstd-9 at 61.91/380.94 MB/s, and a large ratio-versus-encode-speed opportunity. No Compression Lab candidate was measured; the run was dirty-tree discovery only.",
+      "current_evidence": "docs/benchmarks/2026-07-16-tbl1-column-transpose-probe.md",
+      "current_result": "On four bounded development slices, the byte-exact TBL1 column-transpose selector was 24.02% smaller than direct zstd-19 aggregate, won 3/4 families, and used exact direct fallback on the loser. The Python reference encoded at only 0.65-2.69 MB/s on column wins and is rejected for product speed. No full-corpus or Brotli candidate result exists yet.",
       "tested_standards": [
         "store",
         "lz4-1",
@@ -74,7 +74,7 @@
         "LZMA-9",
         "7-Zip-9"
       ],
-      "next_gate": "Implement and reject TBL1 representation channels on development data only, then repeat the survivor and frontier baselines from a clean frozen commit without opening public validation."
+      "next_gate": "Implement bounded native TBL1 transform and inverse paths, preserve exact equivalence and selector size, then run a clean full-development decision against Brotli-11 and the zstd/LZ4 frontiers without opening public validation."
     },
     {
       "id": "numeric_timeseries",

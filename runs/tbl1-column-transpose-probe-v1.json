@@ -1,0 +1,85 @@
+{
+  "aggregate": {
+    "direct_zstd19_bytes": 3560478,
+    "exact_roundtrip": true,
+    "families": 4,
+    "families_with_size_win": 3,
+    "gain_vs_direct_zstd19_percent": 24.01938728451629,
+    "source_bytes": 33511580,
+    "tbl1_zstd19_selector_bytes": 2705273
+  },
+  "candidate": "TBL1 reference column transpose plus exact direct fallback",
+  "claim_ceiling": "four bounded development slices and single local timings only; not a full-corpus, product, public-validation, private-holdout, independent, or market claim",
+  "decision": "Retain the column-transpose representation and exact fallback. Reject the Python path for product use because it misses every speed gate. Implement bounded native transform and inverse paths, then run a clean full-development candidate decision against Brotli-11, zstd-19, zstd-9, zstd-3, and LZ4-1.",
+  "evidence": {
+    "base_commit": "323979c3e0174b2467e3bdc9ff05a61f54a83220",
+    "corpus_manifest_sha256": "bac7f9bb94bac38dc621d927ff8cca70a8c2fde92c3689525a1de2d87d098f61",
+    "git_dirty": true,
+    "maximum_probe_bytes": 8388608
+  },
+  "families": [
+    {
+      "backend": "column-transpose+zstd",
+      "compression_mbps": 0.64684667546787,
+      "decompression_mbps": 6.6432078052882595,
+      "direct_zstd19_bytes": 1871810,
+      "direct_zstd19_mbps": 1.110428269024466,
+      "exact_roundtrip": true,
+      "family": "autouniv_mixed",
+      "gain_percent": 26.468338132609613,
+      "source_bytes": 8388079,
+      "source_sha256": "9f851621d83cf91d5c268f3365c04707b6087376cfb10afc30834d917eebbd9e",
+      "tbl1_zstd19_bytes": 1376373,
+      "transform_mbps": 16.1079441008907,
+      "transformed_bytes": 8403766
+    },
+    {
+      "backend": "column-transpose+zstd",
+      "compression_mbps": 1.0958137643463042,
+      "decompression_mbps": 4.537842760151776,
+      "direct_zstd19_bytes": 960055,
+      "direct_zstd19_mbps": 1.5973468684626475,
+      "exact_roundtrip": true,
+      "family": "covertype_integer_binary",
+      "gain_percent": 31.102593080604755,
+      "source_bytes": 8388596,
+      "source_sha256": "b33acbd43ac882aea46af231aa188e6502f966c086583f68c11ff4ca338c0d9b",
+      "tbl1_zstd19_bytes": 661453,
+      "transform_mbps": 6.0356788844850175,
+      "transformed_bytes": 8453598
+    },
+    {
+      "backend": "column-transpose+zstd",
+      "compression_mbps": 2.6885065983633125,
+      "decompression_mbps": 9.996904000759116,
+      "direct_zstd19_bytes": 279182,
+      "direct_zstd19_mbps": 4.1348899229263,
+      "exact_roundtrip": true,
+      "family": "facebook_dense_numeric",
+      "gain_percent": 21.925840491149142,
+      "source_bytes": 8388328,
+      "source_sha256": "0aeb3682007ecabede59aaff87264a99468216e4b55e92a5e056379eb4f2b9aa",
+      "tbl1_zstd19_bytes": 217969,
+      "transform_mbps": 14.004374526407744,
+      "transformed_bytes": 8413477
+    },
+    {
+      "backend": "direct-zstd",
+      "compression_mbps": 1.0765045942101146,
+      "decompression_mbps": 745.0804079537593,
+      "direct_zstd19_bytes": 449431,
+      "direct_zstd19_mbps": 2.7992800334943,
+      "exact_roundtrip": true,
+      "family": "gas_sensor_wide_float",
+      "gain_percent": -0.010457667584123037,
+      "source_bytes": 8346577,
+      "source_sha256": "9d7b63c9dc7c376037afacdf65db2b6177f05fb24de598bf54538657fc450816",
+      "tbl1_zstd19_bytes": 449478,
+      "transform_mbps": 16.453785707643206,
+      "transformed_bytes": 8361879
+    }
+  ],
+  "name": "tbl1-column-transpose-selector-probe-v1",
+  "schema_version": 1,
+  "stage": "development-probe"
+}
