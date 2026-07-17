@@ -195,6 +195,7 @@ round-trip, provenance, stability, or completeness failure remains visible.
 - [TBL1 dense development decision](docs/benchmarks/2026-07-16-tbl1-dense-development-decision.md)
 - [TBL1 streaming development decision](docs/benchmarks/2026-07-16-tbl1-streaming-development-decision.md)
 - [TBL1 public-validation readiness decision](docs/benchmarks/2026-07-16-tbl1-public-validation-readiness.md)
+- [TBL1 public-validation lock](config/tbl1-public-validation-lock.json)
 - [File-format contract](docs/file-format.md)
 - [Release readiness](docs/release-readiness.md)
 - [Security policy](SECURITY.md)

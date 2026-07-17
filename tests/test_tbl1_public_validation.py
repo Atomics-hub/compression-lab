@@ -13,6 +13,8 @@ GATES_PATH = REPOSITORY / "config" / "tbl1-public-validation-gates.json"
 CORPUS_PATH = REPOSITORY / "config" / "tabular-corpus-v1.json"
 EVALUATOR = REPOSITORY / "scripts" / "evaluate-tbl1-public-validation.py"
 BENCHMARK = REPOSITORY / "scripts" / "benchmark-tbl1-public-validation.py"
+LOCK_PATH = REPOSITORY / "config" / "tbl1-public-validation-lock.json"
+LOCK_VERIFIER = REPOSITORY / "scripts" / "verify-tbl1-public-validation-lock.py"
 GIT_ATTRIBUTES = REPOSITORY / ".gitattributes"
 
 
@@ -33,6 +35,37 @@ def load_benchmark_module():
 
 
 class TBL1PublicValidationTests(unittest.TestCase):
+    def test_final_lock_pins_merged_readiness_controls(self):
+        lock = json.loads(LOCK_PATH.read_text(encoding="utf-8"))
+        self.assertRegex(lock["readiness_commit"], r"^[0-9a-f]{40}$")
+        ancestor = subprocess.run(
+            ["git", "merge-base", "--is-ancestor", lock["readiness_commit"], "HEAD"],
+            cwd=REPOSITORY,
+            check=False,
+        )
+        self.assertEqual(ancestor.returncode, 0)
+        for relative, expected in lock["locked_paths"].items():
+            committed = subprocess.run(
+                ["git", "show", f"{lock['readiness_commit']}:{relative}"],
+                cwd=REPOSITORY,
+                check=True,
+                capture_output=True,
+            ).stdout
+            self.assertEqual(hashlib.sha256(committed).hexdigest(), expected)
+            self.assertEqual(digest(REPOSITORY / relative), expected)
+
+        specification = importlib.util.spec_from_file_location(
+            "verify_tbl1_public_validation_lock",
+            LOCK_VERIFIER,
+        )
+        self.assertIsNotNone(specification)
+        self.assertIsNotNone(specification.loader if specification else None)
+        module = importlib.util.module_from_spec(specification)
+        specification.loader.exec_module(module)
+        receipt = module.verify_lock(LOCK_PATH, require_clean=False)
+        self.assertTrue(receipt["passed"])
+        self.assertEqual(receipt["readiness_commit"], lock["readiness_commit"])
+
     def test_segment_fallback_proof_recomputes_equally_framed_route(self):
         module = load_benchmark_module()
         with tempfile.TemporaryDirectory() as temporary_directory:

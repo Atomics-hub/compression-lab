@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "name": "tbl1-public-validation-readiness-lock-v1",
+  "readiness_commit": "74296886f003bcc7433665f91e8ee37f7f99a7d4",
+  "claim_ceiling": "This lock authorizes one unchanged public-validation acquisition and score. It does not itself provide performance evidence.",
+  "locked_paths": {
+    ".gitattributes": "d60f352d0db1404c70afb4bb8b2ca3fd1c610572aa40720e8a0b7baa7885418c",
+    "config/tabular-corpus-v1.json": "a72f6faee6b638bfe481d225766c77f3ef6bd54b419d7e676e66f15d8dc5741e",
+    "config/tbl1-public-validation-gates.json": "0d3e6cf971b967df1cd5c4801a666342fd10359e0a8aec5c5cd1b68410469bc5",
+    "scripts/benchmark-tbl1-public-validation.py": "64841b1845490926aa3a480bc3bbd4c7be6fee80a0817ec62c09d181966e5843",
+    "scripts/evaluate-tbl1-public-validation.py": "56d6c7ee15e7737f68f1596c11951323ba983ec2cd0a0f577892912455fc4535",
+    "scripts/fetch_tabular_corpus.py": "796f8a629b458509d4f71669acae36da1316630e6f03c827363c77947c9d8c22"
+  },
+  "requirements": {
+    "require_clean_tracked_tree": true,
+    "require_readiness_commit_ancestor": true,
+    "require_worktree_matches_readiness_blobs": true
+  }
+}
