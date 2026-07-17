@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "name": "source-bundle-path-rules-v1",
+  "path_semantics": {
+    "archive_root": "Every archive must contain exactly one non-empty top-level directory. Strip that directory before selection.",
+    "encoding": "Every relative path must round-trip through strict UTF-8 without normalization.",
+    "separator": "Only POSIX slash separators are accepted; backslashes are rejected.",
+    "matching": "Extension, segment, and prefix comparisons are case-sensitive. Case-fold collisions are rejected before selection."
+  },
+  "selected_extensions": [
+    ".c",
+    ".cc",
+    ".cpp",
+    ".cxx",
+    ".h",
+    ".hh",
+    ".hpp",
+    ".hxx",
+    ".inc",
+    ".py",
+    ".pyi",
+    ".rs",
+    ".ts",
+    ".tsx"
+  ],
+  "excluded_segments": [
+    ".git",
+    "__pycache__",
+    "external",
+    "externals",
+    "fixture",
+    "fixtures",
+    "generated",
+    "node_modules",
+    "snapshot",
+    "snapshots",
+    "test",
+    "test_data",
+    "testdata",
+    "tests",
+    "third-party",
+    "third_party",
+    "vendor",
+    "vendored"
+  ],
+  "project_excluded_prefixes": {
+    "cpython-3.14.6-source": [
+      "Lib/ensurepip/_bundled",
+      "Modules/_ctypes/libffi",
+      "Modules/_decimal/libmpdec",
+      "Modules/expat"
+    ],
+    "llvm-22.1.8-source": [],
+    "rust-1.97.1-source": [
+      "src/llvm-project",
+      "src/tools/cargo",
+      "src/tools/rust-analyzer"
+    ],
+    "typescript-6.0.3-source": []
+  },
+  "maximum_bundle_bytes": 268435456,
+  "claim_ceiling": "Frozen development-corpus selection rules only; no acquired byte, benchmark result, validation result, or performance claim."
+}

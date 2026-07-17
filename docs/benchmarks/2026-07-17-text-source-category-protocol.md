@@ -47,7 +47,11 @@ source-file bytes unchanged, sorts paths bytewise, excludes frozen generated
 and vendored trees, and frames paths and contents without timestamps, owners,
 permissions, archive padding, or host-dependent metadata. This measures source
 content rather than the accidental metadata of a tar implementation while
-still preserving every selected source file exactly.
+still preserving every selected source file exactly. The exact exclusions are
+frozen in `config/text-source-path-rules-v1.json`. Both category formats include
+an explicit record count and a terminal manifest digest whose input bytes are
+defined in the machine-readable protocol, so a decoder never has to guess where
+records stop.
 
 ## Natural-language split
 
@@ -56,13 +60,20 @@ revision text, including wikitext markup. It is not a claim about books, email,
 chat, OCR, other languages, or arbitrary UTF-8.
 
 Development uses English Wikibooks, Wikinews, and Wikiversity from the frozen
-2026-06-20 dumps. Public validation uses different projects: English Wikipedia,
+2026-07-01 dumps. Public validation uses different projects: English Wikipedia,
 Simple English Wikipedia, and English Wikivoyage from the same dump date. The
 [Wikimedia dump legal page](https://dumps.wikimedia.org/legal.html) explains
 that textual content is generally available under CC BY-SA 4.0 and the GFDL,
 subject to page-specific exceptions and third-party material. Every retained
 manifest must therefore preserve project, revision, attribution, license,
 publisher checksum evidence, and exact acquired and derived digests.
+
+The first declaration named `20260620`, but all three development checksum URLs
+returned HTTP 404 before any archive was acquired. The protocol was therefore
+amended to the completed common monthly dump `20260701`. Only the three
+development project indexes were inspected to make that correction; no
+public-validation archive, checksum file, listing, byte, or statistic was
+opened.
 
 The deterministic extractor keeps namespace-zero, non-redirect latest revision
 text in publisher order, performs only XML decoding, and applies no Unicode,
