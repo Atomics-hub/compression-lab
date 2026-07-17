@@ -114,9 +114,11 @@ chart even if Compression Lab loses.
 
 ## Claim ceiling and next action
 
-Readiness supports no new compression-performance claim. Once the runner and
-evaluator are merged, a final lock commit must pin that exact readiness commit.
-Only then may the four archives be acquired and the one-time score run. A pass
+Readiness supports no new compression-performance claim. The final lock pins
+merged readiness commit `74296886f003bcc7433665f91e8ee37f7f99a7d4` and the
+exact acquisition, corpus, gate, runner, evaluator, and line-ending bytes. Run
+`scripts/verify-tbl1-public-validation-lock.py` and retain its receipt before
+the four archives are acquired. Only then may the one-time score run. A pass
 would support a category-scoped public-validation statement; private-holdout
 success and independent reproduction remain mandatory before any
 state-of-the-art language.
