@@ -37,7 +37,7 @@ and [immutable GitHub Actions run](https://github.com/Atomics-hub/compression-la
 | --- | --- | --- | --- | --- |
 | JSON and machine logs | Public validation | Beat zstd-9 and PBC; mixed against Brotli-11 | Mixed | Strong specialist result; full gate not passed |
 | Plain text and source | Development | Behind strongest dense baselines | Not frontier-leading | Not won |
-| CSV and delimited tables | Development baseline census | Candidate untested; Brotli-11 target is 13,425,698 bytes | zstd-9: 61.91/380.94 MB/s; Brotli encode: 0.33 MB/s | TBL1 implementation next |
+| CSV and delimited tables | Bounded development probe | TBL1 selector beat direct zstd-19 by 24.02% on four slices; full-corpus/Brotli result pending | Python reference: 0.65–2.69 MB/s encode on column wins; rejected for speed | Native TBL1 next |
 | Numeric and time series | Smoke only | Synthetic signal only | Untested | Not validated |
 | General binary and archives | Development | Behind zstd-9 | Behind zstd | Not won |
 | Incompressible or precompressed | Safety tests | Store/direct fallback | Category benchmark pending | Expansion safety only |
@@ -161,6 +161,7 @@ round-trip, provenance, stability, or completeness failure remains visible.
 - [Current category portfolio](docs/benchmarks/2026-07-16-category-portfolio-status.md)
 - [JLS2 public-validation decision](docs/benchmarks/2026-07-16-jls2-public-validation-decision.md)
 - [Tabular development baseline census](docs/benchmarks/2026-07-16-tabular-baseline-census.md)
+- [TBL1 bounded column-transpose probe](docs/benchmarks/2026-07-16-tbl1-column-transpose-probe.md)
 - [File-format contract](docs/file-format.md)
 - [Release readiness](docs/release-readiness.md)
 - [Security policy](SECURITY.md)
