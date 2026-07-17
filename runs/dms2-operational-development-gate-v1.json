@@ -1,0 +1,219 @@
+{
+  "baseline_results": "runs/tabular-successor-development-census-v1/results.json",
+  "baseline_results_sha256": "45722d28d272b4333ee29308d92c3cebbf6757af5c9d57b91d6a52591905c552",
+  "claim_ceiling": "representation and selector development on three licensed families only; not public-validation, private-holdout, independent, category-best, market-leading, or state-of-the-art evidence",
+  "corpus_manifest": "/tmp/tabular-successor-development-v1/manifest.json",
+  "corpus_manifest_sha256": "580120079f2dd320874c4cc9fc6e351ad51004192dc57cfb24f4a8965387e6e9",
+  "frame_memory": [
+    {
+      "complete_bytes": 30539,
+      "compression": {
+        "gate_passed": true,
+        "maximum_resident_set_bytes": 53166080,
+        "peak_memory_footprint_bytes": 41632248
+      },
+      "decompression": {
+        "gate_passed": true,
+        "maximum_resident_set_bytes": 41140224,
+        "peak_memory_footprint_bytes": 29704648
+      },
+      "id": "uci-semeion",
+      "source_bytes": 2889702
+    },
+    {
+      "complete_bytes": 79638,
+      "compression": {
+        "gate_passed": true,
+        "maximum_resident_set_bytes": 40140800,
+        "peak_memory_footprint_bytes": 28606968
+      },
+      "decompression": {
+        "gate_passed": true,
+        "maximum_resident_set_bytes": 34111488,
+        "peak_memory_footprint_bytes": 22643168
+      },
+      "id": "uci-optdigits-train",
+      "source_bytes": 563639
+    },
+    {
+      "complete_bytes": 79561,
+      "compression": {
+        "gate_passed": true,
+        "maximum_resident_set_bytes": 54394880,
+        "peak_memory_footprint_bytes": 42861048
+      },
+      "decompression": {
+        "gate_passed": true,
+        "maximum_resident_set_bytes": 40910848,
+        "peak_memory_footprint_bytes": 29442528
+      },
+      "id": "uci-multiple-features-pixels",
+      "source_bytes": 1442000
+    }
+  ],
+  "gate_results": {
+    "all_passed": true,
+    "bounded_streaming_passed": true,
+    "no_expansion_vs_direct_passed": true,
+    "peak_rss_passed": true,
+    "record_table_regression_passed": true,
+    "selector_loo_passed": true
+  },
+  "gates": "config/dense-matrix-development-gates-v1.json",
+  "gates_sha256": "52202d6cbf6a86a7b8b36032445de326c95c6840a50c6e6abdf60a2d90746747",
+  "git": {
+    "commit": "016bbb02ecdec480650da8c0f6e618e4673799ba",
+    "dirty": false
+  },
+  "measurement_tool": "/usr/bin/time -l cold child processes",
+  "memory_ceiling_bytes": 536870912,
+  "name": "dms2-operational-development-gate-v1",
+  "private_holdout": "sealed",
+  "public_validation": "unopened",
+  "record_table_regression": {
+    "current_tbs1_bytes": 1377241,
+    "frozen_tbs1_bytes": 1377241,
+    "regression_percent": 0.0,
+    "rows": [
+      {
+        "current_tbs1_bytes": 155877,
+        "exact_byte_count_preserved": true,
+        "frozen_tbs1_bytes": 155877,
+        "id": "uci-bike-sharing-hour",
+        "regression_percent": 0.0,
+        "source_bytes": 1156736
+      },
+      {
+        "current_tbs1_bytes": 1143533,
+        "exact_byte_count_preserved": true,
+        "frozen_tbs1_bytes": 1143533,
+        "id": "uci-appliances-energy",
+        "regression_percent": 0.0,
+        "source_bytes": 11979363
+      },
+      {
+        "current_tbs1_bytes": 77831,
+        "exact_byte_count_preserved": true,
+        "frozen_tbs1_bytes": 77831,
+        "id": "uci-seoul-bike",
+        "regression_percent": 0.0,
+        "source_bytes": 604166
+      }
+    ]
+  },
+  "schema_version": 1,
+  "selector": {
+    "leave_one_family_out": [
+      {
+        "fitted_parameters": 0,
+        "held_out_id": "uci-semeion",
+        "held_out_oracle_selected": true,
+        "held_out_sample_bytes": 65536,
+        "training_family_ids": [
+          "uci-optdigits-train",
+          "uci-multiple-features-pixels"
+        ]
+      },
+      {
+        "fitted_parameters": 0,
+        "held_out_id": "uci-optdigits-train",
+        "held_out_oracle_selected": true,
+        "held_out_sample_bytes": 65536,
+        "training_family_ids": [
+          "uci-semeion",
+          "uci-multiple-features-pixels"
+        ]
+      },
+      {
+        "fitted_parameters": 0,
+        "held_out_id": "uci-multiple-features-pixels",
+        "held_out_oracle_selected": true,
+        "held_out_sample_bytes": 65536,
+        "training_family_ids": [
+          "uci-semeion",
+          "uci-optdigits-train"
+        ]
+      }
+    ],
+    "maximum_sample_bytes": 65536,
+    "rows": [
+      {
+        "direct_zstd1_bytes": 73255,
+        "dma2_bytes": 36947,
+        "dmp1_bytes": 30539,
+        "id": "uci-semeion",
+        "no_expansion_vs_direct": true,
+        "oracle_bytes": 30539,
+        "oracle_selected": true,
+        "sample_alphabet_bucket": 4,
+        "sample_bytes": 65536,
+        "selected_backend": "dmp1-planes",
+        "selected_bytes": 30539
+      },
+      {
+        "direct_zstd1_bytes": 137798,
+        "dma2_bytes": 79638,
+        "dmp1_bytes": 109236,
+        "id": "uci-optdigits-train",
+        "no_expansion_vs_direct": true,
+        "oracle_bytes": 79638,
+        "oracle_selected": true,
+        "sample_alphabet_bucket": 5,
+        "sample_bytes": 65536,
+        "selected_backend": "dma2-parallel",
+        "selected_bytes": 79638
+      },
+      {
+        "direct_zstd1_bytes": 168687,
+        "dma2_bytes": 79561,
+        "dmp1_bytes": 104880,
+        "id": "uci-multiple-features-pixels",
+        "no_expansion_vs_direct": true,
+        "oracle_bytes": 79561,
+        "oracle_selected": true,
+        "sample_alphabet_bucket": 5,
+        "sample_bytes": 65536,
+        "selected_backend": "dma2-parallel",
+        "selected_bytes": 79561
+      }
+    ],
+    "rule": "training-free: DMP1 when bounded prefix alphabet bucket is at most four, DMA2 otherwise, then choose the smaller complete frame against direct zstd-1"
+  },
+  "stage": "fresh-development-operational-gate",
+  "streaming": {
+    "bounded_growth_limit_bytes": 33554432,
+    "large_minus_small_rss_bytes": {
+      "compression": -20414464,
+      "decompression": -8765440
+    },
+    "rows": [
+      {
+        "complete_bytes": 672150,
+        "compression": {
+          "maximum_resident_set_bytes": 239140864,
+          "peak_memory_footprint_bytes": 227705504
+        },
+        "decompression": {
+          "maximum_resident_set_bytes": 129171456,
+          "peak_memory_footprint_bytes": 117785104
+        },
+        "repetitions": 32,
+        "source_bytes": 92470464
+      },
+      {
+        "complete_bytes": 1289947,
+        "compression": {
+          "maximum_resident_set_bytes": 218726400,
+          "peak_memory_footprint_bytes": 207274632
+        },
+        "decompression": {
+          "maximum_resident_set_bytes": 120406016,
+          "peak_memory_footprint_bytes": 109003256
+        },
+        "repetitions": 64,
+        "source_bytes": 184940928
+      }
+    ],
+    "segment_size": 16777216
+  }
+}
