@@ -9,9 +9,12 @@ independent tracks:
 2. English Wikimedia revision text with its wikitext markup retained.
 
 A win on one track says nothing about the other. Neither track has a benchmark
-result yet. The committed declarations in
+result yet. The seven development sources have now been acquired and verified,
+as recorded in
+`docs/benchmarks/2026-07-17-text-source-development-acquisition.md`. The
+committed declarations in
 `config/text-source-category-protocol-v1.json` and
-`config/text-source-gates-v1.json` are an unacquired protocol, not evidence that
+`config/text-source-gates-v1.json` and the acquisition receipt are not evidence that
 Compression Lab is better than another compressor.
 
 ## Why the old evidence is insufficient
@@ -144,9 +147,7 @@ still required before state-of-the-art wording.
 
 ## Next action
 
-Commit and verify this declaration, then acquire only the seven declared
-development sources (four source-code releases and three Wikimedia projects;
-enwik9 is diagnostic-only), record all exact digests before probing a codec,
-and run the complete practical baseline census. No new representation work is
-justified until that census identifies the actual per-family leaders and the
-ratio/speed frontier.
+Run the complete practical baseline census on the seven verified development
+items. Enwik9 remains diagnostic-only. No new representation work is justified
+until that census identifies the actual per-family leaders and the ratio/speed
+frontier.

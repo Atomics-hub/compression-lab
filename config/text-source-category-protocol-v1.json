@@ -4,13 +4,14 @@
   "declared_at": "2026-07-17",
   "amended_at": "2026-07-17",
   "amendment": "The originally declared 20260620 Wikimedia paths returned HTTP 404 before any archive acquisition. They were replaced with the completed 20260701 monthly dump. Only the three development project indexes were inspected; every public-validation archive remains sealed and unprobed. The two binary framings were also made self-delimiting before acquisition. The first development acquisition stopped atomically because the official Rust archive contains a case-only collision inside an excluded rustfmt test fixture; the second stopped on a symlink inside excluded vendored LLVM LLDB tests. Because archives are streamed and never extracted, duplicate, case-collision, link, and non-regular rejection was narrowed to post-exclusion candidate source paths. A third attempt was manually interrupted after profiling exposed quadratic XZ seeking; selected bytes are now spooled once to opaque temporary names and replayed in sorted order without extracting archive paths. LLVM then exposed exactly three selected Python symlink aliases whose regular module targets are already selected; those aliases are explicitly excluded rather than dereferenced or double-counted.",
-  "claim_ceiling": "unacquired corpus and benchmark design for two separate categories: English Wikimedia wikitext and multi-language source-code bundles; no benchmark result, category win, public-validation, private-holdout, independent-reproduction, market-leading, world-best, or state-of-the-art evidence",
+  "claim_ceiling": "verified development corpus for two separate categories: English Wikimedia wikitext and multi-language source-code bundles; no codec probe, benchmark result, category win, public-validation, private-holdout, independent-reproduction, market-leading, world-best, or state-of-the-art evidence",
   "category_separation": {
     "rule": "Natural-language text and source code are independent tracks, gates, scorecards, and claims. A pass on either track says nothing about the other.",
     "reason": "The tracks have different byte structure, licensing, project-lineage leakage, specialist compressors, and practical workloads.",
     "legacy_evidence": "The SQLite-only public-starter source files and adaptive-v3 measurements remain consumed development diagnostics. They are not members of either new split and cannot satisfy a gate."
   },
   "common_integrity_policy": {
+    "development_acquisition_receipt": "runs/text-source-development-acquisition-v1.json",
     "acquisition_order": "Commit this declaration before downloading any declared development archive. Record publisher checksum evidence when available, acquired archive SHA-256, extraction-tool version, ordered source manifest, exact derived-item byte count, and derived-item SHA-256 before the first codec probe.",
     "validation_lock": "Do not download, list, sample, checksum, parse, or otherwise inspect a public-validation archive until the candidate, selector, corpus builder, baselines, gates, runner, evaluator, and publication path are frozen at a clean commit. Retain the first authorized acquisition and score whether it passes, fails, or is interrupted.",
     "archive_rules": "Reject absolute paths, parent traversal, unsupported encodings, multiple archive roots, and any archive whose observed identity disagrees with its declaration. After frozen exclusions, reject exact duplicates, case-fold collisions, symbolic or hard links, and non-regular candidate source members. Archives are streamed and never extracted to host paths, so excluded members cannot enter or collide in a derived bundle.",
@@ -61,11 +62,11 @@
         "license_url": "https://docs.python.org/3/license.html",
         "publisher_digest_algorithm": "sha256",
         "publisher_digest_source": "https://www.python.org/ftp/python/3.14.6/Python-3.14.6.tar.xz.sigstore",
-        "acquisition_status": "declared_unacquired",
+        "acquisition_status": "acquired_development",
         "publisher_digest": "143b1dddefaec3bd2e21e3b839b34a2b7fb9842272883c576420d605e9f30c63",
-        "archive_sha256": null,
-        "derived_item_bytes": null,
-        "derived_item_sha256": null
+        "archive_sha256": "143b1dddefaec3bd2e21e3b839b34a2b7fb9842272883c576420d605e9f30c63",
+        "derived_item_bytes": 44506231,
+        "derived_item_sha256": "a5148815b1257d5e9f040a6995b09493ceaeecd1f1791c2cb4a858f177cbf1c3"
       },
       {
         "id": "typescript-6.0.3-source",
@@ -74,15 +75,15 @@
         "release": "v6.0.3",
         "release_url": "https://github.com/microsoft/TypeScript/releases/tag/v6.0.3",
         "archive_url": "https://github.com/microsoft/TypeScript/archive/050880ce59e30b356b686bd3144efe24f875ebc8.tar.gz",
-        "archive_size_bytes": null,
+        "archive_size_bytes": 33864358,
         "license_spdx": "Apache-2.0",
         "license_url": "https://github.com/microsoft/TypeScript/blob/v6.0.3/LICENSE.txt",
         "publisher_tag_commit": "050880ce59e30b356b686bd3144efe24f875ebc8",
-        "acquisition_status": "declared_unacquired",
+        "acquisition_status": "acquired_development",
         "publisher_digest": null,
-        "archive_sha256": null,
-        "derived_item_bytes": null,
-        "derived_item_sha256": null
+        "archive_sha256": "43d388f7fc6511ae105f23f4779e1c8df96f6dfa003025b70249816089609f5b",
+        "derived_item_bytes": 25693307,
+        "derived_item_sha256": "4c35679d66dc77e54cc87ee7b6fe17cf2262bc3242c37eff3fa527e385d64480"
       },
       {
         "id": "rust-1.97.1-source",
@@ -96,11 +97,11 @@
         "license_url": "https://github.com/rust-lang/rust/tree/1.97.1#license",
         "publisher_digest_algorithm": "sha256",
         "publisher_digest_source": "https://static.rust-lang.org/dist/rustc-1.97.1-src.tar.xz.sha256",
-        "acquisition_status": "declared_unacquired",
+        "acquisition_status": "acquired_development",
         "publisher_digest": "0ed06fdaffd4722a7702e0b4eebfafc897ab8f513e8e1b247cdd7e5c6df6ded2",
-        "archive_sha256": null,
-        "derived_item_bytes": null,
-        "derived_item_sha256": null
+        "archive_sha256": "0ed06fdaffd4722a7702e0b4eebfafc897ab8f513e8e1b247cdd7e5c6df6ded2",
+        "derived_item_bytes": 190921859,
+        "derived_item_sha256": "655025f34d7887305c90af2bf0936bbacc92ffeaef5d790c5ba566da0cd32659"
       },
       {
         "id": "llvm-22.1.8-source",
@@ -114,11 +115,11 @@
         "license_url": "https://github.com/llvm/llvm-project/blob/llvmorg-22.1.8/LICENSE.TXT",
         "publisher_digest_algorithm": "sha256",
         "publisher_digest_source": "https://github.com/llvm/llvm-project/releases/download/llvmorg-22.1.8/llvm-project-22.1.8.src.tar.xz.jsonl",
-        "acquisition_status": "declared_unacquired",
+        "acquisition_status": "acquired_development",
         "publisher_digest": "922f1817a0df7b1489272d18134ee0087a8b068828f87ac63b9861b1a9965888",
-        "archive_sha256": null,
-        "derived_item_bytes": null,
-        "derived_item_sha256": null
+        "archive_sha256": "922f1817a0df7b1489272d18134ee0087a8b068828f87ac63b9861b1a9965888",
+        "derived_item_bytes": 268328176,
+        "derived_item_sha256": "8a54e60b4c022683a0261ada2a2203f9d56fd3e5e48a7fc36c9de97050c31509"
       }
     ],
     "public_validation": [
@@ -214,11 +215,11 @@
         "archive_size_bytes": 207098222,
         "checksum_url": "https://dumps.wikimedia.org/enwikibooks/20260701/enwikibooks-20260701-sha1sums.txt",
         "publisher_digest_algorithm": "sha1",
-        "acquisition_status": "declared_unacquired",
+        "acquisition_status": "acquired_development",
         "publisher_digest": "55027cba056ae1e071ae24a75b7c81ae33b8d0e7",
-        "archive_sha256": null,
-        "derived_item_bytes": null,
-        "derived_item_sha256": null
+        "archive_sha256": "cb6487326d55e0f017ca75f2174af7cf5ab3f39fd1a9140c046e1d899dd02c29",
+        "derived_item_bytes": 67107953,
+        "derived_item_sha256": "d4e99fa76d224995f03512df7fe2d9b0411e283b21157c934be6c10e2059998a"
       },
       {
         "id": "enwikinews-20260701",
@@ -229,11 +230,11 @@
         "archive_size_bytes": 54157210,
         "checksum_url": "https://dumps.wikimedia.org/enwikinews/20260701/enwikinews-20260701-sha1sums.txt",
         "publisher_digest_algorithm": "sha1",
-        "acquisition_status": "declared_unacquired",
+        "acquisition_status": "acquired_development",
         "publisher_digest": "d195129bc73687384bb0f4169546eb4f27ce2ae6",
-        "archive_sha256": null,
-        "derived_item_bytes": null,
-        "derived_item_sha256": null
+        "archive_sha256": "ba76e5215a517ef565b5400d7ad458c3766c29fa496a7f000a90d2ac699268a6",
+        "derived_item_bytes": 67105968,
+        "derived_item_sha256": "ac803f7c66400659801b4dd72576ad88602952db4dbc78e82c1c4c4d39c92b9e"
       },
       {
         "id": "enwikiversity-20260701",
@@ -244,11 +245,11 @@
         "archive_size_bytes": 119592609,
         "checksum_url": "https://dumps.wikimedia.org/enwikiversity/20260701/enwikiversity-20260701-sha1sums.txt",
         "publisher_digest_algorithm": "sha1",
-        "acquisition_status": "declared_unacquired",
+        "acquisition_status": "acquired_development",
         "publisher_digest": "751e1afb5dfa0e114116f1ae13852ed74ecff778",
-        "archive_sha256": null,
-        "derived_item_bytes": null,
-        "derived_item_sha256": null
+        "archive_sha256": "305548abb494e23e83b18d4e8542aaa6ab9eb658a54c53716f7744a75bb9083b",
+        "derived_item_bytes": 67097252,
+        "derived_item_sha256": "35d42b7137f5d85772cb44ea214dcf1f6df9c0bb59f65dde3170df8c0a8dfbe4"
       }
     ],
     "public_validation": [
