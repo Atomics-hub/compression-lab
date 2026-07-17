@@ -65,6 +65,15 @@ class TabularTransformTests(unittest.TestCase):
                     source,
                 )
 
+    def test_native_transform_retries_when_compact_capacity_is_too_small(self):
+        source = b"," * (2 * 1024 * 1024)
+        transformed = native_tabular_transform(source, ord(","))
+        self.assertGreater(len(transformed), len(source) + len(source) // 32)
+        self.assertEqual(
+            native_tabular_reassemble(transformed, ord(","), len(source)),
+            source,
+        )
+
     def test_transform_roundtrips_exact_table_bytes(self):
         fixtures = [
             b"",

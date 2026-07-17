@@ -302,8 +302,8 @@ def tabular_transform(data: bytes, delimiter: int) -> bytes:
     library = _load_library()
     if library is None or not hasattr(library, "clab_tabular_transform"):
         raise RuntimeError("compression-lab native library is not built")
-    source = ctypes.create_string_buffer(data, max(1, len(data)))
-    capacity = len(data) * 2 + 1024 * 1024
+    source = ctypes.c_char_p(data)
+    capacity = len(data) + len(data) // 64 + 256 * 1024
     output = ctypes.create_string_buffer(max(1, capacity))
     output_len = ctypes.c_size_t()
     result = library.clab_tabular_transform(
@@ -338,7 +338,7 @@ def tabular_reassemble(data: bytes, delimiter: int, expected_size: int) -> bytes
     library = _load_library()
     if library is None or not hasattr(library, "clab_tabular_reassemble"):
         raise RuntimeError("compression-lab native library is not built")
-    source = ctypes.create_string_buffer(data, max(1, len(data)))
+    source = ctypes.c_char_p(data)
     output = ctypes.create_string_buffer(max(1, expected_size))
     result = library.clab_tabular_reassemble(
         source,

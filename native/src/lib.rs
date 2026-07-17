@@ -113,9 +113,11 @@ fn encode_tabular_columns(data: &[u8], delimiter: u8) -> Option<Vec<u8>> {
         .iter()
         .try_fold(0_usize, |total, column| total.checked_add(column.len()))?;
     let mut output = Vec::with_capacity(
-        data.len()
-            .checked_add(row_metadata.len())?
-            .checked_add(column_bytes)?,
+        row_metadata
+            .len()
+            .checked_add(column_bytes)?
+            .checked_add(columns.len().checked_mul(10)?)?
+            .checked_add(30)?,
     );
     encode_varint(row_count, &mut output);
     encode_varint(columns.len(), &mut output);
