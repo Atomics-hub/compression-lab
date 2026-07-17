@@ -9,7 +9,7 @@
   "candidate": {
     "codec_id": "jls2",
     "format": "JLS2 version 1 containing JLF2 version 1 segments",
-    "frozen_implementation_commit": "86d86f80dad86735e53829c6009eb29cee0ea324",
+    "frozen_implementation_commit": "e254c43458e2ae4f8088b7fcc22b665614e8f169",
     "segment_target_bytes": 16777216,
     "internal_zstd_level": 6,
     "compression_segment_workers": 2,

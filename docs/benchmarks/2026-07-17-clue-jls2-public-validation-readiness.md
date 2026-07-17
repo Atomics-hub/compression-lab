@@ -16,8 +16,8 @@ candidate implementation.
 
 ## Frozen candidate
 
-The candidate is the exact JLS2 implementation at commit
-`86d86f80dad86735e53829c6009eb29cee0ea324`. The gate file pins SHA-256 for its
+The candidate is the exact JLS2 implementation in the publicly reachable merge
+commit `e254c43458e2ae4f8088b7fcc22b665614e8f169`. The gate file pins SHA-256 for its
 Python encoder, Rust transforms, standalone Rust decoder, Cargo lock, and build
 metadata. Validation must build and run that implementation from a detached
 worktree; later documentation, branding, harness, or packaging changes may not
