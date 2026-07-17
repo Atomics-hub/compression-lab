@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "name": "clue-json-log-corpus-v1",
+  "category": "structured_cloud_event_logs",
+  "claim_ceiling": "CLUE-LDS development and one-time public-validation evidence only; not private-holdout, universal, market-leading, world-best, or state-of-the-art evidence",
+  "provider": {
+    "title": "Cloud-based User Entity Behavior Analytics Log Data Set",
+    "authors": [
+      "Max Landauer",
+      "Florian Skopik",
+      "Georg H\u00f6ld",
+      "Markus Wurzenberger"
+    ],
+    "doi": "10.5281/zenodo.7119953",
+    "record_url": "https://zenodo.org/records/7119953",
+    "publication_date": "2022-09-28",
+    "license_spdx": "CC-BY-4.0",
+    "record_count_description": "around 50 million events",
+    "unpacked_size_description": "around 14.5 GB"
+  },
+  "archive": {
+    "filename": "clue.zip",
+    "url": "https://zenodo.org/api/records/7119953/files/clue.zip/content",
+    "size_bytes": 635105552,
+    "publisher_digest_algorithm": "md5",
+    "publisher_digest": "9e318370f96b68077667e9cdc05f26a5",
+    "sha256": null,
+    "member": "clue.json"
+  },
+  "selection": {
+    "rule": "preserve complete original NDJSON records whose official monotonically increasing id is within the inclusive frozen range",
+    "expected_id_equals_line_number": true,
+    "development": [
+      {
+        "id": "clue-early-development",
+        "family": "clue_early",
+        "first_record_id": 1,
+        "last_record_id": 250000
+      },
+      {
+        "id": "clue-middle-development",
+        "family": "clue_middle",
+        "first_record_id": 10000001,
+        "last_record_id": 10250000
+      },
+      {
+        "id": "clue-late-development",
+        "family": "clue_late",
+        "first_record_id": 20000001,
+        "last_record_id": 20250000
+      }
+    ],
+    "public_validation": [
+      {
+        "id": "clue-validation-a",
+        "family": "clue_validation_a",
+        "first_record_id": 35000001,
+        "last_record_id": 35250000
+      },
+      {
+        "id": "clue-validation-b",
+        "family": "clue_validation_b",
+        "first_record_id": 45000001,
+        "last_record_id": 45250000
+      }
+    ]
+  }
+}
