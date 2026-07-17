@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "name": "dense-feature-matrix-development-gates-v1",
+  "category": "byte_exact_delimited_dense_feature_matrices",
+  "stage": "fresh-development-only",
+  "claim_ceiling": "representation and selector development on three licensed families only; not public-validation, private-holdout, independent, category-best, market-leading, or state-of-the-art evidence",
+  "corpus": {
+    "config": "config/tabular-successor-corpus-v1.json",
+    "split": "development",
+    "track": "dense_feature_matrix",
+    "families": [
+      "multiple_features_pixel_matrix",
+      "optdigits_integer_matrix",
+      "semeion_binary_digit_matrix"
+    ],
+    "source_bytes": 4895341,
+    "public_validation": "unopened",
+    "private_holdout": "sealed"
+  },
+  "contamination_boundary": {
+    "evaluation_only": [
+      "track labels",
+      "source IDs",
+      "filenames",
+      "DOIs",
+      "declared delimiters",
+      "family identities"
+    ],
+    "production_inputs": "bounded bytes from the current input and complete framed candidate sizes only",
+    "consumed_tbl1_families": "no bytes, statistics, codec deltas, header spelling, feature counts, or fitted thresholds from MetroPT, electricity load, OULAD, or OCRB may contribute"
+  },
+  "frozen_baseline": {
+    "codec": "bz2-9",
+    "aggregate_bytes": 200311,
+    "family_bytes": {
+      "multiple_features_pixel_matrix": 77935,
+      "optdigits_integer_matrix": 89361,
+      "semeion_binary_digit_matrix": 33015
+    },
+    "unchanged_tbs1_aggregate_bytes": 320264
+  },
+  "hypotheses": [
+    {
+      "id": "DMT1",
+      "name": "separator-aware token alphabets",
+      "representation": "losslessly split alternating field lexemes and exact separator runs, dictionary-code each alphabet, bit-pack indices, and entropy-code the complete representation"
+    },
+    {
+      "id": "DMI1",
+      "name": "typed integer and binary planes",
+      "representation": "when bounded parsing proves a rectangular integer or binary matrix, retain exact lexeme and separator reconstruction metadata while coding column-major values, deltas, or bit planes"
+    },
+    {
+      "id": "DMB1",
+      "name": "fixed-row byte planes",
+      "representation": "when bounded bytes prove stable row widths, transpose byte positions or small byte groups without semantic parsing and preserve row terminators exactly"
+    }
+  ],
+  "ratio_gates": {
+    "maximum_aggregate_bytes_for_five_percent_gain_vs_bz2_9": 190295,
+    "minimum_families_with_five_percent_gain_vs_strongest_standard": 2,
+    "maximum_family_regression_vs_equally_framed_direct_fallback_percent": 2.0,
+    "maximum_record_table_aggregate_regression_percent": 0.25,
+    "require_complete_frame_accounting": true,
+    "require_exact_roundtrip": true,
+    "require_deterministic_output": true
+  },
+  "operational_gates": {
+    "minimum_compression_mbps": 50.0,
+    "minimum_decompression_mbps": 250.0,
+    "maximum_peak_rss_mib": 512.0,
+    "require_bounded_streaming_memory": true,
+    "require_corruption_rejection": true,
+    "require_portable_reference_decoder": true
+  },
+  "selector_gates": {
+    "training": "leave one development family out; no row may use evaluation-only metadata",
+    "maximum_sample_bytes": 1048576,
+    "require_complete_framed_comparison_when_both_candidates_are_materialized": true,
+    "require_no_expansion_vs_equally_framed_direct_fallback": true
+  },
+  "decision_rule": "A representation may advance to the successor candidate only if every ratio, operational, selector, integrity, and record-table-preservation gate passes on fresh development data. Public validation remains sealed until candidate code, selector, format, gates, runner, evaluator, and lock receipt are merged."
+}
