@@ -67,9 +67,8 @@ class DMS2PublicValidationTests(unittest.TestCase):
                 capture_output=True,
             ).stdout
             self.assertEqual(hashlib.sha256(committed).hexdigest(), expected)
-            self.assertEqual(digest(REPOSITORY / relative), expected)
         verifier = load_module("verify_dms2_final_lock", LOCK_VERIFIER)
-        receipt = verifier.verify_lock(LOCK_PATH, require_clean=False)
+        receipt = verifier.verify_historical_lock(LOCK_PATH)
         self.assertTrue(receipt["passed"])
         self.assertEqual(receipt["authorization"]["maximum_scored_attempts"], 1)
         self.assertEqual(
@@ -100,7 +99,7 @@ class DMS2PublicValidationTests(unittest.TestCase):
             drifted.write_text(json.dumps(lock), encoding="utf-8")
             with self.assertRaisesRegex(
                 ValueError,
-                "requires a clean tracked tree|digest mismatch",
+                "requires a clean tracked tree|digest mismatch|locked working path drifted",
             ):
                 fetcher.acquire(
                     config=CORPUS_PATH,

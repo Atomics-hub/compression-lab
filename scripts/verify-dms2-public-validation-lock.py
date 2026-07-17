@@ -26,29 +26,20 @@ def git(*arguments: str, check: bool = True) -> subprocess.CompletedProcess[byte
     )
 
 
-def verify_lock(
-    lock_path: Path,
-    *,
-    require_clean: bool = True,
-) -> dict[str, Any]:
+def verify_historical_lock(lock_path: Path) -> dict[str, Any]:
+    """Audit a completed lock against the exact commit it originally froze."""
     lock = json.loads(lock_path.read_text(encoding="utf-8"))
     readiness = str(lock["readiness_commit"])
     head = git("rev-parse", "HEAD").stdout.decode().strip()
-    status = git("status", "--porcelain", "--untracked-files=no").stdout.decode().strip()
-    if require_clean and status:
-        raise ValueError("public validation requires a clean tracked tree")
     ancestor = git("merge-base", "--is-ancestor", readiness, "HEAD", check=False)
     if ancestor.returncode != 0:
         raise ValueError("readiness commit is not an ancestor of HEAD")
 
     verified: dict[str, str] = {}
     for relative, expected in lock["locked_paths"].items():
-        working = sha256_bytes((REPOSITORY / relative).read_bytes())
         committed = sha256_bytes(git("show", f"{readiness}:{relative}").stdout)
         if committed != expected:
             raise ValueError(f"readiness commit digest mismatch: {relative}")
-        if working != expected:
-            raise ValueError(f"locked working path drifted: {relative}")
         verified[relative] = expected
 
     return {
@@ -56,12 +47,33 @@ def verify_lock(
         "passed": True,
         "head_commit": head,
         "readiness_commit": readiness,
-        "tracked_status": status,
         "lock_path": str(lock_path.resolve()),
         "lock_sha256": sha256_bytes(lock_path.read_bytes()),
         "verified_paths": verified,
         "claim_ceiling": lock["claim_ceiling"],
         "authorization": lock["authorization"],
+    }
+
+
+def verify_lock(
+    lock_path: Path,
+    *,
+    require_clean: bool = True,
+) -> dict[str, Any]:
+    lock = json.loads(lock_path.read_text(encoding="utf-8"))
+    historical = verify_historical_lock(lock_path)
+    status = git("status", "--porcelain", "--untracked-files=no").stdout.decode().strip()
+    if require_clean and status:
+        raise ValueError("public validation requires a clean tracked tree")
+
+    for relative, expected in lock["locked_paths"].items():
+        working = sha256_bytes((REPOSITORY / relative).read_bytes())
+        if working != expected:
+            raise ValueError(f"locked working path drifted: {relative}")
+
+    return {
+        **historical,
+        "tracked_status": status,
     }
 
 

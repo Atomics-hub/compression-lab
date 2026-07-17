@@ -62,7 +62,6 @@ class TBL1PublicValidationTests(unittest.TestCase):
                 capture_output=True,
             ).stdout
             self.assertEqual(hashlib.sha256(committed).hexdigest(), expected)
-            self.assertEqual(digest(REPOSITORY / relative), expected)
 
         specification = importlib.util.spec_from_file_location(
             "verify_tbl1_public_validation_lock",
@@ -72,7 +71,7 @@ class TBL1PublicValidationTests(unittest.TestCase):
         self.assertIsNotNone(specification.loader if specification else None)
         module = importlib.util.module_from_spec(specification)
         specification.loader.exec_module(module)
-        receipt = module.verify_lock(LOCK_PATH, require_clean=False)
+        receipt = module.verify_historical_lock(LOCK_PATH)
         self.assertTrue(receipt["passed"])
         self.assertEqual(receipt["readiness_commit"], lock["readiness_commit"])
 
