@@ -44,7 +44,18 @@ class TabularProtocolTests(unittest.TestCase):
             self.assertTrue(item["page_url"].startswith("https://"))
             self.assertTrue(item["archive_url"].startswith("https://"))
             self.assertRegex(item["doi"], r"^10\.")
-            self.assertIsNone(item["archive_sha256"])
+            if item in self.corpus["development"]:
+                self.assertRegex(item["archive_sha256"], r"^[0-9a-f]{64}$")
+                self.assertGreater(item["selected_item_bytes"], 0)
+                self.assertRegex(
+                    item["selected_item_sha256"], r"^[0-9a-f]{64}$"
+                )
+                self.assertIsInstance(item["source_complete"], bool)
+            else:
+                self.assertIsNone(item["archive_sha256"])
+                self.assertIsNone(item["selected_item_bytes"])
+                self.assertIsNone(item["selected_item_sha256"])
+                self.assertIsNone(item["source_complete"])
             self.assertNotIn("..", Path(item["member"]).parts)
         self.assertEqual(self.corpus["private_holdout"]["status"], "sealed")
 
