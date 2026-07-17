@@ -13,6 +13,7 @@ GATES_PATH = REPOSITORY / "config" / "tbl1-public-validation-gates.json"
 CORPUS_PATH = REPOSITORY / "config" / "tabular-corpus-v1.json"
 EVALUATOR = REPOSITORY / "scripts" / "evaluate-tbl1-public-validation.py"
 BENCHMARK = REPOSITORY / "scripts" / "benchmark-tbl1-public-validation.py"
+GIT_ATTRIBUTES = REPOSITORY / ".gitattributes"
 
 
 def digest(path: Path) -> str:
@@ -73,6 +74,10 @@ class TBL1PublicValidationTests(unittest.TestCase):
         self.assertEqual(
             gates["private_holdout"]["status"],
             "sealed",
+        )
+        self.assertIn(
+            "* text=auto eol=lf",
+            GIT_ATTRIBUTES.read_text(encoding="utf-8"),
         )
 
     def test_evaluator_enforces_ratio_speed_memory_and_proof_gates(self):
