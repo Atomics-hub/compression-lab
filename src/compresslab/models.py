@@ -68,6 +68,8 @@ class TrialResult:
     transformed_sample_ratio: float = 0.0
     selector_reason: str = ""
     delimiter: int = 0
+    compression_level: int = 0
+    compression_threads: int = 0
     segment_count: int = 0
     candidate_segment_count: int = 0
     transformed_segments: int = 0

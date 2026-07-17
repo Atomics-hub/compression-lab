@@ -14,6 +14,8 @@ class CodecProbeTests(unittest.TestCase):
             codec = codec_by_id(f"tbl1-{level}")
             self.assertEqual(codec.implementation, "tbl1")
             self.assertEqual(codec.level, level)
+        dense = codec_by_id("tbl1-dense")
+        self.assertEqual(dense.implementation, "tbl1-dense")
 
     def test_tabular_worker_roundtrips_automatic_delimiter(self):
         with tempfile.TemporaryDirectory() as directory:

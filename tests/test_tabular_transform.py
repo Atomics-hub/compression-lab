@@ -12,6 +12,7 @@ from compresslab.tabular_transform import (
     compress,
     compress_auto,
     compress_auto_with_metadata,
+    compress_dense_auto_with_metadata,
     decompress,
     frame_backend,
     frame_delimiter,
@@ -42,6 +43,19 @@ class TabularTransformTests(unittest.TestCase):
             {"sample-column-clear-win", "sample-direct-or-ambiguous"},
         )
         self.assertGreater(metadata["selector_ns"], 0)
+
+    def test_dense_selector_is_deterministic_and_records_parameters(self):
+        source = b"a,b,c\n" + b"1,2,3\n" * 20000
+        first, metadata = compress_dense_auto_with_metadata(source)
+        second, repeated = compress_dense_auto_with_metadata(source)
+        self.assertEqual(first, second)
+        self.assertEqual(metadata["compression_level"], repeated["compression_level"])
+        self.assertEqual(
+            metadata["compression_threads"], repeated["compression_threads"]
+        )
+        self.assertIn(metadata["compression_level"], {9, 16})
+        self.assertIn(metadata["compression_threads"], {1, 2})
+        self.assertEqual(decompress(first), source)
 
     def test_native_transform_is_byte_identical_to_reference(self):
         fixtures = [

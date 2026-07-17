@@ -582,6 +582,20 @@ def zstd_compress(data: bytes, level: int = 3) -> bytes:
     return output.raw[:result]
 
 
+def zstd_compress_multithread(data: bytes, level: int, threads: int = 2) -> bytes:
+    if threads < 1:
+        raise ValueError("Zstandard thread count must be positive")
+    module = _load_python_zstd()
+    if module is None:
+        raise RuntimeError("python-zstandard is unavailable")
+    try:
+        return module.ZstdCompressor(level=level, threads=threads).compress(data)
+    except module.ZstdError as error:
+        raise RuntimeError(
+            f"python-zstandard multithreaded compression failed: {error}"
+        ) from error
+
+
 def zstd_frame_content_size(data: bytes) -> int:
     library = _load_zstd()
     if library is None:

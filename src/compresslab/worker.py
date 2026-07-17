@@ -41,6 +41,7 @@ from .native import (
     zstd_ffi_available,
 )
 from .tabular_transform import (
+    compress_dense_auto_with_metadata as _tbl1_dense_compress,
     compress_auto_with_metadata as _tbl1_compress,
     decompress as _tbl1_decompress,
     frame_backend as _tbl1_frame_backend,
@@ -588,11 +589,16 @@ def run(codec_id: str, operation: str, source: Path, destination: Path) -> dict:
         else:
             output, detail = _adaptive_decompress(source.read_bytes())
         destination.write_bytes(output)
-    elif codec.implementation == "tbl1":
+    elif codec.implementation in {"tbl1", "tbl1-dense"}:
         if operation == "compress":
-            output, selector_detail = _tbl1_compress(
-                source.read_bytes(), level=codec.level
-            )
+            if codec.implementation == "tbl1-dense":
+                output, selector_detail = _tbl1_dense_compress(
+                    source.read_bytes()
+                )
+            else:
+                output, selector_detail = _tbl1_compress(
+                    source.read_bytes(), level=codec.level
+                )
             detail = {
                 "selected_backend": _tbl1_frame_backend(output),
                 "transform_engine": (

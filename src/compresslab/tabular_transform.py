@@ -10,6 +10,7 @@ from .native import (
     tabular_reassemble,
     tabular_transform,
     zstd_compress,
+    zstd_compress_multithread,
     zstd_decompress,
     zstd_frame_content_size,
 )
@@ -25,6 +26,11 @@ TRANSFORM_SLACK = 1024 * 1024
 AUTO_DELIMITERS = (ord(","), ord(";"), ord("\t"), ord("|"))
 DETECTION_SAMPLE_BYTES = 1024 * 1024
 SAMPLE_COLUMN_MARGIN = 0.98
+DENSE_SAMPLE_LEVEL = 3
+DENSE_DEFAULT_LEVEL = 9
+DENSE_EXTREME_LEVEL = 16
+DENSE_EXTREME_THREADS = 2
+DENSE_EXTREME_COLUMN_RATIO = 0.05
 
 
 def _encode_varint(value: int) -> bytes:
@@ -222,18 +228,26 @@ def detect_delimiter(data: bytes) -> int:
     return _detect_delimiter_from_sample(_representative_sample(data))
 
 
+def _sample_backend(
+    sample: bytes, delimiter: int, level: int
+) -> tuple[int, bytes, bytes]:
+    direct_sample = zstd_compress(sample, level=level)
+    column_sample = zstd_compress(transform(sample, delimiter), level=level)
+    if len(column_sample) < len(direct_sample) * SAMPLE_COLUMN_MARGIN:
+        return BACKEND_COLUMN, direct_sample, column_sample
+    return BACKEND_DIRECT, direct_sample, column_sample
+
+
 def compress_auto_with_metadata(data: bytes, level: int = 9) -> tuple[bytes, dict]:
     selector_start = time.perf_counter_ns()
     sample = _representative_sample(data)
     delimiter = _detect_delimiter_from_sample(sample)
-    direct_sample = zstd_compress(sample, level=level)
-    column_sample = zstd_compress(transform(sample, delimiter), level=level)
-    column_limit = len(direct_sample) * SAMPLE_COLUMN_MARGIN
-    if len(column_sample) < column_limit:
-        backend = BACKEND_COLUMN
+    backend, direct_sample, column_sample = _sample_backend(
+        sample, delimiter, level
+    )
+    if backend == BACKEND_COLUMN:
         reason = "sample-column-clear-win"
     else:
-        backend = BACKEND_DIRECT
         reason = "sample-direct-or-ambiguous"
     selector_ns = time.perf_counter_ns() - selector_start
 
@@ -250,12 +264,55 @@ def compress_auto_with_metadata(data: bytes, level: int = 9) -> tuple[bytes, dic
         "sample_ratio": len(direct_sample) / sample_size,
         "transformed_sample_ratio": len(column_sample) / sample_size,
         "selector_reason": reason,
+        "compression_level": level,
+        "compression_threads": 1,
     }
 
 
 def compress_auto(data: bytes, level: int = 9) -> bytes:
     frame, _metadata = compress_auto_with_metadata(data, level=level)
     return frame
+
+
+def compress_dense_auto_with_metadata(data: bytes) -> tuple[bytes, dict]:
+    selector_start = time.perf_counter_ns()
+    sample = _representative_sample(data)
+    delimiter = _detect_delimiter_from_sample(sample)
+    backend, direct_sample, column_sample = _sample_backend(
+        sample, delimiter, DENSE_SAMPLE_LEVEL
+    )
+    sample_size = max(1, len(sample))
+    column_ratio = len(column_sample) / sample_size
+    if backend == BACKEND_COLUMN and column_ratio < DENSE_EXTREME_COLUMN_RATIO:
+        level = DENSE_EXTREME_LEVEL
+        threads = DENSE_EXTREME_THREADS
+        reason = "extreme-column-ratio"
+    elif backend == BACKEND_COLUMN:
+        level = DENSE_DEFAULT_LEVEL
+        threads = 1
+        reason = "ordinary-column-ratio"
+    else:
+        level = DENSE_DEFAULT_LEVEL
+        threads = 1
+        reason = "direct-or-ambiguous"
+    selector_ns = time.perf_counter_ns() - selector_start
+
+    source = transform(data, delimiter) if backend == BACKEND_COLUMN else data
+    if threads > 1:
+        payload = zstd_compress_multithread(source, level=level, threads=threads)
+    else:
+        payload = zstd_compress(source, level=level)
+    frame = _pack_frame(data, delimiter, backend, payload)
+    return frame, {
+        "selector_ns": selector_ns,
+        "selector_stages": 1,
+        "selector_sample_bytes": len(sample),
+        "sample_ratio": len(direct_sample) / sample_size,
+        "transformed_sample_ratio": column_ratio,
+        "selector_reason": reason,
+        "compression_level": level,
+        "compression_threads": threads,
+    }
 
 
 def frame_backend(frame: bytes) -> str:
