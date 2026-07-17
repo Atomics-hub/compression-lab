@@ -1,16 +1,5 @@
 # CLUE-LDS JLS2 public-validation readiness
 
-> **Post-run status (2026-07-17):** The single authorized acquisition and
-> score completed in
-> [GitHub Actions run 29606109504](https://github.com/Atomics-hub/compression-lab/actions/runs/29606109504).
-> The standards/candidate benchmark, pinned PBC specialist benchmark,
-> evaluator, publication renderer, checksum sealer, and artifact upload all
-> completed. The frozen evaluator returned exit code 2, the protocol's valid
-> `not_passed` outcome. The exact retained artifact is awaiting
-> checksum-verified repository import; no numeric public-validation claim is
-> made from the workflow badge alone. The pre-run record below is preserved as
-> readiness provenance, not as a statement that the ranges remain unopened.
-
 ## Decision
 
 **Candidate and gates frozen; validation remains unopened and unauthorized.**
