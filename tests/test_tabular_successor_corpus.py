@@ -66,6 +66,13 @@ class TabularSuccessorCorpusTests(unittest.TestCase):
         self.assertIn("Do not acquire", policy)
         self.assertIn("Retain the first", policy)
 
+    def test_development_acquisition_is_fully_pinned(self):
+        for item in self.config["development"]:
+            self.assertRegex(item["archive_sha256"], r"^[0-9a-f]{64}$")
+            self.assertGreater(item["selected_item_bytes"], 0)
+            self.assertRegex(item["selected_item_sha256"], r"^[0-9a-f]{64}$")
+            self.assertIs(item["source_complete"], True)
+
     def test_track_labels_are_evaluation_only(self):
         routing = self.config["contamination_policy"]["production_routing"]
         allowed = self.config["contamination_policy"]["allowed_use"]

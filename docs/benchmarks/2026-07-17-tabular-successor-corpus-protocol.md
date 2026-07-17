@@ -45,6 +45,25 @@ SHA-256 values before any codec is run. Files are preserved byte-for-byte;
 space-delimited matrices are not converted to CSV and repeated whitespace is
 not collapsed.
 
+### Development acquisition receipt
+
+The first authorized acquisition completed on 2026-07-17. All six publisher
+members were complete, totaling 18,635,606 bytes. No public-validation archive
+was requested, downloaded, listed, or inspected.
+
+| Family | Exact bytes | Archive SHA-256 | Selected-item SHA-256 |
+| --- | ---: | --- | --- |
+| Bike Sharing | 1,156,736 | `b70182d0d0508e9abbb79306ce5c0cec34869000f8220175ac83d11dbe845401` | `e03de4ee4ef4dc376ac6e04bf829673c6269e8eba5c60fa121640fa2f829504f` |
+| Appliances Energy | 11,979,363 | `2fccf354445d886e7917620b0195db1f3e3e34d5a067a93b844694a4c561255a` | `2820bf712ad0275cb18b85a05250926100d8e65ebb9f4d2d016ca91ea152a25d` |
+| Seoul Bike | 604,166 | `139e9908f0a3544bb222386855c9ce107e96467306bb8e4ce936aab59e7baac4` | `373339b71a8935d69e9af0abf26a70744632119862eeb3919efb389a7b749c60` |
+| Semeion digits | 2,889,702 | `6fb091394714cddda5751d4e1c2781ab094e7cf15de07917fb40e581f19efc75` | `f43228ae3da5ea6a3c95069d53450b86166770e3b719dcc333182128fe08d4b1` |
+| Optical Digits | 563,639 | `0d7b054fea010270e9b3f06411c654c5e59547732ad626381980baffe0a23fb0` | `e1b683cc211604fe8fd8c4417e6a69f31380e0c61d4af22e93cc21e9257ffedd` |
+| Multiple Features pixels | 1,442,000 | `898a50a7637f1ed5a8cee2493aaa0e7f4d52795c412f59b0969ec7c3046ee7bd` | `70a1cd033add46614464a8740ddc23c3693765985bde52ccb6b702bff23b64f1` |
+
+The machine-enforced pins live in
+`config/tabular-successor-corpus-v1.json`; the fetcher refuses a future
+archive or selected stream that differs from them.
+
 ## Unopened public-validation families
 
 | Track | Family | Frozen publisher member | License | Page |
