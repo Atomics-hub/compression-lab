@@ -9,6 +9,7 @@ import hashlib
 import json
 import os
 from pathlib import Path, PurePosixPath
+import shutil
 import struct
 import tarfile
 import tempfile
@@ -166,33 +167,64 @@ def build_source_bundle(
         if not retained:
             raise ValueError("first selected source file exceeds the bundle byte cap")
 
+    retained_by_archive_name = {
+        member.name: (index, path_bytes, relative, member.size)
+        for index, (path_bytes, relative, member) in enumerate(retained)
+    }
+    items: list[dict[str, Any]] = []
+    manifest_digest = hashlib.sha256()
+    with tempfile.TemporaryDirectory(
+        prefix=f".{destination.name}.spool.", dir=destination.parent
+    ) as spool_raw:
+        spool = Path(spool_raw)
+        spooled: dict[str, tuple[Path, bytes]] = {}
+        with tarfile.open(archive_path, mode="r|*") as stream:
+            for stream_member in stream:
+                retained_row = retained_by_archive_name.get(stream_member.name)
+                if retained_row is None:
+                    continue
+                if stream_member.name in spooled:
+                    raise ValueError(
+                        f"duplicate retained archive member: {stream_member.name}"
+                    )
+                index, _, relative, expected_size = retained_row
+                extracted = stream.extractfile(stream_member)
+                if extracted is None:
+                    raise ValueError(f"unable to read selected member: {relative}")
+                spool_path = spool / f"{index:08d}.blob"
+                content_digest = hashlib.sha256()
+                observed_size = 0
+                with extracted, spool_path.open("wb") as spool_output:
+                    while chunk := extracted.read(CHUNK_SIZE):
+                        spool_output.write(chunk)
+                        content_digest.update(chunk)
+                        observed_size += len(chunk)
+                if observed_size != expected_size:
+                    raise ValueError(
+                        f"archive member size changed while reading: {relative}"
+                    )
+                spooled[stream_member.name] = (spool_path, content_digest.digest())
+                if len(spooled) == len(retained_by_archive_name):
+                    break
+        missing = sorted(set(retained_by_archive_name) - set(spooled))
+        if missing:
+            raise ValueError(f"retained archive members disappeared: {missing[0]}")
+
         descriptor, temporary_name = tempfile.mkstemp(
             prefix=f".{destination.name}.", suffix=".partial", dir=destination.parent
         )
         temporary = Path(temporary_name)
-        items: list[dict[str, Any]] = []
-        manifest_digest = hashlib.sha256()
         try:
             with os.fdopen(descriptor, "wb") as output:
                 output.write(SOURCE_MAGIC)
                 output.write(U64.pack(len(retained)))
                 for path_bytes, relative, member in retained:
-                    extracted = archive.extractfile(member)
-                    if extracted is None:
-                        raise ValueError(f"unable to read selected member: {relative}")
+                    spool_path, digest_bytes = spooled[member.name]
                     output.write(U64.pack(len(path_bytes)))
                     output.write(path_bytes)
                     output.write(U64.pack(member.size))
-                    content_digest = hashlib.sha256()
-                    observed_size = 0
-                    with extracted:
-                        while chunk := extracted.read(CHUNK_SIZE):
-                            output.write(chunk)
-                            content_digest.update(chunk)
-                            observed_size += len(chunk)
-                    if observed_size != member.size:
-                        raise ValueError(f"archive member size changed while reading: {relative}")
-                    digest_bytes = content_digest.digest()
+                    with spool_path.open("rb") as spool_input:
+                        shutil.copyfileobj(spool_input, output, CHUNK_SIZE)
                     manifest_digest.update(
                         _manifest_source_entry(path_bytes, member.size, digest_bytes)
                     )
@@ -200,7 +232,7 @@ def build_source_bundle(
                         {
                             "path": relative,
                             "size_bytes": member.size,
-                            "sha256": content_digest.hexdigest(),
+                            "sha256": digest_bytes.hex(),
                         }
                     )
                 output.write(manifest_digest.digest())

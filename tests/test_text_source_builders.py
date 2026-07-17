@@ -276,6 +276,33 @@ class TextSourceBuilderTests(unittest.TestCase):
             self.assertEqual(decoded, [("a.py", b"a" * 20)])
             self.assertTrue(manifest["truncated_at_byte_cap"])
 
+    def test_source_content_pass_uses_stream_mode_instead_of_compressed_seeks(self):
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            archive = root / "fixture.tar.xz"
+            write_tar(archive, [("root/main.py", b"print('fast')\n")])
+            observed_modes: list[str] = []
+            original_open = BUILDERS.tarfile.open
+
+            def recording_open(*args, **kwargs):
+                mode = kwargs.get("mode")
+                if mode is None and len(args) > 1:
+                    mode = args[1]
+                observed_modes.append(mode)
+                return original_open(*args, **kwargs)
+
+            BUILDERS.tarfile.open = recording_open
+            try:
+                BUILDERS.build_source_bundle(
+                    archive_path=archive,
+                    destination=root / "fixture.axsrc",
+                    source={"id": "fixture-source"},
+                    rules_path=RULES,
+                )
+            finally:
+                BUILDERS.tarfile.open = original_open
+            self.assertEqual(observed_modes, ["r:*", "r|*"])
+
     def test_wikimedia_bundle_selects_exact_xml_decoded_revision_text(self):
         pages = "".join(
             [

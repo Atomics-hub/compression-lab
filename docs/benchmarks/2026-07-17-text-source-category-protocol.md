@@ -86,6 +86,13 @@ Every path still receives global lexical/root/encoding validation. Interrupted
 staging directories were removed; cached archives remained subject to the same
 publisher size and digest checks on resume.
 
+A third attempt was manually interrupted when the original sorted writer was
+observed repeatedly seeking through Rust's compressed XZ stream. The builder
+now makes one streaming content pass into opaque, index-named temporary blobs,
+then replays those blobs in bytewise path order. Archive member names are never
+created on disk, the final bytes are unchanged, and the repeated decompression
+cost is eliminated.
+
 The deterministic extractor keeps namespace-zero, non-redirect latest revision
 text in publisher order, performs only XML decoding, and applies no Unicode,
 whitespace, case, markup, or line-ending normalization. A frozen 4 KiB exact
