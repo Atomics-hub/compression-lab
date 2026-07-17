@@ -15,7 +15,7 @@ portability, or independent-evidence cells remain red or untested.
 
 | Category | Evidence stage | Ratio status | Speed status | Memory status | Complete category win? | Next gate |
 | --- | --- | --- | --- | --- | --- | --- |
-| JSON and machine logs | Public-validation partial | ✅ retained LogTrie score beat zstd-9 on 3/3 and PBC on 3/3 but passed the Brotli family gate on only 1/3; fresh CLUE development JLS2 was 18.08% smaller than Brotli-11 | ✅ fresh CLUE development delivery gate passed: 585.43 MB/s local median and 689.96 MB/s hosted ARM64 median, with every measured aggregate round above 250 MB/s | ⚠️ development-only JLS2 measurement; standalone decode was 146.5 MiB local and 114.5 MiB hosted, but no same-run validation baseline memory | ❌ No | Freeze one unchanged JLS2 candidate, complete standard and specialist roster, runner, evaluator, gates, and one-attempt lock before opening the two sealed CLUE ranges |
+| JSON and machine logs | Public-validation partial | ✅ retained LogTrie score beat zstd-9 on 3/3 and PBC on 3/3 but passed the Brotli family gate on only 1/3; fresh CLUE development JLS2 was 18.08% smaller than Brotli-11; the frozen CLUE first score completed as a no-pass and exact numbers await checksum-verified import | ✅ fresh CLUE development delivery gate passed: 585.43 MB/s local median and 689.96 MB/s hosted ARM64 median, with every measured aggregate round above 250 MB/s; exact validation speed awaits import | ⚠️ development JLS2 standalone decode was 146.5 MiB local and 114.5 MiB hosted; exact validation memory awaits import | ❌ No | Import and publish the immutable no-pass artifact, diagnose without tuning on the consumed ranges, and develop successors only on fresh families |
 | Plain text and source | Development | ❌ no win over the strongest tested ratio baselines | ⚠️ some Pareto development points, no category validation | ⚠️ partial development measurements | ❌ No | New representation or calibrated entropy-model hypothesis |
 | Tabular CSV | Public-validation partial | ⚠️ TBS1 won 3/4 families by 7.35%–16.50%, but lost aggregate to 7-Zip-9 by 3.48% after a 32.15% OCRB loss | ⚠️ 107.67/403.39 MB/s average; minimum compression passed, one decompression repetition failed at 163.51 MB/s | ✅ cold 293.70/139.81 MiB | ❌ No | Preserve the three-family signal; split image-like matrices into a separate category and use only fresh families for a successor |
 | Dense numeric matrices and time series | Public-validation partial | ❌ DMS2 was 46.57% larger than Brotli-11 on Gisette and 41.03% larger than bzip2-9 on Madelon; a baseline corpus-scope defect also invalidated the frozen aggregate | ❌ 33.45 MB/s aggregate and 27.77 MB/s minimum missed 50/45 MB/s gates; decompression passed | ❌ cold compression RSS was 630.45 MiB versus 512 MiB gate; decompression passed | ❌ No | Retain the first score, never tune on Gisette/Madelon, repair corpus plumbing, and require a materially new specialist on fresh development and validation families |
@@ -31,9 +31,13 @@ memory, integrity, comparability, and claim-ceiling fields used by
 The fresh CLUE-LDS development ratio census and standalone delivery gate are in
 [`runs/clue-json-log-development-census-v1`](../../runs/clue-json-log-development-census-v1/README.md)
 and [`runs/jls2-native-decoder-v1`](../../runs/jls2-native-decoder-v1/README.md).
-The latter passed locally and on a GitHub-hosted Apple ARM64 runner. Both sealed
-CLUE public-validation ranges remain unopened, so this does not upgrade the
-category to a public-validation pass.
+The latter passed locally and on a GitHub-hosted Apple ARM64 runner. The single
+authorized CLUE acquisition and score subsequently completed as a valid
+no-pass in
+[GitHub Actions run 29606109504](https://github.com/Atomics-hub/compression-lab/actions/runs/29606109504).
+Both validation ranges are now consumed and may not be reused. The exact
+numeric result is pending checksum-verified repository import, and the category
+has not achieved a public-validation pass.
 
 The tabular split, exact-byte boundary, baseline roster, and first product gates
 are frozen in

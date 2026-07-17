@@ -16,12 +16,17 @@ in all **99 of 99** measured round trips.
 
 ![JLS2 complete archive size, compression speed, and decompression speed compared with nine established codecs](docs/assets/clue-json-log-scorecard.svg)
 
-This is a **category-scoped development result**—not yet public-validation,
+This remains a **category-scoped development result**, not a public-validation
+win. The frozen first public-validation gate completed as a valid **no-pass**
+in [GitHub Actions run 29606109504](https://github.com/Atomics-hub/compression-lab/actions/runs/29606109504);
+its retained artifact is awaiting checksum-verified repository import, so no
+numeric public-validation claim is made here yet. The result is also not
 private-holdout, independent, general-file, or world-best evidence. In the
-original same-run census, JLS2 won size and compression speed against
-Brotli-11 but decoded 54.1% slower. A separately frozen product-delivery gate
-now passes with the standalone decoder at **585.43 MB/s median**, a
-**398.40 MB/s minimum**, and **7/7 rounds above 250 MB/s**.
+original same-run development census, JLS2 won size and compression speed
+against Brotli-11 but decoded 54.1% slower. A separately frozen
+product-delivery gate passes with the standalone decoder at
+**585.43 MB/s median**, a **398.40 MB/s minimum**, and all
+**7/7 rounds above 250 MB/s**.
 
 ![Standalone JLS2 delivery gate and immutable 11-codec size census](runs/jls2-native-decoder-v1/native-decoder-scorecard.svg)
 
@@ -68,7 +73,7 @@ claim boundary. Its optimization lineage remains independently inspectable:
 
 | Category | Best measured result | Gate status and evidence |
 | --- | --- | --- |
-| JSON and machine logs | JLS2 is 18.08% smaller than the strongest tested standard | Ratio lead and standalone development decode gate passed; public validation remains unopened ([native gate](runs/jls2-native-decoder-v1/README.md), [cold-start A/B](runs/jls2-cold-start-v1/README.md)) |
+| JSON and machine logs | JLS2 is 18.08% smaller than the strongest tested standard in development | Development ratio lead and standalone decode gate passed; the frozen first public-validation gate completed as a no-pass and its exact artifact is pending checksum-verified import ([workflow run](https://github.com/Atomics-hub/compression-lab/actions/runs/29606109504), [readiness protocol](docs/benchmarks/2026-07-17-clue-jls2-public-validation-readiness.md)) |
 | Delimited tables | TBS1 vs 7-Zip-9: 3.48% larger aggregate | Frozen gate failed ([decision](docs/benchmarks/2026-07-17-tbl1-public-validation-decision.md), [Fresh successor corpus protocol](docs/benchmarks/2026-07-17-tabular-successor-corpus-protocol.md)) |
 | Dense matrices | DMS2 vs Brotli-11: 43.55% larger; 33.45 / 313.99 MB/s compression / decompression | Frozen gate failed ([evidence](runs/dms2-public-validation-v1/README.md)) |
 | General files | Exact `.clab` fallback; no strongest-standard lead established | Alpha |
