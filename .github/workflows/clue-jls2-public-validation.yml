@@ -88,6 +88,7 @@ jobs:
             -DCMAKE_INSTALL_PREFIX="$TOOLS_DIR"
           cmake --build "$RUNNER_TEMP/brotli-build" --parallel
           cmake --install "$RUNNER_TEMP/brotli-build"
+          echo "LD_LIBRARY_PATH=$TOOLS_DIR/lib:${LD_LIBRARY_PATH:-}" >> "$GITHUB_ENV"
 
           curl --fail --location --proto '=https' --tlsv1.2 \
             https://github.com/ip7z/7zip/releases/download/26.02/7z2602-linux-x64.tar.xz \
