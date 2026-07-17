@@ -10,6 +10,7 @@ import zipfile
 
 REPOSITORY = Path(__file__).resolve().parents[1]
 SCRIPT = REPOSITORY / "scripts" / "fetch-clue-json-corpus.py"
+RECEIPT = REPOSITORY / "runs" / "clue-json-log-development-acquisition-v1.json"
 
 
 def load_module():
@@ -96,7 +97,10 @@ class ClueJsonCorpusTests(unittest.TestCase):
             config["archive"]["publisher_digest"],
             "9e318370f96b68077667e9cdc05f26a5",
         )
-        self.assertIsNone(config["archive"]["sha256"])
+        self.assertEqual(
+            config["archive"]["sha256"],
+            "0c9eadb104acf1da6de738ba9babe957c83cd8602a01fa6d846a6ea4a6611d96",
+        )
         self.assertEqual(
             [
                 row["last_record_id"] - row["first_record_id"] + 1
@@ -111,6 +115,25 @@ class ClueJsonCorpusTests(unittest.TestCase):
                 for left, right in zip(ordered, ordered[1:])
             )
         )
+        for row in config["selection"]["development"]:
+            self.assertGreater(row["size_bytes"], 0)
+            self.assertRegex(row["sha256"], r"^[0-9a-f]{64}$")
+        for row in config["selection"]["public_validation"]:
+            self.assertIsNone(row["size_bytes"])
+            self.assertIsNone(row["sha256"])
+
+    def test_acquisition_receipt_matches_machine_enforced_pins(self):
+        config = json.loads(
+            (REPOSITORY / "config" / "clue-json-log-corpus-v1.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        receipt = json.loads(RECEIPT.read_text(encoding="utf-8"))
+        self.assertEqual(receipt["archive"], config["archive"])
+        self.assertEqual(receipt["items"], config["selection"]["development"])
+        self.assertEqual(receipt["record_count"], 750_000)
+        self.assertEqual(receipt["size_bytes"], 203_578_132)
+        self.assertFalse(receipt["public_validation_parsed"])
 
     def test_development_ranges_are_exact_and_byte_preserving(self):
         module = load_module()
@@ -159,6 +182,31 @@ class ClueJsonCorpusTests(unittest.TestCase):
                 }
             ]
             with self.assertRaisesRegex(ValueError, "selected range is incomplete"):
+                module.select_ranges(
+                    source=io.BytesIO(source),
+                    selections=selections,
+                    output=output,
+                )
+            self.assertEqual(list(output.iterdir()), [])
+
+    def test_pinned_range_mismatch_removes_temporary_outputs(self):
+        module = load_module()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            output = root / "output"
+            output.mkdir()
+            source = b'{"id": 1}\n'
+            selections = [
+                {
+                    "id": "drifted",
+                    "family": "drifted",
+                    "first_record_id": 1,
+                    "last_record_id": 1,
+                    "size_bytes": len(source),
+                    "sha256": "0" * 64,
+                }
+            ]
+            with self.assertRaisesRegex(ValueError, "SHA-256 mismatch"):
                 module.select_ranges(
                     source=io.BytesIO(source),
                     selections=selections,

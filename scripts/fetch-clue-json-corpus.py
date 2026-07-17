@@ -128,6 +128,17 @@ def select_ranges(
             )
             if counts[identifier] != expected_count:
                 raise ValueError(f"selected range is incomplete: {identifier}")
+            if (
+                selection.get("size_bytes") is not None
+                and sizes[identifier] != selection["size_bytes"]
+            ):
+                raise ValueError(f"selected range byte count mismatch: {identifier}")
+            selected_sha256 = hashes[identifier].hexdigest()
+            if (
+                selection.get("sha256") is not None
+                and selected_sha256 != selection["sha256"]
+            ):
+                raise ValueError(f"selected range SHA-256 mismatch: {identifier}")
     except BaseException:
         for stream in outputs.values():
             stream.close()

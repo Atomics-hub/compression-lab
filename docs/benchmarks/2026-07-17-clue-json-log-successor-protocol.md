@@ -21,6 +21,7 @@ objects. The dataset is CC-BY-4.0 and has DOI
 | Archive | `clue.zip` |
 | Archive bytes | `635,105,552` |
 | Publisher MD5 | `9e318370f96b68077667e9cdc05f26a5` |
+| First-acquisition SHA-256 | `0c9eadb104acf1da6de738ba9babe957c83cd8602a01fa6d846a6ea4a6611d96` |
 | Member | `clue.json` |
 | License | `CC-BY-4.0` |
 | Record boundary | one original JSON object per line |
@@ -29,6 +30,24 @@ The acquisition script verifies the published byte count and MD5 before
 opening the archive, computes SHA-256, rejects unexpected ZIP members or path
 traversal, validates every selected JSON object, and preserves each selected
 line byte-for-byte.
+
+### Development acquisition receipt
+
+The first authorized development acquisition completed on 2026-07-17 from
+the already-frozen commit `9f88b10d1ad0d41941de1f5428878b6099106981`.
+The monolithic publisher archive necessarily contains the entire dataset and
+was cached and verified as one file. The extractor parsed only through record
+20,250,000, materialized only the three development ranges, and never parsed
+or materialized either validation range beginning at record 35,000,001.
+
+| Family | Records | Exact bytes | Selected SHA-256 |
+| --- | ---: | ---: | --- |
+| `clue_early` | 250,000 | 62,267,473 | `4f1571569ebdf98621bbd29da45ba84ab37b4f1f1033aacf822dd5b3f40358fe` |
+| `clue_middle` | 250,000 | 69,847,327 | `5ee50c36db110b023faf412e05398402e25ed59776ef5ee9323339f8b1aa4fa5` |
+| `clue_late` | 250,000 | 71,463,332 | `71091e9fa5d8fd20944e1bd5707f1c832470c56d4b662fc6ef3d34e9478eb739` |
+
+The complete development corpus is 203,578,132 exact source bytes across
+750,000 records. These pins were recorded before any compression probe.
 
 ## Frozen split
 
