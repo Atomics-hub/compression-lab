@@ -1,0 +1,34 @@
+{
+  "authorization": {
+    "expected_item_ids": [
+      "uci-gisette-train",
+      "uci-madelon-train"
+    ],
+    "maximum_acquisitions": 1,
+    "maximum_scored_attempts": 1,
+    "prohibit_post_score_tuning": true,
+    "retain_failed_or_interrupted_attempt": true,
+    "split": "public_validation"
+  },
+  "claim_ceiling": "This lock authorizes one unchanged acquisition and first score on the two declared DMS2 public-validation matrices. It does not itself provide performance evidence.",
+  "head_commit": "f4d17f4658cf18dd6d16d84c6adb0220809c7884",
+  "lock_path": "/Users/guts/Documents/Codex/2026-07-14/i/outputs/compression-lab/config/dms2-public-validation-lock.json",
+  "lock_sha256": "e7cc4ecea0567dc30761066760e8afbdcce983f736cf2125ca0767eacb407cd1",
+  "passed": true,
+  "readiness_commit": "ac52cd9c87fd48504bd0ee5f937a890d73831409",
+  "schema_version": 1,
+  "tracked_status": "",
+  "verified_paths": {
+    ".gitattributes": "d60f352d0db1404c70afb4bb8b2ca3fd1c610572aa40720e8a0b7baa7885418c",
+    "config/dms2-public-validation-gates.json": "e21eb894bbbdea189965463ca88ac714781596af14b3dd8f4fc04ecc46b64721",
+    "config/tabular-successor-corpus-v1.json": "f2ede2a954f46413a4d6fd87692523e4d1e93d69ed4248af1da66dc2dd800e24",
+    "docs/benchmarks/2026-07-17-dms2-public-validation-readiness.md": "93856d232938d73a9e908e5edb20fad5daaaaac4ad2dafc2cf35747cdf8960e4",
+    "scripts/benchmark-dms2-public-validation.py": "a446ce158c521d2c53f7fbc5874eca6f949cff12e993f151af74a11bba68bc9b",
+    "scripts/dms2-validation-worker.py": "8b86badbebf8daee9641eba89f8416b3778bbc755f58af28f47f6b465198efdb",
+    "scripts/evaluate-dms2-public-validation.py": "f5dcfd2c95b0499315b43829a61223accca640d4d436d07a829c6fef00e9a791",
+    "scripts/fetch-dms2-public-validation.py": "3b91ccb080ab3c83c05191a314888c909bf6e6fb9c7ee835a3ee17447aa7cc78",
+    "scripts/fetch_tabular_corpus.py": "796f8a629b458509d4f71669acae36da1316630e6f03c827363c77947c9d8c22",
+    "scripts/fetch_tabular_successor_corpus.py": "c7fc1ba93837c065c8083fed0f1e2ca519bc5a69b6c16a14880cf150171922d3",
+    "scripts/verify-dms2-public-validation-lock.py": "742438ca21300751a18681053fceeea06fe095eb75144afe8826791ab3903915"
+  }
+}

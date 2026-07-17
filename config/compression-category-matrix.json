@@ -79,14 +79,23 @@
     {
       "id": "numeric_timeseries",
       "label": "Numeric arrays and time-series data",
-      "status": "smoke-only",
-      "specialist": "delta-transpose research transform",
-      "current_evidence": "docs/benchmarks/2026-07-15-transform-smoke.md",
-      "current_result": "Synthetic transform signal only; no licensed category validation or market claim.",
+      "status": "development",
+      "specialist": "DMS2/DSS1 for byte-exact dense numeric matrices; time-series specialist remains open",
+      "current_evidence": "docs/benchmarks/2026-07-17-dms2-public-validation-readiness.md",
+      "current_result": "On 4,895,341 fresh licensed development bytes, DMS2 was 5.28% smaller than bzip2-9 at 54.85 MB/s compression and 268.18 MB/s decompression. Local operational gates and Linux/macOS/Windows full-suite and native-wheel reproduction passed. The exact Gisette/Madelon first-score package is locked but those validation bytes remain unopened.",
       "tested_standards": [
-        "development smoke baselines only"
+        "store",
+        "lz4-1",
+        "gzip-9",
+        "bzip2-9",
+        "zstd-3",
+        "zstd-9",
+        "zstd-19",
+        "Brotli-11",
+        "LZMA-9",
+        "7-Zip-9"
       ],
-      "next_gate": "Freeze licensed integer, floating-point, smooth, noisy, sparse, and missing-value families and reproduce relevant scientific/time-series specialists."
+      "next_gate": "Run the locked Gisette/Madelon score exactly once and retain it regardless of outcome. Treat time-series, floating-point arrays, sparse arrays, and missing-value scientific data as separate future wedges with their own licensed development and unseen-validation families."
     },
     {
       "id": "general_binary_archive",
