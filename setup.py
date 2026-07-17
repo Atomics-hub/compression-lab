@@ -26,6 +26,14 @@ def native_library_name() -> str:
     return "libcompression_lab_native.so"
 
 
+def dense_native_library_name() -> str:
+    if sys.platform == "darwin":
+        return "libcompression_lab_dense_native.dylib"
+    if sys.platform == "win32":
+        return "compression_lab_dense_native.dll"
+    return "libcompression_lab_dense_native.so"
+
+
 def macos_architecture() -> str:
     flags = os.environ.get("ARCHFLAGS", "")
     if "x86_64" in flags and "arm64" not in flags:
@@ -67,17 +75,24 @@ class BuildWithRust(build_py):
             subprocess.run(["rustup", "target", "add", target], cwd=ROOT, check=True)
             command.extend(["--target", target])
         subprocess.run(command, cwd=ROOT, check=True)
+        dense_command = command.copy()
+        manifest_index = dense_command.index(str(ROOT / "native" / "Cargo.toml"))
+        dense_command[manifest_index] = str(ROOT / "native-dense" / "Cargo.toml")
+        subprocess.run(dense_command, cwd=ROOT, check=True)
         super().run()
-        name = native_library_name()
-        source = ROOT / "native" / "target"
-        if target is not None:
-            source /= target
-        source = source / "release" / name
-        if not source.is_file():
-            raise RuntimeError(f"Cargo did not produce {source}")
-        destination = Path(self.build_lib) / "compresslab" / "_native" / name
-        destination.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(source, destination)
+        for directory, name in (
+            ("native", native_library_name()),
+            ("native-dense", dense_native_library_name()),
+        ):
+            source = ROOT / directory / "target"
+            if target is not None:
+                source /= target
+            source = source / "release" / name
+            if not source.is_file():
+                raise RuntimeError(f"Cargo did not produce {source}")
+            destination = Path(self.build_lib) / "compresslab" / "_native" / name
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source, destination)
 
 
 class PlatformWheel(bdist_wheel):

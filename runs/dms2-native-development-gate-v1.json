@@ -1,0 +1,234 @@
+{
+  "aggregate": {
+    "bz2_9_bytes": 200311,
+    "complete_bytes": 189738,
+    "compression_gate_passed": true,
+    "compression_mbps": 51.03491121278995,
+    "decompression_gate_passed": true,
+    "decompression_mbps": 255.54632625151297,
+    "exact_deterministic_corruption_gates_passed": true,
+    "families_with_five_percent_gain": 2,
+    "five_percent_target_bytes": 190295,
+    "gain_vs_bz2_9_percent": 5.278292255542631,
+    "ratio_gate_passed": true,
+    "source_bytes": 4895341
+  },
+  "baseline_results": "runs/tabular-successor-development-census-v1/results.json",
+  "baseline_results_sha256": "45722d28d272b4333ee29308d92c3cebbf6757af5c9d57b91d6a52591905c552",
+  "candidate": {
+    "entropy_level": 19,
+    "format": "DMS2",
+    "parallel_rule": "use seven lanes for alphabets at most eight and six lanes otherwise",
+    "plane_rule": "use DMP1 when the bounded prefix has at most four numeric lexemes; otherwise use DMA2",
+    "selector_sample_bytes": 65536
+  },
+  "claim_ceiling": "representation and selector development on three licensed families only; not public-validation, private-holdout, independent, category-best, market-leading, or state-of-the-art evidence",
+  "corpus_manifest": "/tmp/tabular-successor-development-v1/manifest.json",
+  "corpus_manifest_sha256": "580120079f2dd320874c4cc9fc6e351ad51004192dc57cfb24f4a8965387e6e9",
+  "gates": "config/dense-matrix-development-gates-v1.json",
+  "gates_sha256": "52202d6cbf6a86a7b8b36032445de326c95c6840a50c6e6abdf60a2d90746747",
+  "name": "dms2-native-development-gate-v1",
+  "private_holdout": "sealed",
+  "public_validation": "unopened",
+  "remaining_gates": [
+    "peak RSS at most 512 MiB",
+    "bounded streaming memory",
+    "record-table regression at most 0.25%",
+    "leave-one-family-out selector evaluation",
+    "portable wheel verification on Linux and Windows"
+  ],
+  "rows": [
+    {
+      "bz2_9_bytes": 33015,
+      "complete_bytes": 30539,
+      "compression_mbps": 74.32353082334633,
+      "compression_ns": [
+        38272833,
+        38880042,
+        39072459,
+        39314334,
+        38135125,
+        39066417,
+        38004000
+      ],
+      "corruption_rejected": true,
+      "decompression_mbps": 313.21712032734024,
+      "decompression_ns": [
+        9579917,
+        9225875,
+        8172875,
+        8224167,
+        9392333,
+        8711542,
+        9447458
+      ],
+      "deterministic": true,
+      "exact_roundtrip": true,
+      "family": "semeion_binary_digit_matrix",
+      "gain_vs_bz2_9_percent": 7.499621384219295,
+      "id": "uci-semeion",
+      "median_compression_ns": 38880042,
+      "median_decompression_ns": 9225875,
+      "selected_backend": "dmp1-planes",
+      "source_bytes": 2889702,
+      "source_sha256": "f43228ae3da5ea6a3c95069d53450b86166770e3b719dcc333182128fe08d4b1"
+    },
+    {
+      "bz2_9_bytes": 89361,
+      "complete_bytes": 79638,
+      "compression_mbps": 28.367461853537392,
+      "compression_ns": [
+        20353875,
+        19720750,
+        19705792,
+        19663625,
+        19869208,
+        20026917,
+        20252541
+      ],
+      "corruption_rejected": true,
+      "decompression_mbps": 153.64642396064133,
+      "decompression_ns": [
+        3688750,
+        3278833,
+        3668416,
+        3548042,
+        3983208,
+        3327500,
+        3954000
+      ],
+      "deterministic": true,
+      "exact_roundtrip": true,
+      "family": "optdigits_integer_matrix",
+      "gain_vs_bz2_9_percent": 10.880585490314566,
+      "id": "uci-optdigits-train",
+      "median_compression_ns": 19869208,
+      "median_decompression_ns": 3668416,
+      "selected_backend": "dma2-parallel",
+      "source_bytes": 563639,
+      "source_sha256": "e1b683cc211604fe8fd8c4417e6a69f31380e0c61d4af22e93cc21e9257ffedd"
+    },
+    {
+      "bz2_9_bytes": 77935,
+      "complete_bytes": 79561,
+      "compression_mbps": 38.792465341070915,
+      "compression_ns": [
+        32218000,
+        32669042,
+        37172167,
+        33653959,
+        37964125,
+        44886208,
+        44283541
+      ],
+      "corruption_rejected": true,
+      "decompression_mbps": 230.27481430699657,
+      "decompression_ns": [
+        5706667,
+        6032041,
+        6262083,
+        6243542,
+        6521458,
+        7355042,
+        7206500
+      ],
+      "deterministic": true,
+      "exact_roundtrip": true,
+      "family": "multiple_features_pixel_matrix",
+      "gain_vs_bz2_9_percent": -2.0863540129595175,
+      "id": "uci-multiple-features-pixels",
+      "median_compression_ns": 37172167,
+      "median_decompression_ns": 6262083,
+      "selected_backend": "dma2-parallel",
+      "source_bytes": 1442000,
+      "source_sha256": "70a1cd033add46614464a8740ddc23c3693765985bde52ccb6b702bff23b64f1"
+    }
+  ],
+  "runner": {
+    "platform": "macOS-26.5.2-arm64-arm-64bit",
+    "python": "3.12.12",
+    "repetitions": 7,
+    "warmups": 1
+  },
+  "schema_version": 1,
+  "stage": "fresh-development-native-gate",
+  "standards": [
+    {
+      "all_roundtrips_exact": true,
+      "codec_id": "bz2-9",
+      "complete_bytes": 200311,
+      "compression_mbps": 1.706792339902593,
+      "decompression_mbps": 27.177710682038295
+    },
+    {
+      "all_roundtrips_exact": true,
+      "codec_id": "brotli-11",
+      "complete_bytes": 238019,
+      "compression_mbps": 0.3438274493433507,
+      "decompression_mbps": 202.80780797514012
+    },
+    {
+      "all_roundtrips_exact": true,
+      "codec_id": "zstd-19",
+      "complete_bytes": 244177,
+      "compression_mbps": 2.5895941239755995,
+      "decompression_mbps": 829.695469585093
+    },
+    {
+      "all_roundtrips_exact": true,
+      "codec_id": "7zip-9",
+      "complete_bytes": 244868,
+      "compression_mbps": 5.1905746193235585,
+      "decompression_mbps": 124.55215868330646
+    },
+    {
+      "all_roundtrips_exact": true,
+      "codec_id": "lzma-9",
+      "complete_bytes": 245200,
+      "compression_mbps": 1.038063888063582,
+      "decompression_mbps": 74.925295729975
+    },
+    {
+      "all_roundtrips_exact": true,
+      "codec_id": "gzip-9",
+      "complete_bytes": 270595,
+      "compression_mbps": 2.683787372922844,
+      "decompression_mbps": 911.0297641257933
+    },
+    {
+      "all_roundtrips_exact": true,
+      "codec_id": "tbl1-stream-dense",
+      "complete_bytes": 320264,
+      "compression_mbps": 44.37982857089654,
+      "decompression_mbps": 220.66036816477182
+    },
+    {
+      "all_roundtrips_exact": true,
+      "codec_id": "zstd-9",
+      "complete_bytes": 324779,
+      "compression_mbps": 64.56089968123645,
+      "decompression_mbps": 327.77919653021513
+    },
+    {
+      "all_roundtrips_exact": true,
+      "codec_id": "zstd-3",
+      "complete_bytes": 383836,
+      "compression_mbps": 321.7161899837372,
+      "decompression_mbps": 565.7119031707359
+    },
+    {
+      "all_roundtrips_exact": true,
+      "codec_id": "lz4-1",
+      "complete_bytes": 971749,
+      "compression_mbps": 166.92361565260046,
+      "decompression_mbps": 199.39273967720584
+    },
+    {
+      "all_roundtrips_exact": true,
+      "codec_id": "store",
+      "complete_bytes": 4895341,
+      "compression_mbps": 986.334128994652,
+      "decompression_mbps": 1364.5230327708007
+    }
+  ]
+}

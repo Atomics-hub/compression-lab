@@ -1,108 +1,75 @@
 # Compression Lab
 
 Compression Lab is an open, evidence-driven lossless compression project. It
-combines category specialists with a deterministic selector, exact fallback,
-and a self-describing `.clab` container rather than forcing one transform onto
-every kind of file.
+combines category specialists, a deterministic content selector, exact
+fallback, and a self-describing `.clab` container instead of forcing one
+transform onto every kind of file.
 
-The project is currently alpha. The stable CLI can compress arbitrary files;
-the strongest verified specialist result is `JLS2` for newline-delimited flat
-JSON logs.
+The stable general-file CLI is alpha. DMS2, TBS1, and JLS2 are experimental
+specialists and are promoted only when frozen evidence supports them.
 
-## Best verified result
+## Latest result: dense numeric matrices
 
-On a frozen one-time public validation over 214,372,886 previously unseen bytes
-from Hadoop, OpenSSH, and OpenStack logs, JLS2 produced the smallest aggregate
-output of every tested standard.
+On 4,895,341 fresh development bytes from three UCI matrix families, native
+DMS2 produced 189,738 bytes: **5.28% smaller than bzip2-9**, the strongest of
+ten tested standards. Seven measured complete-frame trials after one warmup
+ran at **51.03 MB/s compression and 255.55 MB/s decompression**.
 
-| Standard | Bytes: JLS2 / standard | JLS2 size result | Compress MB/s: JLS2 / standard | Decompress MB/s: JLS2 / standard | Outcome |
+| Codec | Complete bytes | DMS2 size result | Compress MB/s | Decompress MB/s | Exact |
 | --- | ---: | ---: | ---: | ---: | --- |
-| zstd level 9 | 3,999,168 / 5,614,733 | **28.77% smaller** | 155.83 / 222.03 | 165.88 / 1,547.88 | Size win; speed loss |
-| Brotli quality 11 | 3,999,168 / 4,191,238 | **4.58% smaller aggregate** | 155.83 / 0.49 | 165.88 / 1,168.58 | Mixed: size win in 1 of 3 families |
-| official PBC-only | 3,999,168 / 24,718,693 | **83.82% smaller** | 155.83 / 0.56 complete | 165.88 / 94.63 | Size and speed win |
+| **DMS2 native** | **189,738** | candidate | **51.03** | **255.55** | ✅ |
+| bzip2-9 | 200,311 | **5.28% smaller** | 1.71 | 27.18 | ✅ |
+| Brotli-11 | 238,019 | **20.28% smaller** | 0.34 | 202.81 | ✅ |
+| zstd-19 | 244,177 | **22.29% smaller** | 2.59 | 829.70 | ✅ |
+| 7-Zip-9 | 244,868 | **22.51% smaller** | 5.19 | 124.55 | ✅ |
+| LZMA-9 | 245,200 | **22.62% smaller** | 1.04 | 74.93 | ✅ |
+| gzip-9 | 270,595 | **29.88% smaller** | 2.68 | 911.03 | ✅ |
+| TBS1 stream-dense | 320,264 | **40.76% smaller** | 44.38 | 220.66 | ✅ |
+| zstd-9 | 324,779 | **41.58% smaller** | 64.56 | 327.78 | ✅ |
+| zstd-3 | 383,836 | **50.57% smaller** | 321.72 | 565.71 | ✅ |
+| LZ4-1 | 971,749 | **80.47% smaller** | 166.92 | 199.39 | ✅ |
+| store | 4,895,341 | **96.12% smaller** | 986.33 | 1,364.52 | ✅ |
 
-All candidates restored the original bytes exactly. JLS2 also passed its
-determinism, no-expansion, provenance, and complete-accounting gates.
+Full transparency: this is development evidence, not a world-best claim or
+public validation. Exactness, determinism, corruption rejection, and the
+frozen ratio and speed gates passed; memory, streaming, selector, regression,
+and cross-platform gates remain before the one-time unseen validation. See the
+[complete decision and raw-evidence link](docs/benchmarks/2026-07-17-dms2-native-development-gate.md).
 
-Full transparency: the overall frozen gate was **not passed**. JLS2 needed to
-beat Brotli-11 on two of three families but beat it on one, and its 165.88 MB/s
-Linux decode speed missed the predeclared 250 MB/s target. Baseline speeds were
-same-host contextual measurements; JLS2 used repeated trials. See the
-[complete scorecard](docs/benchmarks/2026-07-16-jls2-public-validation-decision.md)
-and [immutable GitHub Actions run](https://github.com/Atomics-hub/compression-lab/actions/runs/29542804015).
+Baseline speeds are same-machine contextual measurements from the preceding
+fresh census; DMS2 used repeated trials. Complete bytes include every frame
+header and checksum.
 
-## Newest verified result: delimited tables
+## Evidence portfolio
 
-On 268,432,956 previously unseen UCI table bytes, bounded `TBS1` beat the
-strongest exact standard by 7.35%–16.50% on three of four families. OCRB pixel
-tables were the exception, making TBS1 3.48% larger than the strongest
-aggregate standard, 7-Zip-9.
+| Category | Evidence stage | Strongest result | Honest status |
+| --- | --- | --- | --- |
+| Dense numeric matrices | Fresh development | DMS2 5.28% smaller than bzip2-9 at 51.03/255.55 MB/s | Native ratio/speed gates passed; validation unopened |
+| Delimited record tables | Public validation | TBS1 won 3/4 families by 7.35%–16.50% | Aggregate remained 3.48% behind 7-Zip-9 |
+| JSON and machine logs | Public validation | JLS2 28.77% smaller than zstd-9 | Mixed against Brotli-11; decode gate missed |
+| General binary, source, archives | Development | Exact fallback | No category win established |
 
-| Standard | Complete bytes | TBS1 size result | Compress MB/s: TBS1 / standard | Decompress MB/s: TBS1 / standard | Exact | Size beaten? |
-| --- | ---: | --- | ---: | ---: | --- | --- |
-| **TBS1 stream-dense** | **27,985,887** | candidate | **107.67 / —** | **403.39 / —** | ✅ | — |
-| store | 268,432,956 | **89.57% smaller** | 107.67 / 1,382.93 | 403.39 / 812.06 | ✅ | ✅ |
-| LZ4-1 | 95,128,929 | **70.58% smaller** | 107.67 / 878.25 | 403.39 / 423.25 | ✅ | ✅ |
-| gzip-9 | 49,933,695 | **43.95% smaller** | 107.67 / 6.26 | 403.39 / 333.42 | ✅ | ✅ |
-| zstd-3 | 44,511,580 | **37.13% smaller** | 107.67 / 247.36 | 403.39 / 343.45 | ✅ | ✅ |
-| bzip2-9 | 34,291,969 | **18.39% smaller** | 107.67 / 2.39 | 403.39 / 23.68 | ✅ | ✅ |
-| zstd-9 | 36,047,298 | **22.36% smaller** | 107.67 / 51.20 | 403.39 / 344.36 | ✅ | ✅ |
-| zstd-19 | 28,942,224 | **3.30% smaller** | 107.67 / 1.31 | 403.39 / 372.62 | ✅ | ✅ |
-| Brotli-11 | 28,315,299 | **1.16% smaller** | 107.67 / 0.43 | 403.39 / 258.15 | ✅ | ✅ |
-| LZMA-9 | 27,049,040 | **3.46% larger** | 107.67 / 0.54 | 403.39 / 45.23 | ✅ | ❌ |
-| 7-Zip-9 | **27,044,234** | **3.48% larger** | 107.67 / 1.93 | 403.39 / 141.44 | ✅ | ❌ |
-
-The overall frozen gate was **not passed**: aggregate ratio missed, and one of
-five decompression repetitions fell below 250 MB/s. Average speed was
-107.67/403.39 MB/s; cold encode/decode peaks were 293.70/139.81 MiB. Exactness,
-determinism, fallback safety, complete accounting, portability, and the 3/4
-family gate passed. See the [full scorecard and raw evidence](docs/benchmarks/2026-07-17-tbl1-public-validation-decision.md).
+The TBS1 public run covered **268,432,956 previously unseen UCI table bytes**.
+It won three families, but the overall frozen gate was **not passed** because
+aggregate output remained behind 7-Zip-9 and one decode repetition missed its
+floor.
 
 ### Fresh successor development checkpoint
 
-The next clean development corpus contains 18,635,606 bytes from six new UCI
-families. Unchanged TBS1 is already the smallest result on the three record
-tables, but dense feature matrices expose the next problem to solve. This was
-one local trial per pair, so it guides development and is not validation.
+Before DMS2, unchanged TBS1 was 2.87% larger than bzip2 on the six-family
+successor corpus and 59.88% larger on its dense-matrix track. That checkpoint
+was development guidance, not validation; DMS2 is the direct response to the
+dense-matrix gap.
 
-| Standard | Complete bytes | TBS1 size result | Compress MB/s: TBS1 / standard | Decompress MB/s: TBS1 / standard | Exact |
-| --- | ---: | --- | ---: | ---: | --- |
-| **TBS1 stream-dense** | **1,697,505** | candidate | **45.52 / —** | **278.26 / —** | ✅ |
-| store | 18,635,606 | **90.89% smaller** | 45.52 / 1,627.18 | 278.26 / 2,189.08 | ✅ |
-| LZ4-1 | 4,920,321 | **65.50% smaller** | 45.52 / 255.90 | 278.26 / 311.16 | ✅ |
-| zstd-3 | 2,795,608 | **39.28% smaller** | 45.52 / 154.90 | 278.26 / 542.01 | ✅ |
-| zstd-9 | 2,307,534 | **26.44% smaller** | 45.52 / 57.32 | 278.26 / 595.30 | ✅ |
-| gzip-9 | 2,298,691 | **26.15% smaller** | 45.52 / 3.60 | 278.26 / 695.15 | ✅ |
-| zstd-19 | 1,802,591 | **5.83% smaller** | 45.52 / 1.81 | 278.26 / 720.14 | ✅ |
-| Brotli-11 | 1,755,288 | **3.29% smaller** | 45.52 / 0.43 | 278.26 / 239.36 | ✅ |
-| 7-Zip-9 | 1,703,372 | **0.34% smaller** | 45.52 / 3.34 | 278.26 / 124.44 | ✅ |
-| LZMA-9 | 1,693,160 | **0.26% larger** | 45.52 / 0.69 | 278.26 / 50.55 | ✅ |
-| bzip2-9 | **1,650,170** | **2.87% larger** | 45.52 / 4.09 | 278.26 / 28.06 | ✅ |
-
-By track, TBS1 is 4.88% smaller than the strongest record-table standard and
-59.88% larger than the strongest dense-matrix standard. See the
-[complete development scorecard and raw evidence](docs/benchmarks/2026-07-17-tabular-successor-development-census.md).
-
-### Portfolio scorecard
-
-| Category | Evidence stage | Ratio position | Speed position | Current verdict |
-| --- | --- | --- | --- | --- |
-| JSON and machine logs | Public validation | Beat zstd-9 and PBC; mixed against Brotli-11 | Mixed | Strong specialist result; full gate not passed |
-| Plain text and source | Development | Behind strongest dense baselines | Not frontier-leading | Not won |
-| CSV and delimited tables | Public validation | Won 3/4 families by 7.35%–16.50%; aggregate 3.48% behind 7-Zip-9 | 107.67/403.39 MB/s average; one decode repetition missed its floor | Strong specialist signal; full gate not passed |
-| Numeric and time series | Smoke only | Synthetic signal only | Untested | Not validated |
-| General binary and archives | Development | Behind zstd-9 | Behind zstd | Not won |
-| Incompressible or precompressed | Safety tests | Store/direct fallback | Category benchmark pending | Expansion safety only |
-
-The [portfolio matrix](docs/benchmarks/2026-07-16-category-portfolio-status.md)
-is updated as each category reaches a real decision gate. “Best” and
-“state-of-the-art” claims require fresh unseen evidence and independent
-reproduction; development wins do not count.
+Read the [portfolio scorecard](docs/benchmarks/2026-07-16-category-portfolio-status.md),
+[TBS1 public-validation decision](docs/benchmarks/2026-07-17-tbl1-public-validation-decision.md),
+and [JLS2 public-validation decision](docs/benchmarks/2026-07-16-jls2-public-validation-decision.md)
+for the full receipts. Consumed validation families are never reused as fresh
+evidence.
 
 ## Quick start
 
-Python 3.9 or newer is required. Native development builds also require Rust
-stable.
+Python 3.9 or newer is required. Native builds also require Rust stable.
 
 ```bash
 git clone https://github.com/Atomics-hub/compression-lab.git
@@ -121,32 +88,9 @@ clab info report.json.clab
 clab decompress report.json.clab -o restored.json
 ```
 
-`compression-lab` is an equivalent command. Compression refuses to overwrite
-an output unless `--force` is supplied. Standard input and output use `-`:
-
-```bash
-printf 'hello\n' | clab compress - -o - > hello.clab
-clab decompress hello.clab -o -
-```
-
-The decoder rejects a declared output above 2 GiB by default. Change the bound
-with `--max-output-size 512MiB` or explicitly disable it with `unlimited`.
-
-## JSON-log specialist
-
-`JLS2` preserves original whitespace, key order, number spelling, line endings,
-and non-JSON fallback bytes. Each record-aligned segment independently chooses
-the smaller of direct Zstandard and a JSON-columnar representation.
-
-```bash
-clab json-compress events.jsonl
-clab json-info events.jsonl.jls2
-clab json-decompress events.jsonl.jls2 -o restored.jsonl
-```
-
-The JSON-log API is experimental and deliberately separate from the stable
-general-file API. The consumed Hadoop, OpenSSH, and OpenStack validation
-families will not be used for tuning or rerun as fresh evidence.
+Standard input and output use `-`. Compression refuses to overwrite a file
+unless `--force` is supplied. The decoder rejects declared output above 2 GiB
+by default; use `--max-output-size` to set a different explicit bound.
 
 ## Python API
 
@@ -155,40 +99,23 @@ import compresslab
 
 frame = compresslab.compress(b"lossless data" * 1000)
 original = compresslab.decompress(frame, max_output_size=10_000_000)
-
-compressed_path = compresslab.compress_file("report.json")
-restored_path = compresslab.decompress_file(
-    compressed_path,
-    "report.copy.json",
-)
 ```
 
-Experimental JSON logs:
+Experimental specialists remain separate from the stable API while their
+formats and gates are still moving.
 
-```python
-from compresslab.experimental import compress_json_logs, decompress_json_logs
+## Reproduce the research
 
-frame = compress_json_logs(jsonl_bytes)
-restored = decompress_json_logs(frame)
-```
-
-## Research and reproduction
-
-Every promoted result must declare its corpus, license, split, candidate commit,
-codec versions, runner, repetitions, exact round trips, complete archive bytes,
-and claim ceiling. Private holdout data stays outside the repository.
-
-Run the local verification suite:
+Run the complete local verification suite:
 
 ```bash
 scripts/build-native.sh
 python3 -m unittest discover -s tests -v
 ```
 
-Generate a deterministic smoke corpus and compare registered codecs:
+Run the deterministic benchmark harness on a corpus:
 
 ```bash
-python3 -m compresslab init-corpus --output corpora/smoke
 python3 -m compresslab run \
   --corpus corpora/smoke \
   --output runs/smoke \
@@ -196,37 +123,18 @@ python3 -m compresslab run \
   --warmups 1
 ```
 
-Render a category scorecard from a checksummed JSON result:
+Every promoted result declares corpus licenses and hashes, candidate commit,
+codec versions, runner, repetitions, exact round trips, complete archive bytes,
+and its claim ceiling. Private holdout data stays outside the repository.
 
-```bash
-python3 scripts/render-category-scorecard.py \
-  runs/jls2-public-validation-summary.json
-```
+Key documents:
 
-The benchmark output includes canonical `results.json`, aggregate `summary.csv`,
-and a human-readable `report.md`. Aggregate ratios are byte-weighted, measured
-trials follow warmups, operation order is deterministically shuffled, and any
-round-trip, provenance, stability, or completeness failure remains visible.
-
-## Documentation
-
-- [Current category portfolio](docs/benchmarks/2026-07-16-category-portfolio-status.md)
-- [JLS2 public-validation decision](docs/benchmarks/2026-07-16-jls2-public-validation-decision.md)
-- [Tabular development baseline census](docs/benchmarks/2026-07-16-tabular-baseline-census.md)
-- [TBL1 bounded column-transpose probe](docs/benchmarks/2026-07-16-tbl1-column-transpose-probe.md)
-- [TBL1 dense development decision](docs/benchmarks/2026-07-16-tbl1-dense-development-decision.md)
-- [TBL1 streaming development decision](docs/benchmarks/2026-07-16-tbl1-streaming-development-decision.md)
-- [TBL1 public-validation readiness decision](docs/benchmarks/2026-07-16-tbl1-public-validation-readiness.md)
-- [TBL1 public-validation decision and full chart](docs/benchmarks/2026-07-17-tbl1-public-validation-decision.md)
-- [Fresh tabular-successor corpus protocol](docs/benchmarks/2026-07-17-tabular-successor-corpus-protocol.md)
-- [Fresh tabular-successor development census](docs/benchmarks/2026-07-17-tabular-successor-development-census.md)
-- [Dense-matrix representation protocol](docs/benchmarks/2026-07-17-dense-matrix-representation-protocol.md)
-- [Dense-matrix representation decision](docs/benchmarks/2026-07-17-dense-matrix-representation-decision.md)
-- [TBL1 public-validation lock](config/tbl1-public-validation-lock.json)
+- [DMS2 native development gate](docs/benchmarks/2026-07-17-dms2-native-development-gate.md)
+- [Dense-matrix frozen protocol](docs/benchmarks/2026-07-17-dense-matrix-representation-protocol.md)
+- [Fresh successor corpus protocol](docs/benchmarks/2026-07-17-tabular-successor-corpus-protocol.md)
 - [File-format contract](docs/file-format.md)
 - [Release readiness](docs/release-readiness.md)
 - [Security policy](SECURITY.md)
-- [Third-party notices](THIRD_PARTY_NOTICES.md)
 - [Complete benchmark and rejected-hypothesis archive](docs/benchmarks/)
 
 ## License

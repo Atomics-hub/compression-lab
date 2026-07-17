@@ -6,4 +6,5 @@ runs/
 dist/
 build/
 native/target/
+native-dense/target/
 *.egg-info/
