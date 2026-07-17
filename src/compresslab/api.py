@@ -23,12 +23,11 @@ from .adaptive_v3 import (
     VERSION,
     _RECIPE_NAMES,
 )
+from ._constants import DEFAULT_EXTENSION, DEFAULT_MAX_OUTPUT_SIZE
 from .worker import _adaptive_decompress, _adaptive_v3_compress
 
 
 PathLike = Union[str, os.PathLike[str]]
-DEFAULT_EXTENSION = ".clab"
-DEFAULT_MAX_OUTPUT_SIZE = 2 * 1024 * 1024 * 1024
 
 
 @dataclass(frozen=True)

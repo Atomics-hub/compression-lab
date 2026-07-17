@@ -20,45 +20,11 @@ try:
 except ImportError:  # pragma: no cover - exercised by Windows CI
     resource = None  # type: ignore[assignment]
 
-from .adaptive_v3 import (
-    BACKEND_SEGMENTED as BACKEND_SEGMENTED_V3,
-    VERSION as ADAPTIVE_VERSION_V3,
-    compress as _v3_compress,
-    decompress as _v3_decompress,
-)
-from .codecs import codec_by_id
-from .json_log_codec import (
-    DEFAULT_SEGMENT_SIZE as JLS2_SEGMENT_SIZE,
-    compress_file as _jls2_compress_file,
-    decompress_file as _jls2_decompress_file,
-)
-from .native import (
-    delta_transpose as _native_delta_transpose,
-    inverse_delta_transpose as _native_inverse_delta_transpose,
-    native_available,
-    structured_text_zstd_stream_decode,
-    structured_text_zstd_stream_decode_into,
-    tabular_native_available,
-    zstd_available,
-    zstd_compress,
-    zstd_decompress,
-    zstd_engine,
-    zstd_ffi_available,
-)
-from .tabular_transform import (
-    compress_dense_auto_with_metadata as _tbl1_dense_compress,
-    compress_auto_with_metadata as _tbl1_compress,
-    decompress as _tbl1_decompress,
-    frame_backend as _tbl1_frame_backend,
-    frame_delimiter as _tbl1_frame_delimiter,
-    compress_stream as _tbl1_stream_compress,
-    decompress_stream as _tbl1_stream_decompress,
-)
-
-
 ADAPTIVE_MAGIC = b"CLAB"
 ADAPTIVE_VERSION_V1 = 1
 ADAPTIVE_VERSION_V2 = 2
+ADAPTIVE_VERSION_V3 = 3
+BACKEND_SEGMENTED_V3 = 6
 ADAPTIVE_HEADER = struct.Struct(">4sBBQ32s")
 BACKEND_STORE = 0
 BACKEND_GZIP_1 = 1
@@ -66,6 +32,121 @@ BACKEND_DELTA_TRANSPOSE_GZIP_1 = 2
 BACKEND_ZSTD_3 = 3
 BACKEND_LZ4_1 = 4
 BACKEND_DELTA_TRANSPOSE_ZSTD_3 = 5
+JLS2_SEGMENT_SIZE = 16 * 1024 * 1024
+
+
+def codec_by_id(codec_id: str):
+    from .codecs import codec_by_id as resolve_codec
+
+    return resolve_codec(codec_id)
+
+
+def _native_module():
+    from . import native
+
+    return native
+
+
+def native_available() -> bool:
+    return _native_module().native_available()
+
+
+def tabular_native_available() -> bool:
+    return _native_module().tabular_native_available()
+
+
+def zstd_available() -> bool:
+    return _native_module().zstd_available()
+
+
+def zstd_ffi_available() -> bool:
+    return _native_module().zstd_ffi_available()
+
+
+def zstd_engine() -> str:
+    return _native_module().zstd_engine()
+
+
+def zstd_compress(data: bytes, level: int) -> bytes:
+    return _native_module().zstd_compress(data, level)
+
+
+def zstd_decompress(data: bytes, expected_size: Optional[int] = None) -> bytes:
+    return _native_module().zstd_decompress(data, expected_size)
+
+
+def _native_delta_transpose(data: bytes) -> bytes:
+    return _native_module().delta_transpose(data)
+
+
+def _native_inverse_delta_transpose(data: bytes) -> bytes:
+    return _native_module().inverse_delta_transpose(data)
+
+
+def structured_text_zstd_stream_decode(*args, **kwargs):
+    return _native_module().structured_text_zstd_stream_decode(*args, **kwargs)
+
+
+def structured_text_zstd_stream_decode_into(*args, **kwargs):
+    return _native_module().structured_text_zstd_stream_decode_into(*args, **kwargs)
+
+
+def _v3_compress(*args, **kwargs):
+    from .adaptive_v3 import compress
+
+    return compress(*args, **kwargs)
+
+
+def _v3_decompress(*args, **kwargs):
+    from .adaptive_v3 import decompress
+
+    return decompress(*args, **kwargs)
+
+
+def _jls2_compress_file(*args, **kwargs):
+    from .json_log_codec import compress_file
+
+    return compress_file(*args, **kwargs)
+
+
+def _jls2_decompress_file(*args, **kwargs):
+    from .json_log_codec import decompress_file
+
+    return decompress_file(*args, **kwargs)
+
+
+def _tabular_module():
+    from . import tabular_transform
+
+    return tabular_transform
+
+
+def _tbl1_dense_compress(*args, **kwargs):
+    return _tabular_module().compress_dense_auto_with_metadata(*args, **kwargs)
+
+
+def _tbl1_compress(*args, **kwargs):
+    return _tabular_module().compress_auto_with_metadata(*args, **kwargs)
+
+
+def _tbl1_decompress(*args, **kwargs):
+    return _tabular_module().decompress(*args, **kwargs)
+
+
+def _tbl1_frame_backend(*args, **kwargs):
+    return _tabular_module().frame_backend(*args, **kwargs)
+
+
+def _tbl1_frame_delimiter(*args, **kwargs):
+    return _tabular_module().frame_delimiter(*args, **kwargs)
+
+
+def _tbl1_stream_compress(*args, **kwargs):
+    return _tabular_module().compress_stream(*args, **kwargs)
+
+
+def _tbl1_stream_decompress(*args, **kwargs):
+    return _tabular_module().decompress_stream(*args, **kwargs)
 
 
 def _rss_bytes(usage: Any) -> int:

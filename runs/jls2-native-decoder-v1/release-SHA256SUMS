@@ -1,0 +1,9 @@
+516a059967586734d290eed5529e7f02a502100b57e5ee9e4ea9f8687531d9fa  dist/compression_lab-0.1.0-py3-none-macosx_10_13_x86_64.whl
+0b7725b77018e6ce3e74d1f580a0eed3864b64d88dd6fedc0108f05e5c3e693e  dist/compression_lab-0.1.0-py3-none-macosx_11_0_arm64.whl
+a3ce91f7e54dad39e3139d58176d206530782282bd9cd54e9e0a89e3cf31cf40  dist/compression_lab-0.1.0-py3-none-manylinux_2_28_aarch64.whl
+feab90b326607f728c83ca20a82963c7553ce8c8ef6895fffbdb92ce30392959  dist/compression_lab-0.1.0-py3-none-manylinux_2_28_x86_64.whl
+486f2b11b1d2d4a8b4f233921c00e38074a2c43aa6dc04ce4af6788f4d1272ab  dist/compression_lab-0.1.0-py3-none-win_amd64.whl
+6f200458f24cf1261ad6f2568d1031a6006c1dd76ec1babc94d351fbd714ce81  dist/compression_lab-0.1.0.tar.gz
+8708e64193dae14851d8b96f0e3802a0d85c6f00a109b4cb3eba0c31bac8e271  standalone/clab-jls2-Linux-X64.tar.gz
+401bbd8e980096ded9d766c2fe9900990ac9b4599a00f2393e387af03ee6d31b  standalone/clab-jls2-Windows-X64.zip
+1f7ad4183532b2bb522b2b2d1ba5217bd2ef95413d0cedc15393f3fc920ace3b  standalone/clab-jls2-macOS-ARM64.tar.gz

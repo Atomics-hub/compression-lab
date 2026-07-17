@@ -17,9 +17,16 @@ in all **99 of 99** measured round trips.
 ![JLS2 complete archive size, compression speed, and decompression speed compared with nine established codecs](docs/assets/clue-json-log-scorecard.svg)
 
 This is a **category-scoped development result**—not yet public-validation,
-private-holdout, independent, general-file, or world-best evidence. JLS2 won
-size and compression speed against Brotli-11, but decoded 54.1% slower and
-missed its frozen 250 MB/s cold-process decode gate.
+private-holdout, independent, general-file, or world-best evidence. In the
+original same-run census, JLS2 won size and compression speed against
+Brotli-11 but decoded 54.1% slower. A separately frozen product-delivery gate
+now passes with the standalone decoder at **585.43 MB/s median**, a
+**398.40 MB/s minimum**, and **7/7 rounds above 250 MB/s**.
+
+![Standalone JLS2 delivery gate and immutable 11-codec size census](runs/jls2-native-decoder-v1/native-decoder-scorecard.svg)
+
+The delivery A/B did not rerun standard codecs, so its speed numbers are kept
+separate from the immutable same-run standards table below.
 
 <details>
 <summary><strong>Open the full same-run scorecard</strong></summary>
@@ -48,15 +55,20 @@ machine; `Store` is included as the no-compression control.
 
 </details>
 
-The [complete evidence bundle](runs/clue-json-log-development-census-v1/README.md)
-contains corpus ranges, licenses, codec versions, the runner commit, raw trials,
-memory scope, checksums, and the failed gate.
+The [complete standards bundle](runs/clue-json-log-development-census-v1/README.md)
+contains corpus ranges, licenses, codec versions, raw trials, and the original
+failed delivery gate. The separate [standalone decoder bundle](runs/jls2-native-decoder-v1/README.md)
+contains its frozen protocol, 48 exact trials, portability checks, chart, and
+claim boundary. Its optimization lineage remains independently inspectable:
+[decode kernel A/B](runs/jls2-decode-kernel-development-v1/README.md),
+[scheduling A/B](runs/clue-jls2-decode-scheduling-v1/README.md), and
+[cold-start A/B](runs/jls2-cold-start-v1/README.md).
 
 ## Measured standings
 
 | Category | Best measured result | Gate status and evidence |
 | --- | --- | --- |
-| JSON and machine logs | JLS2 is 18.08% smaller than the strongest tested standard | Ratio lead; decode gate open ([kernel A/B](runs/jls2-decode-kernel-development-v1/README.md), [scheduling A/B](runs/clue-jls2-decode-scheduling-v1/README.md)) |
+| JSON and machine logs | JLS2 is 18.08% smaller than the strongest tested standard | Ratio lead and standalone development decode gate passed; public validation remains unopened ([native gate](runs/jls2-native-decoder-v1/README.md), [cold-start A/B](runs/jls2-cold-start-v1/README.md)) |
 | Delimited tables | TBS1 vs 7-Zip-9: 3.48% larger aggregate | Frozen gate failed ([decision](docs/benchmarks/2026-07-17-tbl1-public-validation-decision.md), [Fresh successor corpus protocol](docs/benchmarks/2026-07-17-tabular-successor-corpus-protocol.md)) |
 | Dense matrices | DMS2 vs Brotli-11: 43.55% larger; 33.45 / 313.99 MB/s compression / decompression | Frozen gate failed ([evidence](runs/dms2-public-validation-v1/README.md)) |
 | General files | Exact `.clab` fallback; no strongest-standard lead established | Alpha |
@@ -85,6 +97,16 @@ clab info report.json.clab
 clab decompress report.json.clab -o restored.json
 ```
 
+Decode an existing JLS2 JSON-log stream without Python:
+
+```bash
+native/target/release/clab-jls2 decompress events.jls2 \
+  -o events.jsonl --max-output-size 1000000000
+```
+
+Tagged releases build verified standalone archives for Linux, macOS, and
+Windows alongside the Python packages.
+
 Standard input and output use `-`. Compression refuses to overwrite a file
 unless `--force` is supplied. The decoder rejects declared output above 2 GiB
 by default; set a different explicit bound with `--max-output-size`.
@@ -105,7 +127,8 @@ separate from the stable API until their formats and evidence gates are frozen.
 
 - A self-describing `.clab` container with deterministic selection and an exact
   direct/store fallback for arbitrary files.
-- JLS2 for structured JSON event logs, plus gated tabular and matrix research.
+- JLS2 for structured JSON event logs, including a self-contained verified
+  decoder, plus gated tabular and matrix research.
 - Reproducible runners, manifests, receipts, fuzz tests, integrity checks,
   native acceleration, and cross-platform Python packaging.
 

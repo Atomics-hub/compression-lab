@@ -4,43 +4,19 @@ import argparse
 import json
 from pathlib import Path
 import sys
-from typing import List
 
 from . import __version__
-from .api import (
-    DEFAULT_MAX_OUTPUT_SIZE,
-    _atomic_write,
-    compress as compress_bytes,
-    compress_file,
-    decompress as decompress_bytes,
-    decompress_file,
-    default_compressed_path,
-    default_decompressed_path,
-    inspect_frame,
-)
-from .codecs import all_codecs, probe_codec_versions, resolve_codecs
-from .corpus import freeze_holdout, generate_corpus, import_corpus, verify_holdout
-from .experimental import (
-    compress_json_log_file,
-    compress_json_logs,
-    decompress_json_log_file,
-    decompress_json_logs,
-    default_json_log_compressed_path,
-    default_json_log_decompressed_path,
-    inspect_json_log_frame,
-)
-from .gates import evaluate_candidate, load_json, write_gate_report
-from .benchmark_runner import run_benchmark
+from ._constants import DEFAULT_MAX_OUTPUT_SIZE
 
 
 DEFAULT_CODECS = "store,adaptive-v0,adaptive-v1,adaptive-v2,adaptive-v3,gzip-1,gzip-6,gzip-9,bz2-1,bz2-9,lzma-0,lzma-6,lzma-9"
 
 
-def _csv_strings(value: str) -> List[str]:
+def _csv_strings(value: str) -> list[str]:
     return [item.strip() for item in value.split(",") if item.strip()]
 
 
-def _csv_floats(value: str) -> List[float]:
+def _csv_floats(value: str) -> list[float]:
     try:
         return [float(item) for item in _csv_strings(value)]
     except ValueError as exc:
@@ -96,10 +72,15 @@ def _stream_output(path: str, data: bytes, overwrite: bool) -> None:
         sys.stdout.buffer.write(data)
         sys.stdout.buffer.flush()
     else:
+        from .api import _atomic_write
+
         _atomic_write(Path(path), data, overwrite)
 
 
 def _run_compress(args: argparse.Namespace) -> int:
+    from .api import compress as compress_bytes
+    from .api import compress_file, default_compressed_path
+
     output = args.output
     if output is None:
         output = "-" if args.input == "-" else str(default_compressed_path(args.input))
@@ -112,6 +93,9 @@ def _run_compress(args: argparse.Namespace) -> int:
 
 
 def _run_decompress(args: argparse.Namespace) -> int:
+    from .api import decompress as decompress_bytes
+    from .api import decompress_file, default_decompressed_path
+
     output = args.output
     if output is None:
         output = "-" if args.input == "-" else str(default_decompressed_path(args.input))
@@ -132,6 +116,12 @@ def _run_decompress(args: argparse.Namespace) -> int:
 
 
 def _run_json_compress(args: argparse.Namespace) -> int:
+    from .experimental import (
+        compress_json_log_file,
+        compress_json_logs,
+        default_json_log_compressed_path,
+    )
+
     if args.segment_size is None:
         raise ValueError("segment size cannot be unlimited")
     output = args.output
@@ -159,6 +149,12 @@ def _run_json_compress(args: argparse.Namespace) -> int:
 
 
 def _run_json_decompress(args: argparse.Namespace) -> int:
+    from .experimental import (
+        decompress_json_log_file,
+        decompress_json_logs,
+        default_json_log_decompressed_path,
+    )
+
     output = args.output
     if output is None:
         output = (
@@ -326,6 +322,8 @@ def main(argv=None) -> int:
             print(f"compression-lab: {exc}", file=sys.stderr)
             return 2
     if args.command == "info":
+        from .api import inspect_frame
+
         try:
             info = inspect_frame(_stream_input(args.input))
         except (OSError, TypeError, ValueError) as exc:
@@ -346,6 +344,8 @@ def main(argv=None) -> int:
             print(f"compression-lab: {exc}", file=sys.stderr)
             return 2
     if args.command == "json-info":
+        from .experimental import inspect_json_log_frame
+
         try:
             frame_info = inspect_json_log_frame(_stream_input(args.input))
         except (OSError, TypeError, ValueError) as exc:
@@ -354,10 +354,14 @@ def main(argv=None) -> int:
         print(json.dumps(frame_info.to_dict(), indent=2, sort_keys=True))
         return 0
     if args.command == "init-corpus":
+        from .corpus import generate_corpus
+
         manifest = generate_corpus(args.output, args.size_scale, args.seed)
         print(manifest)
         return 0
     if args.command == "import-corpus":
+        from .corpus import import_corpus
+
         manifest = import_corpus(
             args.source,
             args.output,
@@ -370,13 +374,19 @@ def main(argv=None) -> int:
         print(manifest)
         return 0
     if args.command == "freeze-holdout":
+        from .corpus import freeze_holdout
+
         print(freeze_holdout(args.corpus, args.output, args.overwrite))
         return 0
     if args.command == "verify-holdout":
+        from .corpus import verify_holdout
+
         valid = verify_holdout(args.corpus, args.lock)
         print("verified" if valid else "mismatch")
         return 0 if valid else 2
     if args.command == "list-codecs":
+        from .codecs import all_codecs, probe_codec_versions
+
         print(
             json.dumps(
                 [codec.__dict__ for codec in probe_codec_versions(all_codecs())],
@@ -385,6 +395,9 @@ def main(argv=None) -> int:
         )
         return 0
     if args.command == "run":
+        from .benchmark_runner import run_benchmark
+        from .codecs import resolve_codecs
+
         codecs = resolve_codecs(_csv_strings(args.codecs))
         benchmark = run_benchmark(
             corpus_root=args.corpus,
@@ -407,6 +420,8 @@ def main(argv=None) -> int:
         print(args.output / "report.md")
         return 1 if benchmark.failures else 0
     if args.command == "evaluate":
+        from .gates import evaluate_candidate, load_json, write_gate_report
+
         report = evaluate_candidate(
             load_json(args.results),
             load_json(args.gates),
