@@ -296,6 +296,26 @@ class TabularTransformTests(unittest.TestCase):
             self.assertEqual(info["segment_count"], 0)
             self.assertEqual(restored.read_bytes(), b"")
 
+    def test_segmented_stream_decodes_with_portable_reference_transform(self):
+        source_bytes = b"row,value,state\n" + b"".join(
+            f"{index},{index * 17},{index % 7}\n".encode()
+            for index in range(50_000)
+        )
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            source = root / "source.csv"
+            encoded = root / "source.tbs1"
+            restored = root / "restored.csv"
+            source.write_bytes(source_bytes)
+            metadata = compress_stream(source, encoded)
+            self.assertGreater(metadata["transformed_segments"], 0)
+            with patch(
+                "compresslab.tabular_transform.tabular_native_available",
+                return_value=False,
+            ):
+                decompress_stream(encoded, restored, concurrency=1)
+            self.assertEqual(restored.read_bytes(), source_bytes)
+
     def test_segmented_stream_rejects_corruption_without_clobbering_output(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

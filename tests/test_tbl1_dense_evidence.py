@@ -57,7 +57,7 @@ class Tbl1DenseEvidenceTests(unittest.TestCase):
         ):
             self.assertIn(standard, readme)
             self.assertIn(standard, decision)
-        self.assertIn("category is **not\npassed**", readme)
+        self.assertIn("complete category is\n**not passed**", readme)
 
 
 if __name__ == "__main__":

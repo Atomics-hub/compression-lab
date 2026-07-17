@@ -59,9 +59,9 @@
       "id": "tabular_csv",
       "label": "Tabular CSV and delimited records",
       "status": "development",
-      "specialist": "TBL1-dense",
-      "current_evidence": "runs/tbl1-dense-development-decision-v1.json",
-      "current_result": "On the frozen licensed four-family development corpus, native TBL1-dense was 10.52% smaller than Brotli-11 aggregate, beat the strongest exact per-family baseline by at least 5% on 3/4 families, and met the predeclared 50/250 MB/s and 512 MiB point thresholds. The complete category gate remains open because throughput margins are fragile, the implementation is whole-file rather than bounded-streaming, and unseen validation and independent reproduction have not occurred.",
+      "specialist": "TBS1 bounded TBL1 stream-dense",
+      "current_evidence": "runs/tbl1-streaming-development-decision-v1.json",
+      "current_result": "On the frozen licensed four-family development corpus, bounded TBS1 was 9.62% smaller than Brotli-11 aggregate, beat the strongest exact per-family baseline by at least 5% on 3/4 families, passed every five-run 50/250 MB/s repetition aggregate, stayed under 512 MiB in cold-process memory measurements, and exactly round-tripped a 1 GiB no-newline file with memory bounded by two 16 MiB segments. This is a development streaming pass, not public validation.",
       "tested_standards": [
         "store",
         "lz4-1",
@@ -74,7 +74,7 @@
         "LZMA-9",
         "7-Zip-9"
       ],
-      "next_gate": "Implement bounded-memory streaming and large-file TBL1, create robust speed margin above the frozen thresholds, and rerun the development gate before opening public validation."
+      "next_gate": "Complete the frozen public-validation readiness audit, require a green cross-platform wheel matrix, then acquire and score the four unopened public-validation families exactly once without tuning."
     },
     {
       "id": "numeric_timeseries",
