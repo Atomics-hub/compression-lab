@@ -762,13 +762,23 @@ fn decode_json_column_transform_into(transformed: &[u8], output: &mut [u8]) -> O
     let mut output_offset = 0_usize;
     offset = 0;
     while offset < skeleton.len() {
-        let value = skeleton[offset];
-        offset += 1;
-        if value != JCT1_MARKER {
-            *output.get_mut(output_offset)? = value;
-            output_offset += 1;
-            continue;
+        let marker = skeleton[offset..]
+            .iter()
+            .position(|&value| value == JCT1_MARKER)
+            .map_or(skeleton.len(), |relative| offset + relative);
+        if marker > offset {
+            let literal = skeleton.get(offset..marker)?;
+            let output_end = output_offset.checked_add(literal.len())?;
+            output
+                .get_mut(output_offset..output_end)?
+                .copy_from_slice(literal);
+            output_offset = output_end;
+            offset = marker;
         }
+        if offset == skeleton.len() {
+            break;
+        }
+        offset += 1;
         let tag = *skeleton.get(offset)?;
         offset += 1;
         if tag == JCT1_MARKER_LITERAL {

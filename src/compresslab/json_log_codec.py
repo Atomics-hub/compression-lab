@@ -153,6 +153,7 @@ def decompress_frame(
             restored = decompress_columnar(
                 payload,
                 max_output_size=original_size,
+                _verify_original_sha=False,
             )
         else:
             raise ValueError(f"unsupported JLF2 mode: {mode}")
