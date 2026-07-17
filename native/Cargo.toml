@@ -7,6 +7,14 @@ license = "MIT"
 [lib]
 crate-type = ["cdylib"]
 
+[[bin]]
+name = "clab-jls2"
+path = "src/bin/clab-jls2.rs"
+
+[dependencies]
+sha2 = "0.11.0"
+zstd = "0.13.3"
+
 [profile.release]
 lto = "fat"
 codegen-units = 1

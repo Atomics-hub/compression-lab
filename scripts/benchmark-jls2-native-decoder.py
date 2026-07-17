@@ -156,7 +156,9 @@ def summarize(trials: list[dict[str, Any]], rounds: int = ROUNDS) -> dict[str, A
         ),
         "aggregate_cv_at_or_below_20_percent": candidate["aggregate_cv_percent"]
         <= MAX_CV_PERCENT,
-        "peak_rss_at_or_below_512_mib": candidate["peak_rss_bytes"] <= MAX_RSS_BYTES,
+        "peak_rss_at_or_below_512_mib": 0
+        < candidate["peak_rss_bytes"]
+        <= MAX_RSS_BYTES,
         "median_paired_improvement_at_or_above_10_percent": candidate[
             "median_paired_improvement_percent"
         ]
@@ -192,6 +194,19 @@ def load_items(corpus: Path, fixtures: Path) -> list[dict[str, Any]]:
             raise ValueError(f"frame SHA-256 mismatch: {frame}")
         items.append({**item, "source": source, "frame": frame})
     return items
+
+
+def prepare_fixtures(corpus: Path, fixtures: Path) -> None:
+    from compresslab.json_log_codec import compress_file
+
+    config = json.loads(CONFIG.read_text(encoding="utf-8"))
+    fixtures.mkdir(parents=True, exist_ok=True)
+    for item in config["selection"]["development"]:
+        compress_file(
+            corpus / f"{item['id']}.jsonl",
+            fixtures / f"{item['id']}.jls2",
+            overwrite=True,
+        )
 
 
 def run_process(
@@ -319,6 +334,7 @@ def run_trial(
         "returncode": returncode,
         "stdout": stdout,
         "stderr": stderr,
+        "command": command,
         "exact": exact,
     }
 
@@ -331,12 +347,17 @@ def main() -> int:
     parser.add_argument("--native-binary", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--rounds", type=int, default=ROUNDS)
+    parser.add_argument("--prepare-fixtures", action="store_true")
     args = parser.parse_args()
     if args.rounds < 1:
         parser.error("--rounds must be positive")
     if not args.native_binary.is_file():
         parser.error(f"native binary is missing: {args.native_binary}")
-    items = load_items(args.corpus.resolve(), args.fixtures.resolve())
+    corpus = args.corpus.resolve()
+    fixtures = args.fixtures.resolve()
+    if args.prepare_fixtures:
+        prepare_fixtures(corpus, fixtures)
+    items = load_items(corpus, fixtures)
     family_by_id = {item["id"]: item for item in items}
     trials = []
     with tempfile.TemporaryDirectory(prefix="jls2-native-gate-") as temporary:
@@ -367,11 +388,32 @@ def main() -> int:
                 )
                 row.update({"round": round_number, "warmup": False})
                 trials.append(row)
+    linkage_command = (
+        ["otool", "-L", str(args.native_binary.resolve())]
+        if sys.platform == "darwin"
+        else ["ldd", str(args.native_binary.resolve())]
+        if sys.platform.startswith("linux")
+        else ["where", str(args.native_binary.resolve())]
+    )
+    linkage = subprocess.run(
+        linkage_command,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    candidate_commit = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=REPOSITORY,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
     result = {
         "schema_version": 1,
         "protocol": "jls2-standalone-native-decoder-v1",
         "claim_scope": "development-only",
         "baseline_commit": BASELINE_COMMIT,
+        "candidate_commit": candidate_commit,
         "created_at_epoch_seconds": int(time.time()),
         "host": {
             "platform": platform.platform(),
@@ -384,7 +426,12 @@ def main() -> int:
         "native_binary": {
             "path": str(args.native_binary.resolve()),
             "sha256": sha256_file(args.native_binary),
+            "linkage_command": linkage_command,
+            "linkage_returncode": linkage.returncode,
+            "linkage_stdout": linkage.stdout,
+            "linkage_stderr": linkage.stderr,
         },
+        "all_scheduled_exact": all(trial["exact"] for trial in trials),
         "trials": trials,
         "summary": summarize(trials, args.rounds),
     }
