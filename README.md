@@ -33,8 +33,9 @@ ran at **54.85 MB/s compression and 268.18 MB/s decompression**.
 Full transparency: this is development evidence, not a world-best claim or
 public validation. Ratio, speed, memory, bounded streaming, selector,
 direct-fallback, regression, exactness, determinism, and corruption gates all
-passed locally. Cross-platform reproduction remains before the candidate lock
-and one-time unseen validation. See the [complete decision and raw evidence](docs/benchmarks/2026-07-17-dms2-native-development-gate.md).
+passed locally. Native-wheel and full-suite reproduction also passed on Linux,
+macOS, and Windows for commit `4e816ca`. Candidate lock remains before the
+one-time unseen validation. See the [complete decision and raw evidence](docs/benchmarks/2026-07-17-dms2-native-development-gate.md).
 
 Baseline speeds are same-machine contextual measurements from the preceding
 fresh census; DMS2 used repeated trials. Baseline peak RSS was not rerun, so no
@@ -45,7 +46,7 @@ and checksum.
 
 | Category | Evidence stage | Strongest result | Honest status |
 | --- | --- | --- | --- |
-| Dense numeric matrices | Fresh development | DMS2 5.28% smaller than bzip2-9 at 54.85/268.18 MB/s | All local gates passed; cross-platform lock pending; validation unopened |
+| Dense numeric matrices | Fresh development | DMS2 5.28% smaller than bzip2-9 at 54.85/268.18 MB/s | Local and cross-platform gates passed; candidate lock next; validation unopened |
 | Delimited record tables | Public validation | TBS1 won 3/4 families by 7.35%–16.50% | Aggregate remained 3.48% behind 7-Zip-9 |
 | JSON and machine logs | Public validation | JLS2 28.77% smaller than zstd-9 | Mixed against Brotli-11; decode gate missed |
 | General binary, source, archives | Development | Exact fallback | No category win established |

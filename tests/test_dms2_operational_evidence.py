@@ -7,6 +7,7 @@ import unittest
 REPOSITORY = Path(__file__).resolve().parents[1]
 SPEED = REPOSITORY / "runs" / "dms2-safe-selector-development-gate-v2.json"
 OPERATIONAL = REPOSITORY / "runs" / "dms2-operational-development-gate-v1.json"
+CROSS_PLATFORM = REPOSITORY / "runs" / "dms2-cross-platform-ci-receipt-v1.json"
 DECISION = (
     REPOSITORY
     / "docs"
@@ -63,6 +64,32 @@ class DMS2OperationalEvidenceTests(unittest.TestCase):
             self.assertIn("268.18", text)
             self.assertIn("5.28% smaller", text)
             self.assertIn("not a world-best claim", text)
+
+    def test_cross_platform_receipt_binds_green_jobs_and_source(self):
+        receipt = json.loads(CROSS_PLATFORM.read_text(encoding="utf-8"))
+        self.assertEqual(
+            receipt["tested_commit"],
+            "4e816ca37b7e9d7b639b474d7dedc4ac077df8b4",
+        )
+        self.assertEqual(
+            {run["event"] for run in receipt["successful_runs"]},
+            {"push", "pull_request"},
+        )
+        self.assertEqual(
+            set(receipt["platform_jobs"]), {"linux", "macos", "windows"}
+        )
+        self.assertTrue(
+            all(
+                jobs["full_suite"]["conclusion"] == "success"
+                and jobs["native_wheel"]["conclusion"] == "success"
+                for jobs in receipt["platform_jobs"].values()
+            )
+        )
+        for path, expected in receipt["source_sha256"].items():
+            self.assertEqual(
+                hashlib.sha256((REPOSITORY / path).read_bytes()).hexdigest(),
+                expected,
+            )
 
 
 if __name__ == "__main__":

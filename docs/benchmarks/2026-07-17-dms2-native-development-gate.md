@@ -3,8 +3,9 @@
 ## Decision
 
 **DMS2 passes every local frozen development gate: ratio, speed, memory,
-streaming, selector, integrity, and record-table preservation. Portable-wheel
-CI remains before the candidate lock and one-time public validation.**
+streaming, selector, integrity, and record-table preservation. Full-suite and
+native-wheel reproduction passed on Linux, macOS, and Windows. Candidate lock
+remains before one-time public validation.**
 
 DMS2 combines a bounded 64 KiB content selector, parallel DMA2 adaptive
 contexts for broader numeric alphabets, and DMP1 bit planes for alphabets of
@@ -67,7 +68,7 @@ isolated processes, so this chart makes no comparative memory claim.
 | Record-table regression at most 0.25% | ✅ 0.00%; 1,377,241 bytes unchanged |
 | Leave-one-family-out selector evaluation | ✅ oracle route on 3/3; 64 KiB sample; zero fitted parameters |
 | Never exceed equally framed direct fallback | ✅ 3/3 dense families plus arbitrary-input tests |
-| Linux and Windows native-wheel reproduction | Pending CI evidence |
+| Linux, macOS, and Windows full-suite and native-wheel reproduction | ✅ commit `4e816ca`; push and PR CI passed |
 | Public validation remains unopened | ✅ |
 
 ## Reproduction
@@ -91,13 +92,15 @@ retains every measured duration, corpus and evidence hash, standard aggregate,
 route, exactness result, corruption result, and gate. The separate
 [operational receipt](../../runs/dms2-operational-development-gate-v1.json)
 retains cold RSS, bounded-stream, selector, direct-fallback, and record-table
-regression evidence.
+regression evidence. The separate [cross-platform CI receipt](../../runs/dms2-cross-platform-ci-receipt-v1.json)
+binds the DMS2 source hashes to the successful public GitHub runs and individual
+full-suite and specialist/direct/DSS1 wheel jobs on all three operating systems.
 
 ## Claim ceiling and next action
 
 This is fresh development evidence, not a world-best claim. It supports no
 public-validation, category-best, market-leading, or state-of-the-art claim.
-Reproduce the new safe selector and DSS1 stream in Linux and Windows native
-wheels, then freeze
-the exact candidate, evaluator, and acquisition receipt. Only then may the
+The cross-platform runs reproduce correctness and packaging, not the local
+performance numbers in the chart. Freeze the exact candidate, evaluator, and
+acquisition receipt next. Only then may the
 still-unopened public-validation matrices be acquired once.
