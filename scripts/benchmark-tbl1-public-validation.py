@@ -156,7 +156,12 @@ def normalized_load_1m() -> float:
     cpus = os.cpu_count()
     if not cpus:
         raise ValueError("logical CPU count is unavailable")
-    return os.getloadavg()[0] / cpus
+    getloadavg = getattr(os, "getloadavg", None)
+    if getloadavg is None:
+        raise RuntimeError(
+            "one-time validation requires a host that exposes load average"
+        )
+    return float(getloadavg()[0]) / cpus
 
 
 def verify_stream_safety(source_path: Path, frame_path: Path) -> dict[str, Any]:
