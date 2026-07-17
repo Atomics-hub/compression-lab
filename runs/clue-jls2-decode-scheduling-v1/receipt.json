@@ -1,0 +1,18 @@
+{
+  "artifacts": {
+    "README.md": "618788a6bc2e62d900d7dc88938c651cf7326343a04afd554c930be33c51b2c7",
+    "results.json": "416618ff1478bcf65a6605235970731064f211d0f984bae5379bb3fe8d6c372c"
+  },
+  "baseline_parent_median_mbps": 330.3966206493752,
+  "baseline_worker_median_mbps": 604.3667881246852,
+  "baseline_worker_minimum_mbps": 380.59578503855266,
+  "benchmark_commit": "9fa2e9f2c80b857e729728f53f2f88e25eaa7c9f",
+  "claim_ceiling": "Development-only decode-scheduling evidence on the three frozen CLUE-LDS development ranges; not public validation, private holdout, independent reproduction, universal, market-leading, world-best, or state-of-the-art evidence",
+  "name": "clue-jls2-decode-scheduling-v1-receipt",
+  "publisher_source": "scripts/publish-clue-jls2-decode-scheduling.py",
+  "publisher_source_sha256": "7ad9009e4d4bec460dc9249ea90784dc93518b3d97033ae668f0c8ed4810423a",
+  "retained_variant": "outer2-innerauto",
+  "schema_version": 1,
+  "selected_variant": null,
+  "status": "rejected"
+}
