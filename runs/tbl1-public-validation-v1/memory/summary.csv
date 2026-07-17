@@ -1,0 +1,2 @@
+codec_id,codec_family,items,roundtrip_failures,original_bytes,compressed_bytes,compressed_percent,savings_percent,compression_mbps,decompression_mbps,compression_cpu_mbps,decompression_cpu_mbps,compression_peak_rss_bytes,decompression_peak_rss_bytes,expanded_items,selector_time_percent,total_ms_at_100mbps,pareto
+tbl1-stream-dense,Compression Lab tabular,4,0,268432956,27985887,10.425652429949771,89.57434757005022,42.03622760057536,98.18275304724611,27.232535670678377,107.15578461558496,307970048,146604032,0,6.743732491052054,11358.637044,True

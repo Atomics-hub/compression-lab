@@ -57,7 +57,8 @@ class Tbl1DenseEvidenceTests(unittest.TestCase):
         ):
             self.assertIn(standard, readme)
             self.assertIn(standard, decision)
-        self.assertIn("complete category is\n**not passed**", readme)
+        self.assertIn("overall frozen gate was **not passed**", readme)
+        self.assertIn("2026-07-17-tbl1-public-validation-decision.md", readme)
 
 
 if __name__ == "__main__":

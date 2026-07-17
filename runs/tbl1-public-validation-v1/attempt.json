@@ -1,0 +1,43 @@
+{
+  "benchmark_script_sha256": "64841b1845490926aa3a480bc3bbd4c7be6fee80a0817ec62c09d181966e5843",
+  "claim_ceiling": "A passing first score supports only a category-scoped public-validation result for four previously unopened CC-BY-4.0 UCI delimited-table families. It is not private-holdout, independently reproduced, universal, market-leading, or state-of-the-art evidence.",
+  "codec_ids": [
+    "tbl1-stream-dense",
+    "store",
+    "lz4-1",
+    "gzip-9",
+    "bz2-9",
+    "zstd-3",
+    "zstd-9",
+    "zstd-19",
+    "brotli-11",
+    "lzma-9",
+    "7zip-9"
+  ],
+  "completed": false,
+  "first_score": true,
+  "frozen_candidate_paths": {
+    "native/Cargo.lock": "830795453d6689554f4724ea5124ceb08b7b4d0ffe03ed031ed010d587519bbf",
+    "native/Cargo.toml": "9aef2315c7dd6c20546e221d179ca69a4fb04544317898521d92bc55574154fe",
+    "native/src/lib.rs": "4d624291ec8ea8301e3dc844f025b90e71c964bcbad012130488d7cd353b6a3e",
+    "pyproject.toml": "45f59bde45228dc5be2d62d85117f5019129d8164eb28add8e195453bff6725c",
+    "src/compresslab/codecs.py": "9103221b88f7d839baa01b0a0e49fe78134ce43f78eb8d6e8010e5fd7067f0ff",
+    "src/compresslab/metrics.py": "a9624b27ad259acae1d0fa8277be2f1f88fe2ded72ff97193ab681a5b885c9ff",
+    "src/compresslab/models.py": "929a6aac2f6ed8cbde84169f9d837cb85dcf7124915d139d9aa7feb48a38981a",
+    "src/compresslab/native.py": "3420b3d7acaa636a27f2788e9304b19c01014f6f3183c2aa822e9bf3cc4cf7d1",
+    "src/compresslab/runner.py": "561e3970fc381ba6c77d346402adb84c8f5c6abae5846599d586529e1ec65f80",
+    "src/compresslab/tabular_transform.py": "1d300e4bdeecc1d5099563889d5a1980a57298c0e498522ba15fe5868021f280",
+    "src/compresslab/worker.py": "f00a30113fe89d0c8d05aecb356648c4ae2cd300a2f96ffdccb38525debad090",
+    "tests/test_tabular_transform.py": "93047643d8f49f70ea9e0a934d02c9e911170c20b2e7d6de9d8a9705c9dde2fc"
+  },
+  "gates_path": "/Users/guts/Documents/Codex/2026-07-14/i/outputs/compression-lab/config/tbl1-public-validation-gates.json",
+  "gates_sha256": "0d3e6cf971b967df1cd5c4801a666342fd10359e0a8aec5c5cd1b68410469bc5",
+  "manifest_path": "/private/tmp/tabular-public-validation-v1/manifest.json",
+  "manifest_sha256": "cf1c045f8c8ddbc19e2ca3d729a55e305263bc35eb03a4e2f2c8b7fc4e763f99",
+  "normalized_preflight_load_1m": 0.535009765625,
+  "repository": {
+    "commit": "002edea7d3299714afe00ec47a60d264bcd83a38",
+    "tracked_status": ""
+  },
+  "schema_version": 1
+}

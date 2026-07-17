@@ -31,35 +31,32 @@ same-host contextual measurements; JLS2 used repeated trials. See the
 [complete scorecard](docs/benchmarks/2026-07-16-jls2-public-validation-decision.md)
 and [immutable GitHub Actions run](https://github.com/Atomics-hub/compression-lab/actions/runs/29542804015).
 
-## Newest development result: delimited tables
+## Newest verified result: delimited tables
 
-On the frozen, licensed 187,321,615-byte tabular development corpus, bounded
-`TBS1` streaming produced **12,134,137 bytes**: 9.62% smaller than Brotli-11
-and 32.73% smaller than zstd-9. It beat the strongest exact baseline by at
-least 5% on three of four data families.
+On 268,432,956 previously unseen UCI table bytes, bounded `TBS1` beat the
+strongest exact standard by 7.35%–16.50% on three of four families. OCRB pixel
+tables were the exception, making TBS1 3.48% larger than the strongest
+aggregate standard, 7-Zip-9.
 
-| Standard | Complete bytes | TBS1 size result | Compress MB/s | Decompress MB/s | Peak compression RSS | Integrity / portability | Size win? |
-| --- | ---: | ---: | ---: | ---: | ---: | --- | --- |
-| **TBS1 stream-dense** | **12,134,137** | reference | **60.92** | **356.76** | **409.72 MiB** | 20/20 + 1 GiB exact; Python reference | — |
-| TBL1-dense whole-file | 12,012,933 | 1.01% larger | 51.30 | 250.41 | 402.55 MiB | 20/20 exact | **No** |
-| Brotli-11 | 13,425,698 | **9.62% smaller** | 0.33 | 293.21 | 254.47 MiB | Exact on this runner | **Yes** |
-| LZMA-9 | 14,275,744 | **15.00% smaller** | 0.78 | 38.91 | 801.78 MiB | Exact on this runner | **Yes** |
-| 7-Zip-9 | 14,301,453 | **15.15% smaller** | 2.69 | 133.13 | 648.53 MiB | Exact on this runner | **Yes** |
-| zstd-19 | 14,570,801 | **16.72% smaller** | 2.07 | 424.88 | 240.38 MiB | Exact on this runner | **Yes** |
-| bzip2-9 | 17,627,845 | **31.16% smaller** | 1.43 | 20.86 | 255.45 MiB | Exact on this runner | **Yes** |
-| zstd-9 | 18,038,379 | **32.73% smaller** | 61.91 | 380.94 | 233.70 MiB | Exact on this runner | **Yes** |
-| gzip-9 | 19,811,936 | **38.75% smaller** | 8.03 | 362.97 | 269.00 MiB | Exact on this runner | **Yes** |
-| zstd-3 | 22,715,433 | **46.58% smaller** | 185.13 | 333.23 | 327.27 MiB | Exact on this runner | **Yes** |
-| LZ4-1 | 38,164,405 | **68.21% smaller** | 765.00 | 393.48 | 37.17 MiB | Exact on this runner | **Yes** |
-| store | 187,321,615 | **93.52% smaller** | 1,242.40 | 719.78 | 25.03 MiB | Exact on this runner | **Yes** |
+| Standard | Complete bytes | TBS1 size result | Compress MB/s: TBS1 / standard | Decompress MB/s: TBS1 / standard | Exact | Size beaten? |
+| --- | ---: | --- | ---: | ---: | --- | --- |
+| **TBS1 stream-dense** | **27,985,887** | candidate | **107.67 / —** | **403.39 / —** | ✅ | — |
+| store | 268,432,956 | **89.57% smaller** | 107.67 / 1,382.93 | 403.39 / 812.06 | ✅ | ✅ |
+| LZ4-1 | 95,128,929 | **70.58% smaller** | 107.67 / 878.25 | 403.39 / 423.25 | ✅ | ✅ |
+| gzip-9 | 49,933,695 | **43.95% smaller** | 107.67 / 6.26 | 403.39 / 333.42 | ✅ | ✅ |
+| zstd-3 | 44,511,580 | **37.13% smaller** | 107.67 / 247.36 | 403.39 / 343.45 | ✅ | ✅ |
+| bzip2-9 | 34,291,969 | **18.39% smaller** | 107.67 / 2.39 | 403.39 / 23.68 | ✅ | ✅ |
+| zstd-9 | 36,047,298 | **22.36% smaller** | 107.67 / 51.20 | 403.39 / 344.36 | ✅ | ✅ |
+| zstd-19 | 28,942,224 | **3.30% smaller** | 107.67 / 1.31 | 403.39 / 372.62 | ✅ | ✅ |
+| Brotli-11 | 28,315,299 | **1.16% smaller** | 107.67 / 0.43 | 403.39 / 258.15 | ✅ | ✅ |
+| LZMA-9 | 27,049,040 | **3.46% larger** | 107.67 / 0.54 | 403.39 / 45.23 | ✅ | ❌ |
+| 7-Zip-9 | **27,044,234** | **3.48% larger** | 107.67 / 1.93 | 403.39 / 141.44 | ✅ | ❌ |
 
-TBS1 speed is a clean five-repetition result; every repetition cleared the
-50/250 MB/s thresholds. Memory is from isolated cold processes, and a separate
-1 GiB no-newline file used 155.34/101.56 MiB for encode/decode. Baseline speed
-and memory remain single-trial context, so this is not a controlled speed-win
-claim. The streaming development gate **passed**; the complete category is
-**not passed** until unseen public validation and independent reproduction.
-See the [transparent streaming decision](docs/benchmarks/2026-07-16-tbl1-streaming-development-decision.md).
+The overall frozen gate was **not passed**: aggregate ratio missed, and one of
+five decompression repetitions fell below 250 MB/s. Average speed was
+107.67/403.39 MB/s; cold encode/decode peaks were 293.70/139.81 MiB. Exactness,
+determinism, fallback safety, complete accounting, portability, and the 3/4
+family gate passed. See the [full scorecard and raw evidence](docs/benchmarks/2026-07-17-tbl1-public-validation-decision.md).
 
 ### Portfolio scorecard
 
@@ -67,7 +64,7 @@ See the [transparent streaming decision](docs/benchmarks/2026-07-16-tbl1-streami
 | --- | --- | --- | --- | --- |
 | JSON and machine logs | Public validation | Beat zstd-9 and PBC; mixed against Brotli-11 | Mixed | Strong specialist result; full gate not passed |
 | Plain text and source | Development | Behind strongest dense baselines | Not frontier-leading | Not won |
-| CSV and delimited tables | Development streaming pass | TBS1 beat Brotli-11 by 9.62% aggregate and the strongest exact baseline by >=5% on 3/4 families | 60.92/356.76 MB/s; all five repetition aggregates passed | Streaming gate passed; category not validated |
+| CSV and delimited tables | Public validation | Won 3/4 families by 7.35%–16.50%; aggregate 3.48% behind 7-Zip-9 | 107.67/403.39 MB/s average; one decode repetition missed its floor | Strong specialist signal; full gate not passed |
 | Numeric and time series | Smoke only | Synthetic signal only | Untested | Not validated |
 | General binary and archives | Development | Behind zstd-9 | Behind zstd | Not won |
 | Incompressible or precompressed | Safety tests | Store/direct fallback | Category benchmark pending | Expansion safety only |
@@ -195,6 +192,7 @@ round-trip, provenance, stability, or completeness failure remains visible.
 - [TBL1 dense development decision](docs/benchmarks/2026-07-16-tbl1-dense-development-decision.md)
 - [TBL1 streaming development decision](docs/benchmarks/2026-07-16-tbl1-streaming-development-decision.md)
 - [TBL1 public-validation readiness decision](docs/benchmarks/2026-07-16-tbl1-public-validation-readiness.md)
+- [TBL1 public-validation decision and full chart](docs/benchmarks/2026-07-17-tbl1-public-validation-decision.md)
 - [TBL1 public-validation lock](config/tbl1-public-validation-lock.json)
 - [File-format contract](docs/file-format.md)
 - [Release readiness](docs/release-readiness.md)

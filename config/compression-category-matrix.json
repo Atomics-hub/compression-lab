@@ -58,10 +58,10 @@
     {
       "id": "tabular_csv",
       "label": "Tabular CSV and delimited records",
-      "status": "development",
+      "status": "public-validation-partial",
       "specialist": "TBS1 bounded TBL1 stream-dense",
-      "current_evidence": "runs/tbl1-streaming-development-decision-v1.json",
-      "current_result": "On the frozen licensed four-family development corpus, bounded TBS1 was 9.62% smaller than Brotli-11 aggregate, beat the strongest exact per-family baseline by at least 5% on 3/4 families, passed every five-run 50/250 MB/s repetition aggregate, stayed under 512 MiB in cold-process memory measurements, and exactly round-tripped a 1 GiB no-newline file with memory bounded by two 16 MiB segments. This is a development streaming pass, not public validation.",
+      "current_evidence": "runs/tbl1-public-validation-v1/decision.json",
+      "current_result": "On the frozen first public-validation score over four previously unseen CC-BY-4.0 UCI families, TBS1 beat the strongest exact per-family baseline by 7.35% to 16.50% on 3/4 families, but OCRB pixel tables were 32.15% larger and made aggregate output 3.48% larger than 7-Zip-9. Average speed, cold memory, exactness, determinism, fallback safety, portability, and complete accounting passed; one of five decompression repetitions missed the 250 MB/s floor. The overall gate did not pass.",
       "tested_standards": [
         "store",
         "lz4-1",
@@ -74,7 +74,7 @@
         "LZMA-9",
         "7-Zip-9"
       ],
-      "next_gate": "Merge the frozen one-shot public-validation runner and evaluator with a green cross-platform wheel matrix, pin that exact readiness commit, then acquire and score the four unopened public-validation families exactly once without tuning."
+      "next_gate": "Retain the failed first score and never tune or rerun on MetroPT, electricity, OULAD, or OCRB. Treat image-like pixel matrices as a separate category, develop any successor selector or representation only on fresh development families, and require a new untouched validation corpus."
     },
     {
       "id": "numeric_timeseries",

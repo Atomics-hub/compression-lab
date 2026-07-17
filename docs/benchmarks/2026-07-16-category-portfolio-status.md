@@ -3,9 +3,10 @@
 ## Decision
 
 Compression Lab is not yet on track to claim wins in every category. It now has
-one strong category-specific ratio result, but even that JSON/log result missed
-its complete frozen gate. The right architecture remains a portfolio of
-specialists behind a deterministic selector with direct and store fallbacks.
+strong category-specific ratio signals in JSON/logs and delimited tables, but
+both missed their complete frozen gates. The right architecture remains a
+portfolio of specialists behind a deterministic selector with direct and store
+fallbacks.
 
 This chart is the control surface for future category work. A green ratio cell
 does not make the complete category green when speed, memory, integrity,
@@ -15,7 +16,7 @@ portability, or independent-evidence cells remain red or untested.
 | --- | --- | --- | --- | --- | --- | --- |
 | JSON and machine logs | Public-validation partial | ✅ JLS2 beat zstd-9 on 3/3, PBC on 3/3, and Brotli-11 in aggregate; Brotli family gate was 1/3 | ⚠️ compression passed; Linux decompression failed 250 MB/s gate | ⚠️ development-only JLS2 measurement; no same-run baseline memory | ❌ No | Development-only Linux decode profile, then a fresh independent corpus |
 | Plain text and source | Development | ❌ no win over the strongest tested ratio baselines | ⚠️ some Pareto development points, no category validation | ⚠️ partial development measurements | ❌ No | New representation or calibrated entropy-model hypothesis |
-| Tabular CSV | Development streaming pass; validation readiness frozen | ✅ TBS1 beat Brotli-11 by 9.62% aggregate and the strongest exact baseline by >=5% on 3/4 families | ✅ 60.92/356.76 MB/s; five-run minima 56.94/335.57 | ✅ cold 409.72/120.22 MiB; 1 GiB 155.34/101.56 MiB | ❌ No | Merge readiness, pin its commit, then run one-time public validation |
+| Tabular CSV | Public-validation partial | ⚠️ TBS1 won 3/4 families by 7.35%–16.50%, but lost aggregate to 7-Zip-9 by 3.48% after a 32.15% OCRB loss | ⚠️ 107.67/403.39 MB/s average; minimum compression passed, one decompression repetition failed at 163.51 MB/s | ✅ cold 293.70/139.81 MiB | ❌ No | Preserve the three-family signal; split image-like matrices into a separate category and use only fresh families for a successor |
 | Numeric and time series | Smoke only | ⚠️ synthetic delta-transpose signal | — | — | ❌ No | Licensed heterogeneous numeric corpus and specialist audit |
 | General binary/archive | Development | ❌ current encoder loses to zstd-9 | ❌ not Pareto-optimal | ⚠️ bounded-frame evidence only | ❌ No | Keep safe fallback; wait for a materially new specialist hypothesis |
 | Incompressible/already compressed | Development safety tests | ✅ bounded store/direct fallback behavior | — category throughput unvalidated | — large-file category gate unvalidated | ❌ No | Freeze expansion, selector-cost, speed, and memory gates |
@@ -35,10 +36,11 @@ decision is in
 `docs/benchmarks/2026-07-16-tbl1-dense-development-decision.md`.
 The bounded streaming decision is in
 `docs/benchmarks/2026-07-16-tbl1-streaming-development-decision.md`.
-The one-shot runner, evaluator, candidate-path hashes, corpus identities, exact
-comparator roster, and pass/fail chart are frozen in the
+The frozen setup is recorded in the
 [TBL1 public-validation readiness decision](2026-07-16-tbl1-public-validation-readiness.md).
-Public-validation archives remain unopened.
+The first score, complete ten-standard chart, family results, failed gates, and
+raw evidence are in the
+[TBL1 public-validation decision](2026-07-17-tbl1-public-validation-decision.md).
 
 ## Universal-selector consequence
 

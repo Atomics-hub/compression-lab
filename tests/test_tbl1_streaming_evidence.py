@@ -57,8 +57,7 @@ class Tbl1StreamingEvidenceTests(unittest.TestCase):
             / "benchmarks"
             / "2026-07-16-tbl1-streaming-development-decision.md"
         ).read_text(encoding="utf-8")
-        standards = (
-            "TBL1-dense whole-file",
+        public_standards = (
             "Brotli-11",
             "LZMA-9",
             "7-Zip-9",
@@ -70,10 +69,12 @@ class Tbl1StreamingEvidenceTests(unittest.TestCase):
             "LZ4-1",
             "store",
         )
-        for standard in standards:
+        for standard in public_standards:
             self.assertIn(standard, readme)
             self.assertIn(standard, decision)
-        self.assertIn("complete category is\n**not passed**", readme)
+        self.assertIn("TBL1-dense whole-file", decision)
+        self.assertIn("overall frozen gate was **not passed**", readme)
+        self.assertIn("268,432,956 previously unseen UCI table bytes", readme)
 
 
 if __name__ == "__main__":
