@@ -52,6 +52,27 @@ def write_fake_executable(root: Path, name: str, source: str) -> Path:
 
 
 class TextSourceResearchCeilingRunnerTests(unittest.TestCase):
+    def test_darwin_skips_unusable_address_limit_but_keeps_file_limit(self) -> None:
+        class FakeResource:
+            RLIMIT_AS = 1
+            RLIMIT_FSIZE = 2
+
+            def __init__(self) -> None:
+                self.calls: list[tuple[int, tuple[int, int]]] = []
+
+            def setrlimit(self, resource_id: int, limits: tuple[int, int]) -> None:
+                self.calls.append((resource_id, limits))
+
+        fake = FakeResource()
+        original = MODULE.RESOURCE
+        MODULE.RESOURCE = fake
+        try:
+            with mock.patch.object(MODULE.sys, "platform", "darwin"):
+                MODULE._set_limits(18, 100)
+        finally:
+            MODULE.RESOURCE = original
+        self.assertEqual(fake.calls, [(fake.RLIMIT_FSIZE, (100, 100))])
+
     def test_process_sanitization_is_platform_neutral(self) -> None:
         work = Path("/fixture/work")
         tools = Path("/fixture/tools")
@@ -66,6 +87,14 @@ class TextSourceResearchCeilingRunnerTests(unittest.TestCase):
             sanitized["command"],
             ["$TOOLCHAIN/bin/codec", "$WORK/input.bin"],
         )
+
+    def test_relative_tool_root_sanitizes_resolved_executable(self) -> None:
+        tools = Path(".research-tools/fixture")
+        executable = tools.resolve() / "bin" / "codec"
+        sanitized = MODULE.sanitize_process(
+            {"command": [str(executable)]}, Path("/fixture/work"), tools
+        )
+        self.assertEqual(sanitized["command"], ["$TOOLCHAIN/bin/codec"])
 
     def test_non_posix_process_fallback_records_and_times_out(self) -> None:
         original = MODULE.RESOURCE

@@ -99,11 +99,17 @@ def sanitize_process(record: dict[str, Any], work: Path, tools_root: Path) -> di
     sanitized = dict(record)
     command = []
     for value in record["command"]:
-        normalized = (
-            str(value)
-            .replace(str(work), "$WORK")
-            .replace(str(tools_root), "$TOOLCHAIN")
+        normalized = str(value)
+        replacements = (
+            (work, "$WORK"),
+            (tools_root, "$TOOLCHAIN"),
         )
+        for path, placeholder in replacements:
+            candidates = sorted(
+                {str(path), str(path.resolve())}, key=len, reverse=True
+            )
+            for candidate in candidates:
+                normalized = normalized.replace(candidate, placeholder)
         if "$WORK" in normalized or "$TOOLCHAIN" in normalized:
             normalized = normalized.replace("\\", "/")
         command.append(normalized)
@@ -114,7 +120,10 @@ def sanitize_process(record: dict[str, Any], work: Path, tools_root: Path) -> di
 def _set_limits(max_address_bytes: int | None, max_file_bytes: int | None) -> None:
     if RESOURCE is None:
         return
-    if max_address_bytes is not None:
+    # A macOS process can inherit a virtual address footprint larger than the
+    # declared RSS cap, and Darwin then rejects lowering RLIMIT_AS before exec.
+    # The parent still records wait4() peak RSS and rejects over-cap receipts.
+    if max_address_bytes is not None and sys.platform != "darwin":
         RESOURCE.setrlimit(
             RESOURCE.RLIMIT_AS, (max_address_bytes, max_address_bytes)
         )
@@ -183,7 +192,7 @@ def _run_process_portable(
     stderr_file: Any,
     started: int,
 ) -> dict[str, Any]:
-    # POSIX applies RLIMIT_AS/RLIMIT_FSIZE before exec. Windows lacks equivalent
+    # POSIX applies supported RLIMITs before exec. Windows lacks equivalent
     # stdlib limits, so the runner measures the full process tree and the caller
     # rejects a receipt whose measured RSS crosses the same frozen cap. Exact
     # restored-size validation remains mandatory after decompression.
