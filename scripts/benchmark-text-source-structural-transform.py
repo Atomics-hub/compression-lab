@@ -255,8 +255,10 @@ def sanitize_process_record(record: dict[str, Any], work: Path) -> dict[str, Any
         and Path(record["command"][0]).resolve() == Path(sys.executable).resolve()
     ):
         sanitized["command"][0] = "python"
-    elif sanitized["command"] and sanitized["command"][0].startswith("/"):
-        sanitized["command"][0] = Path(sanitized["command"][0]).name
+    elif sanitized["command"] and sanitized["command"][0].startswith(("/", "\\")):
+        sanitized["command"][0] = sanitized["command"][0].replace("\\", "/").rsplit(
+            "/", 1
+        )[-1]
     return sanitized
 
 

@@ -15,6 +15,13 @@ SPEC.loader.exec_module(RUNNER)
 
 
 class TextSourceBaselineCommandParityTests(unittest.TestCase):
+    def test_windows_root_relative_external_executable_is_portable(self) -> None:
+        sanitized = RUNNER.sanitize_process_record(
+            {"command": [r"\fixture-tools\lz4", "-1"]},
+            Path(r"\fixture-work"),
+        )
+        self.assertEqual(sanitized["command"], ["lz4", "-1"])
+
     def test_publisher_templates_equal_every_executable_runner_command(self) -> None:
         tools = {
             name: {

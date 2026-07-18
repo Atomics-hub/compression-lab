@@ -77,8 +77,10 @@ def sanitize_process_record(record: dict[str, Any], work: Path) -> dict[str, Any
 
     sanitized = dict(record)
     sanitized["command"] = [sanitize(value) for value in record["command"]]
-    if sanitized["command"] and sanitized["command"][0].startswith("/"):
-        sanitized["command"][0] = Path(sanitized["command"][0]).name
+    if sanitized["command"] and sanitized["command"][0].startswith(("/", "\\")):
+        sanitized["command"][0] = sanitized["command"][0].replace("\\", "/").rsplit(
+            "/", 1
+        )[-1]
     return sanitized
 
 
