@@ -239,9 +239,12 @@ def run_process(command: list[str], *, timeout_seconds: float) -> dict[str, Any]
 
 def sanitize_process_record(record: dict[str, Any], work: Path) -> dict[str, Any]:
     def sanitize(value: str) -> str:
-        return value.replace(str(REPOSITORY), "$REPOSITORY").replace(
+        sanitized = value.replace(str(REPOSITORY), "$REPOSITORY").replace(
             str(work), "$WORK"
         )
+        if "$REPOSITORY" in sanitized or "$WORK" in sanitized:
+            sanitized = sanitized.replace("\\", "/")
+        return sanitized
 
     sanitized = dict(record)
     sanitized["command"] = [sanitize(value) for value in record["command"]]

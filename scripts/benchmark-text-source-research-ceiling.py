@@ -11,7 +11,6 @@ import json
 import math
 import os
 from pathlib import Path
-import resource
 import shutil
 import signal
 import subprocess
@@ -60,6 +59,7 @@ BASELINE_RUNNER = load_script(
     "baseline_runner_for_research_ceiling",
     REPOSITORY / "scripts" / "benchmark-text-source-baselines.py",
 )
+RESOURCE = importlib.import_module("resource") if os.name == "posix" else None
 
 
 def sha256_file(path: Path) -> str:
@@ -97,20 +97,143 @@ def write_json_atomic(path: Path, payload: dict[str, Any]) -> None:
 
 def sanitize_process(record: dict[str, Any], work: Path, tools_root: Path) -> dict[str, Any]:
     sanitized = dict(record)
-    sanitized["command"] = [
-        str(value)
-        .replace(str(work), "$WORK")
-        .replace(str(tools_root), "$TOOLCHAIN")
-        for value in record["command"]
-    ]
+    command = []
+    for value in record["command"]:
+        normalized = (
+            str(value)
+            .replace(str(work), "$WORK")
+            .replace(str(tools_root), "$TOOLCHAIN")
+        )
+        if "$WORK" in normalized or "$TOOLCHAIN" in normalized:
+            normalized = normalized.replace("\\", "/")
+        command.append(normalized)
+    sanitized["command"] = command
     return sanitized
 
 
 def _set_limits(max_address_bytes: int | None, max_file_bytes: int | None) -> None:
+    if RESOURCE is None:
+        return
     if max_address_bytes is not None:
-        resource.setrlimit(resource.RLIMIT_AS, (max_address_bytes, max_address_bytes))
+        RESOURCE.setrlimit(
+            RESOURCE.RLIMIT_AS, (max_address_bytes, max_address_bytes)
+        )
     if max_file_bytes is not None:
-        resource.setrlimit(resource.RLIMIT_FSIZE, (max_file_bytes, max_file_bytes))
+        RESOURCE.setrlimit(RESOURCE.RLIMIT_FSIZE, (max_file_bytes, max_file_bytes))
+
+
+def _portable_process_usage(process: Any) -> tuple[int, int]:
+    """Return process-tree CPU nanoseconds and resident bytes when available."""
+    try:
+        import psutil
+    except ImportError as error:
+        raise RuntimeError(
+            "non-POSIX research execution requires the 'dev' extra (psutil)"
+        ) from error
+
+    try:
+        root = psutil.Process(process.pid)
+    except (psutil.NoSuchProcess, psutil.AccessDenied):
+        return 0, 0
+    try:
+        processes = [root, *root.children(recursive=True)]
+    except (psutil.NoSuchProcess, psutil.AccessDenied, OSError):
+        processes = [root]
+    cpu_ns = 0
+    rss_bytes = 0
+    for child in processes:
+        try:
+            cpu = child.cpu_times()
+            cpu_ns += int((cpu.user + cpu.system) * 1_000_000_000)
+            rss_bytes += int(child.memory_info().rss)
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            continue
+    return cpu_ns, rss_bytes
+
+
+def _kill_portable_process_tree(process: Any) -> None:
+    try:
+        import psutil
+    except ImportError:
+        process.kill()
+        return
+    try:
+        root = psutil.Process(process.pid)
+        children = root.children(recursive=True)
+    except (psutil.NoSuchProcess, psutil.AccessDenied, OSError):
+        children = []
+    for child in reversed(children):
+        try:
+            child.kill()
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            continue
+    try:
+        process.kill()
+    except ProcessLookupError:
+        pass
+
+
+def _run_process_portable(
+    command: list[str],
+    *,
+    cwd: Path,
+    environment: dict[str, str],
+    timeout_seconds: float,
+    stdout_file: Any,
+    stderr_file: Any,
+    started: int,
+) -> dict[str, Any]:
+    # POSIX applies RLIMIT_AS/RLIMIT_FSIZE before exec. Windows lacks equivalent
+    # stdlib limits, so the runner measures the full process tree and the caller
+    # rejects a receipt whose measured RSS crosses the same frozen cap. Exact
+    # restored-size validation remains mandatory after decompression.
+    process = subprocess.Popen(
+        command,
+        cwd=cwd,
+        env=environment,
+        stdin=subprocess.DEVNULL,
+        stdout=stdout_file,
+        stderr=stderr_file,
+        start_new_session=True,
+    )
+    deadline = time.monotonic() + timeout_seconds
+    timed_out = False
+    peak_rss_bytes = 0
+    cpu_ns = 0
+    try:
+        while True:
+            current_cpu_ns, current_rss_bytes = _portable_process_usage(process)
+            cpu_ns = max(cpu_ns, current_cpu_ns)
+            peak_rss_bytes = max(peak_rss_bytes, current_rss_bytes)
+            returncode = process.poll()
+            if returncode is not None:
+                final_cpu_ns, final_rss_bytes = _portable_process_usage(process)
+                cpu_ns = max(cpu_ns, final_cpu_ns)
+                peak_rss_bytes = max(peak_rss_bytes, final_rss_bytes)
+                break
+            if time.monotonic() < deadline:
+                time.sleep(0.05)
+                continue
+            _kill_portable_process_tree(process)
+            returncode = process.wait()
+            timed_out = True
+            break
+    except BaseException:
+        _kill_portable_process_tree(process)
+        process.wait()
+        raise
+    stdout_file.seek(0)
+    stderr_file.seek(0)
+    return {
+        "command": command,
+        "returncode": returncode,
+        "timed_out": timed_out,
+        "wall_ns": time.perf_counter_ns() - started,
+        "cpu_ns": cpu_ns,
+        "peak_rss_bytes": peak_rss_bytes,
+        "stdout": stdout_file.read(16384).decode("utf-8", errors="replace"),
+        "stderr": stderr_file.read(16384).decode("utf-8", errors="replace"),
+    }
 
 
 def run_process(
@@ -121,8 +244,6 @@ def run_process(
     max_address_bytes: int | None,
     max_file_bytes: int | None = None,
 ) -> dict[str, Any]:
-    if not hasattr(os, "wait4"):
-        raise RuntimeError("research runner requires wait4 peak-RSS accounting")
     if timeout_seconds <= 0:
         raise ValueError("process timeout must be positive")
     environment = dict(os.environ)
@@ -138,6 +259,16 @@ def run_process(
     stderr_file = tempfile.TemporaryFile()
     started = time.perf_counter_ns()
     try:
+        if not hasattr(os, "wait4") or RESOURCE is None:
+            return _run_process_portable(
+                command,
+                cwd=cwd,
+                environment=environment,
+                timeout_seconds=timeout_seconds,
+                stdout_file=stdout_file,
+                stderr_file=stderr_file,
+                started=started,
+            )
         process = subprocess.Popen(
             command,
             cwd=cwd,

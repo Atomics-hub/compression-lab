@@ -19,6 +19,10 @@ MODULE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(MODULE)
 
 
+def write_canonical_json(path: Path, payload: dict) -> None:
+    path.write_bytes(MODULE.json_bytes(payload))
+
+
 def fixture() -> dict:
     items = [
         {
@@ -186,9 +190,7 @@ def write_trial_receipts(root: Path, results: dict) -> None:
                 "passed": True,
                 "error": None,
             }
-            path.write_text(
-                json.dumps(receipt, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-            )
+            write_canonical_json(path, receipt)
 
 
 class TextSourceBaselinePublicationTests(unittest.TestCase):
@@ -268,10 +270,9 @@ class TextSourceBaselinePublicationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
             results_path = root / "results.json"
-            results_path.write_text(
-                json.dumps(fixture(), indent=2, sort_keys=True) + "\n", encoding="utf-8"
-            )
-            write_trial_receipts(root, fixture())
+            results = fixture()
+            write_canonical_json(results_path, results)
+            write_trial_receipts(root, results)
             output = root / "publication"
             MODULE.publish(results_path, output)
             first = {path.name: path.read_bytes() for path in output.iterdir()}
@@ -294,9 +295,7 @@ class TextSourceBaselinePublicationTests(unittest.TestCase):
             root = Path(raw)
             results_path = root / "results.json"
             results = fixture()
-            results_path.write_text(
-                json.dumps(results, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-            )
+            write_canonical_json(results_path, results)
             write_trial_receipts(root, results)
             output = root / "publication"
             MODULE.publish(results_path, output)
@@ -316,17 +315,13 @@ class TextSourceBaselinePublicationTests(unittest.TestCase):
             root = Path(raw)
             results = fixture()
             results_path = root / "results.json"
-            results_path.write_text(
-                json.dumps(results, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-            )
+            write_canonical_json(results_path, results)
             write_trial_receipts(root, results)
             receipt_path = next((root / "trials" / "libbsc-max").glob("*.r1.json"))
             receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
             private_stream = "/Users/example/project source\n"
             receipt["compression"]["stdout"] = private_stream
-            receipt_path.write_text(
-                json.dumps(receipt, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-            )
+            write_canonical_json(receipt_path, receipt)
             artifacts = MODULE.build_artifacts(results_path)
             evidence_raw = artifacts["evidence.json"]
             evidence = json.loads(evidence_raw)
@@ -358,9 +353,7 @@ class TextSourceBaselinePublicationTests(unittest.TestCase):
             root = Path(raw)
             results = fixture()
             results_path = root / "results.json"
-            results_path.write_text(
-                json.dumps(results, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-            )
+            write_canonical_json(results_path, results)
             write_trial_receipts(root, results)
             receipt = next((root / "trials").glob("*/*.r1.json"))
             receipt.unlink()
@@ -372,16 +365,12 @@ class TextSourceBaselinePublicationTests(unittest.TestCase):
             root = Path(raw)
             results = fixture()
             results_path = root / "results.json"
-            results_path.write_text(
-                json.dumps(results, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-            )
+            write_canonical_json(results_path, results)
             write_trial_receipts(root, results)
             receipt_path = next((root / "trials").glob("*/*.r1.json"))
             receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
             del receipt["compression"]["cpu_ns"]
-            receipt_path.write_text(
-                json.dumps(receipt, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-            )
+            write_canonical_json(receipt_path, receipt)
             with self.assertRaisesRegex(ValueError, "compression record is invalid"):
                 MODULE.publish(results_path, root / "publication")
 
@@ -390,16 +379,12 @@ class TextSourceBaselinePublicationTests(unittest.TestCase):
             root = Path(raw)
             results = fixture()
             results_path = root / "results.json"
-            results_path.write_text(
-                json.dumps(results, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-            )
+            write_canonical_json(results_path, results)
             write_trial_receipts(root, results)
             receipt_path = next((root / "trials" / "zstd-19").glob("*.r1.json"))
             receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
             receipt["compression"]["command"][3] = "-18"
-            receipt_path.write_text(
-                json.dumps(receipt, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-            )
+            write_canonical_json(receipt_path, receipt)
             with self.assertRaisesRegex(ValueError, "command differs"):
                 MODULE.publish(results_path, root / "publication")
 
@@ -408,9 +393,7 @@ class TextSourceBaselinePublicationTests(unittest.TestCase):
             root = Path(raw)
             results = fixture()
             results_path = root / "results.json"
-            results_path.write_text(
-                json.dumps(results, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-            )
+            write_canonical_json(results_path, results)
             write_trial_receipts(root, results)
             receipt_path = next((root / "trials").glob("*/*.r1.json"))
             payload = receipt_path.read_bytes().replace(
@@ -427,16 +410,12 @@ class TextSourceBaselinePublicationTests(unittest.TestCase):
             root = Path(raw)
             results = fixture()
             results_path = root / "results.json"
-            results_path.write_text(
-                json.dumps(results, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-            )
+            write_canonical_json(results_path, results)
             write_trial_receipts(root, results)
             receipt_path = next((root / "trials").glob("*/*.r1.json"))
             receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
             receipt["repetition"] = True
-            receipt_path.write_text(
-                json.dumps(receipt, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-            )
+            write_canonical_json(receipt_path, receipt)
             with self.assertRaisesRegex(ValueError, "identity or integrity failed"):
                 MODULE.publish(results_path, root / "publication")
 

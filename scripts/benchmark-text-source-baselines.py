@@ -67,11 +67,16 @@ def repository_relative(path: Path) -> str:
 
 
 def sanitize_process_record(record: dict[str, Any], work: Path) -> dict[str, Any]:
+    def sanitize(value: object) -> str:
+        sanitized = str(value).replace(str(REPOSITORY), "$REPOSITORY").replace(
+            str(work), "$WORK"
+        )
+        if "$REPOSITORY" in sanitized or "$WORK" in sanitized:
+            sanitized = sanitized.replace("\\", "/")
+        return sanitized
+
     sanitized = dict(record)
-    sanitized["command"] = [
-        str(value).replace(str(REPOSITORY), "$REPOSITORY").replace(str(work), "$WORK")
-        for value in record["command"]
-    ]
+    sanitized["command"] = [sanitize(value) for value in record["command"]]
     if sanitized["command"] and sanitized["command"][0].startswith("/"):
         sanitized["command"][0] = Path(sanitized["command"][0]).name
     return sanitized

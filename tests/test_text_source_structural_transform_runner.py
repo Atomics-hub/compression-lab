@@ -10,6 +10,7 @@ import unittest
 
 from tests.test_text_source_baseline_publication import (
     fixture as baseline_fixture,
+    write_canonical_json as write_baseline_json,
     write_trial_receipts as write_baseline_receipts,
 )
 REPOSITORY = Path(__file__).resolve().parents[1]
@@ -229,10 +230,7 @@ class TextSourceStructuralTransformRunnerTests(unittest.TestCase):
             root = Path(raw)
             baseline = baseline_fixture()
             baseline_path = root / "results.json"
-            baseline_path.write_text(
-                json.dumps(baseline, indent=2, sort_keys=True) + "\n",
-                encoding="utf-8",
-            )
+            write_baseline_json(baseline_path, baseline)
             write_baseline_receipts(root, baseline)
             MODULE.BASELINE_PUBLICATION.validate_trial_receipts(
                 baseline_path, baseline

@@ -1,7 +1,9 @@
 import hashlib
 import importlib.util
 import json
+import os
 from pathlib import Path
+import sys
 import tempfile
 import unittest
 
@@ -27,6 +29,23 @@ import shutil
 import sys
 shutil.copyfile(sys.argv[-2], sys.argv[-1])
 """
+
+
+def write_fake_executable(root: Path, name: str, source: str) -> Path:
+    executable = root / "bin" / name
+    executable.parent.mkdir(parents=True)
+    if os.name == "nt":
+        script = executable.with_suffix(".py")
+        script.write_text(source, encoding="utf-8")
+        executable = executable.with_suffix(".cmd")
+        executable.write_bytes(
+            f'@"{sys.executable}" "{script}" %*\r\n'.encode("utf-8")
+        )
+        executable.chmod(0o755)
+    else:
+        executable.write_text(source, encoding="utf-8")
+        executable.chmod(0o755)
+    return executable
 
 
 class TextSourceResearchSecondHostDecodeTests(unittest.TestCase):
@@ -120,10 +139,7 @@ class TextSourceResearchSecondHostDecodeTests(unittest.TestCase):
         )
 
         tools = root / "second-tools"
-        executable = tools / "bin" / MODULE.PROFILE_ID
-        executable.parent.mkdir(parents=True)
-        executable.write_text(FAKE_NNCP, encoding="utf-8")
-        executable.chmod(0o755)
+        executable = write_fake_executable(tools, MODULE.PROFILE_ID, FAKE_NNCP)
         runtime_assets = []
         identities = (
             candidate["bundled_runtime_identity"]["cpu_library"],

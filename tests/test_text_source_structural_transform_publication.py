@@ -21,6 +21,10 @@ MODULE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(MODULE)
 
 
+def write_canonical_json(path: Path, payload: dict) -> None:
+    path.write_bytes(MODULE.json_bytes(payload))
+
+
 def process(*, command: list[str], wall_ns: int, peak_rss_bytes: int) -> dict:
     return {
         "command": command,
@@ -155,9 +159,7 @@ def write_structural_receipts(root: Path, trials: list[dict]) -> None:
             / f"{receipt['item_id']}.r{receipt['repetition']}.json"
         )
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(
-            json.dumps(receipt, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-        )
+        write_canonical_json(path, receipt)
 
 
 class TextSourceStructuralTransformPublicationTests(unittest.TestCase):
@@ -165,19 +167,14 @@ class TextSourceStructuralTransformPublicationTests(unittest.TestCase):
         baseline = baseline_fixture()
         baseline_path = root / "baseline" / "results.json"
         baseline_path.parent.mkdir(parents=True)
-        baseline_path.write_text(
-            json.dumps(baseline, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-        )
+        write_canonical_json(baseline_path, baseline)
         write_baseline_receipts(baseline_path.parent, baseline)
         structural, trials = structural_fixture(
             baseline, MODULE.sha256_file(baseline_path)
         )
         structural_path = root / "structural" / "results.json"
         structural_path.parent.mkdir(parents=True)
-        structural_path.write_text(
-            json.dumps(structural, indent=2, sort_keys=True) + "\n",
-            encoding="utf-8",
-        )
+        write_canonical_json(structural_path, structural)
         write_structural_receipts(structural_path.parent, trials)
         return structural_path, baseline_path
 
@@ -297,10 +294,7 @@ class TextSourceStructuralTransformPublicationTests(unittest.TestCase):
             receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
             private_stream = "/private/var/folders/example worker output\n"
             receipt["processes"]["compression"][0]["stdout"] = private_stream
-            receipt_path.write_text(
-                json.dumps(receipt, indent=2, sort_keys=True) + "\n",
-                encoding="utf-8",
-            )
+            write_canonical_json(receipt_path, receipt)
             artifacts = MODULE.build_artifacts(structural_path, baseline_path)
             evidence_raw = artifacts["evidence.json"]
             evidence = json.loads(evidence_raw)
@@ -345,9 +339,7 @@ class TextSourceStructuralTransformPublicationTests(unittest.TestCase):
             failed["exact_roundtrip"] = False
             failed["passed"] = False
             failed["error"] = "restored bytes differ from source"
-            failed_path.write_text(
-                json.dumps(failed, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-            )
+            write_canonical_json(failed_path, failed)
 
             results = json.loads(structural_path.read_text(encoding="utf-8"))
             trials = [
@@ -359,10 +351,7 @@ class TextSourceStructuralTransformPublicationTests(unittest.TestCase):
             results["all_required_completed"] = all(
                 row["passed"] for row in summary["item_rows"]
             )
-            structural_path.write_text(
-                json.dumps(results, indent=2, sort_keys=True) + "\n",
-                encoding="utf-8",
-            )
+            write_canonical_json(structural_path, results)
 
             artifacts = MODULE.build_artifacts(structural_path, baseline_path)
             comparison = json.loads(artifacts["comparison.json"])
@@ -378,10 +367,7 @@ class TextSourceStructuralTransformPublicationTests(unittest.TestCase):
             structural_path, baseline_path = self.prepare(Path(raw))
             structural = json.loads(structural_path.read_text(encoding="utf-8"))
             structural["items"][0]["baseline_compression_peak_rss_bytes"] += 1
-            structural_path.write_text(
-                json.dumps(structural, indent=2, sort_keys=True) + "\n",
-                encoding="utf-8",
-            )
+            write_canonical_json(structural_path, structural)
             with self.assertRaisesRegex(ValueError, "disagrees with bound baseline"):
                 MODULE.build_artifacts(structural_path, baseline_path)
 
@@ -393,10 +379,7 @@ class TextSourceStructuralTransformPublicationTests(unittest.TestCase):
             )
             receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
             receipt["processes"]["compression"][0]["cpu_ns"] = False
-            receipt_path.write_text(
-                json.dumps(receipt, indent=2, sort_keys=True) + "\n",
-                encoding="utf-8",
-            )
+            write_canonical_json(receipt_path, receipt)
             with self.assertRaisesRegex(ValueError, "process is invalid"):
                 MODULE.build_artifacts(structural_path, baseline_path)
 
@@ -417,10 +400,7 @@ class TextSourceStructuralTransformPublicationTests(unittest.TestCase):
             structural_path, baseline_path = self.prepare(Path(raw))
             structural = json.loads(structural_path.read_text(encoding="utf-8"))
             structural["bindings"]["kanzi_binary_sha256"] = "Z" * 64
-            structural_path.write_text(
-                json.dumps(structural, indent=2, sort_keys=True) + "\n",
-                encoding="utf-8",
-            )
+            write_canonical_json(structural_path, structural)
             with self.assertRaisesRegex(ValueError, "invalid digest"):
                 MODULE.build_artifacts(structural_path, baseline_path)
 

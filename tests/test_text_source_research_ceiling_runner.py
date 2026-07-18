@@ -1,7 +1,9 @@
 import hashlib
 import importlib.util
 import json
+import os
 from pathlib import Path
+import sys
 import tempfile
 import unittest
 from unittest import mock
@@ -32,15 +34,70 @@ if mode == "bad-decode":
 """
 
 
+def write_fake_executable(root: Path, name: str, source: str) -> Path:
+    executable = root / "bin" / name
+    executable.parent.mkdir(parents=True)
+    if os.name == "nt":
+        script = executable.with_suffix(".py")
+        script.write_text(source, encoding="utf-8")
+        executable = executable.with_suffix(".cmd")
+        executable.write_bytes(
+            f'@"{sys.executable}" "{script}" %*\r\n'.encode("utf-8")
+        )
+        executable.chmod(0o755)
+    else:
+        executable.write_text(source, encoding="utf-8")
+        executable.chmod(0o755)
+    return executable
+
+
 class TextSourceResearchCeilingRunnerTests(unittest.TestCase):
+    def test_process_sanitization_is_platform_neutral(self) -> None:
+        work = Path("/fixture/work")
+        tools = Path("/fixture/tools")
+        record = {
+            "command": [
+                f"{tools}\\bin\\codec",
+                f"{work}\\input.bin",
+            ]
+        }
+        sanitized = MODULE.sanitize_process(record, work, tools)
+        self.assertEqual(
+            sanitized["command"],
+            ["$TOOLCHAIN/bin/codec", "$WORK/input.bin"],
+        )
+
+    def test_non_posix_process_fallback_records_and_times_out(self) -> None:
+        original = MODULE.RESOURCE
+        MODULE.RESOURCE = None
+        try:
+            completed = MODULE.run_process(
+                [sys.executable, "-c", "print('portable telemetry')"],
+                cwd=REPOSITORY,
+                timeout_seconds=5.0,
+                max_address_bytes=None,
+            )
+            timed_out = MODULE.run_process(
+                [sys.executable, "-c", "import time; time.sleep(5)"],
+                cwd=REPOSITORY,
+                timeout_seconds=0.01,
+                max_address_bytes=None,
+            )
+        finally:
+            MODULE.RESOURCE = original
+        self.assertEqual(completed["returncode"], 0)
+        self.assertFalse(completed["timed_out"])
+        self.assertIn("portable telemetry", completed["stdout"])
+        self.assertGreaterEqual(completed["cpu_ns"], 0)
+        self.assertGreaterEqual(completed["peak_rss_bytes"], 0)
+        self.assertTrue(timed_out["timed_out"])
+        self.assertNotEqual(timed_out["returncode"], 0)
+
     def prepare(
         self, root: Path, *, bad_decode: bool = False, empty_payload: bool = False
     ):
         tools = root / "tools"
-        executable = tools / "bin" / "fixture-codec"
-        executable.parent.mkdir(parents=True)
-        executable.write_text(FAKE_CODEC, encoding="utf-8")
-        executable.chmod(0o755)
+        executable = write_fake_executable(tools, "fixture-codec", FAKE_CODEC)
         source = root / "source.bin"
         source.write_bytes((b"deterministic research ceiling fixture\n" * 64))
         source_sha256 = hashlib.sha256(source.read_bytes()).hexdigest()
