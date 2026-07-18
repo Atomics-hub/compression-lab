@@ -1,0 +1,2057 @@
+{
+  "baseline_public_evidence_sha256": "b28429e3d12542eda21d03d981b9452cba2d4a329252e4876803b62852f1299f",
+  "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+  "config": {
+    "bindings": {
+      "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+      "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+      "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+      "predictor_result_sha256": "300a9cd657b0949b9b4af165d6e080ff3962afb1281a764bb5c894b508d2fa68"
+    },
+    "claim_ceiling": "Training-split Kanzi pipeline decomposition only. These custom Kanzi archives are exact competitor diagnostics, not Axiom artifacts, Axiom wins, validation results, private-holdout results, novel-algorithm results, or state-of-the-art evidence.",
+    "decision": {
+      "axiom_prototype_admission": {
+        "maximum_item_regression_percent": 0.5,
+        "minimum_aggregate_gain_percent_each_track": 2.0,
+        "required_exact_roundtrip": true,
+        "required_identical_artifacts": 2,
+        "required_same_variant_across_tracks": true,
+        "selected_successor_if_passed": "ts-wk-q1-bounded-multi-reference-implicit-long-range-factorizer"
+      },
+      "final_axiom_codec_gate_reminder": {
+        "complete_artifact_accounting_required": true,
+        "exact_roundtrip_required": true,
+        "maximum_item_regression_percent": 0.5,
+        "minimum_aggregate_gain_vs_strongest_complete_baseline_percent": 5.0,
+        "two_byte_identical_measured_artifacts_required": true
+      },
+      "rejection": "If no one augmentation variant passes the admission gate on both tracks, reject implicit-reference long-range factorization as the next shared text/source successor. Track-specific signals may motivate separately frozen successors but cannot satisfy the shared admission."
+    },
+    "frozen_before_screen_results": true,
+    "measurement": {
+      "baseline_source": "Reuse exact per-item kanzi-max complete bytes from the immutable 630-trial practical census; do not rerun or replace them.",
+      "block_bytes": 1073741824,
+      "jobs": 1,
+      "measured_repetitions": 2,
+      "order_seed": 20260718,
+      "timeout_seconds_per_process": 7200,
+      "warmups": 0
+    },
+    "name": "text-source-long-range-kanzi-decomposition-screen-v1",
+    "research_basis": [
+      {
+        "finding": "Large standard compressors can miss far-apart repetitions because of local windows; approximate LZ77 precompression can assist a standard backend on large repetitive text.",
+        "source": "https://doi.org/10.4230/LIPIcs.SEA.2026.16"
+      },
+      {
+        "finding": "LZ77 is especially effective on repetitive software repositories and versioned document collections.",
+        "source": "https://arxiv.org/abs/1101.4065"
+      },
+      {
+        "finding": "A practical bidirectional parse can use fewer phrases than left-only LZ77, motivating a later multi-reference search while keeping this screen strictly backward-decodable.",
+        "source": "https://arxiv.org/abs/1812.04261"
+      }
+    ],
+    "schema_version": 1,
+    "splits": {
+      "english_wikimedia_wikitext": {
+        "reserved_evaluation_not_accessed_by_screen": [
+          "enwikiversity-20260701"
+        ],
+        "screen_items": [
+          "enwikibooks-20260701",
+          "enwikinews-20260701"
+        ]
+      },
+      "source_code_bundles": {
+        "reserved_evaluation_not_accessed_by_screen": [
+          "rust-1.97.1-source",
+          "llvm-22.1.8-source"
+        ],
+        "screen_items": [
+          "cpython-3.14.6-source",
+          "typescript-6.0.3-source"
+        ]
+      }
+    },
+    "variants": [
+      {
+        "entropy": "TPAQX",
+        "id": "k1-lzp-prepend-level9",
+        "purpose": "Test whether an explicit implicit-reference match pass adds value before the complete level-9 transform chain.",
+        "transform": "LZP+EXE+RLT+TEXT+UTF+DNA"
+      },
+      {
+        "entropy": "TPAQX",
+        "id": "k2-lzp-text-utf",
+        "purpose": "Test the interaction between explicit factorization and only the text/UTF transforms.",
+        "transform": "LZP+TEXT+UTF"
+      },
+      {
+        "entropy": "TPAQX",
+        "id": "k3-lzp-only",
+        "purpose": "Attribute any signal to generic implicit-reference factorization without Kanzi text transforms.",
+        "transform": "LZP"
+      }
+    ]
+  },
+  "config_sha256": "ad673edaa60cde8746ce7fc938432440151de5e96a350bd3339b97c37d9accff",
+  "name": "text-source-long-range-kanzi-decomposition-public-evidence-v1",
+  "public_trial_receipts_manifest_sha256": "4129c6d96b0e7fbfd51221bfa983265c42de6cecd5ff0a9f83e9c28bb7b5afa9",
+  "raw_trial_receipts_manifest_sha256": "4129c6d96b0e7fbfd51221bfa983265c42de6cecd5ff0a9f83e9c28bb7b5afa9",
+  "redaction_policy": "Commands retain only $REPOSITORY and $WORK placeholders; stdout and stderr are preserved because they contain no local paths.",
+  "result_sha256": "faad7b7736685a30e451cd7fc94f4fde9898b16afa102a0291e418f86a544d12",
+  "results": {
+    "all_required_completed": true,
+    "bindings": {
+      "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+      "config_sha256": "ad673edaa60cde8746ce7fc938432440151de5e96a350bd3339b97c37d9accff",
+      "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+      "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+      "predictor_result_sha256": "300a9cd657b0949b9b4af165d6e080ff3962afb1281a764bb5c894b508d2fa68",
+      "repository_commit": "b8eda6863e40a836fe0108a2221cb7a39d3cf9aa"
+    },
+    "claim_ceiling": "Training-split Kanzi pipeline decomposition only. These custom Kanzi archives are exact competitor diagnostics, not Axiom artifacts, Axiom wins, validation results, private-holdout results, novel-algorithm results, or state-of-the-art evidence.",
+    "completed": true,
+    "measurement": {
+      "baseline_source": "Reuse exact per-item kanzi-max complete bytes from the immutable 630-trial practical census; do not rerun or replace them.",
+      "block_bytes": 1073741824,
+      "jobs": 1,
+      "measured_repetitions": 2,
+      "order_seed": 20260718,
+      "timeout_seconds_per_process": 7200,
+      "warmups": 0
+    },
+    "name": "text-source-long-range-kanzi-decomposition-screen-result-v1",
+    "preflight": [
+      {
+        "artifact_bytes": 325,
+        "artifact_sha256": "39b12fd804c719844e28c9202ea22d0ee5b34b14633bf3b681e8ca3c1906b209",
+        "exact_roundtrip": true,
+        "source_bytes": 364544,
+        "variant": "k1-lzp-prepend-level9"
+      },
+      {
+        "artifact_bytes": 352,
+        "artifact_sha256": "c2b3d00b5ae70a31c0007221c80c773973eea380dbc3419f77871ed328ba8d32",
+        "exact_roundtrip": true,
+        "source_bytes": 364544,
+        "variant": "k2-lzp-text-utf"
+      },
+      {
+        "artifact_bytes": 352,
+        "artifact_sha256": "36946e896215692fb04f6b6e301a639d03ce5d1516167300b9dde27e2374f560",
+        "exact_roundtrip": true,
+        "source_bytes": 364544,
+        "variant": "k3-lzp-only"
+      }
+    ],
+    "private_holdout_status": "sealed and unaccessed",
+    "public_validation_status": "sealed and unaccessed",
+    "schema_version": 1,
+    "screen_boundary": {
+      "english_wikimedia_wikitext": {
+        "reserved_evaluation_not_accessed_by_screen": [
+          "enwikiversity-20260701"
+        ],
+        "screen_items": [
+          "enwikibooks-20260701",
+          "enwikinews-20260701"
+        ]
+      },
+      "source_code_bundles": {
+        "reserved_evaluation_not_accessed_by_screen": [
+          "rust-1.97.1-source",
+          "llvm-22.1.8-source"
+        ],
+        "screen_items": [
+          "cpython-3.14.6-source",
+          "typescript-6.0.3-source"
+        ]
+      }
+    },
+    "summary": {
+      "axiom_prototype_admitted": false,
+      "axiom_wins": 0,
+      "decision": "reject_shared_implicit_long_range_factorization_direction",
+      "item_rows": [
+        {
+          "artifact_bytes": 4589726,
+          "artifact_sha256": "833d7955ab9def07ed9bc41a45ae3d1c63c0693a0c3afaf3e028c6cb7afb7712",
+          "baseline_bytes": 4511714,
+          "compression_peak_rss_bytes": 1530331136,
+          "decompression_peak_rss_bytes": 1528020992,
+          "deterministic_artifact": true,
+          "exact_roundtrip": true,
+          "gain_vs_kanzi_percent": -1.7290989632764844,
+          "item_id": "cpython-3.14.6-source",
+          "median_compression_ns": 14949031396,
+          "median_decompression_ns": 17424974750,
+          "passed": true,
+          "source_bytes": 44506231,
+          "track": "source_code_bundles",
+          "variant": "k1-lzp-prepend-level9"
+        },
+        {
+          "artifact_bytes": 1733020,
+          "artifact_sha256": "5deb816f89b565c5a3e2bfe37c8e9187ff127b9cab7afec16beb32933df7531c",
+          "baseline_bytes": 1709772,
+          "compression_peak_rss_bytes": 1484259328,
+          "decompression_peak_rss_bytes": 1483227136,
+          "deterministic_artifact": true,
+          "exact_roundtrip": true,
+          "gain_vs_kanzi_percent": -1.3597134588705395,
+          "item_id": "typescript-6.0.3-source",
+          "median_compression_ns": 4672772875,
+          "median_decompression_ns": 5710542979,
+          "passed": true,
+          "source_bytes": 25693307,
+          "track": "source_code_bundles",
+          "variant": "k1-lzp-prepend-level9"
+        },
+        {
+          "artifact_bytes": 12648722,
+          "artifact_sha256": "0f13d9b4dc659d31d684707357d7ff220193a52c1adad3cf418c20ea516607f3",
+          "baseline_bytes": 12622786,
+          "compression_peak_rss_bytes": 1601568768,
+          "decompression_peak_rss_bytes": 1597128704,
+          "deterministic_artifact": true,
+          "exact_roundtrip": true,
+          "gain_vs_kanzi_percent": -0.20546969583418428,
+          "item_id": "enwikibooks-20260701",
+          "median_compression_ns": 19787096000,
+          "median_decompression_ns": 27258447666,
+          "passed": true,
+          "source_bytes": 67107953,
+          "track": "english_wikimedia_wikitext",
+          "variant": "k1-lzp-prepend-level9"
+        },
+        {
+          "artifact_bytes": 11558318,
+          "artifact_sha256": "e3f921fb594e944db0a27d4796e0947622939923f37e2c129b009d59a1cc73d1",
+          "baseline_bytes": 11534002,
+          "compression_peak_rss_bytes": 1600798720,
+          "decompression_peak_rss_bytes": 1596456960,
+          "deterministic_artifact": true,
+          "exact_roundtrip": true,
+          "gain_vs_kanzi_percent": -0.21082014724811043,
+          "item_id": "enwikinews-20260701",
+          "median_compression_ns": 23641987791,
+          "median_decompression_ns": 26707695854,
+          "passed": true,
+          "source_bytes": 67105968,
+          "track": "english_wikimedia_wikitext",
+          "variant": "k1-lzp-prepend-level9"
+        },
+        {
+          "artifact_bytes": 4703841,
+          "artifact_sha256": "c8e379680cf57db3e3114c555d8f0c533ecaa387b665e1b2add6203a533bb3ed",
+          "baseline_bytes": 4511714,
+          "compression_peak_rss_bytes": 1532641280,
+          "decompression_peak_rss_bytes": 1537081344,
+          "deterministic_artifact": true,
+          "exact_roundtrip": true,
+          "gain_vs_kanzi_percent": -4.258403790665809,
+          "item_id": "cpython-3.14.6-source",
+          "median_compression_ns": 15714526958,
+          "median_decompression_ns": 17741821291,
+          "passed": true,
+          "source_bytes": 44506231,
+          "track": "source_code_bundles",
+          "variant": "k2-lzp-text-utf"
+        },
+        {
+          "artifact_bytes": 1808307,
+          "artifact_sha256": "2b441f9a229687f0571c70f496880aa520424993f688914e970eb49dbdea5060",
+          "baseline_bytes": 1709772,
+          "compression_peak_rss_bytes": 1485406208,
+          "decompression_peak_rss_bytes": 1491451904,
+          "deterministic_artifact": true,
+          "exact_roundtrip": true,
+          "gain_vs_kanzi_percent": -5.76304910830216,
+          "item_id": "typescript-6.0.3-source",
+          "median_compression_ns": 6488006875,
+          "median_decompression_ns": 7000697000,
+          "passed": true,
+          "source_bytes": 25693307,
+          "track": "source_code_bundles",
+          "variant": "k2-lzp-text-utf"
+        },
+        {
+          "artifact_bytes": 12653649,
+          "artifact_sha256": "afb81a392c58e42d56526eb6594547b82541723b3ad8489b9cbd2988b3b18be1",
+          "baseline_bytes": 12622786,
+          "compression_peak_rss_bytes": 1601601536,
+          "decompression_peak_rss_bytes": 1600126976,
+          "deterministic_artifact": true,
+          "exact_roundtrip": true,
+          "gain_vs_kanzi_percent": -0.2445022834103343,
+          "item_id": "enwikibooks-20260701",
+          "median_compression_ns": 28220497063,
+          "median_decompression_ns": 32926131792,
+          "passed": true,
+          "source_bytes": 67107953,
+          "track": "english_wikimedia_wikitext",
+          "variant": "k2-lzp-text-utf"
+        },
+        {
+          "artifact_bytes": 11566057,
+          "artifact_sha256": "319bfeb45d33b8eda9bfd20cdae2b523ed91dfc831a025ea776594a1af83f1d1",
+          "baseline_bytes": 11534002,
+          "compression_peak_rss_bytes": 1600815104,
+          "decompression_peak_rss_bytes": 1598963712,
+          "deterministic_artifact": true,
+          "exact_roundtrip": true,
+          "gain_vs_kanzi_percent": -0.27791741322742963,
+          "item_id": "enwikinews-20260701",
+          "median_compression_ns": 29464950249,
+          "median_decompression_ns": 32419020062,
+          "passed": true,
+          "source_bytes": 67105968,
+          "track": "english_wikimedia_wikitext",
+          "variant": "k2-lzp-text-utf"
+        },
+        {
+          "artifact_bytes": 4740605,
+          "artifact_sha256": "76b2af65f03154edd0bf89dfb9dad8c3b8afce2090de662347527b207e4bde3c",
+          "baseline_bytes": 4511714,
+          "compression_peak_rss_bytes": 1538195456,
+          "decompression_peak_rss_bytes": 1538064384,
+          "deterministic_artifact": true,
+          "exact_roundtrip": true,
+          "gain_vs_kanzi_percent": -5.073260406133899,
+          "item_id": "cpython-3.14.6-source",
+          "median_compression_ns": 15976861312,
+          "median_decompression_ns": 18253252208,
+          "passed": true,
+          "source_bytes": 44506231,
+          "track": "source_code_bundles",
+          "variant": "k3-lzp-only"
+        },
+        {
+          "artifact_bytes": 1889424,
+          "artifact_sha256": "6c6f8548a09887a758074845e12aa663a169c141d83843cbff53b1e1ce8387dc",
+          "baseline_bytes": 1709772,
+          "compression_peak_rss_bytes": 1488289792,
+          "decompression_peak_rss_bytes": 1488338944,
+          "deterministic_artifact": true,
+          "exact_roundtrip": true,
+          "gain_vs_kanzi_percent": -10.507365894399955,
+          "item_id": "typescript-6.0.3-source",
+          "median_compression_ns": 9171401812,
+          "median_decompression_ns": 10098864979,
+          "passed": true,
+          "source_bytes": 25693307,
+          "track": "source_code_bundles",
+          "variant": "k3-lzp-only"
+        },
+        {
+          "artifact_bytes": 12972109,
+          "artifact_sha256": "f18f5a29728143293a9067552284c5c1496a0cfc9c0effdcaf3bb8d90c9a1482",
+          "baseline_bytes": 12622786,
+          "compression_peak_rss_bytes": 1597489152,
+          "decompression_peak_rss_bytes": 1597423616,
+          "deterministic_artifact": true,
+          "exact_roundtrip": true,
+          "gain_vs_kanzi_percent": -2.767400160313262,
+          "item_id": "enwikibooks-20260701",
+          "median_compression_ns": 36247212937,
+          "median_decompression_ns": 39911214000,
+          "passed": true,
+          "source_bytes": 67107953,
+          "track": "english_wikimedia_wikitext",
+          "variant": "k3-lzp-only"
+        },
+        {
+          "artifact_bytes": 11956829,
+          "artifact_sha256": "4796abc46f5a7cf62fe45f5fffb8a85f03ed9d6fcc747722fed39ef9b7dd0a47",
+          "baseline_bytes": 11534002,
+          "compression_peak_rss_bytes": 1596833792,
+          "decompression_peak_rss_bytes": 1596751872,
+          "deterministic_artifact": true,
+          "exact_roundtrip": true,
+          "gain_vs_kanzi_percent": -3.6659175193484446,
+          "item_id": "enwikinews-20260701",
+          "median_compression_ns": 35071795458,
+          "median_decompression_ns": 39693352395,
+          "passed": true,
+          "source_bytes": 67105968,
+          "track": "english_wikimedia_wikitext",
+          "variant": "k3-lzp-only"
+        }
+      ],
+      "selected_variant": null,
+      "shared_passing_variants": [],
+      "tracks": [
+        {
+          "baseline": "kanzi-max",
+          "screen_items": [
+            "cpython-3.14.6-source",
+            "typescript-6.0.3-source"
+          ],
+          "track": "source_code_bundles",
+          "variants": [
+            {
+              "artifact_bytes": 6322746,
+              "baseline_bytes": 6221486,
+              "complete": true,
+              "gain_vs_kanzi_percent": -1.6275854353766928,
+              "minimum_item_gain_vs_kanzi_percent": -1.7290989632764844,
+              "track_admitted": false,
+              "variant": "k1-lzp-prepend-level9"
+            },
+            {
+              "artifact_bytes": 6512148,
+              "baseline_bytes": 6221486,
+              "complete": true,
+              "gain_vs_kanzi_percent": -4.671906358063009,
+              "minimum_item_gain_vs_kanzi_percent": -5.76304910830216,
+              "track_admitted": false,
+              "variant": "k2-lzp-text-utf"
+            },
+            {
+              "artifact_bytes": 6630029,
+              "baseline_bytes": 6221486,
+              "complete": true,
+              "gain_vs_kanzi_percent": -6.566646617865893,
+              "minimum_item_gain_vs_kanzi_percent": -10.507365894399955,
+              "track_admitted": false,
+              "variant": "k3-lzp-only"
+            }
+          ]
+        },
+        {
+          "baseline": "kanzi-max",
+          "screen_items": [
+            "enwikibooks-20260701",
+            "enwikinews-20260701"
+          ],
+          "track": "english_wikimedia_wikitext",
+          "variants": [
+            {
+              "artifact_bytes": 24207040,
+              "baseline_bytes": 24156788,
+              "complete": true,
+              "gain_vs_kanzi_percent": -0.208024344958444,
+              "minimum_item_gain_vs_kanzi_percent": -0.21082014724811043,
+              "track_admitted": false,
+              "variant": "k1-lzp-prepend-level9"
+            },
+            {
+              "artifact_bytes": 24219706,
+              "baseline_bytes": 24156788,
+              "complete": true,
+              "gain_vs_kanzi_percent": -0.2604568123874747,
+              "minimum_item_gain_vs_kanzi_percent": -0.27791741322742963,
+              "track_admitted": false,
+              "variant": "k2-lzp-text-utf"
+            },
+            {
+              "artifact_bytes": 24928938,
+              "baseline_bytes": 24156788,
+              "complete": true,
+              "gain_vs_kanzi_percent": -3.1964100525285066,
+              "minimum_item_gain_vs_kanzi_percent": -3.6659175193484446,
+              "track_admitted": false,
+              "variant": "k3-lzp-only"
+            }
+          ]
+        }
+      ]
+    },
+    "trial_count": 24,
+    "variants": [
+      {
+        "entropy": "TPAQX",
+        "id": "k1-lzp-prepend-level9",
+        "purpose": "Test whether an explicit implicit-reference match pass adds value before the complete level-9 transform chain.",
+        "transform": "LZP+EXE+RLT+TEXT+UTF+DNA"
+      },
+      {
+        "entropy": "TPAQX",
+        "id": "k2-lzp-text-utf",
+        "purpose": "Test the interaction between explicit factorization and only the text/UTF transforms.",
+        "transform": "LZP+TEXT+UTF"
+      },
+      {
+        "entropy": "TPAQX",
+        "id": "k3-lzp-only",
+        "purpose": "Attribute any signal to generic implicit-reference factorization without Kanzi text transforms.",
+        "transform": "LZP"
+      }
+    ]
+  },
+  "run_verification": {
+    "axiom_prototype_admitted": false,
+    "axiom_wins": 0,
+    "claim_ceiling": "Training-split Kanzi pipeline decomposition only. These custom Kanzi archives are exact competitor diagnostics, not Axiom artifacts, Axiom wins, validation results, private-holdout results, novel-algorithm results, or state-of-the-art evidence.",
+    "decision": "reject_shared_implicit_long_range_factorization_direction",
+    "exact_deterministic_item_variant_count": 12,
+    "result_sha256": "faad7b7736685a30e451cd7fc94f4fde9898b16afa102a0291e418f86a544d12",
+    "trial_count": 24,
+    "verified": true
+  },
+  "schema_version": 1,
+  "trials": [
+    {
+      "path": "trials/k1-lzp-prepend-level9/cpython-3.14.6-source.r0.json",
+      "receipt": {
+        "artifact_bytes": 4589726,
+        "artifact_sha256": "833d7955ab9def07ed9bc41a45ae3d1c63c0693a0c3afaf3e028c6cb7afb7712",
+        "bindings": {
+          "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+          "config_sha256": "ad673edaa60cde8746ce7fc938432440151de5e96a350bd3339b97c37d9accff",
+          "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+          "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+          "predictor_result_sha256": "300a9cd657b0949b9b4af165d6e080ff3962afb1281a764bb5c894b508d2fa68",
+          "repository_commit": "b8eda6863e40a836fe0108a2221cb7a39d3cf9aa"
+        },
+        "compression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--compress",
+            "--input=$REPOSITORY/corpora/text-source-development-v1/cpython-3.14.6-source.axsrc",
+            "--output=$WORK/artifact.knz",
+            "--force",
+            "--transform=LZP+EXE+RLT+TEXT+UTF+DNA",
+            "--entropy=TPAQX",
+            "--block=1g",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 15155238000,
+          "peak_rss_bytes": 1530331136,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 15559105209
+        },
+        "decompression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--decompress",
+            "--input=$WORK/artifact.knz",
+            "--output=$WORK/restored.bin",
+            "--force",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 17863788000,
+          "peak_rss_bytes": 1528020992,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 18302240333
+        },
+        "error": null,
+        "exact_roundtrip": true,
+        "item_id": "cpython-3.14.6-source",
+        "passed": true,
+        "repetition": 0,
+        "schema_version": 1,
+        "source_bytes": 44506231,
+        "source_sha256": "a5148815b1257d5e9f040a6995b09493ceaeecd1f1791c2cb4a858f177cbf1c3",
+        "track": "source_code_bundles",
+        "variant": "k1-lzp-prepend-level9"
+      },
+      "sha256": "64de45b6f53e788f2a0500d0af815c2ea48dfc7e405e3d473e9d2affffff50cb"
+    },
+    {
+      "path": "trials/k1-lzp-prepend-level9/cpython-3.14.6-source.r1.json",
+      "receipt": {
+        "artifact_bytes": 4589726,
+        "artifact_sha256": "833d7955ab9def07ed9bc41a45ae3d1c63c0693a0c3afaf3e028c6cb7afb7712",
+        "bindings": {
+          "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+          "config_sha256": "ad673edaa60cde8746ce7fc938432440151de5e96a350bd3339b97c37d9accff",
+          "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+          "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+          "predictor_result_sha256": "300a9cd657b0949b9b4af165d6e080ff3962afb1281a764bb5c894b508d2fa68",
+          "repository_commit": "b8eda6863e40a836fe0108a2221cb7a39d3cf9aa"
+        },
+        "compression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--compress",
+            "--input=$REPOSITORY/corpora/text-source-development-v1/cpython-3.14.6-source.axsrc",
+            "--output=$WORK/artifact.knz",
+            "--force",
+            "--transform=LZP+EXE+RLT+TEXT+UTF+DNA",
+            "--entropy=TPAQX",
+            "--block=1g",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 14136035000,
+          "peak_rss_bytes": 1530068992,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 14338957583
+        },
+        "decompression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--decompress",
+            "--input=$WORK/artifact.knz",
+            "--output=$WORK/restored.bin",
+            "--force",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 16269630000,
+          "peak_rss_bytes": 1528020992,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 16547709167
+        },
+        "error": null,
+        "exact_roundtrip": true,
+        "item_id": "cpython-3.14.6-source",
+        "passed": true,
+        "repetition": 1,
+        "schema_version": 1,
+        "source_bytes": 44506231,
+        "source_sha256": "a5148815b1257d5e9f040a6995b09493ceaeecd1f1791c2cb4a858f177cbf1c3",
+        "track": "source_code_bundles",
+        "variant": "k1-lzp-prepend-level9"
+      },
+      "sha256": "eb3d8457908a7112e2065dd4b1f26fca6b00f5e5fcb7b0f6b0c7a454bf0d21f0"
+    },
+    {
+      "path": "trials/k1-lzp-prepend-level9/enwikibooks-20260701.r0.json",
+      "receipt": {
+        "artifact_bytes": 12648722,
+        "artifact_sha256": "0f13d9b4dc659d31d684707357d7ff220193a52c1adad3cf418c20ea516607f3",
+        "bindings": {
+          "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+          "config_sha256": "ad673edaa60cde8746ce7fc938432440151de5e96a350bd3339b97c37d9accff",
+          "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+          "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+          "predictor_result_sha256": "300a9cd657b0949b9b4af165d6e080ff3962afb1281a764bb5c894b508d2fa68",
+          "repository_commit": "b8eda6863e40a836fe0108a2221cb7a39d3cf9aa"
+        },
+        "compression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--compress",
+            "--input=$REPOSITORY/corpora/text-source-development-v1/enwikibooks-20260701.axwkt",
+            "--output=$WORK/artifact.knz",
+            "--force",
+            "--transform=LZP+EXE+RLT+TEXT+UTF+DNA",
+            "--entropy=TPAQX",
+            "--block=1g",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 19026445000,
+          "peak_rss_bytes": 1601552384,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 19344472042
+        },
+        "decompression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--decompress",
+            "--input=$WORK/artifact.knz",
+            "--output=$WORK/restored.bin",
+            "--force",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 22009996000,
+          "peak_rss_bytes": 1597128704,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 22285293167
+        },
+        "error": null,
+        "exact_roundtrip": true,
+        "item_id": "enwikibooks-20260701",
+        "passed": true,
+        "repetition": 0,
+        "schema_version": 1,
+        "source_bytes": 67107953,
+        "source_sha256": "d4e99fa76d224995f03512df7fe2d9b0411e283b21157c934be6c10e2059998a",
+        "track": "english_wikimedia_wikitext",
+        "variant": "k1-lzp-prepend-level9"
+      },
+      "sha256": "a5351486ece7511ddfd30233ef1b2e8a4b09a1c75a9f4dd9026fa16e50210c18"
+    },
+    {
+      "path": "trials/k1-lzp-prepend-level9/enwikibooks-20260701.r1.json",
+      "receipt": {
+        "artifact_bytes": 12648722,
+        "artifact_sha256": "0f13d9b4dc659d31d684707357d7ff220193a52c1adad3cf418c20ea516607f3",
+        "bindings": {
+          "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+          "config_sha256": "ad673edaa60cde8746ce7fc938432440151de5e96a350bd3339b97c37d9accff",
+          "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+          "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+          "predictor_result_sha256": "300a9cd657b0949b9b4af165d6e080ff3962afb1281a764bb5c894b508d2fa68",
+          "repository_commit": "b8eda6863e40a836fe0108a2221cb7a39d3cf9aa"
+        },
+        "compression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--compress",
+            "--input=$REPOSITORY/corpora/text-source-development-v1/enwikibooks-20260701.axwkt",
+            "--output=$WORK/artifact.knz",
+            "--force",
+            "--transform=LZP+EXE+RLT+TEXT+UTF+DNA",
+            "--entropy=TPAQX",
+            "--block=1g",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 20058391000,
+          "peak_rss_bytes": 1601568768,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 20229719958
+        },
+        "decompression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--decompress",
+            "--input=$WORK/artifact.knz",
+            "--output=$WORK/restored.bin",
+            "--force",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 31748573000,
+          "peak_rss_bytes": 1597128704,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 32231602166
+        },
+        "error": null,
+        "exact_roundtrip": true,
+        "item_id": "enwikibooks-20260701",
+        "passed": true,
+        "repetition": 1,
+        "schema_version": 1,
+        "source_bytes": 67107953,
+        "source_sha256": "d4e99fa76d224995f03512df7fe2d9b0411e283b21157c934be6c10e2059998a",
+        "track": "english_wikimedia_wikitext",
+        "variant": "k1-lzp-prepend-level9"
+      },
+      "sha256": "c2a7a306aba3cbe2b0de3b3e832ce84256e969a53b7f44d6d65df40f9b5da5b4"
+    },
+    {
+      "path": "trials/k1-lzp-prepend-level9/enwikinews-20260701.r0.json",
+      "receipt": {
+        "artifact_bytes": 11558318,
+        "artifact_sha256": "e3f921fb594e944db0a27d4796e0947622939923f37e2c129b009d59a1cc73d1",
+        "bindings": {
+          "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+          "config_sha256": "ad673edaa60cde8746ce7fc938432440151de5e96a350bd3339b97c37d9accff",
+          "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+          "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+          "predictor_result_sha256": "300a9cd657b0949b9b4af165d6e080ff3962afb1281a764bb5c894b508d2fa68",
+          "repository_commit": "b8eda6863e40a836fe0108a2221cb7a39d3cf9aa"
+        },
+        "compression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--compress",
+            "--input=$REPOSITORY/corpora/text-source-development-v1/enwikinews-20260701.axwkt",
+            "--output=$WORK/artifact.knz",
+            "--force",
+            "--transform=LZP+EXE+RLT+TEXT+UTF+DNA",
+            "--entropy=TPAQX",
+            "--block=1g",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 18314247000,
+          "peak_rss_bytes": 1600798720,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 18394844792
+        },
+        "decompression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--decompress",
+            "--input=$WORK/artifact.knz",
+            "--output=$WORK/restored.bin",
+            "--force",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 21221546000,
+          "peak_rss_bytes": 1596358656,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 21324098709
+        },
+        "error": null,
+        "exact_roundtrip": true,
+        "item_id": "enwikinews-20260701",
+        "passed": true,
+        "repetition": 0,
+        "schema_version": 1,
+        "source_bytes": 67105968,
+        "source_sha256": "ac803f7c66400659801b4dd72576ad88602952db4dbc78e82c1c4c4d39c92b9e",
+        "track": "english_wikimedia_wikitext",
+        "variant": "k1-lzp-prepend-level9"
+      },
+      "sha256": "46dc957bbe3efdccf666ef435a42c117bdc25273338738dc71841deb26ec82e7"
+    },
+    {
+      "path": "trials/k1-lzp-prepend-level9/enwikinews-20260701.r1.json",
+      "receipt": {
+        "artifact_bytes": 11558318,
+        "artifact_sha256": "e3f921fb594e944db0a27d4796e0947622939923f37e2c129b009d59a1cc73d1",
+        "bindings": {
+          "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+          "config_sha256": "ad673edaa60cde8746ce7fc938432440151de5e96a350bd3339b97c37d9accff",
+          "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+          "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+          "predictor_result_sha256": "300a9cd657b0949b9b4af165d6e080ff3962afb1281a764bb5c894b508d2fa68",
+          "repository_commit": "b8eda6863e40a836fe0108a2221cb7a39d3cf9aa"
+        },
+        "compression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--compress",
+            "--input=$REPOSITORY/corpora/text-source-development-v1/enwikinews-20260701.axwkt",
+            "--output=$WORK/artifact.knz",
+            "--force",
+            "--transform=LZP+EXE+RLT+TEXT+UTF+DNA",
+            "--entropy=TPAQX",
+            "--block=1g",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 28509932000,
+          "peak_rss_bytes": 1600798720,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 28889130791
+        },
+        "decompression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--decompress",
+            "--input=$WORK/artifact.knz",
+            "--output=$WORK/restored.bin",
+            "--force",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 31721496000,
+          "peak_rss_bytes": 1596456960,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 32091293000
+        },
+        "error": null,
+        "exact_roundtrip": true,
+        "item_id": "enwikinews-20260701",
+        "passed": true,
+        "repetition": 1,
+        "schema_version": 1,
+        "source_bytes": 67105968,
+        "source_sha256": "ac803f7c66400659801b4dd72576ad88602952db4dbc78e82c1c4c4d39c92b9e",
+        "track": "english_wikimedia_wikitext",
+        "variant": "k1-lzp-prepend-level9"
+      },
+      "sha256": "934723db3040fee36ec79d44b340e1b51c9f5a627d3cebee7f2c9027154354ef"
+    },
+    {
+      "path": "trials/k1-lzp-prepend-level9/typescript-6.0.3-source.r0.json",
+      "receipt": {
+        "artifact_bytes": 1733020,
+        "artifact_sha256": "5deb816f89b565c5a3e2bfe37c8e9187ff127b9cab7afec16beb32933df7531c",
+        "bindings": {
+          "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+          "config_sha256": "ad673edaa60cde8746ce7fc938432440151de5e96a350bd3339b97c37d9accff",
+          "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+          "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+          "predictor_result_sha256": "300a9cd657b0949b9b4af165d6e080ff3962afb1281a764bb5c894b508d2fa68",
+          "repository_commit": "b8eda6863e40a836fe0108a2221cb7a39d3cf9aa"
+        },
+        "compression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--compress",
+            "--input=$REPOSITORY/corpora/text-source-development-v1/typescript-6.0.3-source.axsrc",
+            "--output=$WORK/artifact.knz",
+            "--force",
+            "--transform=LZP+EXE+RLT+TEXT+UTF+DNA",
+            "--entropy=TPAQX",
+            "--block=1g",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 5569713000,
+          "peak_rss_bytes": 1484259328,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 5633272083
+        },
+        "decompression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--decompress",
+            "--input=$WORK/artifact.knz",
+            "--output=$WORK/restored.bin",
+            "--force",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 6818197000,
+          "peak_rss_bytes": 1483227136,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 6996206334
+        },
+        "error": null,
+        "exact_roundtrip": true,
+        "item_id": "typescript-6.0.3-source",
+        "passed": true,
+        "repetition": 0,
+        "schema_version": 1,
+        "source_bytes": 25693307,
+        "source_sha256": "4c35679d66dc77e54cc87ee7b6fe17cf2262bc3242c37eff3fa527e385d64480",
+        "track": "source_code_bundles",
+        "variant": "k1-lzp-prepend-level9"
+      },
+      "sha256": "ec0d9d85936f9e0c094207ec1a65aaa7ce2782f1ccb4420114f9d4f93080e5a3"
+    },
+    {
+      "path": "trials/k1-lzp-prepend-level9/typescript-6.0.3-source.r1.json",
+      "receipt": {
+        "artifact_bytes": 1733020,
+        "artifact_sha256": "5deb816f89b565c5a3e2bfe37c8e9187ff127b9cab7afec16beb32933df7531c",
+        "bindings": {
+          "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+          "config_sha256": "ad673edaa60cde8746ce7fc938432440151de5e96a350bd3339b97c37d9accff",
+          "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+          "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+          "predictor_result_sha256": "300a9cd657b0949b9b4af165d6e080ff3962afb1281a764bb5c894b508d2fa68",
+          "repository_commit": "b8eda6863e40a836fe0108a2221cb7a39d3cf9aa"
+        },
+        "compression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--compress",
+            "--input=$REPOSITORY/corpora/text-source-development-v1/typescript-6.0.3-source.axsrc",
+            "--output=$WORK/artifact.knz",
+            "--force",
+            "--transform=LZP+EXE+RLT+TEXT+UTF+DNA",
+            "--entropy=TPAQX",
+            "--block=1g",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 3665009000,
+          "peak_rss_bytes": 1484242944,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 3712273667
+        },
+        "decompression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--decompress",
+            "--input=$WORK/artifact.knz",
+            "--output=$WORK/restored.bin",
+            "--force",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 4372636000,
+          "peak_rss_bytes": 1483227136,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 4424879625
+        },
+        "error": null,
+        "exact_roundtrip": true,
+        "item_id": "typescript-6.0.3-source",
+        "passed": true,
+        "repetition": 1,
+        "schema_version": 1,
+        "source_bytes": 25693307,
+        "source_sha256": "4c35679d66dc77e54cc87ee7b6fe17cf2262bc3242c37eff3fa527e385d64480",
+        "track": "source_code_bundles",
+        "variant": "k1-lzp-prepend-level9"
+      },
+      "sha256": "523eb0c4a18058242b291cb2feca83e69c819a4ed74265f3e75a33e7791a14f1"
+    },
+    {
+      "path": "trials/k2-lzp-text-utf/cpython-3.14.6-source.r0.json",
+      "receipt": {
+        "artifact_bytes": 4703841,
+        "artifact_sha256": "c8e379680cf57db3e3114c555d8f0c533ecaa387b665e1b2add6203a533bb3ed",
+        "bindings": {
+          "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+          "config_sha256": "ad673edaa60cde8746ce7fc938432440151de5e96a350bd3339b97c37d9accff",
+          "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+          "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+          "predictor_result_sha256": "300a9cd657b0949b9b4af165d6e080ff3962afb1281a764bb5c894b508d2fa68",
+          "repository_commit": "b8eda6863e40a836fe0108a2221cb7a39d3cf9aa"
+        },
+        "compression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--compress",
+            "--input=$REPOSITORY/corpora/text-source-development-v1/cpython-3.14.6-source.axsrc",
+            "--output=$WORK/artifact.knz",
+            "--force",
+            "--transform=LZP+TEXT+UTF",
+            "--entropy=TPAQX",
+            "--block=1g",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 14863139000,
+          "peak_rss_bytes": 1532575744,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 15092708583
+        },
+        "decompression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--decompress",
+            "--input=$WORK/artifact.knz",
+            "--output=$WORK/restored.bin",
+            "--force",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 16259837999,
+          "peak_rss_bytes": 1536966656,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 16420751541
+        },
+        "error": null,
+        "exact_roundtrip": true,
+        "item_id": "cpython-3.14.6-source",
+        "passed": true,
+        "repetition": 0,
+        "schema_version": 1,
+        "source_bytes": 44506231,
+        "source_sha256": "a5148815b1257d5e9f040a6995b09493ceaeecd1f1791c2cb4a858f177cbf1c3",
+        "track": "source_code_bundles",
+        "variant": "k2-lzp-text-utf"
+      },
+      "sha256": "4fce7a2168922def2322ef196973ca0a25458ae043e3e6b4ee74b42a6aa0c717"
+    },
+    {
+      "path": "trials/k2-lzp-text-utf/cpython-3.14.6-source.r1.json",
+      "receipt": {
+        "artifact_bytes": 4703841,
+        "artifact_sha256": "c8e379680cf57db3e3114c555d8f0c533ecaa387b665e1b2add6203a533bb3ed",
+        "bindings": {
+          "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+          "config_sha256": "ad673edaa60cde8746ce7fc938432440151de5e96a350bd3339b97c37d9accff",
+          "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+          "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+          "predictor_result_sha256": "300a9cd657b0949b9b4af165d6e080ff3962afb1281a764bb5c894b508d2fa68",
+          "repository_commit": "b8eda6863e40a836fe0108a2221cb7a39d3cf9aa"
+        },
+        "compression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--compress",
+            "--input=$REPOSITORY/corpora/text-source-development-v1/cpython-3.14.6-source.axsrc",
+            "--output=$WORK/artifact.knz",
+            "--force",
+            "--transform=LZP+TEXT+UTF",
+            "--entropy=TPAQX",
+            "--block=1g",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 15984287000,
+          "peak_rss_bytes": 1532641280,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 16336345334
+        },
+        "decompression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--decompress",
+            "--input=$WORK/artifact.knz",
+            "--output=$WORK/restored.bin",
+            "--force",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 18240290000,
+          "peak_rss_bytes": 1537081344,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 19062891041
+        },
+        "error": null,
+        "exact_roundtrip": true,
+        "item_id": "cpython-3.14.6-source",
+        "passed": true,
+        "repetition": 1,
+        "schema_version": 1,
+        "source_bytes": 44506231,
+        "source_sha256": "a5148815b1257d5e9f040a6995b09493ceaeecd1f1791c2cb4a858f177cbf1c3",
+        "track": "source_code_bundles",
+        "variant": "k2-lzp-text-utf"
+      },
+      "sha256": "b0cdd0e1f439f17ff69e2dcfd3ad17a55089616273fd6ee167ccda91ba79d72d"
+    },
+    {
+      "path": "trials/k2-lzp-text-utf/enwikibooks-20260701.r0.json",
+      "receipt": {
+        "artifact_bytes": 12653649,
+        "artifact_sha256": "afb81a392c58e42d56526eb6594547b82541723b3ad8489b9cbd2988b3b18be1",
+        "bindings": {
+          "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+          "config_sha256": "ad673edaa60cde8746ce7fc938432440151de5e96a350bd3339b97c37d9accff",
+          "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+          "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+          "predictor_result_sha256": "300a9cd657b0949b9b4af165d6e080ff3962afb1281a764bb5c894b508d2fa68",
+          "repository_commit": "b8eda6863e40a836fe0108a2221cb7a39d3cf9aa"
+        },
+        "compression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--compress",
+            "--input=$REPOSITORY/corpora/text-source-development-v1/enwikibooks-20260701.axwkt",
+            "--output=$WORK/artifact.knz",
+            "--force",
+            "--transform=LZP+TEXT+UTF",
+            "--entropy=TPAQX",
+            "--block=1g",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 27577192999,
+          "peak_rss_bytes": 1601568768,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 27885691459
+        },
+        "decompression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--decompress",
+            "--input=$WORK/artifact.knz",
+            "--output=$WORK/restored.bin",
+            "--force",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 31938192000,
+          "peak_rss_bytes": 1600126976,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 32326799584
+        },
+        "error": null,
+        "exact_roundtrip": true,
+        "item_id": "enwikibooks-20260701",
+        "passed": true,
+        "repetition": 0,
+        "schema_version": 1,
+        "source_bytes": 67107953,
+        "source_sha256": "d4e99fa76d224995f03512df7fe2d9b0411e283b21157c934be6c10e2059998a",
+        "track": "english_wikimedia_wikitext",
+        "variant": "k2-lzp-text-utf"
+      },
+      "sha256": "fee0ff0fd53bf1fe320adbe9c7fb2d0484185a99042e5a0f5e3c7e88995e6b3c"
+    },
+    {
+      "path": "trials/k2-lzp-text-utf/enwikibooks-20260701.r1.json",
+      "receipt": {
+        "artifact_bytes": 12653649,
+        "artifact_sha256": "afb81a392c58e42d56526eb6594547b82541723b3ad8489b9cbd2988b3b18be1",
+        "bindings": {
+          "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+          "config_sha256": "ad673edaa60cde8746ce7fc938432440151de5e96a350bd3339b97c37d9accff",
+          "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+          "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+          "predictor_result_sha256": "300a9cd657b0949b9b4af165d6e080ff3962afb1281a764bb5c894b508d2fa68",
+          "repository_commit": "b8eda6863e40a836fe0108a2221cb7a39d3cf9aa"
+        },
+        "compression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--compress",
+            "--input=$REPOSITORY/corpora/text-source-development-v1/enwikibooks-20260701.axwkt",
+            "--output=$WORK/artifact.knz",
+            "--force",
+            "--transform=LZP+TEXT+UTF",
+            "--entropy=TPAQX",
+            "--block=1g",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 27895981000,
+          "peak_rss_bytes": 1601601536,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 28555302667
+        },
+        "decompression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--decompress",
+            "--input=$WORK/artifact.knz",
+            "--output=$WORK/restored.bin",
+            "--force",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 32961191999,
+          "peak_rss_bytes": 1600045056,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 33525464000
+        },
+        "error": null,
+        "exact_roundtrip": true,
+        "item_id": "enwikibooks-20260701",
+        "passed": true,
+        "repetition": 1,
+        "schema_version": 1,
+        "source_bytes": 67107953,
+        "source_sha256": "d4e99fa76d224995f03512df7fe2d9b0411e283b21157c934be6c10e2059998a",
+        "track": "english_wikimedia_wikitext",
+        "variant": "k2-lzp-text-utf"
+      },
+      "sha256": "6c2100c3224a33e8d88984a62ab18d7742176dcf2b567d25d6591a6807f5aad6"
+    },
+    {
+      "path": "trials/k2-lzp-text-utf/enwikinews-20260701.r0.json",
+      "receipt": {
+        "artifact_bytes": 11566057,
+        "artifact_sha256": "319bfeb45d33b8eda9bfd20cdae2b523ed91dfc831a025ea776594a1af83f1d1",
+        "bindings": {
+          "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+          "config_sha256": "ad673edaa60cde8746ce7fc938432440151de5e96a350bd3339b97c37d9accff",
+          "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+          "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+          "predictor_result_sha256": "300a9cd657b0949b9b4af165d6e080ff3962afb1281a764bb5c894b508d2fa68",
+          "repository_commit": "b8eda6863e40a836fe0108a2221cb7a39d3cf9aa"
+        },
+        "compression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--compress",
+            "--input=$REPOSITORY/corpora/text-source-development-v1/enwikinews-20260701.axwkt",
+            "--output=$WORK/artifact.knz",
+            "--force",
+            "--transform=LZP+TEXT+UTF",
+            "--entropy=TPAQX",
+            "--block=1g",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 27558255000,
+          "peak_rss_bytes": 1600815104,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 27875205166
+        },
+        "decompression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--decompress",
+            "--input=$WORK/artifact.knz",
+            "--output=$WORK/restored.bin",
+            "--force",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 31850060000,
+          "peak_rss_bytes": 1598947328,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 32172353292
+        },
+        "error": null,
+        "exact_roundtrip": true,
+        "item_id": "enwikinews-20260701",
+        "passed": true,
+        "repetition": 0,
+        "schema_version": 1,
+        "source_bytes": 67105968,
+        "source_sha256": "ac803f7c66400659801b4dd72576ad88602952db4dbc78e82c1c4c4d39c92b9e",
+        "track": "english_wikimedia_wikitext",
+        "variant": "k2-lzp-text-utf"
+      },
+      "sha256": "d8462c8c6f9b06cd95dc4505bdfdc115e48bcfb79fd1d8174bafa394ed03a41d"
+    },
+    {
+      "path": "trials/k2-lzp-text-utf/enwikinews-20260701.r1.json",
+      "receipt": {
+        "artifact_bytes": 11566057,
+        "artifact_sha256": "319bfeb45d33b8eda9bfd20cdae2b523ed91dfc831a025ea776594a1af83f1d1",
+        "bindings": {
+          "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+          "config_sha256": "ad673edaa60cde8746ce7fc938432440151de5e96a350bd3339b97c37d9accff",
+          "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+          "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+          "predictor_result_sha256": "300a9cd657b0949b9b4af165d6e080ff3962afb1281a764bb5c894b508d2fa68",
+          "repository_commit": "b8eda6863e40a836fe0108a2221cb7a39d3cf9aa"
+        },
+        "compression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--compress",
+            "--input=$REPOSITORY/corpora/text-source-development-v1/enwikinews-20260701.axwkt",
+            "--output=$WORK/artifact.knz",
+            "--force",
+            "--transform=LZP+TEXT+UTF",
+            "--entropy=TPAQX",
+            "--block=1g",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 30136795000,
+          "peak_rss_bytes": 1593704448,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 31054695333
+        },
+        "decompression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--decompress",
+            "--input=$WORK/artifact.knz",
+            "--output=$WORK/restored.bin",
+            "--force",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 32253419000,
+          "peak_rss_bytes": 1598963712,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 32665686833
+        },
+        "error": null,
+        "exact_roundtrip": true,
+        "item_id": "enwikinews-20260701",
+        "passed": true,
+        "repetition": 1,
+        "schema_version": 1,
+        "source_bytes": 67105968,
+        "source_sha256": "ac803f7c66400659801b4dd72576ad88602952db4dbc78e82c1c4c4d39c92b9e",
+        "track": "english_wikimedia_wikitext",
+        "variant": "k2-lzp-text-utf"
+      },
+      "sha256": "641d1ebd5867c677949afbfbfbc556582c515ec35a66122ee70bd54dbb8567b3"
+    },
+    {
+      "path": "trials/k2-lzp-text-utf/typescript-6.0.3-source.r0.json",
+      "receipt": {
+        "artifact_bytes": 1808307,
+        "artifact_sha256": "2b441f9a229687f0571c70f496880aa520424993f688914e970eb49dbdea5060",
+        "bindings": {
+          "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+          "config_sha256": "ad673edaa60cde8746ce7fc938432440151de5e96a350bd3339b97c37d9accff",
+          "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+          "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+          "predictor_result_sha256": "300a9cd657b0949b9b4af165d6e080ff3962afb1281a764bb5c894b508d2fa68",
+          "repository_commit": "b8eda6863e40a836fe0108a2221cb7a39d3cf9aa"
+        },
+        "compression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--compress",
+            "--input=$REPOSITORY/corpora/text-source-development-v1/typescript-6.0.3-source.axsrc",
+            "--output=$WORK/artifact.knz",
+            "--force",
+            "--transform=LZP+TEXT+UTF",
+            "--entropy=TPAQX",
+            "--block=1g",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 6522843999,
+          "peak_rss_bytes": 1485406208,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 6685094792
+        },
+        "decompression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--decompress",
+            "--input=$WORK/artifact.knz",
+            "--output=$WORK/restored.bin",
+            "--force",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 6835029000,
+          "peak_rss_bytes": 1491451904,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 6922208750
+        },
+        "error": null,
+        "exact_roundtrip": true,
+        "item_id": "typescript-6.0.3-source",
+        "passed": true,
+        "repetition": 0,
+        "schema_version": 1,
+        "source_bytes": 25693307,
+        "source_sha256": "4c35679d66dc77e54cc87ee7b6fe17cf2262bc3242c37eff3fa527e385d64480",
+        "track": "source_code_bundles",
+        "variant": "k2-lzp-text-utf"
+      },
+      "sha256": "d67ae6e8e28e2b9a724250aab2bc01b53ebb549d9c920608a257a0d98bbde170"
+    },
+    {
+      "path": "trials/k2-lzp-text-utf/typescript-6.0.3-source.r1.json",
+      "receipt": {
+        "artifact_bytes": 1808307,
+        "artifact_sha256": "2b441f9a229687f0571c70f496880aa520424993f688914e970eb49dbdea5060",
+        "bindings": {
+          "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+          "config_sha256": "ad673edaa60cde8746ce7fc938432440151de5e96a350bd3339b97c37d9accff",
+          "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+          "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+          "predictor_result_sha256": "300a9cd657b0949b9b4af165d6e080ff3962afb1281a764bb5c894b508d2fa68",
+          "repository_commit": "b8eda6863e40a836fe0108a2221cb7a39d3cf9aa"
+        },
+        "compression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--compress",
+            "--input=$REPOSITORY/corpora/text-source-development-v1/typescript-6.0.3-source.axsrc",
+            "--output=$WORK/artifact.knz",
+            "--force",
+            "--transform=LZP+TEXT+UTF",
+            "--entropy=TPAQX",
+            "--block=1g",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 6143082000,
+          "peak_rss_bytes": 1485373440,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 6290918959
+        },
+        "decompression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--decompress",
+            "--input=$WORK/artifact.knz",
+            "--output=$WORK/restored.bin",
+            "--force",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 6965897000,
+          "peak_rss_bytes": 1491451904,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 7079185250
+        },
+        "error": null,
+        "exact_roundtrip": true,
+        "item_id": "typescript-6.0.3-source",
+        "passed": true,
+        "repetition": 1,
+        "schema_version": 1,
+        "source_bytes": 25693307,
+        "source_sha256": "4c35679d66dc77e54cc87ee7b6fe17cf2262bc3242c37eff3fa527e385d64480",
+        "track": "source_code_bundles",
+        "variant": "k2-lzp-text-utf"
+      },
+      "sha256": "4c3c95222c6222d88e7f8d58540ca4c47a604afafea55bccab029cd3992ed187"
+    },
+    {
+      "path": "trials/k3-lzp-only/cpython-3.14.6-source.r0.json",
+      "receipt": {
+        "artifact_bytes": 4740605,
+        "artifact_sha256": "76b2af65f03154edd0bf89dfb9dad8c3b8afce2090de662347527b207e4bde3c",
+        "bindings": {
+          "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+          "config_sha256": "ad673edaa60cde8746ce7fc938432440151de5e96a350bd3339b97c37d9accff",
+          "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+          "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+          "predictor_result_sha256": "300a9cd657b0949b9b4af165d6e080ff3962afb1281a764bb5c894b508d2fa68",
+          "repository_commit": "b8eda6863e40a836fe0108a2221cb7a39d3cf9aa"
+        },
+        "compression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--compress",
+            "--input=$REPOSITORY/corpora/text-source-development-v1/cpython-3.14.6-source.axsrc",
+            "--output=$WORK/artifact.knz",
+            "--force",
+            "--transform=LZP",
+            "--entropy=TPAQX",
+            "--block=1g",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 11842384000,
+          "peak_rss_bytes": 1538015232,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 11886240833
+        },
+        "decompression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--decompress",
+            "--input=$WORK/artifact.knz",
+            "--output=$WORK/restored.bin",
+            "--force",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 13855385000,
+          "peak_rss_bytes": 1538064384,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 14057362708
+        },
+        "error": null,
+        "exact_roundtrip": true,
+        "item_id": "cpython-3.14.6-source",
+        "passed": true,
+        "repetition": 0,
+        "schema_version": 1,
+        "source_bytes": 44506231,
+        "source_sha256": "a5148815b1257d5e9f040a6995b09493ceaeecd1f1791c2cb4a858f177cbf1c3",
+        "track": "source_code_bundles",
+        "variant": "k3-lzp-only"
+      },
+      "sha256": "c10b2c5963119c714556569812bef87d1aace15d7287c61f8fbf9c000b356a09"
+    },
+    {
+      "path": "trials/k3-lzp-only/cpython-3.14.6-source.r1.json",
+      "receipt": {
+        "artifact_bytes": 4740605,
+        "artifact_sha256": "76b2af65f03154edd0bf89dfb9dad8c3b8afce2090de662347527b207e4bde3c",
+        "bindings": {
+          "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+          "config_sha256": "ad673edaa60cde8746ce7fc938432440151de5e96a350bd3339b97c37d9accff",
+          "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+          "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+          "predictor_result_sha256": "300a9cd657b0949b9b4af165d6e080ff3962afb1281a764bb5c894b508d2fa68",
+          "repository_commit": "b8eda6863e40a836fe0108a2221cb7a39d3cf9aa"
+        },
+        "compression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--compress",
+            "--input=$REPOSITORY/corpora/text-source-development-v1/cpython-3.14.6-source.axsrc",
+            "--output=$WORK/artifact.knz",
+            "--force",
+            "--transform=LZP",
+            "--entropy=TPAQX",
+            "--block=1g",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 19694822000,
+          "peak_rss_bytes": 1538195456,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 20067481791
+        },
+        "decompression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--decompress",
+            "--input=$WORK/artifact.knz",
+            "--output=$WORK/restored.bin",
+            "--force",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 22147573000,
+          "peak_rss_bytes": 1538064384,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 22449141708
+        },
+        "error": null,
+        "exact_roundtrip": true,
+        "item_id": "cpython-3.14.6-source",
+        "passed": true,
+        "repetition": 1,
+        "schema_version": 1,
+        "source_bytes": 44506231,
+        "source_sha256": "a5148815b1257d5e9f040a6995b09493ceaeecd1f1791c2cb4a858f177cbf1c3",
+        "track": "source_code_bundles",
+        "variant": "k3-lzp-only"
+      },
+      "sha256": "0dffb48d077b113c600094cf32f8319d0fc3f2c43a22cc41457ec3644a85dc8e"
+    },
+    {
+      "path": "trials/k3-lzp-only/enwikibooks-20260701.r0.json",
+      "receipt": {
+        "artifact_bytes": 12972109,
+        "artifact_sha256": "f18f5a29728143293a9067552284c5c1496a0cfc9c0effdcaf3bb8d90c9a1482",
+        "bindings": {
+          "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+          "config_sha256": "ad673edaa60cde8746ce7fc938432440151de5e96a350bd3339b97c37d9accff",
+          "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+          "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+          "predictor_result_sha256": "300a9cd657b0949b9b4af165d6e080ff3962afb1281a764bb5c894b508d2fa68",
+          "repository_commit": "b8eda6863e40a836fe0108a2221cb7a39d3cf9aa"
+        },
+        "compression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--compress",
+            "--input=$REPOSITORY/corpora/text-source-development-v1/enwikibooks-20260701.axwkt",
+            "--output=$WORK/artifact.knz",
+            "--force",
+            "--transform=LZP",
+            "--entropy=TPAQX",
+            "--block=1g",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 44713524000,
+          "peak_rss_bytes": 1597489152,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 45835967208
+        },
+        "decompression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--decompress",
+            "--input=$WORK/artifact.knz",
+            "--output=$WORK/restored.bin",
+            "--force",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 48835501000,
+          "peak_rss_bytes": 1597423616,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 49724764042
+        },
+        "error": null,
+        "exact_roundtrip": true,
+        "item_id": "enwikibooks-20260701",
+        "passed": true,
+        "repetition": 0,
+        "schema_version": 1,
+        "source_bytes": 67107953,
+        "source_sha256": "d4e99fa76d224995f03512df7fe2d9b0411e283b21157c934be6c10e2059998a",
+        "track": "english_wikimedia_wikitext",
+        "variant": "k3-lzp-only"
+      },
+      "sha256": "ea01dd6363e5075f9a9829aa9e906b0d7e639f749048c11c89a7d68e65bfdde2"
+    },
+    {
+      "path": "trials/k3-lzp-only/enwikibooks-20260701.r1.json",
+      "receipt": {
+        "artifact_bytes": 12972109,
+        "artifact_sha256": "f18f5a29728143293a9067552284c5c1496a0cfc9c0effdcaf3bb8d90c9a1482",
+        "bindings": {
+          "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+          "config_sha256": "ad673edaa60cde8746ce7fc938432440151de5e96a350bd3339b97c37d9accff",
+          "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+          "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+          "predictor_result_sha256": "300a9cd657b0949b9b4af165d6e080ff3962afb1281a764bb5c894b508d2fa68",
+          "repository_commit": "b8eda6863e40a836fe0108a2221cb7a39d3cf9aa"
+        },
+        "compression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--compress",
+            "--input=$REPOSITORY/corpora/text-source-development-v1/enwikibooks-20260701.axwkt",
+            "--output=$WORK/artifact.knz",
+            "--force",
+            "--transform=LZP",
+            "--entropy=TPAQX",
+            "--block=1g",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 26342445000,
+          "peak_rss_bytes": 1597341696,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 26658458667
+        },
+        "decompression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--decompress",
+            "--input=$WORK/artifact.knz",
+            "--output=$WORK/restored.bin",
+            "--force",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 29974262000,
+          "peak_rss_bytes": 1597390848,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 30097663959
+        },
+        "error": null,
+        "exact_roundtrip": true,
+        "item_id": "enwikibooks-20260701",
+        "passed": true,
+        "repetition": 1,
+        "schema_version": 1,
+        "source_bytes": 67107953,
+        "source_sha256": "d4e99fa76d224995f03512df7fe2d9b0411e283b21157c934be6c10e2059998a",
+        "track": "english_wikimedia_wikitext",
+        "variant": "k3-lzp-only"
+      },
+      "sha256": "1ba6fc8ab439ecaa6e7036b5866d37a1385278d948371aebe5463e265191a571"
+    },
+    {
+      "path": "trials/k3-lzp-only/enwikinews-20260701.r0.json",
+      "receipt": {
+        "artifact_bytes": 11956829,
+        "artifact_sha256": "4796abc46f5a7cf62fe45f5fffb8a85f03ed9d6fcc747722fed39ef9b7dd0a47",
+        "bindings": {
+          "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+          "config_sha256": "ad673edaa60cde8746ce7fc938432440151de5e96a350bd3339b97c37d9accff",
+          "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+          "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+          "predictor_result_sha256": "300a9cd657b0949b9b4af165d6e080ff3962afb1281a764bb5c894b508d2fa68",
+          "repository_commit": "b8eda6863e40a836fe0108a2221cb7a39d3cf9aa"
+        },
+        "compression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--compress",
+            "--input=$REPOSITORY/corpora/text-source-development-v1/enwikinews-20260701.axwkt",
+            "--output=$WORK/artifact.knz",
+            "--force",
+            "--transform=LZP",
+            "--entropy=TPAQX",
+            "--block=1g",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 42140775000,
+          "peak_rss_bytes": 1596833792,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 42634634500
+        },
+        "decompression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--decompress",
+            "--input=$WORK/artifact.knz",
+            "--output=$WORK/restored.bin",
+            "--force",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 46826996000,
+          "peak_rss_bytes": 1596751872,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 47156670375
+        },
+        "error": null,
+        "exact_roundtrip": true,
+        "item_id": "enwikinews-20260701",
+        "passed": true,
+        "repetition": 0,
+        "schema_version": 1,
+        "source_bytes": 67105968,
+        "source_sha256": "ac803f7c66400659801b4dd72576ad88602952db4dbc78e82c1c4c4d39c92b9e",
+        "track": "english_wikimedia_wikitext",
+        "variant": "k3-lzp-only"
+      },
+      "sha256": "b7ac4283b5732ff38b7d45972c47c727845d50459897b8949bdeea458c0d0e0c"
+    },
+    {
+      "path": "trials/k3-lzp-only/enwikinews-20260701.r1.json",
+      "receipt": {
+        "artifact_bytes": 11956829,
+        "artifact_sha256": "4796abc46f5a7cf62fe45f5fffb8a85f03ed9d6fcc747722fed39ef9b7dd0a47",
+        "bindings": {
+          "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+          "config_sha256": "ad673edaa60cde8746ce7fc938432440151de5e96a350bd3339b97c37d9accff",
+          "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+          "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+          "predictor_result_sha256": "300a9cd657b0949b9b4af165d6e080ff3962afb1281a764bb5c894b508d2fa68",
+          "repository_commit": "b8eda6863e40a836fe0108a2221cb7a39d3cf9aa"
+        },
+        "compression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--compress",
+            "--input=$REPOSITORY/corpora/text-source-development-v1/enwikinews-20260701.axwkt",
+            "--output=$WORK/artifact.knz",
+            "--force",
+            "--transform=LZP",
+            "--entropy=TPAQX",
+            "--block=1g",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 27423233000,
+          "peak_rss_bytes": 1596669952,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 27508956417
+        },
+        "decompression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--decompress",
+            "--input=$WORK/artifact.knz",
+            "--output=$WORK/restored.bin",
+            "--force",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 32108040000,
+          "peak_rss_bytes": 1596735488,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 32230034416
+        },
+        "error": null,
+        "exact_roundtrip": true,
+        "item_id": "enwikinews-20260701",
+        "passed": true,
+        "repetition": 1,
+        "schema_version": 1,
+        "source_bytes": 67105968,
+        "source_sha256": "ac803f7c66400659801b4dd72576ad88602952db4dbc78e82c1c4c4d39c92b9e",
+        "track": "english_wikimedia_wikitext",
+        "variant": "k3-lzp-only"
+      },
+      "sha256": "28edae2d92d73f0a2743af316f136f78649b5aaa21e11c4406eab3db9d2ab3ab"
+    },
+    {
+      "path": "trials/k3-lzp-only/typescript-6.0.3-source.r0.json",
+      "receipt": {
+        "artifact_bytes": 1889424,
+        "artifact_sha256": "6c6f8548a09887a758074845e12aa663a169c141d83843cbff53b1e1ce8387dc",
+        "bindings": {
+          "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+          "config_sha256": "ad673edaa60cde8746ce7fc938432440151de5e96a350bd3339b97c37d9accff",
+          "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+          "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+          "predictor_result_sha256": "300a9cd657b0949b9b4af165d6e080ff3962afb1281a764bb5c894b508d2fa68",
+          "repository_commit": "b8eda6863e40a836fe0108a2221cb7a39d3cf9aa"
+        },
+        "compression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--compress",
+            "--input=$REPOSITORY/corpora/text-source-development-v1/typescript-6.0.3-source.axsrc",
+            "--output=$WORK/artifact.knz",
+            "--force",
+            "--transform=LZP",
+            "--entropy=TPAQX",
+            "--block=1g",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 9242426000,
+          "peak_rss_bytes": 1488289792,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 9422003125
+        },
+        "decompression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--decompress",
+            "--input=$WORK/artifact.knz",
+            "--output=$WORK/restored.bin",
+            "--force",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 9925364000,
+          "peak_rss_bytes": 1488338944,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 10059896875
+        },
+        "error": null,
+        "exact_roundtrip": true,
+        "item_id": "typescript-6.0.3-source",
+        "passed": true,
+        "repetition": 0,
+        "schema_version": 1,
+        "source_bytes": 25693307,
+        "source_sha256": "4c35679d66dc77e54cc87ee7b6fe17cf2262bc3242c37eff3fa527e385d64480",
+        "track": "source_code_bundles",
+        "variant": "k3-lzp-only"
+      },
+      "sha256": "4d597041fbe14c7e064cd8296a247f752e26012d93214e176cc056a5b85f1e28"
+    },
+    {
+      "path": "trials/k3-lzp-only/typescript-6.0.3-source.r1.json",
+      "receipt": {
+        "artifact_bytes": 1889424,
+        "artifact_sha256": "6c6f8548a09887a758074845e12aa663a169c141d83843cbff53b1e1ce8387dc",
+        "bindings": {
+          "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+          "config_sha256": "ad673edaa60cde8746ce7fc938432440151de5e96a350bd3339b97c37d9accff",
+          "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+          "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+          "predictor_result_sha256": "300a9cd657b0949b9b4af165d6e080ff3962afb1281a764bb5c894b508d2fa68",
+          "repository_commit": "b8eda6863e40a836fe0108a2221cb7a39d3cf9aa"
+        },
+        "compression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--compress",
+            "--input=$REPOSITORY/corpora/text-source-development-v1/typescript-6.0.3-source.axsrc",
+            "--output=$WORK/artifact.knz",
+            "--force",
+            "--transform=LZP",
+            "--entropy=TPAQX",
+            "--block=1g",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 8814194000,
+          "peak_rss_bytes": 1488289792,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 8920800500
+        },
+        "decompression": {
+          "command": [
+            "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+            "--decompress",
+            "--input=$WORK/artifact.knz",
+            "--output=$WORK/restored.bin",
+            "--force",
+            "--jobs=1",
+            "--verbose=0"
+          ],
+          "cpu_ns": 9988677000,
+          "peak_rss_bytes": 1488338944,
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": false,
+          "wall_ns": 10137833084
+        },
+        "error": null,
+        "exact_roundtrip": true,
+        "item_id": "typescript-6.0.3-source",
+        "passed": true,
+        "repetition": 1,
+        "schema_version": 1,
+        "source_bytes": 25693307,
+        "source_sha256": "4c35679d66dc77e54cc87ee7b6fe17cf2262bc3242c37eff3fa527e385d64480",
+        "track": "source_code_bundles",
+        "variant": "k3-lzp-only"
+      },
+      "sha256": "2fb59eae3a45f55b08639c95a95225ad0b9663d6b94fc93e9f83f931aa1ae4b9"
+    }
+  ]
+}

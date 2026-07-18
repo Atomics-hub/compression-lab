@@ -122,11 +122,24 @@ exact codec build.
 
 ![Axiom predictor entropy estimates and all 15 practical standards on the identical evaluation subsets](runs/text-source-predictor-entropy-ceiling-publication-v1/comparison.svg)
 
+The next training-only decomposition screen asked a narrower question before
+we spent time on a new codec: does explicit single-reference LZP factorization
+improve the already-strong TPAQX path? Across **24/24 exact, deterministic
+trials**, the answer was no. The best variant, K1, was **1.63% larger than
+Kanzi-max** on CPython + TypeScript and **0.21% larger** on Wikibooks +
+Wikinews; K2 and K3 were worse. The shared long-range direction is rejected,
+so no Axiom prototype was built and no Axiom win exists.
+
+![Exact long-range diagnostics and all 15 practical standards on the identical training subsets](runs/text-source-long-range-screen-v1/publication/comparison.svg)
+
 This establishes the practical target and records clean negative Axiom
 results; it is **not an Axiom win**. The predictor rows are conservative
 estimates, not decodable artifacts, and carry no speed, memory, exactness, or
 portability claim. ZPAQ, paq8px, cmix, and NNCP remain in a separate
-research-ceiling tier. The [predictor publication
+research-ceiling tier. The [long-range publication
+bundle](runs/text-source-long-range-screen-v1/publication/README.md) exposes all
+24 sanitized receipts, all 15 standards, all three exact competitor
+diagnostics, the deliberately empty Axiom row, and an offline verifier. The [predictor publication
 bundle](runs/text-source-predictor-entropy-ceiling-publication-v1/README.md)
 shows every practical standard, all three estimates, and the exact claim
 boundary. The earlier [structural publication
@@ -141,8 +154,8 @@ remains independently reproducible.
 | Category | Objective completion | Best measured result | Gate status and evidence |
 | --- | ---: | --- | --- |
 | JSON and machine logs | **50%** | JLS2 is 52.97% smaller than the strongest eligible standard on the first frozen public-validation score | Ratio, both families, speed, exactness, integrity, and compression memory passed; overall gate failed only decoder RSS at 621.3 MiB vs 512 MiB ([immutable result](runs/clue-jls2-public-validation-v1/publication/README.md), [import receipt](runs/clue-jls2-public-validation-v1-import.json)) |
-| Source-code bundles | **10%** | Tokenization improved the weak P1 estimate by 13.34%, but P2 was 498.83% larger than Kanzi-max on Rust + LLVM | Structural and low-order predictor families both failed frozen gates; pursue a materially stronger contextual or long-range successor while completing external research-ceiling hosts ([latest chart](runs/text-source-predictor-entropy-ceiling-publication-v1/README.md), [protocol](docs/benchmarks/2026-07-18-text-source-predictor-probe-protocol.md)) |
-| English Wikimedia wikitext | **10%** | Tokenization improved the weak P1 estimate by 25.41%, but P2 was 172.23% larger than Kanzi-max on Wikiversity | Structural and low-order predictor families both failed frozen gates; pursue a materially stronger contextual successor and keep enwik9 diagnostic-only ([latest chart](runs/text-source-predictor-entropy-ceiling-publication-v1/README.md), [protocol](docs/benchmarks/2026-07-18-text-source-predictor-probe-protocol.md)) |
+| Source-code bundles | **10%** | Best explicit-LZP diagnostic was 1.63% larger than Kanzi-max on CPython + TypeScript; all 12 source trials were exact and deterministic | Structural, low-order predictor, and single-reference long-range directions all failed frozen gates; complete external research ceilings before freezing a genuinely stronger model combination ([latest chart](runs/text-source-long-range-screen-v1/publication/README.md), [protocol](docs/benchmarks/2026-07-18-text-source-long-range-screen-protocol.md)) |
+| English Wikimedia wikitext | **10%** | Best explicit-LZP diagnostic was 0.21% larger than Kanzi-max on Wikibooks + Wikinews; all 12 wiki trials were exact and deterministic | Structural, low-order predictor, and single-reference long-range directions all failed frozen gates; complete external research ceilings and keep enwik9 diagnostic-only ([latest chart](runs/text-source-long-range-screen-v1/publication/README.md), [protocol](docs/benchmarks/2026-07-18-text-source-long-range-screen-protocol.md)) |
 | Delimited tables | **50%** | TBS1 vs 7-Zip-9: 3.48% larger aggregate | Frozen gate failed ([decision](docs/benchmarks/2026-07-17-tbl1-public-validation-decision.md), [Fresh successor corpus protocol](docs/benchmarks/2026-07-17-tabular-successor-corpus-protocol.md)) |
 | Dense matrices and time series | **20%** | DMS2 vs Brotli-11: 43.55% larger; 33.45 / 313.99 MB/s compression / decompression | Frozen gate failed ([evidence](runs/dms2-public-validation-v1/README.md)) |
 | General binary/archive | **10%** | Exact `.clab` fallback; no strongest-standard lead established | Alpha |
