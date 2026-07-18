@@ -50,13 +50,45 @@ Homebrew bottle on this macOS measurement host.
 
 ## Failure and resumption rules
 
-The runner writes one atomically promoted receipt per item, codec, and
-repetition. Resume accepts a receipt only when its repository commit, config
-SHA-256, and development-manifest SHA-256 match the current attempt. Timeouts,
-missing tools, nonzero exits, inexact restoration, or nondeterministic artifact
-identities remain visible and cannot be counted as wins.
+The runner writes one canonical-JSON, atomically promoted receipt per item,
+codec, and repetition. Resume accepts a receipt only when its complete field
+roster, repository commit, config SHA-256, development-manifest SHA-256, item
+identity, repetition, exact command, process types, artifact accounting, and
+outcome remain internally consistent. Timeouts, missing tools, nonzero exits,
+inexact restoration, or nondeterministic artifact identities remain visible
+and cannot be counted as wins.
+
+## Publication contract
+
+Publication is allowed only after all 630 receipts reproduce the complete
+105-row summary, every measured round trip is exact, and every five-repetition
+artifact group is byte-identical. The publisher independently freezes the
+exact codec commands, ten-tool binary roster and identities, source commits,
+clean repository state, host identity, config/manifest paths, and 15 preflight
+round trips.
+
+The immutable checked-in directory contains exactly five ordinary files:
+
+- `README.md`: human comparison, integrity statement, and claim ceiling;
+- `comparison.json`: machine-readable chart rows and evidence bindings;
+- `comparison.svg`: all 15 practical standards, size, speed, RSS, and status;
+- `evidence.json`: the complete result plus all 630 decision-bearing trial
+  receipts; and
+- `receipt.json`: SHA-256 identities for every other publication artifact.
+
+Process stdout and stderr can contain machine-local paths. `evidence.json`
+therefore replaces only those stream bodies with their UTF-8 byte counts,
+SHA-256 commitments, and empty/artifact/redacted classifications. Commands,
+timings, RSS, source and artifact identities, exactness, and every field used
+to reconstruct a decision remain present. Local absolute-path markers are a
+publication error. `scripts/verify-text-source-baseline-publication.py`
+reconstructs every aggregate and verifies the complete five-file bundle using
+only checked-in evidence; it does not require the ignored corpus or private raw
+run directory.
 
 The research-ceiling codecs (ZPAQ, paq8px, cmix, and NNCP) remain a separate
 declared tier. They will be measured after the complete practical roster under
 their larger frozen resource budget; practical leadership alone is not a
-world-best claim.
+world-best claim. The exact admission, accounting, hardware, and availability
+rules are recorded in the
+[research-ceiling audit](2026-07-17-text-source-research-ceiling-audit.md).

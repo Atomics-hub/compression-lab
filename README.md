@@ -94,23 +94,54 @@ claim boundary. Its optimization lineage remains independently inspectable:
 [scheduling A/B](runs/clue-jls2-decode-scheduling-v1/README.md), and
 [cold-start A/B](runs/jls2-cold-start-v1/README.md).
 
+## Text and source-code practical frontier
+
+The frozen development census is complete: **630/630 exact trials** across 15
+single-threaded practical codecs and seven licensed inputs. Kanzi-max is the
+ratio leader on both tracks: **45,550,471 bytes from 529,449,573 source-code
+bytes (8.60%)** and **35,081,062 bytes from 201,311,173 Wikimedia bytes
+(17.43%)**. Those ratio points cost roughly 1.5–1.9 GiB peak RSS and 2.3–3.5
+MB/s, so faster and lower-memory operating points remain visible in the chart.
+
+![Text and source-code practical codecs compared by complete size, speed, memory, exactness, and determinism](runs/text-source-development-baseline-census-v1/publication/comparison.svg)
+
+This establishes the practical target; it is **not an Axiom win**. No Axiom
+text/source candidate was entered, and ZPAQ, paq8px, cmix, and NNCP remain in a
+separate research-ceiling tier. The [offline-verifiable publication
+bundle](runs/text-source-development-baseline-census-v1/publication/README.md)
+contains every codec row, per-item leader, public recalculation evidence, and
+the exact claim ceiling.
+
 ## Measured standings
 
-| Category | Best measured result | Gate status and evidence |
-| --- | --- | --- |
-| JSON and machine logs | JLS2 is 52.97% smaller than the strongest eligible standard on the first frozen public-validation score | Ratio, both families, speed, exactness, integrity, and compression memory passed; overall gate failed only decoder RSS at 621.3 MiB vs 512 MiB ([immutable result](runs/clue-jls2-public-validation-v1/publication/README.md), [import receipt](runs/clue-jls2-public-validation-v1-import.json)) |
-| Source-code bundles | Four-family development corpus acquired and byte-verified; no codec score yet | Untested; run the expanded practical census before choosing a specialist ([receipt](runs/text-source-development-acquisition-v1.json), [status](docs/benchmarks/2026-07-17-text-source-development-acquisition.md)) |
-| English Wikimedia wikitext | Three-family development corpus acquired and byte-verified; no codec score yet | Untested; enwik9 is diagnostic-only, never unseen evidence ([receipt](runs/text-source-development-acquisition-v1.json), [status](docs/benchmarks/2026-07-17-text-source-development-acquisition.md)) |
-| Delimited tables | TBS1 vs 7-Zip-9: 3.48% larger aggregate | Frozen gate failed ([decision](docs/benchmarks/2026-07-17-tbl1-public-validation-decision.md), [Fresh successor corpus protocol](docs/benchmarks/2026-07-17-tabular-successor-corpus-protocol.md)) |
-| Dense matrices | DMS2 vs Brotli-11: 43.55% larger; 33.45 / 313.99 MB/s compression / decompression | Frozen gate failed ([evidence](runs/dms2-public-validation-v1/README.md)) |
-| General files | Exact `.clab` fallback; no strongest-standard lead established | Alpha |
+| Category | Objective completion | Best measured result | Gate status and evidence |
+| --- | ---: | --- | --- |
+| JSON and machine logs | **50%** | JLS2 is 52.97% smaller than the strongest eligible standard on the first frozen public-validation score | Ratio, both families, speed, exactness, integrity, and compression memory passed; overall gate failed only decoder RSS at 621.3 MiB vs 512 MiB ([immutable result](runs/clue-jls2-public-validation-v1/publication/README.md), [import receipt](runs/clue-jls2-public-validation-v1-import.json)) |
+| Source-code bundles | **10%** | Kanzi-max leads the completed practical census at 45,550,471 bytes from 529,449,573 bytes (8.60%) | Axiom remains untested; run the predeclared structural hypotheses and bounded research-ceiling tier ([chart](runs/text-source-development-baseline-census-v1/publication/README.md), [protocol](docs/benchmarks/2026-07-17-text-source-structural-transform-protocol.md)) |
+| English Wikimedia wikitext | **10%** | Kanzi-max leads the completed practical census at 35,081,062 bytes from 201,311,173 bytes (17.43%) | Axiom remains untested; run the structural hypothesis and research-ceiling tier; enwik9 remains diagnostic-only ([chart](runs/text-source-development-baseline-census-v1/publication/README.md), [protocol](docs/benchmarks/2026-07-17-text-source-structural-transform-protocol.md)) |
+| Delimited tables | **50%** | TBS1 vs 7-Zip-9: 3.48% larger aggregate | Frozen gate failed ([decision](docs/benchmarks/2026-07-17-tbl1-public-validation-decision.md), [Fresh successor corpus protocol](docs/benchmarks/2026-07-17-tabular-successor-corpus-protocol.md)) |
+| Dense matrices and time series | **20%** | DMS2 vs Brotli-11: 43.55% larger; 33.45 / 313.99 MB/s compression / decompression | Frozen gate failed ([evidence](runs/dms2-public-validation-v1/README.md)) |
+| General binary/archive | **10%** | Exact `.clab` fallback; no strongest-standard lead established | Alpha |
+| Incompressible/already compressed | **10%** | Exact fallback unit behavior; the honest target is an equally framed store-size tie, not an impossible random-data ratio win | No formal measurement yet; no-expansion, bounded selector, 1/4 GiB streaming, native speed/memory, corruption, and portability gates are frozen ([protocol](docs/benchmarks/2026-07-17-incompressible-precompressed-protocol.md)) |
+
+The [category portfolio scorecard](docs/benchmarks/2026-07-16-category-portfolio-status.md)
+tracks objective completion from 0% to 100% using ten equally weighted binary
+evidence gates per category. Partial or failed validation does not receive
+credit for a complete-validation gate; 100% requires private-holdout success
+and independent reproduction.
 
 Consumed validation families are never reused as fresh evidence. The benchmark
 runner also has a checked-in [manifest-binding gate](runs/benchmark-manifest-binding-v1/README.md).
 
 ## Try it
 
-Python 3.9 or newer is required. Native builds also require Rust stable.
+Python 3.9 or newer is required. Install the published package from PyPI:
+
+```bash
+python -m pip install compression-lab
+```
+
+For a source checkout, native builds also require Rust stable:
 
 ```bash
 git clone https://github.com/Atomics-hub/compression-lab.git

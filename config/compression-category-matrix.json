@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
   "name": "compression-lab-category-portfolio-v1",
+  "category_evidence_completion_percent": 22.86,
   "status_vocabulary": [
     "untested",
     "smoke-only",
@@ -11,6 +12,59 @@
     "independently-reproduced"
   ],
   "result_policy": "A category is won only after a frozen unseen-data pass against its strongest reproduced ratio baseline, its practical speed baseline, and every integrity, memory, portability, and accounting gate. Independent reproduction is required before a state-of-the-art claim.",
+  "completion_policy": "Each category has ten equally weighted binary evidence gates. Partial, development-only, failed, stale, or merely planned evidence receives no credit for that gate. A category reaches 100% only after every gate is proven, including private holdout and independent reproduction. Percentages measure completion of the evidence program; they do not promise one codec setting can lead every conflicting speed and ratio metric.",
+  "completion_gate_definitions": [
+    {
+      "id": "frozen_licensed_splits",
+      "weight_percent": 10,
+      "requirement": "Licensed development, lineage-disjoint public-validation, and external private-holdout policies are frozen before tuning."
+    },
+    {
+      "id": "strongest_baselines_reproduced",
+      "weight_percent": 10,
+      "requirement": "The strongest credible practical and eligible specialist baselines are reproduced with complete artifact accounting."
+    },
+    {
+      "id": "development_candidate_pass",
+      "weight_percent": 10,
+      "requirement": "A materially new candidate passes its complete predeclared development gate."
+    },
+    {
+      "id": "public_validation_complete_pass",
+      "weight_percent": 10,
+      "requirement": "The frozen candidate passes every ratio, family, speed, memory, integrity, and accounting gate on previously unopened public validation."
+    },
+    {
+      "id": "private_holdout_pass",
+      "weight_percent": 10,
+      "requirement": "The unchanged candidate passes its frozen external private holdout exactly once."
+    },
+    {
+      "id": "independent_reproduction",
+      "weight_percent": 10,
+      "requirement": "An independent party reproduces the category result from public instructions and evidence."
+    },
+    {
+      "id": "operational_speed_pass",
+      "weight_percent": 10,
+      "requirement": "The candidate passes frozen compression and decompression speed tiers with stable repeated measurements."
+    },
+    {
+      "id": "bounded_memory_streaming_scale_pass",
+      "weight_percent": 10,
+      "requirement": "Memory, streaming, and large-file gates pass with explicit bounds."
+    },
+    {
+      "id": "integrity_portability_corruption_pass",
+      "weight_percent": 10,
+      "requirement": "Exactness, determinism, corruption rejection, portability, and complete self-contained decoding pass."
+    },
+    {
+      "id": "selector_product_release_chart_pass",
+      "weight_percent": 10,
+      "requirement": "The specialist is admitted behind bounded no-expansion selection, shipped in supported packages, and documented by a checksummed standardized comparison chart."
+    }
+  ],
   "scorecard_required_fields": [
     "complete compressed bytes and byte-weighted ratio",
     "compression and decompression MB/s with timing basis",
@@ -29,6 +83,19 @@
       "label": "JSON and machine-generated logs",
       "status": "public-validation-partial",
       "specialist": "JLS2",
+      "readiness_percent": 50,
+      "completion_gates": {
+        "frozen_licensed_splits": true,
+        "strongest_baselines_reproduced": true,
+        "development_candidate_pass": true,
+        "public_validation_complete_pass": false,
+        "private_holdout_pass": false,
+        "independent_reproduction": false,
+        "operational_speed_pass": true,
+        "bounded_memory_streaming_scale_pass": false,
+        "integrity_portability_corruption_pass": true,
+        "selector_product_release_chart_pass": false
+      },
       "current_evidence": "docs/benchmarks/2026-07-17-clue-jls2-public-validation-result-status.md",
       "current_result": "The immutable first CLUE-LDS public-validation score is a valid no-pass with a decisive ratio result: JLS2 produced 489,591 bytes from 96,934,483 source bytes, 52.97% smaller than the strongest eligible complete standard, Brotli-11 at 1,040,990 bytes. It won both previously unopened temporal families by 48.31% and 54.50%, compressed at 109.58 MB/s, and decoded at 431.36 MB/s. Every gate passed except standalone decoder memory: 651,517,952 bytes (621.3 MiB) exceeded the frozen 512 MiB cap. Both ranges are consumed and cannot be tuned or rerun. The result is public-validation ratio evidence, not a complete category win, private-holdout result, independent reproduction, or state-of-the-art claim.",
       "tested_standards": [
@@ -51,26 +118,97 @@
       "label": "Multi-language source-code bundles",
       "status": "untested",
       "specialist": "open; adaptive-v3 remains a rejected legacy development path",
-      "current_evidence": "docs/benchmarks/2026-07-17-text-source-development-acquisition.md",
-      "current_result": "The licensed, lineage-disjoint source-bundle protocol and four-family development corpus are frozen and byte-verified. No codec has been run, so no tested-standard result or category claim exists.",
-      "tested_standards": [],
-      "next_gate": "Run the complete practical census including bzip3, zstd ultra, Brotli, LZMA2, PPMd, Kanzi, and libbsc before selecting a representation hypothesis."
+      "readiness_percent": 10,
+      "completion_gates": {
+        "frozen_licensed_splits": true,
+        "strongest_baselines_reproduced": false,
+        "development_candidate_pass": false,
+        "public_validation_complete_pass": false,
+        "private_holdout_pass": false,
+        "independent_reproduction": false,
+        "operational_speed_pass": false,
+        "bounded_memory_streaming_scale_pass": false,
+        "integrity_portability_corruption_pass": false,
+        "selector_product_release_chart_pass": false
+      },
+      "current_evidence": "runs/text-source-development-baseline-census-v1/publication/README.md",
+      "current_result": "The frozen 15-codec practical development census completed all 630 trials exactly and deterministically. Kanzi-max was the ratio leader on all four source families and aggregated to 45,550,471 bytes from 529,449,573 source bytes (8.60%) at 3.47/2.95 MB/s compression/decompression and 1,890.5/1,909.7 MiB peak RSS. No Axiom candidate was entered, and the bounded research-ceiling tier remains pending, so this is baseline evidence rather than a category result.",
+      "tested_standards": [
+        "store",
+        "lz4-1",
+        "gzip-9",
+        "bzip2-9",
+        "bzip3-max",
+        "zstd-3",
+        "zstd-9",
+        "zstd-19",
+        "zstd-22-ultra",
+        "brotli-11",
+        "xz-lzma2-9e",
+        "7zip-lzma2-9",
+        "7zip-ppmd-9",
+        "kanzi-max",
+        "libbsc-max"
+      ],
+      "next_gate": "Run the predeclared structural-transform probe and bounded research-ceiling tier, then route only a materially credible successor into the complete development gate."
     },
     {
       "id": "english_wikimedia_wikitext",
       "label": "English Wikimedia revision text and wikitext",
       "status": "untested",
-      "specialist": "open; enwik9 is diagnostic-only",
-      "current_evidence": "docs/benchmarks/2026-07-17-text-source-development-acquisition.md",
-      "current_result": "The licensed Wikimedia project split, deterministic revision-text protocol, and three-family development corpus are frozen and byte-verified. No codec has been run, so no tested-standard result or natural-language claim exists.",
-      "tested_standards": [],
-      "next_gate": "Run the practical plus bounded research-ceiling census. Keep enwik9 outside every unseen gate."
+      "specialist": "open; the enwik9 corpus and published scores are diagnostic-only",
+      "readiness_percent": 10,
+      "completion_gates": {
+        "frozen_licensed_splits": true,
+        "strongest_baselines_reproduced": false,
+        "development_candidate_pass": false,
+        "public_validation_complete_pass": false,
+        "private_holdout_pass": false,
+        "independent_reproduction": false,
+        "operational_speed_pass": false,
+        "bounded_memory_streaming_scale_pass": false,
+        "integrity_portability_corruption_pass": false,
+        "selector_product_release_chart_pass": false
+      },
+      "current_evidence": "runs/text-source-development-baseline-census-v1/publication/README.md",
+      "current_result": "The frozen 15-codec practical development census completed all 630 trials exactly and deterministically. Kanzi-max led all three Wikimedia families and aggregated to 35,081,062 bytes from 201,311,173 source bytes (17.43%) at 2.37/2.30 MB/s compression/decompression and 1,529.5/1,525.8 MiB peak RSS. No Axiom candidate was entered; ZPAQ, paq8px, cmix, and NNCP remain pending in the bounded research-ceiling tier.",
+      "tested_standards": [
+        "store",
+        "lz4-1",
+        "gzip-9",
+        "bzip2-9",
+        "bzip3-max",
+        "zstd-3",
+        "zstd-9",
+        "zstd-19",
+        "zstd-22-ultra",
+        "brotli-11",
+        "xz-lzma2-9e",
+        "7zip-lzma2-9",
+        "7zip-ppmd-9",
+        "kanzi-max",
+        "libbsc-max"
+      ],
+      "next_gate": "Run the predeclared structural-transform probe and bounded research-ceiling tier. Keep the enwik9 corpus and published scores outside every unseen gate; a shipped profile named enwik9 may appear only as a same-input baseline."
     },
     {
       "id": "tabular_csv",
       "label": "Tabular CSV and delimited records",
       "status": "public-validation-partial",
       "specialist": "TBS1 bounded TBL1 stream-dense",
+      "readiness_percent": 50,
+      "completion_gates": {
+        "frozen_licensed_splits": true,
+        "strongest_baselines_reproduced": true,
+        "development_candidate_pass": true,
+        "public_validation_complete_pass": false,
+        "private_holdout_pass": false,
+        "independent_reproduction": false,
+        "operational_speed_pass": false,
+        "bounded_memory_streaming_scale_pass": true,
+        "integrity_portability_corruption_pass": true,
+        "selector_product_release_chart_pass": false
+      },
       "current_evidence": "runs/tbl1-public-validation-v1/decision.json",
       "current_result": "On the frozen first public-validation score over four previously unseen CC-BY-4.0 UCI families, TBS1 beat the strongest exact per-family baseline by 7.35% to 16.50% on 3/4 families, but OCRB pixel tables were 32.15% larger and made aggregate output 3.48% larger than 7-Zip-9. Average speed, cold memory, exactness, determinism, fallback safety, portability, and complete accounting passed; one of five decompression repetitions missed the 250 MB/s floor. The overall gate did not pass.",
       "tested_standards": [
@@ -92,6 +230,19 @@
       "label": "Numeric arrays and time-series data",
       "status": "public-validation-partial",
       "specialist": "DMS2/DSS1 for byte-exact dense numeric matrices; time-series specialist remains open",
+      "readiness_percent": 20,
+      "completion_gates": {
+        "frozen_licensed_splits": true,
+        "strongest_baselines_reproduced": false,
+        "development_candidate_pass": false,
+        "public_validation_complete_pass": false,
+        "private_holdout_pass": false,
+        "independent_reproduction": false,
+        "operational_speed_pass": false,
+        "bounded_memory_streaming_scale_pass": false,
+        "integrity_portability_corruption_pass": true,
+        "selector_product_release_chart_pass": false
+      },
       "current_evidence": "runs/dms2-public-validation-v1/decision.json",
       "current_result": "The retained first DMS2 public-validation score did not pass. On the two locked dense-matrix families, DMS2 was 46.57% larger than Brotli-11 on Gisette and 41.03% larger than bzip2-9 on Madelon; the two-item diagnostic aggregate was 43.55% larger than Brotli-11. Compression speed, minimum repetition speed, and cold compression memory also missed. Exactness, determinism, corruption rejection, decompression speed, bounded fallback, complete accounting, portability, and cross-platform wheels passed. A baseline manifest-scope defect independently invalidated the frozen aggregate corpus gate, and the complete deviation and first attempt are retained.",
       "tested_standards": [
@@ -113,6 +264,19 @@
       "label": "General binary files and mixed archives",
       "status": "development",
       "specialist": "adaptive-v3 universal fallback",
+      "readiness_percent": 10,
+      "completion_gates": {
+        "frozen_licensed_splits": false,
+        "strongest_baselines_reproduced": false,
+        "development_candidate_pass": false,
+        "public_validation_complete_pass": false,
+        "private_holdout_pass": false,
+        "independent_reproduction": false,
+        "operational_speed_pass": false,
+        "bounded_memory_streaming_scale_pass": false,
+        "integrity_portability_corruption_pass": true,
+        "selector_product_release_chart_pass": false
+      },
       "current_evidence": "docs/benchmarks/2026-07-16-release-candidate.md",
       "current_result": "No win against zstd-9; the current general encoder is not Pareto-optimal.",
       "tested_standards": [
@@ -130,10 +294,23 @@
       "label": "Incompressible and already-compressed data",
       "status": "development",
       "specialist": "store or direct fallback",
-      "current_evidence": "tests/test_adaptive.py",
-      "current_result": "Safety behavior is tested, but there is no category speed, memory, or large-file validation scorecard yet.",
+      "readiness_percent": 10,
+      "completion_gates": {
+        "frozen_licensed_splits": false,
+        "strongest_baselines_reproduced": false,
+        "development_candidate_pass": false,
+        "public_validation_complete_pass": false,
+        "private_holdout_pass": false,
+        "independent_reproduction": false,
+        "operational_speed_pass": false,
+        "bounded_memory_streaming_scale_pass": false,
+        "integrity_portability_corruption_pass": true,
+        "selector_product_release_chart_pass": false
+      },
+      "current_evidence": "docs/benchmarks/2026-07-17-incompressible-precompressed-protocol.md",
+      "current_result": "The information-theoretically honest no-expansion, bounded-selector, adversarial-region, native-throughput, 1/4 GiB streaming, corruption, and second-platform gates are frozen. Existing fallback unit tests remain safety evidence only; the declared development corpus is not yet constructed and no category measurement exists.",
       "tested_standards": [],
-      "next_gate": "Freeze expansion, selector-cost, throughput, and large-file memory gates on licensed compressed-media and cryptographic-random families."
+      "next_gate": "Construct and byte-verify the five declared generated/licensed development families, then run the same-host 13-baseline census before changing the selector."
     }
   ]
 }

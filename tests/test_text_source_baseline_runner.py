@@ -102,14 +102,162 @@ class TextSourceBaselineRunnerTests(unittest.TestCase):
         row = valid["item_codec_rows"][0]
         self.assertTrue(row["passed"])
         self.assertTrue(row["deterministic_artifact"])
-        self.assertEqual(valid["tracks"]["source_code_bundles"]["leader"]["codec_id"], "store")
+        self.assertEqual(
+            valid["tracks"]["source_code_bundles"]["leader"]["codec_id"], "store"
+        )
         invalid = RUNNER.summarize(
-            [trial(index, digest=("b" * 64 if index == 5 else "a" * 64)) for index in range(1, 6)],
+            [
+                trial(index, digest=("b" * 64 if index == 5 else "a" * 64))
+                for index in range(1, 6)
+            ],
             ["store"],
             items,
             5,
         )
         self.assertFalse(invalid["item_codec_rows"][0]["passed"])
+
+    def test_resumed_trial_requires_complete_frozen_identity(self):
+        item = {
+            "id": "one",
+            "track": "source_code_bundles",
+            "source_bytes": 100,
+            "source_sha256": "a" * 64,
+            "path": str(
+                ROOT
+                / "corpora"
+                / "text-source-development-v1"
+                / "one.axsrc"
+            ),
+        }
+        bindings = {"repository_commit": "abc"}
+        work = Path("$WORK")
+        compress, _c_out, decompress, _d_out = RUNNER.codec_commands(
+            "store",
+            self.tools,
+            Path(item["path"]),
+            work / "artifact.bin",
+            work / "restored.bin",
+        )
+
+        def process(command):
+            return {
+                "command": RUNNER.sanitize_process_record(
+                    {"command": command}, work
+                )["command"],
+                "returncode": 0,
+                "timed_out": False,
+                "wall_ns": 1,
+                "cpu_ns": 1,
+                "peak_rss_bytes": 1,
+                "stdout": "",
+                "stderr": "",
+            }
+
+        existing = {
+            "schema_version": 1,
+            "bindings": bindings,
+            "codec_id": "store",
+            "item_id": "one",
+            "track": "source_code_bundles",
+            "repetition": 1,
+            "warmup": False,
+            "source_bytes": 100,
+            "source_sha256": "a" * 64,
+            "artifact_bytes": 100,
+            "artifact_sha256": "b" * 64,
+            "compression": process(compress),
+            "decompression": process(decompress),
+            "exact_roundtrip": True,
+            "passed": True,
+            "error": None,
+        }
+        RUNNER.validate_existing_trial(
+            existing,
+            bindings=bindings,
+            codec_id="store",
+            item=item,
+            repetition=1,
+            tools=self.tools,
+            destination=Path("one.r1.json"),
+        )
+        existing["item_id"] = "different"
+        with self.assertRaisesRegex(ValueError, "identity mismatch"):
+            RUNNER.validate_existing_trial(
+                existing,
+                bindings=bindings,
+                codec_id="store",
+                item=item,
+                repetition=1,
+                tools=self.tools,
+                destination=Path("one.r1.json"),
+            )
+
+    def test_resumed_trial_rejects_changed_command(self):
+        item = {
+            "id": "one",
+            "track": "source_code_bundles",
+            "source_bytes": 100,
+            "source_sha256": "a" * 64,
+            "path": str(
+                ROOT
+                / "corpora"
+                / "text-source-development-v1"
+                / "one.axsrc"
+            ),
+        }
+        bindings = {"repository_commit": "abc"}
+        work = Path("$WORK")
+        compress, _c_out, decompress, _d_out = RUNNER.codec_commands(
+            "store",
+            self.tools,
+            Path(item["path"]),
+            work / "artifact.bin",
+            work / "restored.bin",
+        )
+
+        def process(command):
+            return {
+                "command": RUNNER.sanitize_process_record(
+                    {"command": command}, work
+                )["command"],
+                "returncode": 0,
+                "timed_out": False,
+                "wall_ns": 1,
+                "cpu_ns": 1,
+                "peak_rss_bytes": 1,
+                "stdout": "",
+                "stderr": "",
+            }
+
+        receipt = {
+            "schema_version": 1,
+            "bindings": bindings,
+            "codec_id": "store",
+            "item_id": "one",
+            "track": "source_code_bundles",
+            "repetition": 1,
+            "warmup": False,
+            "source_bytes": 100,
+            "source_sha256": "a" * 64,
+            "artifact_bytes": 100,
+            "artifact_sha256": "b" * 64,
+            "compression": process(compress),
+            "decompression": process(decompress),
+            "exact_roundtrip": True,
+            "passed": True,
+            "error": None,
+        }
+        receipt["compression"]["command"][0] = "different"
+        with self.assertRaisesRegex(ValueError, "compression record is invalid"):
+            RUNNER.validate_existing_trial(
+                receipt,
+                bindings=bindings,
+                codec_id="store",
+                item=item,
+                repetition=1,
+                tools=self.tools,
+                destination=Path("one.r1.json"),
+            )
 
 
 if __name__ == "__main__":

@@ -1,0 +1,21 @@
+{
+  "artifacts": {
+    "README.md": "c261c37345957255638cbf931060187ef36bb02d9196aed4d8123090a5d03218",
+    "comparison.json": "681ba56ffef85ebddf1f52adcb4da8b25a2ce99b299cfa20e4fd53f885372fdc",
+    "comparison.svg": "ebd6555013bceee33de0e8ad463f6f77dc6fa5e89ae53b15f37b4a139429e6ef",
+    "evidence.json": "b28429e3d12542eda21d03d981b9452cba2d4a329252e4876803b62852f1299f"
+  },
+  "bindings": {
+    "config_sha256": "c9da015e105dc2e5292092e1aaf017380b19adafa1a2514885e0477a8a197b96",
+    "manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+    "repository_commit": "ef8afccb7c1d058194e25c4004f97cf62b973be1"
+  },
+  "claim_ceiling": "Development practical-baseline evidence only. No Axiom text/source candidate was entered, research-ceiling codecs remain pending, validation and private holdout remain sealed, and this result cannot support a category-win, market-leading, world-best, or state-of-the-art claim.",
+  "name": "text-source-development-practical-baseline-publication-receipt-v1",
+  "public_evidence_sha256": "b28429e3d12542eda21d03d981b9452cba2d4a329252e4876803b62852f1299f",
+  "public_trial_receipts_manifest_sha256": "1861d3b497ee89c615b814fe2cfbf1f57e31608ab3be611c935c1272f6bfe0eb",
+  "results_path": "results.json",
+  "results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+  "schema_version": 1,
+  "trial_receipts_manifest_sha256": "a41eea623b86dd0382bf9d3136d1294864c5e63935e165fee1b19c8e83d3babf"
+}

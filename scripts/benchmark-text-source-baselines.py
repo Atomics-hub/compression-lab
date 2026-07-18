@@ -36,6 +36,14 @@ def file_digest(path: Path) -> str:
     return digest.hexdigest()
 
 
+def is_sha256(value: object) -> bool:
+    return (
+        isinstance(value, str)
+        and len(value) == 64
+        and all(character in "0123456789abcdef" for character in value)
+    )
+
+
 def write_json_atomic(path: Path, payload: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     descriptor, temporary_name = tempfile.mkstemp(
@@ -61,9 +69,7 @@ def repository_relative(path: Path) -> str:
 def sanitize_process_record(record: dict[str, Any], work: Path) -> dict[str, Any]:
     sanitized = dict(record)
     sanitized["command"] = [
-        str(value)
-        .replace(str(REPOSITORY), "$REPOSITORY")
-        .replace(str(work), "$WORK")
+        str(value).replace(str(REPOSITORY), "$REPOSITORY").replace(str(work), "$WORK")
         for value in record["command"]
     ]
     if sanitized["command"] and sanitized["command"][0].startswith("/"):
@@ -190,43 +196,68 @@ def codec_commands(
         return str(tools[name]["path"])
 
     if codec_id == "store":
-        return ["/bin/cp", str(source), str(artifact)], None, [
-            "/bin/cp",
-            str(artifact),
-            str(restored),
-        ], None
+        return (
+            ["/bin/cp", str(source), str(artifact)],
+            None,
+            [
+                "/bin/cp",
+                str(artifact),
+                str(restored),
+            ],
+            None,
+        )
     if codec_id == "lz4-1":
-        return [tool("lz4"), "-q", "-1", "-f", str(source), str(artifact)], None, [
-            tool("lz4"),
-            "-q",
-            "-d",
-            "-f",
-            str(artifact),
-            str(restored),
-        ], None
+        return (
+            [tool("lz4"), "-q", "-1", "-f", str(source), str(artifact)],
+            None,
+            [
+                tool("lz4"),
+                "-q",
+                "-d",
+                "-f",
+                str(artifact),
+                str(restored),
+            ],
+            None,
+        )
     if codec_id == "gzip-9":
-        return [tool("gzip"), "-n", "-9", "-c", str(source)], artifact, [
-            tool("gzip"),
-            "-d",
-            "-c",
-            str(artifact),
-        ], restored
+        return (
+            [tool("gzip"), "-n", "-9", "-c", str(source)],
+            artifact,
+            [
+                tool("gzip"),
+                "-d",
+                "-c",
+                str(artifact),
+            ],
+            restored,
+        )
     if codec_id == "bzip2-9":
-        return [tool("bzip2"), "-9", "-c", str(source)], artifact, [
-            tool("bzip2"),
-            "-d",
-            "-c",
-            str(artifact),
-        ], restored
+        return (
+            [tool("bzip2"), "-9", "-c", str(source)],
+            artifact,
+            [
+                tool("bzip2"),
+                "-d",
+                "-c",
+                str(artifact),
+            ],
+            restored,
+        )
     if codec_id == "bzip3-max":
-        return [
-            tool("bzip3"),
-            "--encode",
-            "--block=511",
-            "--jobs=1",
-            "--stdout",
-            str(source),
-        ], artifact, [tool("bzip3"), "--decode", "--stdout", str(artifact)], restored
+        return (
+            [
+                tool("bzip3"),
+                "--encode",
+                "--block=511",
+                "--jobs=1",
+                "--stdout",
+                str(source),
+            ],
+            artifact,
+            [tool("bzip3"), "--decode", "--stdout", str(artifact)],
+            restored,
+        )
     if codec_id.startswith("zstd-"):
         level = {
             "zstd-3": ["-3"],
@@ -234,100 +265,130 @@ def codec_commands(
             "zstd-19": ["-19"],
             "zstd-22-ultra": ["--ultra", "-22"],
         }[codec_id]
-        return [
-            tool("zstd"),
-            "-q",
-            "-T1",
-            *level,
-            "-f",
-            str(source),
-            "-o",
-            str(artifact),
-        ], None, [
-            tool("zstd"),
-            "-q",
-            "-T1",
-            "-d",
-            "-f",
-            str(artifact),
-            "-o",
-            str(restored),
-        ], None
+        return (
+            [
+                tool("zstd"),
+                "-q",
+                "-T1",
+                *level,
+                "-f",
+                str(source),
+                "-o",
+                str(artifact),
+            ],
+            None,
+            [
+                tool("zstd"),
+                "-q",
+                "-T1",
+                "-d",
+                "-f",
+                str(artifact),
+                "-o",
+                str(restored),
+            ],
+            None,
+        )
     if codec_id == "brotli-11":
-        return [
-            tool("brotli"),
-            "-q",
-            "11",
-            "-f",
-            "-o",
-            str(artifact),
-            str(source),
-        ], None, [
-            tool("brotli"),
-            "-d",
-            "-f",
-            "-o",
-            str(restored),
-            str(artifact),
-        ], None
+        return (
+            [
+                tool("brotli"),
+                "-q",
+                "11",
+                "-f",
+                "-o",
+                str(artifact),
+                str(source),
+            ],
+            None,
+            [
+                tool("brotli"),
+                "-d",
+                "-f",
+                "-o",
+                str(restored),
+                str(artifact),
+            ],
+            None,
+        )
     if codec_id == "xz-lzma2-9e":
-        return [tool("xz"), "-T1", "-9e", "-c", str(source)], artifact, [
-            tool("xz"),
-            "-T1",
-            "-d",
-            "-c",
-            str(artifact),
-        ], restored
+        return (
+            [tool("xz"), "-T1", "-9e", "-c", str(source)],
+            artifact,
+            [
+                tool("xz"),
+                "-T1",
+                "-d",
+                "-c",
+                str(artifact),
+            ],
+            restored,
+        )
     if codec_id.startswith("7zip-"):
         method = "lzma2" if codec_id == "7zip-lzma2-9" else "PPMd"
-        return [
-            tool("7zz"),
-            "a",
-            "-bd",
-            "-bso0",
-            "-bsp0",
-            "-t7z",
-            f"-m0={method}",
-            "-mx=9",
-            "-mmt=1",
-            str(artifact),
-            str(source),
-        ], None, [
-            tool("7zz"),
-            "e",
-            "-bd",
-            "-bso0",
-            "-bsp0",
-            "-so",
-            str(artifact),
-        ], restored
+        return (
+            [
+                tool("7zz"),
+                "a",
+                "-bd",
+                "-bso0",
+                "-bsp0",
+                "-t7z",
+                f"-m0={method}",
+                "-mx=9",
+                "-mmt=1",
+                str(artifact),
+                str(source),
+            ],
+            None,
+            [
+                tool("7zz"),
+                "e",
+                "-bd",
+                "-bso0",
+                "-bsp0",
+                "-so",
+                str(artifact),
+            ],
+            restored,
+        )
     if codec_id == "kanzi-max":
-        return [
-            tool("kanzi"),
-            "--compress",
-            "--level=9",
-            "--block=1g",
-            "--jobs=1",
-            "--verbose=0",
-            "--force",
-            f"--input={source}",
-            f"--output={artifact}",
-        ], None, [
-            tool("kanzi"),
-            "--decompress",
-            "--jobs=1",
-            "--verbose=0",
-            "--force",
-            f"--input={artifact}",
-            f"--output={restored}",
-        ], None
+        return (
+            [
+                tool("kanzi"),
+                "--compress",
+                "--level=9",
+                "--block=1g",
+                "--jobs=1",
+                "--verbose=0",
+                "--force",
+                f"--input={source}",
+                f"--output={artifact}",
+            ],
+            None,
+            [
+                tool("kanzi"),
+                "--decompress",
+                "--jobs=1",
+                "--verbose=0",
+                "--force",
+                f"--input={artifact}",
+                f"--output={restored}",
+            ],
+            None,
+        )
     if codec_id == "libbsc-max":
-        return [tool("libbsc"), "e", str(source), str(artifact), "-b512", "-e2"], None, [
-            tool("libbsc"),
-            "d",
-            str(artifact),
-            str(restored),
-        ], None
+        return (
+            [tool("libbsc"), "e", str(source), str(artifact), "-b512", "-e2"],
+            None,
+            [
+                tool("libbsc"),
+                "d",
+                str(artifact),
+                str(restored),
+            ],
+            None,
+        )
     raise ValueError(f"unsupported practical codec: {codec_id}")
 
 
@@ -349,7 +410,9 @@ def run_process(
         }
     )
     started = time.perf_counter_ns()
-    stdout_file = stdout_path.open("wb") if stdout_path is not None else tempfile.TemporaryFile()
+    stdout_file = (
+        stdout_path.open("wb") if stdout_path is not None else tempfile.TemporaryFile()
+    )
     stderr_file = tempfile.TemporaryFile()
     try:
         process = subprocess.Popen(
@@ -403,6 +466,133 @@ def trial_path(output: Path, codec_id: str, item_id: str, repetition: int) -> Pa
     return output / "trials" / codec_id / f"{item_id}.r{repetition}.json"
 
 
+def validate_existing_trial(
+    existing: dict[str, Any],
+    *,
+    bindings: dict[str, str],
+    codec_id: str,
+    item: dict[str, Any],
+    repetition: int,
+    tools: dict[str, dict[str, Any]],
+    destination: Path,
+) -> None:
+    expected = {
+        "schema_version": 1,
+        "bindings": bindings,
+        "codec_id": codec_id,
+        "item_id": item["id"],
+        "track": item["track"],
+        "repetition": repetition,
+        "warmup": repetition == 0,
+        "source_bytes": item["source_bytes"],
+        "source_sha256": item["source_sha256"],
+    }
+    receipt_keys = {
+        "schema_version",
+        "bindings",
+        "codec_id",
+        "item_id",
+        "track",
+        "repetition",
+        "warmup",
+        "source_bytes",
+        "source_sha256",
+        "artifact_bytes",
+        "artifact_sha256",
+        "compression",
+        "decompression",
+        "exact_roundtrip",
+        "passed",
+        "error",
+    }
+    if (
+        set(existing) != receipt_keys
+        or type(existing.get("schema_version")) is not int
+        or type(existing.get("repetition")) is not int
+        or not isinstance(existing.get("warmup"), bool)
+        or any(existing.get(key) != value for key, value in expected.items())
+    ):
+        raise ValueError(f"resumed trial identity mismatch: {destination}")
+
+    work = Path("$WORK")
+    compress, _compress_stdout, decompress, _decompress_stdout = codec_commands(
+        codec_id,
+        tools,
+        Path(item["path"]),
+        work / "artifact.bin",
+        work / "restored.bin",
+    )
+    expected_commands = {
+        "compression": sanitize_process_record({"command": compress}, work)["command"],
+        "decompression": sanitize_process_record({"command": decompress}, work)[
+            "command"
+        ],
+    }
+
+    def validate_process(phase: str, process: object) -> None:
+        if (
+            not isinstance(process, dict)
+            or set(process)
+            != {
+                "command",
+                "returncode",
+                "timed_out",
+                "wall_ns",
+                "cpu_ns",
+                "peak_rss_bytes",
+                "stdout",
+                "stderr",
+            }
+            or process.get("command") != expected_commands[phase]
+            or type(process.get("returncode")) is not int
+            or not isinstance(process.get("timed_out"), bool)
+            or type(process.get("wall_ns")) is not int
+            or process["wall_ns"] <= 0
+            or type(process.get("cpu_ns")) is not int
+            or process["cpu_ns"] < 0
+            or type(process.get("peak_rss_bytes")) is not int
+            or process["peak_rss_bytes"] < 0
+            or not isinstance(process.get("stdout"), str)
+            or not isinstance(process.get("stderr"), str)
+        ):
+            raise ValueError(f"resumed trial {phase} record is invalid: {destination}")
+
+    validate_process("compression", existing.get("compression"))
+    decompression = existing.get("decompression")
+    if decompression is not None:
+        validate_process("decompression", decompression)
+    artifact_bytes = existing.get("artifact_bytes")
+    artifact_sha256 = existing.get("artifact_sha256")
+    artifact_valid = (
+        type(artifact_bytes) is int
+        and artifact_bytes > 0
+        and is_sha256(artifact_sha256)
+    )
+    if existing.get("passed") is True:
+        if (
+            existing.get("exact_roundtrip") is not True
+            or existing.get("error") is not None
+            or not artifact_valid
+            or decompression is None
+            or existing["compression"]["returncode"] != 0
+            or existing["compression"]["timed_out"] is not False
+            or decompression["returncode"] != 0
+            or decompression["timed_out"] is not False
+        ):
+            raise ValueError(f"resumed trial successful outcome is invalid: {destination}")
+    elif existing.get("passed") is False:
+        if (
+            existing.get("exact_roundtrip") is not False
+            or not isinstance(existing.get("error"), str)
+            or not existing["error"]
+            or ((artifact_bytes is None) != (artifact_sha256 is None))
+            or (artifact_bytes is not None and not artifact_valid)
+        ):
+            raise ValueError(f"resumed trial failed outcome is invalid: {destination}")
+    else:
+        raise ValueError(f"resumed trial pass state is invalid: {destination}")
+
+
 def preflight_codecs(
     codec_ids: list[str],
     tools: dict[str, dict[str, Any]],
@@ -432,16 +622,22 @@ def preflight_codecs(
                 timeout_seconds=timeout_seconds,
             )
             if compression["timed_out"] or compression["returncode"] != 0:
-                raise ValueError(f"{codec_id} compression preflight failed: {compression}")
+                raise ValueError(
+                    f"{codec_id} compression preflight failed: {compression}"
+                )
             if not artifact.is_file():
-                raise ValueError(f"{codec_id} compression preflight produced no artifact")
+                raise ValueError(
+                    f"{codec_id} compression preflight produced no artifact"
+                )
             decompression = run_process(
                 decompress,
                 stdout_path=decompress_stdout,
                 timeout_seconds=timeout_seconds,
             )
             if decompression["timed_out"] or decompression["returncode"] != 0:
-                raise ValueError(f"{codec_id} decompression preflight failed: {decompression}")
+                raise ValueError(
+                    f"{codec_id} decompression preflight failed: {decompression}"
+                )
             exact = restored.is_file() and file_digest(restored) == expected
             if not exact:
                 raise ValueError(f"{codec_id} preflight round trip is inexact")
@@ -469,9 +665,23 @@ def run_trial(
 ) -> dict[str, Any]:
     destination = trial_path(output, codec_id, item["id"], repetition)
     if destination.exists():
-        existing = json.loads(destination.read_text(encoding="utf-8"))
-        if existing.get("bindings") != bindings:
-            raise ValueError(f"resumed trial binding mismatch: {destination}")
+        raw = destination.read_bytes()
+        existing = json.loads(raw)
+        if (
+            not isinstance(existing, dict)
+            or raw
+            != (json.dumps(existing, indent=2, sort_keys=True) + "\n").encode("utf-8")
+        ):
+            raise ValueError(f"resumed trial is not canonical JSON: {destination}")
+        validate_existing_trial(
+            existing,
+            bindings=bindings,
+            codec_id=codec_id,
+            item=item,
+            repetition=repetition,
+            tools=tools,
+            destination=destination,
+        )
         return existing
     with tempfile.TemporaryDirectory(prefix="text-source-baseline-") as raw:
         work = Path(raw)
@@ -552,29 +762,50 @@ def summarize(
                 if row["codec_id"] == codec_id and row["item_id"] == item["id"]
             ]
             passed = len(group) == repetitions and all(row["passed"] for row in group)
-            artifact_hashes = {row["artifact_sha256"] for row in group if row["artifact_sha256"]}
-            artifact_sizes = {row["artifact_bytes"] for row in group if row["artifact_bytes"] is not None}
-            deterministic = passed and len(artifact_hashes) == 1 and len(artifact_sizes) == 1
+            artifact_hashes = {
+                row["artifact_sha256"] for row in group if row["artifact_sha256"]
+            }
+            artifact_sizes = {
+                row["artifact_bytes"]
+                for row in group
+                if row["artifact_bytes"] is not None
+            }
+            deterministic = (
+                passed and len(artifact_hashes) == 1 and len(artifact_sizes) == 1
+            )
             rows.append(
                 {
                     "codec_id": codec_id,
                     "item_id": item["id"],
                     "track": item["track"],
                     "source_bytes": item["source_bytes"],
-                    "artifact_bytes": next(iter(artifact_sizes)) if len(artifact_sizes) == 1 else None,
-                    "artifact_sha256": next(iter(artifact_hashes)) if len(artifact_hashes) == 1 else None,
+                    "artifact_bytes": next(iter(artifact_sizes))
+                    if len(artifact_sizes) == 1
+                    else None,
+                    "artifact_sha256": next(iter(artifact_hashes))
+                    if len(artifact_hashes) == 1
+                    else None,
                     "median_compression_ns": (
-                        int(statistics.median(row["compression"]["wall_ns"] for row in group))
+                        int(
+                            statistics.median(
+                                row["compression"]["wall_ns"] for row in group
+                            )
+                        )
                         if passed
                         else None
                     ),
                     "median_decompression_ns": (
-                        int(statistics.median(row["decompression"]["wall_ns"] for row in group))
+                        int(
+                            statistics.median(
+                                row["decompression"]["wall_ns"] for row in group
+                            )
+                        )
                         if passed
                         else None
                     ),
                     "compression_peak_rss_bytes": max(
-                        (row["compression"]["peak_rss_bytes"] for row in group), default=0
+                        (row["compression"]["peak_rss_bytes"] for row in group),
+                        default=0,
                     ),
                     "decompression_peak_rss_bytes": max(
                         (
@@ -597,17 +828,25 @@ def summarize(
         codec_rows = []
         for codec_id in codec_ids:
             selected = [
-                row for row in rows if row["track"] == track and row["codec_id"] == codec_id
+                row
+                for row in rows
+                if row["track"] == track and row["codec_id"] == codec_id
             ]
-            complete = len(selected) == len(track_items) and all(row["passed"] for row in selected)
+            complete = len(selected) == len(track_items) and all(
+                row["passed"] for row in selected
+            )
             artifact_bytes = (
                 sum(row["artifact_bytes"] for row in selected) if complete else None
             )
             compression_ns = (
-                sum(row["median_compression_ns"] for row in selected) if complete else None
+                sum(row["median_compression_ns"] for row in selected)
+                if complete
+                else None
             )
             decompression_ns = (
-                sum(row["median_decompression_ns"] for row in selected) if complete else None
+                sum(row["median_decompression_ns"] for row in selected)
+                if complete
+                else None
             )
             codec_rows.append(
                 {
@@ -624,17 +863,25 @@ def summarize(
                         source_bytes / decompression_ns * 1000.0 if complete else None
                     ),
                     "compression_peak_rss_bytes": max(
-                        (row["compression_peak_rss_bytes"] for row in selected), default=0
+                        (row["compression_peak_rss_bytes"] for row in selected),
+                        default=0,
                     ),
                     "decompression_peak_rss_bytes": max(
-                        (row["decompression_peak_rss_bytes"] for row in selected), default=0
+                        (row["decompression_peak_rss_bytes"] for row in selected),
+                        default=0,
                     ),
                     "complete": complete,
                 }
             )
         completed = [row for row in codec_rows if row["complete"]]
-        leader = min(completed, key=lambda row: row["artifact_bytes"]) if completed else None
-        tracks[track] = {"source_bytes": source_bytes, "leader": leader, "codecs": codec_rows}
+        leader = (
+            min(completed, key=lambda row: row["artifact_bytes"]) if completed else None
+        )
+        tracks[track] = {
+            "source_bytes": source_bytes,
+            "leader": leader,
+            "codecs": codec_rows,
+        }
     return {"item_codec_rows": rows, "tracks": tracks}
 
 
@@ -751,7 +998,13 @@ def main() -> int:
             tools_root=args.tools,
             output=args.output,
         )
-    except (KeyError, OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:
+    except (
+        KeyError,
+        OSError,
+        ValueError,
+        RuntimeError,
+        subprocess.SubprocessError,
+    ) as error:
         raise SystemExit(f"baseline census failed: {error}") from error
     print(result)
     return 0

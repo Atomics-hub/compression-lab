@@ -1,0 +1,93 @@
+{
+  "claim_ceiling": "A successor route is a development research decision only. It is not a codec result, baseline win, validation result, or state-of-the-art claim.",
+  "frozen_before_structural_results": true,
+  "global_successor_gate": {
+    "complete_artifact_accounting": true,
+    "exact_roundtrip_required": true,
+    "maximum_item_regression_percent": 0.5,
+    "minimum_gain_vs_strongest_eligible_complete_baseline_percent": 5.0,
+    "private_holdout_status": "sealed and unaccessed",
+    "public_validation_status": "sealed and unaccessed",
+    "two_byte_identical_measured_artifacts_required": true,
+    "unavailable_or_incomplete_baseline_is_not_an_axiom_win": true
+  },
+  "name": "text-source-structural-successor-routing-v1",
+  "schema_version": 1,
+  "structural_publication_name": "text-source-structural-transform-development-publication-v1",
+  "tracks": {
+    "english_wikimedia_wikitext": {
+      "ordered_rules": [
+        {
+          "action": "Develop WK-S1 on the retained TS-H1 demultiplex: a reversible bounded wiki-markup scanner with separate plain-text, template/tag, link/entity, title, and structural-metadata channels. Compare complete self-contained output against every practical and admitted research baseline.",
+          "condition": {
+            "equals": true,
+            "field": "final_specialist_admission_passed",
+            "variant": "ts-h1-demux"
+          },
+          "hypothesis_id": "wk-s1-markup-channels-on-h1",
+          "rule_id": "wikimedia_h1_admitted"
+        },
+        {
+          "action": "Develop WK-S1 on TS-H1 as a diagnostic successor because demultiplexing exposed useful residual structure but missed final admission. The new scanner must earn the full five-percent gate rather than inheriting credit from TS-H1.",
+          "condition": {
+            "equals": true,
+            "field": "hypothesis_gate_passed",
+            "variant": "ts-h1-demux"
+          },
+          "hypothesis_id": "wk-s1-markup-channels-on-h1",
+          "rule_id": "wikimedia_h1_signal_only"
+        },
+        {
+          "action": "Reject framing demultiplex as the next Wikimedia base. Develop WK-P1 without the AXTS1 envelope: bounded markup-aware prediction plus a development-trained static token dictionary whose complete decoder bytes are counted once. Predeclare dictionary training and validation splits before fitting.",
+          "condition": {
+            "otherwise": true
+          },
+          "hypothesis_id": "wk-p1-markup-predictor-counted-dictionary",
+          "rule_id": "wikimedia_structural_rejected"
+        }
+      ]
+    },
+    "source_code_bundles": {
+      "ordered_rules": [
+        {
+          "action": "Develop TS-S1 on retained extension lanes: a reversible bounded lexical-role transform separating whitespace, comments, identifiers, literals, punctuation, and raw escape bytes within deterministic language/extension lanes. Count all framing and decoder state.",
+          "condition": {
+            "equals": true,
+            "field": "final_specialist_admission_passed",
+            "variant": "ts-h2-extension-lanes"
+          },
+          "hypothesis_id": "ts-s1-lexical-role-extension-lanes",
+          "rule_id": "source_h2_admitted"
+        },
+        {
+          "action": "Develop TS-S1 on extension lanes because TS-H2 exposed useful language-homogeneity residuals but missed final admission. TS-S1 must independently clear the full five-percent gate.",
+          "condition": {
+            "equals": true,
+            "field": "hypothesis_gate_passed",
+            "variant": "ts-h2-extension-lanes"
+          },
+          "hypothesis_id": "ts-s1-lexical-role-extension-lanes",
+          "rule_id": "source_h2_signal_only"
+        },
+        {
+          "action": "Develop TS-S1 on TS-H1 demultiplex without extension lanes: reversible lexical-role channels with language identity retained only as bounded metadata. This tests token-role residuals without assuming extension grouping helped.",
+          "condition": {
+            "equals": true,
+            "field": "hypothesis_gate_passed",
+            "variant": "ts-h1-demux"
+          },
+          "hypothesis_id": "ts-s1-lexical-role-demux",
+          "rule_id": "source_h1_signal_only"
+        },
+        {
+          "action": "Reject AXTS1 structural separation as the next source-code base. Develop TS-P1 directly over canonical source bundles: a bounded mixed byte/token predictor with a development-trained counted static dictionary, preserving raw escape channels for unsupported syntax.",
+          "condition": {
+            "otherwise": true
+          },
+          "hypothesis_id": "ts-p1-mixed-predictor-counted-dictionary",
+          "rule_id": "source_structural_rejected"
+        }
+      ]
+    }
+  }
+}
