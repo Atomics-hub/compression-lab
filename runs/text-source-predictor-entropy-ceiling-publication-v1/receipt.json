@@ -1,0 +1,13 @@
+{
+  "artifacts": {
+    "README.md": "d89188c1c359673e3ac5ef679d1d280610519a89a17666a8f3abbdd06d1afafa",
+    "comparison.json": "1aa73321558580ece904446a249ec74125f3611db775ea59ff4cdc165806c5ed",
+    "comparison.svg": "50c2abd86b9b7ee4aae4ae38cfbad173417e2c09615cd1c9f5edc3833c057fb1",
+    "evidence.json": "ecbece60ba1f09956defef8fcbe04d27db299ccbde0aaf5c5e934f713596c2b4"
+  },
+  "claim_ceiling": "Sampled development entropy-ceiling probe only. Estimated bytes are not a decodable artifact, codec result, baseline win, validation result, or state-of-the-art claim. Public validation and private holdout remain sealed and unaccessed.",
+  "name": "text-source-predictor-entropy-ceiling-publication-receipt-v1",
+  "public_evidence_sha256": "ecbece60ba1f09956defef8fcbe04d27db299ccbde0aaf5c5e934f713596c2b4",
+  "result_sha256": "300a9cd657b0949b9b4af165d6e080ff3962afb1281a764bb5c894b508d2fa68",
+  "schema_version": 1
+}

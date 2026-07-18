@@ -112,9 +112,24 @@ rejected; neither will be promoted into the product.
 
 ![Axiom structural variants and every practical text/source standard compared by complete size, speed, memory, exactness, and determinism](runs/text-source-structural-transform-development-v1/publication/comparison.svg)
 
-This establishes the practical target and records two clean negative Axiom
-results; it is **not an Axiom win**. ZPAQ, paq8px, cmix, and NNCP remain in a
-separate research-ceiling tier. The [structural publication
+The next frozen entropy-ceiling probe trained counted dictionaries only on
+CPython, TypeScript, Wikibooks, and Wikinews, then evaluated on separate Rust,
+LLVM, and Wikiversity items. Its mixed token/class model improved on the weak
+byte/class ablation by **13.34%** for source and **25.41%** for Wikimedia, but
+remained **498.83% larger than Kanzi-max** on Rust + LLVM and **172.23% larger**
+on Wikiversity. Both predictor successors are rejected, and neither merits an
+exact codec build.
+
+![Axiom predictor entropy estimates and all 15 practical standards on the identical evaluation subsets](runs/text-source-predictor-entropy-ceiling-publication-v1/comparison.svg)
+
+This establishes the practical target and records clean negative Axiom
+results; it is **not an Axiom win**. The predictor rows are conservative
+estimates, not decodable artifacts, and carry no speed, memory, exactness, or
+portability claim. ZPAQ, paq8px, cmix, and NNCP remain in a separate
+research-ceiling tier. The [predictor publication
+bundle](runs/text-source-predictor-entropy-ceiling-publication-v1/README.md)
+shows every practical standard, all three estimates, and the exact claim
+boundary. The earlier [structural publication
 bundle](runs/text-source-structural-transform-development-v1/publication/README.md)
 contains every practical standard and Axiom row, raw-receipt commitments,
 per-item results, speed, memory, exactness, determinism, and the claim ceiling.
@@ -126,8 +141,8 @@ remains independently reproducible.
 | Category | Objective completion | Best measured result | Gate status and evidence |
 | --- | ---: | --- | --- |
 | JSON and machine logs | **50%** | JLS2 is 52.97% smaller than the strongest eligible standard on the first frozen public-validation score | Ratio, both families, speed, exactness, integrity, and compression memory passed; overall gate failed only decoder RSS at 621.3 MiB vs 512 MiB ([immutable result](runs/clue-jls2-public-validation-v1/publication/README.md), [import receipt](runs/clue-jls2-public-validation-v1-import.json)) |
-| Source-code bundles | **10%** | TS-H1 was 0.213% smaller than Kanzi-max; TS-H2 was 0.383% larger | Both structural hypotheses failed their frozen gates; measure the bounded research-ceiling tier next ([full chart](runs/text-source-structural-transform-development-v1/publication/README.md), [protocol](docs/benchmarks/2026-07-17-text-source-structural-transform-protocol.md)) |
-| English Wikimedia wikitext | **10%** | TS-H1 was 0.0068% smaller than Kanzi-max | Structural hypothesis failed its frozen gate; measure the research-ceiling tier next and keep enwik9 diagnostic-only ([full chart](runs/text-source-structural-transform-development-v1/publication/README.md), [protocol](docs/benchmarks/2026-07-17-text-source-structural-transform-protocol.md)) |
+| Source-code bundles | **10%** | Tokenization improved the weak P1 estimate by 13.34%, but P2 was 498.83% larger than Kanzi-max on Rust + LLVM | Structural and low-order predictor families both failed frozen gates; pursue a materially stronger contextual or long-range successor while completing external research-ceiling hosts ([latest chart](runs/text-source-predictor-entropy-ceiling-publication-v1/README.md), [protocol](docs/benchmarks/2026-07-18-text-source-predictor-probe-protocol.md)) |
+| English Wikimedia wikitext | **10%** | Tokenization improved the weak P1 estimate by 25.41%, but P2 was 172.23% larger than Kanzi-max on Wikiversity | Structural and low-order predictor families both failed frozen gates; pursue a materially stronger contextual successor and keep enwik9 diagnostic-only ([latest chart](runs/text-source-predictor-entropy-ceiling-publication-v1/README.md), [protocol](docs/benchmarks/2026-07-18-text-source-predictor-probe-protocol.md)) |
 | Delimited tables | **50%** | TBS1 vs 7-Zip-9: 3.48% larger aggregate | Frozen gate failed ([decision](docs/benchmarks/2026-07-17-tbl1-public-validation-decision.md), [Fresh successor corpus protocol](docs/benchmarks/2026-07-17-tabular-successor-corpus-protocol.md)) |
 | Dense matrices and time series | **20%** | DMS2 vs Brotli-11: 43.55% larger; 33.45 / 313.99 MB/s compression / decompression | Frozen gate failed ([evidence](runs/dms2-public-validation-v1/README.md)) |
 | General binary/archive | **10%** | Exact `.clab` fallback; no strongest-standard lead established | Alpha |

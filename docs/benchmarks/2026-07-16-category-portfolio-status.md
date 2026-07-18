@@ -25,8 +25,8 @@ actually pass.
 | Category | Objective completion | Evidence stage | Ratio status | Speed status | Memory status | Complete category win? | Next gate |
 | --- | ---: | --- | --- | --- | --- | --- | --- |
 | JSON and machine logs | **50%** | Public-validation partial | ✅ JLS2 produced 489,591 bytes from 96,934,483 unseen source bytes, 52.97% smaller than Brotli-11; both families won by 48.31% and 54.50% | ✅ 109.58 MB/s compression and 431.36 MB/s standalone decode; every speed gate passed | ❌ standalone decode was 621.3 MiB versus the frozen 512 MiB cap; compression memory passed | ❌ No; valid no-pass on one memory gate | Preserve the imported first score; diagnose RSS only on fresh development families and use different untouched validation families |
-| Source-code bundles | **10%** | Practical baseline and structural probe complete | TS-H1 +0.213%; TS-H2 -0.383% vs Kanzi-max; both frozen gates failed | TS-H1 measured at 3.09/2.20 MB/s compression/decompression | TS-H1 measured at 1,889.0/1,908.1 MiB compression/decompression | ❌ No | Run the bounded research-ceiling tier; do not promote either rejected transform ([chart](../../runs/text-source-structural-transform-development-v1/publication/README.md)) |
-| English Wikimedia wikitext | **10%** | Practical baseline and structural probe complete | TS-H1 +0.0068% vs Kanzi-max; frozen gate failed | TS-H1 measured at 1.83/1.65 MB/s compression/decompression | TS-H1 measured at 1,529.0/1,525.1 MiB compression/decompression | ❌ No | Run the bounded research-ceiling tier; keep enwik9 diagnostic-only ([chart](../../runs/text-source-structural-transform-development-v1/publication/README.md)) |
+| Source-code bundles | **10%** | Practical baseline, structural probe, and sampled predictor ceiling complete | ❌ P2 improved the weak P1 estimate by 13.34% but projected 235,513,209 bytes versus Kanzi-max's 39,328,985 on Rust + LLVM (498.83% larger) | — predictor result is not an artifact; prior TS-H1 measured 3.09/2.20 MB/s | — predictor result is not an artifact; prior TS-H1 measured 1,889.0/1,908.1 MiB | ❌ No | Reject the low-order family; freeze a materially stronger contextual or long-range successor and complete external research-ceiling hosts ([chart](../../runs/text-source-predictor-entropy-ceiling-publication-v1/README.md)) |
+| English Wikimedia wikitext | **10%** | Practical baseline, structural probe, and sampled predictor ceiling complete | ❌ P2 improved the weak P1 estimate by 25.41% but projected 29,738,777 bytes versus Kanzi-max's 10,924,274 on Wikiversity (172.23% larger) | — predictor result is not an artifact; prior TS-H1 measured 1.83/1.65 MB/s | — predictor result is not an artifact; prior TS-H1 measured 1,529.0/1,525.1 MiB | ❌ No | Reject the low-order family; freeze a materially stronger contextual successor and keep enwik9 diagnostic-only ([chart](../../runs/text-source-predictor-entropy-ceiling-publication-v1/README.md)) |
 | Tabular CSV | **50%** | Public-validation partial | ⚠️ TBS1 won 3/4 families by 7.35%–16.50%, but lost aggregate to 7-Zip-9 by 3.48% after a 32.15% OCRB loss | ⚠️ 107.67/403.39 MB/s average; minimum compression passed, one decompression repetition failed at 163.51 MB/s | ✅ cold 293.70/139.81 MiB | ❌ No | Preserve the three-family signal; split image-like matrices into a separate category and use only fresh families for a successor |
 | Dense numeric matrices and time series | **20%** | Public-validation partial | ❌ DMS2 was 46.57% larger than Brotli-11 on Gisette and 41.03% larger than bzip2-9 on Madelon; a baseline corpus-scope defect also invalidated the frozen aggregate | ❌ 33.45 MB/s aggregate and 27.77 MB/s minimum missed 50/45 MB/s gates; decompression passed | ❌ cold compression RSS was 630.45 MiB versus 512 MiB gate; decompression passed | ❌ No | Retain the first score, never tune on Gisette/Madelon, repair corpus plumbing, and require a materially new specialist on fresh development and validation families |
 | General binary/archive | **10%** | Development | ❌ current encoder loses to zstd-9 | ❌ not Pareto-optimal | ⚠️ bounded-frame evidence only | ❌ No | Keep safe fallback; wait for a materially new specialist hypothesis |
@@ -62,11 +62,16 @@ The frozen 15-codec practical census is complete: all 630 trials round-tripped
 exactly and deterministically, with Kanzi-max leading both tracks. The
 [offline-verifiable publication](../../runs/text-source-development-baseline-census-v1/publication/README.md)
 contains the complete chart and public recalculation evidence. Exact upstream
-identities and self-contained accounting rules are frozen for the still-pending
-ZPAQ, paq8px, cmix, and NNCP research-ceiling tier. A codec's shipped parameter
-profile may be reproduced on the declared same-input corpus, but the famous
-enwik9 corpus and its published scores remain diagnostic-only. Both category
-rows remain at 10% until the complete required baseline gate is reproduced.
+identities and self-contained accounting rules are frozen for the research-
+ceiling tier. Local ZPAQ m510 reproducibly failed allocation, and the paq8px
+11L context-only source does not build with AppleClang; paq8px-12L, cmix, and
+NNCP remain assigned to declared larger Linux or CUDA hosts. The separate
+[predictor ceiling](../../runs/text-source-predictor-entropy-ceiling-publication-v1/README.md)
+found useful tokenization signal relative to its weak ablation but rejected the
+entire low-order family far below Kanzi-max. A codec's shipped parameter profile
+may be reproduced on the declared same-input corpus, but the famous enwik9
+corpus and its published scores remain diagnostic-only. Both category rows
+remain at 10% until the complete required baseline gate is reproduced.
 
 The tabular split, exact-byte boundary, baseline roster, and first product gates
 are frozen in
