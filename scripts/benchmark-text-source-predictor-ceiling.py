@@ -14,7 +14,6 @@ import re
 import statistics
 import subprocess
 import tempfile
-import time
 from typing import Any, Iterator
 
 
@@ -632,17 +631,24 @@ def run_track(
     }
 
 
-def benchmark(
-    *, config_path: Path, corpus: Path, baseline_path: Path, output: Path
-) -> Path:
-    commit = repository_commit()
+def calculate(
+    *,
+    config_path: Path,
+    corpus: Path,
+    baseline_path: Path,
+    commit: str,
+) -> dict[str, Any]:
+    if (
+        len(commit) != 40
+        or any(character not in "0123456789abcdef" for character in commit)
+    ):
+        raise ValueError("predictor repository commit is invalid")
     config, items, kanzi = load_inputs(config_path, corpus, baseline_path)
-    started = time.perf_counter_ns()
     tracks = [
         run_track(config=config, track=track, items=items, kanzi=kanzi)
         for track in TRACK_ORDER
     ]
-    result = {
+    return {
         "schema_version": 1,
         "name": "text-source-predictor-entropy-ceiling-result-v1",
         "completed": True,
@@ -659,13 +665,48 @@ def benchmark(
         "full_codec_build_admissions": sum(
             int(track["full_codec_build_admitted"]) for track in tracks
         ),
-        "wall_ns": time.perf_counter_ns() - started,
         "validation_status": "sealed and unaccessed",
         "private_holdout_status": "sealed and unaccessed",
         "axiom_wins": 0,
         "claim_ceiling": config["claim_ceiling"],
     }
+
+
+def benchmark(
+    *, config_path: Path, corpus: Path, baseline_path: Path, output: Path
+) -> Path:
+    result = calculate(
+        config_path=config_path,
+        corpus=corpus,
+        baseline_path=baseline_path,
+        commit=repository_commit(),
+    )
     return write_immutable(output, result)
+
+
+def verify(
+    *, config_path: Path, corpus: Path, baseline_path: Path, output: Path
+) -> dict[str, Any]:
+    observed = read_canonical_json(output)
+    commit = observed.get("bindings", {}).get("repository_commit")
+    if not isinstance(commit, str):
+        raise ValueError("predictor result repository binding is missing")
+    expected = calculate(
+        config_path=config_path,
+        corpus=corpus,
+        baseline_path=baseline_path,
+        commit=commit,
+    )
+    if observed != expected:
+        raise ValueError("predictor result does not reconstruct from frozen inputs")
+    return {
+        "verified": True,
+        "result_sha256": sha256_file(output),
+        "track_count": len(observed["tracks"]),
+        "full_codec_build_admissions": observed["full_codec_build_admissions"],
+        "axiom_wins": 0,
+        "claim_ceiling": observed["claim_ceiling"],
+    }
 
 
 def main() -> int:

@@ -142,6 +142,18 @@ class TextSourcePredictorCeilingTests(unittest.TestCase):
                 markup_tokens=[],
             )
 
+    def test_calculation_rejects_an_invalid_repository_binding_first(self) -> None:
+        with self.assertRaisesRegex(ValueError, "repository commit"):
+            MODULE.calculate(
+                config_path=CONFIG,
+                corpus=REPOSITORY / "corpora" / "text-source-development-v1",
+                baseline_path=REPOSITORY
+                / "runs"
+                / "text-source-development-baseline-census-v1"
+                / "results.json",
+                commit="not-a-commit",
+            )
+
 
 if __name__ == "__main__":
     unittest.main()
