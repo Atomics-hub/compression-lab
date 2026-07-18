@@ -181,7 +181,8 @@ class TextSourceProtocolTests(unittest.TestCase):
             )
             result = categories[category_id]["current_result"].lower()
             self.assertIn("census completed", result)
-            self.assertIn("no axiom candidate", result)
+            self.assertIn("axiom q1 record-neighborhood candidate", result)
+            self.assertIn("no category win", result)
 
 
 if __name__ == "__main__":

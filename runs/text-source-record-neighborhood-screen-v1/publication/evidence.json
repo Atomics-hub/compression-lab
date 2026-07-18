@@ -1,0 +1,1575 @@
+{
+  "baseline_public_evidence_sha256": "b28429e3d12542eda21d03d981b9452cba2d4a329252e4876803b62852f1299f",
+  "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+  "config": {
+    "bindings": {
+      "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+      "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+      "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+      "long_range_result_sha256": "faad7b7736685a30e451cd7fc94f4fde9898b16afa102a0291e418f86a544d12",
+      "structural_public_evidence_sha256": "e7b25f117866983214192183d076ed1cbac74490569653e302308c87ddeb3e97",
+      "structural_results_sha256": "92a29a1e184a04293ce04bfdd05f5e7ba7dd0d7f12873edce3d2926c1628db93",
+      "transform_script_sha256": "f79d48d1daccb62f00f8fd63904dfb543a618e8f243832623a6bde3472b0a6d5"
+    },
+    "claim_ceiling": "Training-split record-neighborhood representation experiment only. A passing result admits an Axiom prototype but is not validation, private-holdout, independent-reproduction, category-win, market-leading, world-best, or state-of-the-art evidence.",
+    "decision": {
+      "axiom_prototype_admission": {
+        "maximum_item_regression_percent": 0.5,
+        "minimum_aggregate_gain_percent_each_track_vs_kanzi_max": 2.0,
+        "minimum_aggregate_gain_percent_each_track_vs_structural_control": 1.0,
+        "required_exact_roundtrip": true,
+        "required_identical_artifacts": 2,
+        "required_same_variant_across_tracks": true,
+        "selected_successor_if_passed": "ts-wk-q1-bounded-record-neighborhood-specialist"
+      },
+      "final_axiom_codec_gate_reminder": {
+        "complete_artifact_accounting_required": true,
+        "exact_roundtrip_required": true,
+        "maximum_item_regression_percent": 0.5,
+        "minimum_aggregate_gain_vs_strongest_complete_baseline_percent": 5.0,
+        "two_byte_identical_measured_artifacts_required": true
+      },
+      "rejection": "If Q1 fails either track, reject this exact bounded-minhash record-neighborhood representation as the shared successor. Do not tune it on reserved evaluation bytes; any materially different successor requires a new predeclared screen."
+    },
+    "frozen_before_screen_results": true,
+    "measurement": {
+      "backend": "kanzi-max",
+      "backend_arguments": [
+        "--level=9",
+        "--block=1g",
+        "--jobs=1",
+        "--verbose=0",
+        "--force"
+      ],
+      "baseline_source": "Reuse exact per-item kanzi-max complete bytes and TS-H1 complete candidate bytes from their immutable verified evidence; do not rerun or replace either control.",
+      "measured_repetitions": 2,
+      "order_seed": 20260718,
+      "timeout_seconds_per_process": 7200,
+      "warmups": 0
+    },
+    "name": "text-source-record-neighborhood-screen-v1",
+    "research_basis": [
+      {
+        "finding": "Relative Lempel-Ziv methods exploit similarity across related document collections, motivating deterministic cross-record neighborhood formation rather than another local token model.",
+        "source": "https://arxiv.org/abs/1106.2587"
+      },
+      {
+        "finding": "LZ77 is especially effective on repetitive software repositories and versioned document collections, but record order can determine which repetitions become nearby to a bounded backend.",
+        "source": "https://arxiv.org/abs/1101.4065"
+      },
+      {
+        "finding": "The preceding exact LZP-before-TPAQX decomposition screen failed, so this successor tests cross-record ordering rather than repeating explicit left-only factorization.",
+        "source": "runs/text-source-long-range-screen-v1/results.json"
+      }
+    ],
+    "schema_version": 1,
+    "splits": {
+      "english_wikimedia_wikitext": {
+        "reserved_evaluation_not_accessed_by_screen": [
+          "enwikiversity-20260701"
+        ],
+        "screen_items": [
+          "enwikibooks-20260701",
+          "enwikinews-20260701"
+        ]
+      },
+      "source_code_bundles": {
+        "reserved_evaluation_not_accessed_by_screen": [
+          "rust-1.97.1-source",
+          "llvm-22.1.8-source"
+        ],
+        "screen_items": [
+          "cpython-3.14.6-source",
+          "typescript-6.0.3-source"
+        ]
+      }
+    },
+    "variants": [
+      {
+        "backend": "kanzi-max",
+        "id": "q1-bounded-minhash-record-neighborhood",
+        "purpose": "Test whether exact bounded content-similarity ordering creates backend-visible neighborhoods beyond the prior demux representation.",
+        "representation": "AXRN1 canonical metadata plus class-scoped four-seed bounded sampled-window minhash ordering"
+      }
+    ]
+  },
+  "config_sha256": "ef968c2a6f2f464438ef4c023e188e2bae8568eba4ccc712ab243f50e52f719c",
+  "name": "text-source-record-neighborhood-public-evidence-v1",
+  "public_trial_receipts_manifest_sha256": "85d2812521a5761eb0ad1ed8b50924be564c38321a41e76f90b1238c411884b1",
+  "raw_trial_receipts_manifest_sha256": "85d2812521a5761eb0ad1ed8b50924be564c38321a41e76f90b1238c411884b1",
+  "redaction_policy": "Commands retain only $REPOSITORY and $WORK placeholders; stdout and stderr contain no local absolute paths.",
+  "result_sha256": "724594043816e47fe3f0eabfe7870ee8f54a3fb75f1cdbd3a4b5696df297882a",
+  "results": {
+    "all_required_completed": true,
+    "bindings": {
+      "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+      "config_sha256": "ef968c2a6f2f464438ef4c023e188e2bae8568eba4ccc712ab243f50e52f719c",
+      "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+      "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+      "long_range_result_sha256": "faad7b7736685a30e451cd7fc94f4fde9898b16afa102a0291e418f86a544d12",
+      "repository_commit": "bf84472d1ffe061c11f5f201f6d809c79ccdf0ce",
+      "structural_public_evidence_sha256": "e7b25f117866983214192183d076ed1cbac74490569653e302308c87ddeb3e97",
+      "structural_results_sha256": "92a29a1e184a04293ce04bfdd05f5e7ba7dd0d7f12873edce3d2926c1628db93",
+      "transform_script_sha256": "f79d48d1daccb62f00f8fd63904dfb543a618e8f243832623a6bde3472b0a6d5"
+    },
+    "claim_ceiling": "Training-split record-neighborhood representation experiment only. A passing result admits an Axiom prototype but is not validation, private-holdout, independent-reproduction, category-win, market-leading, world-best, or state-of-the-art evidence.",
+    "completed": true,
+    "measurement": {
+      "backend": "kanzi-max",
+      "backend_arguments": [
+        "--level=9",
+        "--block=1g",
+        "--jobs=1",
+        "--verbose=0",
+        "--force"
+      ],
+      "baseline_source": "Reuse exact per-item kanzi-max complete bytes and TS-H1 complete candidate bytes from their immutable verified evidence; do not rerun or replace either control.",
+      "measured_repetitions": 2,
+      "order_seed": 20260718,
+      "timeout_seconds_per_process": 7200,
+      "warmups": 0
+    },
+    "name": "text-source-record-neighborhood-screen-result-v1",
+    "private_holdout_status": "sealed and unaccessed",
+    "public_validation_status": "sealed and unaccessed",
+    "schema_version": 1,
+    "screen_boundary": {
+      "english_wikimedia_wikitext": {
+        "reserved_evaluation_not_accessed_by_screen": [
+          "enwikiversity-20260701"
+        ],
+        "screen_items": [
+          "enwikibooks-20260701",
+          "enwikinews-20260701"
+        ]
+      },
+      "source_code_bundles": {
+        "reserved_evaluation_not_accessed_by_screen": [
+          "rust-1.97.1-source",
+          "llvm-22.1.8-source"
+        ],
+        "screen_items": [
+          "cpython-3.14.6-source",
+          "typescript-6.0.3-source"
+        ]
+      }
+    },
+    "summary": {
+      "axiom_prototype_admitted": false,
+      "axiom_wins": 0,
+      "decision": "reject_bounded_record_neighborhood_shared_successor",
+      "item_rows": [
+        {
+          "baseline_bytes": 4511714,
+          "candidate_bytes": 4569016,
+          "candidate_sha256": "e72dd63e67fcce41e2df8632b081393cea245ff70659c0c101eac370fdc223a0",
+          "compression_peak_rss_bytes": 1536180224,
+          "decompression_peak_rss_bytes": 1536540672,
+          "deterministic_artifact": true,
+          "exact_roundtrip": true,
+          "gain_vs_kanzi_percent": -1.27007164017932,
+          "gain_vs_structural_control_percent": -1.4434943509115563,
+          "item_id": "cpython-3.14.6-source",
+          "median_compression_ns": 129389933875,
+          "median_decompression_ns": 86136863521,
+          "passed": true,
+          "source_bytes": 44506231,
+          "structural_control_bytes": 4504001,
+          "track": "source_code_bundles",
+          "variant": "q1-bounded-minhash-record-neighborhood"
+        },
+        {
+          "baseline_bytes": 1709772,
+          "candidate_bytes": 1741062,
+          "candidate_sha256": "92e836f70a779d80f7492c1f44cb0bded3722781924acc2fead9a1ad2e81df1a",
+          "compression_peak_rss_bytes": 1490468864,
+          "decompression_peak_rss_bytes": 1491156992,
+          "deterministic_artifact": true,
+          "exact_roundtrip": true,
+          "gain_vs_kanzi_percent": -1.8300685705462485,
+          "gain_vs_structural_control_percent": -1.6429848696873584,
+          "item_id": "typescript-6.0.3-source",
+          "median_compression_ns": 40249008540,
+          "median_decompression_ns": 55378332584,
+          "passed": true,
+          "source_bytes": 25693307,
+          "structural_control_bytes": 1712919,
+          "track": "source_code_bundles",
+          "variant": "q1-bounded-minhash-record-neighborhood"
+        },
+        {
+          "baseline_bytes": 12622786,
+          "candidate_bytes": 12811700,
+          "candidate_sha256": "2e92bd69a14c05f5933c965247a58ea608b4ffbd5776d464446b3a3c68de8927",
+          "compression_peak_rss_bytes": 1603371008,
+          "decompression_peak_rss_bytes": 1599422464,
+          "deterministic_artifact": true,
+          "exact_roundtrip": true,
+          "gain_vs_kanzi_percent": -1.496610970034666,
+          "gain_vs_structural_control_percent": -1.4365419685309748,
+          "item_id": "enwikibooks-20260701",
+          "median_compression_ns": 92223124229,
+          "median_decompression_ns": 82361358083,
+          "passed": true,
+          "source_bytes": 67107953,
+          "structural_control_bytes": 12630261,
+          "track": "english_wikimedia_wikitext",
+          "variant": "q1-bounded-minhash-record-neighborhood"
+        },
+        {
+          "baseline_bytes": 11534002,
+          "candidate_bytes": 11786452,
+          "candidate_sha256": "0c9af6dfd8cbde05133f8421cda180a99467d53a55ca0cd413370beb7cc67358",
+          "compression_peak_rss_bytes": 1602682880,
+          "decompression_peak_rss_bytes": 1598210048,
+          "deterministic_artifact": true,
+          "exact_roundtrip": true,
+          "gain_vs_kanzi_percent": -2.188745935712513,
+          "gain_vs_structural_control_percent": -2.2696199639718624,
+          "item_id": "enwikinews-20260701",
+          "median_compression_ns": 106867093959,
+          "median_decompression_ns": 82419798478,
+          "passed": true,
+          "source_bytes": 67105968,
+          "structural_control_bytes": 11524881,
+          "track": "english_wikimedia_wikitext",
+          "variant": "q1-bounded-minhash-record-neighborhood"
+        }
+      ],
+      "selected_variant": null,
+      "tracks": [
+        {
+          "baseline_bytes": 6221486,
+          "candidate_bytes": 6310078,
+          "complete": true,
+          "gain_vs_kanzi_percent": -1.4239684859855024,
+          "gain_vs_structural_control_percent": -1.4984590440282326,
+          "minimum_item_gain_vs_kanzi_percent": -1.8300685705462485,
+          "screen_items": [
+            "cpython-3.14.6-source",
+            "typescript-6.0.3-source"
+          ],
+          "structural_control_bytes": 6216920,
+          "track": "source_code_bundles",
+          "track_admitted": false
+        },
+        {
+          "baseline_bytes": 24156788,
+          "candidate_bytes": 24598152,
+          "complete": true,
+          "gain_vs_kanzi_percent": -1.8270806532722812,
+          "gain_vs_structural_control_percent": -1.8340194398360397,
+          "minimum_item_gain_vs_kanzi_percent": -2.188745935712513,
+          "screen_items": [
+            "enwikibooks-20260701",
+            "enwikinews-20260701"
+          ],
+          "structural_control_bytes": 24155142,
+          "track": "english_wikimedia_wikitext",
+          "track_admitted": false
+        }
+      ]
+    },
+    "trial_count": 8,
+    "variants": [
+      {
+        "backend": "kanzi-max",
+        "id": "q1-bounded-minhash-record-neighborhood",
+        "purpose": "Test whether exact bounded content-similarity ordering creates backend-visible neighborhoods beyond the prior demux representation.",
+        "representation": "AXRN1 canonical metadata plus class-scoped four-seed bounded sampled-window minhash ordering"
+      }
+    ]
+  },
+  "run_verification": {
+    "axiom_prototype_admitted": false,
+    "axiom_wins": 0,
+    "claim_ceiling": "Training-split record-neighborhood representation experiment only. A passing result admits an Axiom prototype but is not validation, private-holdout, independent-reproduction, category-win, market-leading, world-best, or state-of-the-art evidence.",
+    "decision": "reject_bounded_record_neighborhood_shared_successor",
+    "exact_deterministic_item_count": 4,
+    "result_sha256": "724594043816e47fe3f0eabfe7870ee8f54a3fb75f1cdbd3a4b5696df297882a",
+    "trial_count": 8,
+    "verified": true
+  },
+  "schema_version": 1,
+  "structural_control_rows": [
+    {
+      "baseline_bytes": 4511714,
+      "candidate_bytes": 4504001,
+      "compression_peak_rss_bytes": 1536098304,
+      "decompression_peak_rss_bytes": 1536475136,
+      "deterministic_artifact": true,
+      "exact_roundtrip": true,
+      "gain_vs_kanzi_percent": 0.1709549851785818,
+      "item_id": "cpython-3.14.6-source",
+      "median_compression_ns": 14522682854,
+      "median_decompression_ns": 18214593645,
+      "passed": true,
+      "resource_pass": true,
+      "source_bytes": 44506231,
+      "track": "source_code_bundles",
+      "variant": "ts-h1-demux"
+    },
+    {
+      "baseline_bytes": 1709772,
+      "candidate_bytes": 1712919,
+      "compression_peak_rss_bytes": 1490419712,
+      "decompression_peak_rss_bytes": 1491124224,
+      "deterministic_artifact": true,
+      "exact_roundtrip": true,
+      "gain_vs_kanzi_percent": -0.18405962900316533,
+      "item_id": "typescript-6.0.3-source",
+      "median_compression_ns": 11272914729,
+      "median_decompression_ns": 12177132125,
+      "passed": true,
+      "resource_pass": true,
+      "source_bytes": 25693307,
+      "track": "source_code_bundles",
+      "variant": "ts-h1-demux"
+    },
+    {
+      "baseline_bytes": 12622786,
+      "candidate_bytes": 12630261,
+      "compression_peak_rss_bytes": 1603272704,
+      "decompression_peak_rss_bytes": 1599209472,
+      "deterministic_artifact": true,
+      "exact_roundtrip": true,
+      "gain_vs_kanzi_percent": -0.05921830568940961,
+      "item_id": "enwikibooks-20260701",
+      "median_compression_ns": 42505189229,
+      "median_decompression_ns": 43040897957,
+      "passed": true,
+      "resource_pass": true,
+      "source_bytes": 67107953,
+      "track": "english_wikimedia_wikitext",
+      "variant": "ts-h1-demux"
+    },
+    {
+      "baseline_bytes": 11534002,
+      "candidate_bytes": 11524881,
+      "compression_peak_rss_bytes": 1602174976,
+      "decompression_peak_rss_bytes": 1597849600,
+      "deterministic_artifact": true,
+      "exact_roundtrip": true,
+      "gain_vs_kanzi_percent": 0.07907923026196806,
+      "item_id": "enwikinews-20260701",
+      "median_compression_ns": 42508168479,
+      "median_decompression_ns": 47041240166,
+      "passed": true,
+      "resource_pass": true,
+      "source_bytes": 67105968,
+      "track": "english_wikimedia_wikitext",
+      "variant": "ts-h1-demux"
+    }
+  ],
+  "structural_results_sha256": "92a29a1e184a04293ce04bfdd05f5e7ba7dd0d7f12873edce3d2926c1628db93",
+  "trials": [
+    {
+      "path": "trials/q1-bounded-minhash-record-neighborhood/cpython-3.14.6-source.r0.json",
+      "receipt": {
+        "backend_payload_bytes": 4568930,
+        "baseline_bytes": 4511714,
+        "bindings": {
+          "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+          "config_sha256": "ef968c2a6f2f464438ef4c023e188e2bae8568eba4ccc712ab243f50e52f719c",
+          "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+          "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+          "long_range_result_sha256": "faad7b7736685a30e451cd7fc94f4fde9898b16afa102a0291e418f86a544d12",
+          "repository_commit": "bf84472d1ffe061c11f5f201f6d809c79ccdf0ce",
+          "structural_public_evidence_sha256": "e7b25f117866983214192183d076ed1cbac74490569653e302308c87ddeb3e97",
+          "structural_results_sha256": "92a29a1e184a04293ce04bfdd05f5e7ba7dd0d7f12873edce3d2926c1628db93",
+          "transform_script_sha256": "f79d48d1daccb62f00f8fd63904dfb543a618e8f243832623a6bde3472b0a6d5"
+        },
+        "candidate_bytes": 4569016,
+        "candidate_sha256": "e72dd63e67fcce41e2df8632b081393cea245ff70659c0c101eac370fdc223a0",
+        "compression_peak_rss_bytes": 1535803392,
+        "compression_wall_ns": 214581052416,
+        "decompression_peak_rss_bytes": 1536540672,
+        "decompression_wall_ns": 135151161293,
+        "error": null,
+        "exact_roundtrip": true,
+        "item_id": "cpython-3.14.6-source",
+        "passed": true,
+        "processes": {
+          "compression": [
+            {
+              "command": [
+                "python",
+                "$REPOSITORY/scripts/text-source-record-neighborhood-transform.py",
+                "encode",
+                "$REPOSITORY/corpora/text-source-development-v1/cpython-3.14.6-source.axsrc",
+                "$WORK/transformed.bin"
+              ],
+              "cpu_ns": 974774000,
+              "peak_rss_bytes": 268140544,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 3898231959
+            },
+            {
+              "command": [
+                "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+                "--compress",
+                "--level=9",
+                "--block=1g",
+                "--jobs=1",
+                "--verbose=0",
+                "--force",
+                "--input=$WORK/transformed.bin",
+                "--output=$WORK/payload.knz"
+              ],
+              "cpu_ns": 48409740000,
+              "peak_rss_bytes": 1535803392,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 209866043416
+            },
+            {
+              "command": [
+                "python",
+                "$REPOSITORY/scripts/benchmark-text-source-record-neighborhood-screen.py",
+                "--worker-wrap",
+                "44506231",
+                "a5148815b1257d5e9f040a6995b09493ceaeecd1f1791c2cb4a858f177cbf1c3",
+                "$WORK/payload.knz",
+                "$WORK/candidate.axrq"
+              ],
+              "cpu_ns": 289547000,
+              "peak_rss_bytes": 30048256,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 816777041
+            }
+          ],
+          "decompression": [
+            {
+              "command": [
+                "python",
+                "$REPOSITORY/scripts/benchmark-text-source-record-neighborhood-screen.py",
+                "--worker-unwrap",
+                "44506231",
+                "a5148815b1257d5e9f040a6995b09493ceaeecd1f1791c2cb4a858f177cbf1c3",
+                "$WORK/candidate.axrq",
+                "$WORK/extracted.knz"
+              ],
+              "cpu_ns": 267526999,
+              "peak_rss_bytes": 30162944,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 761187167
+            },
+            {
+              "command": [
+                "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+                "--decompress",
+                "--jobs=1",
+                "--verbose=0",
+                "--force",
+                "--input=$WORK/extracted.knz",
+                "--output=$WORK/decoded-transform.bin"
+              ],
+              "cpu_ns": 49350176000,
+              "peak_rss_bytes": 1536540672,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 132144754667
+            },
+            {
+              "command": [
+                "python",
+                "$REPOSITORY/scripts/text-source-record-neighborhood-transform.py",
+                "decode",
+                "--max-output-size",
+                "44506231",
+                "$WORK/decoded-transform.bin",
+                "$WORK/restored.bin"
+              ],
+              "cpu_ns": 1113500000,
+              "peak_rss_bytes": 265191424,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 2245219459
+            }
+          ]
+        },
+        "repetition": 0,
+        "schema_version": 1,
+        "source_bytes": 44506231,
+        "source_sha256": "a5148815b1257d5e9f040a6995b09493ceaeecd1f1791c2cb4a858f177cbf1c3",
+        "structural_control_bytes": 4504001,
+        "track": "source_code_bundles",
+        "transformed_bytes": 44453023,
+        "variant": "q1-bounded-minhash-record-neighborhood"
+      },
+      "sha256": "b2be371a6f76f53218ddedae6e944bf3f7dfb3d4b5ac2c6ed0ce9183ed435b3c"
+    },
+    {
+      "path": "trials/q1-bounded-minhash-record-neighborhood/cpython-3.14.6-source.r1.json",
+      "receipt": {
+        "backend_payload_bytes": 4568930,
+        "baseline_bytes": 4511714,
+        "bindings": {
+          "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+          "config_sha256": "ef968c2a6f2f464438ef4c023e188e2bae8568eba4ccc712ab243f50e52f719c",
+          "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+          "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+          "long_range_result_sha256": "faad7b7736685a30e451cd7fc94f4fde9898b16afa102a0291e418f86a544d12",
+          "repository_commit": "bf84472d1ffe061c11f5f201f6d809c79ccdf0ce",
+          "structural_public_evidence_sha256": "e7b25f117866983214192183d076ed1cbac74490569653e302308c87ddeb3e97",
+          "structural_results_sha256": "92a29a1e184a04293ce04bfdd05f5e7ba7dd0d7f12873edce3d2926c1628db93",
+          "transform_script_sha256": "f79d48d1daccb62f00f8fd63904dfb543a618e8f243832623a6bde3472b0a6d5"
+        },
+        "candidate_bytes": 4569016,
+        "candidate_sha256": "e72dd63e67fcce41e2df8632b081393cea245ff70659c0c101eac370fdc223a0",
+        "compression_peak_rss_bytes": 1536180224,
+        "compression_wall_ns": 44198815334,
+        "decompression_peak_rss_bytes": 1536540672,
+        "decompression_wall_ns": 37122565750,
+        "error": null,
+        "exact_roundtrip": true,
+        "item_id": "cpython-3.14.6-source",
+        "passed": true,
+        "processes": {
+          "compression": [
+            {
+              "command": [
+                "python",
+                "$REPOSITORY/scripts/text-source-record-neighborhood-transform.py",
+                "encode",
+                "$REPOSITORY/corpora/text-source-development-v1/cpython-3.14.6-source.axsrc",
+                "$WORK/transformed.bin"
+              ],
+              "cpu_ns": 912387000,
+              "peak_rss_bytes": 268075008,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 1196148541
+            },
+            {
+              "command": [
+                "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+                "--compress",
+                "--level=9",
+                "--block=1g",
+                "--jobs=1",
+                "--verbose=0",
+                "--force",
+                "--input=$WORK/transformed.bin",
+                "--output=$WORK/payload.knz"
+              ],
+              "cpu_ns": 35034108000,
+              "peak_rss_bytes": 1536180224,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 42831415334
+            },
+            {
+              "command": [
+                "python",
+                "$REPOSITORY/scripts/benchmark-text-source-record-neighborhood-screen.py",
+                "--worker-wrap",
+                "44506231",
+                "a5148815b1257d5e9f040a6995b09493ceaeecd1f1791c2cb4a858f177cbf1c3",
+                "$WORK/payload.knz",
+                "$WORK/candidate.axrq"
+              ],
+              "cpu_ns": 137973000,
+              "peak_rss_bytes": 31309824,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 171251459
+            }
+          ],
+          "decompression": [
+            {
+              "command": [
+                "python",
+                "$REPOSITORY/scripts/benchmark-text-source-record-neighborhood-screen.py",
+                "--worker-unwrap",
+                "44506231",
+                "a5148815b1257d5e9f040a6995b09493ceaeecd1f1791c2cb4a858f177cbf1c3",
+                "$WORK/candidate.axrq",
+                "$WORK/extracted.knz"
+              ],
+              "cpu_ns": 112373999,
+              "peak_rss_bytes": 30146560,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 166265125
+            },
+            {
+              "command": [
+                "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+                "--decompress",
+                "--jobs=1",
+                "--verbose=0",
+                "--force",
+                "--input=$WORK/extracted.knz",
+                "--output=$WORK/decoded-transform.bin"
+              ],
+              "cpu_ns": 30842046000,
+              "peak_rss_bytes": 1536540672,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 36357475583
+            },
+            {
+              "command": [
+                "python",
+                "$REPOSITORY/scripts/text-source-record-neighborhood-transform.py",
+                "decode",
+                "--max-output-size",
+                "44506231",
+                "$WORK/decoded-transform.bin",
+                "$WORK/restored.bin"
+              ],
+              "cpu_ns": 490695999,
+              "peak_rss_bytes": 266518528,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 598825042
+            }
+          ]
+        },
+        "repetition": 1,
+        "schema_version": 1,
+        "source_bytes": 44506231,
+        "source_sha256": "a5148815b1257d5e9f040a6995b09493ceaeecd1f1791c2cb4a858f177cbf1c3",
+        "structural_control_bytes": 4504001,
+        "track": "source_code_bundles",
+        "transformed_bytes": 44453023,
+        "variant": "q1-bounded-minhash-record-neighborhood"
+      },
+      "sha256": "4b873ca81465d723745517742e255eec1daae7ca3ff729770a48a5ee68c03288"
+    },
+    {
+      "path": "trials/q1-bounded-minhash-record-neighborhood/enwikibooks-20260701.r0.json",
+      "receipt": {
+        "backend_payload_bytes": 12811614,
+        "baseline_bytes": 12622786,
+        "bindings": {
+          "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+          "config_sha256": "ef968c2a6f2f464438ef4c023e188e2bae8568eba4ccc712ab243f50e52f719c",
+          "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+          "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+          "long_range_result_sha256": "faad7b7736685a30e451cd7fc94f4fde9898b16afa102a0291e418f86a544d12",
+          "repository_commit": "bf84472d1ffe061c11f5f201f6d809c79ccdf0ce",
+          "structural_public_evidence_sha256": "e7b25f117866983214192183d076ed1cbac74490569653e302308c87ddeb3e97",
+          "structural_results_sha256": "92a29a1e184a04293ce04bfdd05f5e7ba7dd0d7f12873edce3d2926c1628db93",
+          "transform_script_sha256": "f79d48d1daccb62f00f8fd63904dfb543a618e8f243832623a6bde3472b0a6d5"
+        },
+        "candidate_bytes": 12811700,
+        "candidate_sha256": "2e92bd69a14c05f5933c965247a58ea608b4ffbd5776d464446b3a3c68de8927",
+        "compression_peak_rss_bytes": 1603354624,
+        "compression_wall_ns": 76530189625,
+        "decompression_peak_rss_bytes": 1599406080,
+        "decompression_wall_ns": 95743108583,
+        "error": null,
+        "exact_roundtrip": true,
+        "item_id": "enwikibooks-20260701",
+        "passed": true,
+        "processes": {
+          "compression": [
+            {
+              "command": [
+                "python",
+                "$REPOSITORY/scripts/text-source-record-neighborhood-transform.py",
+                "encode",
+                "$REPOSITORY/corpora/text-source-development-v1/enwikibooks-20260701.axwkt",
+                "$WORK/transformed.bin"
+              ],
+              "cpu_ns": 2567167000,
+              "peak_rss_bytes": 438255616,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 2846793125
+            },
+            {
+              "command": [
+                "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+                "--compress",
+                "--level=9",
+                "--block=1g",
+                "--jobs=1",
+                "--verbose=0",
+                "--force",
+                "--input=$WORK/transformed.bin",
+                "--output=$WORK/payload.knz"
+              ],
+              "cpu_ns": 66709125000,
+              "peak_rss_bytes": 1603354624,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 73468418750
+            },
+            {
+              "command": [
+                "python",
+                "$REPOSITORY/scripts/benchmark-text-source-record-neighborhood-screen.py",
+                "--worker-wrap",
+                "67107953",
+                "d4e99fa76d224995f03512df7fe2d9b0411e283b21157c934be6c10e2059998a",
+                "$WORK/payload.knz",
+                "$WORK/candidate.axrq"
+              ],
+              "cpu_ns": 183116000,
+              "peak_rss_bytes": 30146560,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 214977750
+            }
+          ],
+          "decompression": [
+            {
+              "command": [
+                "python",
+                "$REPOSITORY/scripts/benchmark-text-source-record-neighborhood-screen.py",
+                "--worker-unwrap",
+                "67107953",
+                "d4e99fa76d224995f03512df7fe2d9b0411e283b21157c934be6c10e2059998a",
+                "$WORK/candidate.axrq",
+                "$WORK/extracted.knz"
+              ],
+              "cpu_ns": 165023000,
+              "peak_rss_bytes": 30048256,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 213611625
+            },
+            {
+              "command": [
+                "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+                "--decompress",
+                "--jobs=1",
+                "--verbose=0",
+                "--force",
+                "--input=$WORK/extracted.knz",
+                "--output=$WORK/decoded-transform.bin"
+              ],
+              "cpu_ns": 70333859000,
+              "peak_rss_bytes": 1599406080,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 89092947375
+            },
+            {
+              "command": [
+                "python",
+                "$REPOSITORY/scripts/text-source-record-neighborhood-transform.py",
+                "decode",
+                "--max-output-size",
+                "67107953",
+                "$WORK/decoded-transform.bin",
+                "$WORK/restored.bin"
+              ],
+              "cpu_ns": 3337441000,
+              "peak_rss_bytes": 417136640,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 6436549583
+            }
+          ]
+        },
+        "repetition": 0,
+        "schema_version": 1,
+        "source_bytes": 67107953,
+        "source_sha256": "d4e99fa76d224995f03512df7fe2d9b0411e283b21157c934be6c10e2059998a",
+        "structural_control_bytes": 12630261,
+        "track": "english_wikimedia_wikitext",
+        "transformed_bytes": 66792447,
+        "variant": "q1-bounded-minhash-record-neighborhood"
+      },
+      "sha256": "0f9cf8efc9375ae53770d87550b563774fcfdd3924ea287aca58862d762a54ad"
+    },
+    {
+      "path": "trials/q1-bounded-minhash-record-neighborhood/enwikibooks-20260701.r1.json",
+      "receipt": {
+        "backend_payload_bytes": 12811614,
+        "baseline_bytes": 12622786,
+        "bindings": {
+          "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+          "config_sha256": "ef968c2a6f2f464438ef4c023e188e2bae8568eba4ccc712ab243f50e52f719c",
+          "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+          "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+          "long_range_result_sha256": "faad7b7736685a30e451cd7fc94f4fde9898b16afa102a0291e418f86a544d12",
+          "repository_commit": "bf84472d1ffe061c11f5f201f6d809c79ccdf0ce",
+          "structural_public_evidence_sha256": "e7b25f117866983214192183d076ed1cbac74490569653e302308c87ddeb3e97",
+          "structural_results_sha256": "92a29a1e184a04293ce04bfdd05f5e7ba7dd0d7f12873edce3d2926c1628db93",
+          "transform_script_sha256": "f79d48d1daccb62f00f8fd63904dfb543a618e8f243832623a6bde3472b0a6d5"
+        },
+        "candidate_bytes": 12811700,
+        "candidate_sha256": "2e92bd69a14c05f5933c965247a58ea608b4ffbd5776d464446b3a3c68de8927",
+        "compression_peak_rss_bytes": 1603371008,
+        "compression_wall_ns": 107916058833,
+        "decompression_peak_rss_bytes": 1599422464,
+        "decompression_wall_ns": 68979607583,
+        "error": null,
+        "exact_roundtrip": true,
+        "item_id": "enwikibooks-20260701",
+        "passed": true,
+        "processes": {
+          "compression": [
+            {
+              "command": [
+                "python",
+                "$REPOSITORY/scripts/text-source-record-neighborhood-transform.py",
+                "encode",
+                "$REPOSITORY/corpora/text-source-development-v1/enwikibooks-20260701.axwkt",
+                "$WORK/transformed.bin"
+              ],
+              "cpu_ns": 3989183000,
+              "peak_rss_bytes": 438435840,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 9840131125
+            },
+            {
+              "command": [
+                "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+                "--compress",
+                "--level=9",
+                "--block=1g",
+                "--jobs=1",
+                "--verbose=0",
+                "--force",
+                "--input=$WORK/transformed.bin",
+                "--output=$WORK/payload.knz"
+              ],
+              "cpu_ns": 77255595000,
+              "peak_rss_bytes": 1603371008,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 97805776458
+            },
+            {
+              "command": [
+                "python",
+                "$REPOSITORY/scripts/benchmark-text-source-record-neighborhood-screen.py",
+                "--worker-wrap",
+                "67107953",
+                "d4e99fa76d224995f03512df7fe2d9b0411e283b21157c934be6c10e2059998a",
+                "$WORK/payload.knz",
+                "$WORK/candidate.axrq"
+              ],
+              "cpu_ns": 202123999,
+              "peak_rss_bytes": 30179328,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 270151250
+            }
+          ],
+          "decompression": [
+            {
+              "command": [
+                "python",
+                "$REPOSITORY/scripts/benchmark-text-source-record-neighborhood-screen.py",
+                "--worker-unwrap",
+                "67107953",
+                "d4e99fa76d224995f03512df7fe2d9b0411e283b21157c934be6c10e2059998a",
+                "$WORK/candidate.axrq",
+                "$WORK/extracted.knz"
+              ],
+              "cpu_ns": 121959000,
+              "peak_rss_bytes": 31244288,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 163606250
+            },
+            {
+              "command": [
+                "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+                "--decompress",
+                "--jobs=1",
+                "--verbose=0",
+                "--force",
+                "--input=$WORK/extracted.knz",
+                "--output=$WORK/decoded-transform.bin"
+              ],
+              "cpu_ns": 59155528000,
+              "peak_rss_bytes": 1599422464,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 66991736583
+            },
+            {
+              "command": [
+                "python",
+                "$REPOSITORY/scripts/text-source-record-neighborhood-transform.py",
+                "decode",
+                "--max-output-size",
+                "67107953",
+                "$WORK/decoded-transform.bin",
+                "$WORK/restored.bin"
+              ],
+              "cpu_ns": 1700372000,
+              "peak_rss_bytes": 415989760,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 1824264750
+            }
+          ]
+        },
+        "repetition": 1,
+        "schema_version": 1,
+        "source_bytes": 67107953,
+        "source_sha256": "d4e99fa76d224995f03512df7fe2d9b0411e283b21157c934be6c10e2059998a",
+        "structural_control_bytes": 12630261,
+        "track": "english_wikimedia_wikitext",
+        "transformed_bytes": 66792447,
+        "variant": "q1-bounded-minhash-record-neighborhood"
+      },
+      "sha256": "27f1666d100748b0b2468383a36dd42cd116bb665834cad9f76a7caa6e9f1d98"
+    },
+    {
+      "path": "trials/q1-bounded-minhash-record-neighborhood/enwikinews-20260701.r0.json",
+      "receipt": {
+        "backend_payload_bytes": 11786366,
+        "baseline_bytes": 11534002,
+        "bindings": {
+          "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+          "config_sha256": "ef968c2a6f2f464438ef4c023e188e2bae8568eba4ccc712ab243f50e52f719c",
+          "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+          "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+          "long_range_result_sha256": "faad7b7736685a30e451cd7fc94f4fde9898b16afa102a0291e418f86a544d12",
+          "repository_commit": "bf84472d1ffe061c11f5f201f6d809c79ccdf0ce",
+          "structural_public_evidence_sha256": "e7b25f117866983214192183d076ed1cbac74490569653e302308c87ddeb3e97",
+          "structural_results_sha256": "92a29a1e184a04293ce04bfdd05f5e7ba7dd0d7f12873edce3d2926c1628db93",
+          "transform_script_sha256": "f79d48d1daccb62f00f8fd63904dfb543a618e8f243832623a6bde3472b0a6d5"
+        },
+        "candidate_bytes": 11786452,
+        "candidate_sha256": "0c9af6dfd8cbde05133f8421cda180a99467d53a55ca0cd413370beb7cc67358",
+        "compression_peak_rss_bytes": 1602682880,
+        "compression_wall_ns": 96305842168,
+        "decompression_peak_rss_bytes": 1598210048,
+        "decompression_wall_ns": 69063991499,
+        "error": null,
+        "exact_roundtrip": true,
+        "item_id": "enwikinews-20260701",
+        "passed": true,
+        "processes": {
+          "compression": [
+            {
+              "command": [
+                "python",
+                "$REPOSITORY/scripts/text-source-record-neighborhood-transform.py",
+                "encode",
+                "$REPOSITORY/corpora/text-source-development-v1/enwikinews-20260701.axwkt",
+                "$WORK/transformed.bin"
+              ],
+              "cpu_ns": 4083686000,
+              "peak_rss_bytes": 473055232,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 5967639709
+            },
+            {
+              "command": [
+                "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+                "--compress",
+                "--level=9",
+                "--block=1g",
+                "--jobs=1",
+                "--verbose=0",
+                "--force",
+                "--input=$WORK/transformed.bin",
+                "--output=$WORK/payload.knz"
+              ],
+              "cpu_ns": 68177200000,
+              "peak_rss_bytes": 1602682880,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 90008678917
+            },
+            {
+              "command": [
+                "python",
+                "$REPOSITORY/scripts/benchmark-text-source-record-neighborhood-screen.py",
+                "--worker-wrap",
+                "67105968",
+                "ac803f7c66400659801b4dd72576ad88602952db4dbc78e82c1c4c4d39c92b9e",
+                "$WORK/payload.knz",
+                "$WORK/candidate.axrq"
+              ],
+              "cpu_ns": 239581000,
+              "peak_rss_bytes": 30097408,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 329523542
+            }
+          ],
+          "decompression": [
+            {
+              "command": [
+                "python",
+                "$REPOSITORY/scripts/benchmark-text-source-record-neighborhood-screen.py",
+                "--worker-unwrap",
+                "67105968",
+                "ac803f7c66400659801b4dd72576ad88602952db4dbc78e82c1c4c4d39c92b9e",
+                "$WORK/candidate.axrq",
+                "$WORK/extracted.knz"
+              ],
+              "cpu_ns": 215058000,
+              "peak_rss_bytes": 30146560,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 275919416
+            },
+            {
+              "command": [
+                "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+                "--decompress",
+                "--jobs=1",
+                "--verbose=0",
+                "--force",
+                "--input=$WORK/extracted.knz",
+                "--output=$WORK/decoded-transform.bin"
+              ],
+              "cpu_ns": 61888999000,
+              "peak_rss_bytes": 1598210048,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 66884619083
+            },
+            {
+              "command": [
+                "python",
+                "$REPOSITORY/scripts/text-source-record-neighborhood-transform.py",
+                "decode",
+                "--max-output-size",
+                "67105968",
+                "$WORK/decoded-transform.bin",
+                "$WORK/restored.bin"
+              ],
+              "cpu_ns": 1829458000,
+              "peak_rss_bytes": 457162752,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 1903453000
+            }
+          ]
+        },
+        "repetition": 0,
+        "schema_version": 1,
+        "source_bytes": 67105968,
+        "source_sha256": "ac803f7c66400659801b4dd72576ad88602952db4dbc78e82c1c4c4d39c92b9e",
+        "structural_control_bytes": 11524881,
+        "track": "english_wikimedia_wikitext",
+        "transformed_bytes": 66683396,
+        "variant": "q1-bounded-minhash-record-neighborhood"
+      },
+      "sha256": "21fa3032b4f2cb6bbd0c1bbf50d49ed86714123a4cd0be8f01537722ed69ac51"
+    },
+    {
+      "path": "trials/q1-bounded-minhash-record-neighborhood/enwikinews-20260701.r1.json",
+      "receipt": {
+        "backend_payload_bytes": 11786366,
+        "baseline_bytes": 11534002,
+        "bindings": {
+          "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+          "config_sha256": "ef968c2a6f2f464438ef4c023e188e2bae8568eba4ccc712ab243f50e52f719c",
+          "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+          "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+          "long_range_result_sha256": "faad7b7736685a30e451cd7fc94f4fde9898b16afa102a0291e418f86a544d12",
+          "repository_commit": "bf84472d1ffe061c11f5f201f6d809c79ccdf0ce",
+          "structural_public_evidence_sha256": "e7b25f117866983214192183d076ed1cbac74490569653e302308c87ddeb3e97",
+          "structural_results_sha256": "92a29a1e184a04293ce04bfdd05f5e7ba7dd0d7f12873edce3d2926c1628db93",
+          "transform_script_sha256": "f79d48d1daccb62f00f8fd63904dfb543a618e8f243832623a6bde3472b0a6d5"
+        },
+        "candidate_bytes": 11786452,
+        "candidate_sha256": "0c9af6dfd8cbde05133f8421cda180a99467d53a55ca0cd413370beb7cc67358",
+        "compression_peak_rss_bytes": 1599913984,
+        "compression_wall_ns": 117428345750,
+        "decompression_peak_rss_bytes": 1598193664,
+        "decompression_wall_ns": 95775605458,
+        "error": null,
+        "exact_roundtrip": true,
+        "item_id": "enwikinews-20260701",
+        "passed": true,
+        "processes": {
+          "compression": [
+            {
+              "command": [
+                "python",
+                "$REPOSITORY/scripts/text-source-record-neighborhood-transform.py",
+                "encode",
+                "$REPOSITORY/corpora/text-source-development-v1/enwikinews-20260701.axwkt",
+                "$WORK/transformed.bin"
+              ],
+              "cpu_ns": 1761713000,
+              "peak_rss_bytes": 472678400,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 1792728750
+            },
+            {
+              "command": [
+                "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+                "--compress",
+                "--level=9",
+                "--block=1g",
+                "--jobs=1",
+                "--verbose=0",
+                "--force",
+                "--input=$WORK/transformed.bin",
+                "--output=$WORK/payload.knz"
+              ],
+              "cpu_ns": 61373754000,
+              "peak_rss_bytes": 1599913984,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 115245763708
+            },
+            {
+              "command": [
+                "python",
+                "$REPOSITORY/scripts/benchmark-text-source-record-neighborhood-screen.py",
+                "--worker-wrap",
+                "67105968",
+                "ac803f7c66400659801b4dd72576ad88602952db4dbc78e82c1c4c4d39c92b9e",
+                "$WORK/payload.knz",
+                "$WORK/candidate.axrq"
+              ],
+              "cpu_ns": 291702000,
+              "peak_rss_bytes": 30162944,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 389853292
+            }
+          ],
+          "decompression": [
+            {
+              "command": [
+                "python",
+                "$REPOSITORY/scripts/benchmark-text-source-record-neighborhood-screen.py",
+                "--worker-unwrap",
+                "67105968",
+                "ac803f7c66400659801b4dd72576ad88602952db4dbc78e82c1c4c4d39c92b9e",
+                "$WORK/candidate.axrq",
+                "$WORK/extracted.knz"
+              ],
+              "cpu_ns": 259513000,
+              "peak_rss_bytes": 30130176,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 326998625
+            },
+            {
+              "command": [
+                "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+                "--decompress",
+                "--jobs=1",
+                "--verbose=0",
+                "--force",
+                "--input=$WORK/extracted.knz",
+                "--output=$WORK/decoded-transform.bin"
+              ],
+              "cpu_ns": 76077253000,
+              "peak_rss_bytes": 1598193664,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 90543421000
+            },
+            {
+              "command": [
+                "python",
+                "$REPOSITORY/scripts/text-source-record-neighborhood-transform.py",
+                "decode",
+                "--max-output-size",
+                "67105968",
+                "$WORK/decoded-transform.bin",
+                "$WORK/restored.bin"
+              ],
+              "cpu_ns": 4286416000,
+              "peak_rss_bytes": 456900608,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 4905185833
+            }
+          ]
+        },
+        "repetition": 1,
+        "schema_version": 1,
+        "source_bytes": 67105968,
+        "source_sha256": "ac803f7c66400659801b4dd72576ad88602952db4dbc78e82c1c4c4d39c92b9e",
+        "structural_control_bytes": 11524881,
+        "track": "english_wikimedia_wikitext",
+        "transformed_bytes": 66683396,
+        "variant": "q1-bounded-minhash-record-neighborhood"
+      },
+      "sha256": "cd804abf3e1950b784025b263ac99143d74af67316785dbebf24d42cfc397bec"
+    },
+    {
+      "path": "trials/q1-bounded-minhash-record-neighborhood/typescript-6.0.3-source.r0.json",
+      "receipt": {
+        "backend_payload_bytes": 1740976,
+        "baseline_bytes": 1709772,
+        "bindings": {
+          "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+          "config_sha256": "ef968c2a6f2f464438ef4c023e188e2bae8568eba4ccc712ab243f50e52f719c",
+          "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+          "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+          "long_range_result_sha256": "faad7b7736685a30e451cd7fc94f4fde9898b16afa102a0291e418f86a544d12",
+          "repository_commit": "bf84472d1ffe061c11f5f201f6d809c79ccdf0ce",
+          "structural_public_evidence_sha256": "e7b25f117866983214192183d076ed1cbac74490569653e302308c87ddeb3e97",
+          "structural_results_sha256": "92a29a1e184a04293ce04bfdd05f5e7ba7dd0d7f12873edce3d2926c1628db93",
+          "transform_script_sha256": "f79d48d1daccb62f00f8fd63904dfb543a618e8f243832623a6bde3472b0a6d5"
+        },
+        "candidate_bytes": 1741062,
+        "candidate_sha256": "92e836f70a779d80f7492c1f44cb0bded3722781924acc2fead9a1ad2e81df1a",
+        "compression_peak_rss_bytes": 1490468864,
+        "compression_wall_ns": 38565693332,
+        "decompression_peak_rss_bytes": 1491156992,
+        "decompression_wall_ns": 41473873500,
+        "error": null,
+        "exact_roundtrip": true,
+        "item_id": "typescript-6.0.3-source",
+        "passed": true,
+        "processes": {
+          "compression": [
+            {
+              "command": [
+                "python",
+                "$REPOSITORY/scripts/text-source-record-neighborhood-transform.py",
+                "encode",
+                "$REPOSITORY/corpora/text-source-development-v1/typescript-6.0.3-source.axsrc",
+                "$WORK/transformed.bin"
+              ],
+              "cpu_ns": 413735000,
+              "peak_rss_bytes": 158728192,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 1371745041
+            },
+            {
+              "command": [
+                "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+                "--compress",
+                "--level=9",
+                "--block=1g",
+                "--jobs=1",
+                "--verbose=0",
+                "--force",
+                "--input=$WORK/transformed.bin",
+                "--output=$WORK/payload.knz"
+              ],
+              "cpu_ns": 18293406000,
+              "peak_rss_bytes": 1490468864,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 36805362416
+            },
+            {
+              "command": [
+                "python",
+                "$REPOSITORY/scripts/benchmark-text-source-record-neighborhood-screen.py",
+                "--worker-wrap",
+                "25693307",
+                "4c35679d66dc77e54cc87ee7b6fe17cf2262bc3242c37eff3fa527e385d64480",
+                "$WORK/payload.knz",
+                "$WORK/candidate.axrq"
+              ],
+              "cpu_ns": 211324999,
+              "peak_rss_bytes": 29933568,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 388585875
+            }
+          ],
+          "decompression": [
+            {
+              "command": [
+                "python",
+                "$REPOSITORY/scripts/benchmark-text-source-record-neighborhood-screen.py",
+                "--worker-unwrap",
+                "25693307",
+                "4c35679d66dc77e54cc87ee7b6fe17cf2262bc3242c37eff3fa527e385d64480",
+                "$WORK/candidate.axrq",
+                "$WORK/extracted.knz"
+              ],
+              "cpu_ns": 182077000,
+              "peak_rss_bytes": 29900800,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 291119667
+            },
+            {
+              "command": [
+                "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+                "--decompress",
+                "--jobs=1",
+                "--verbose=0",
+                "--force",
+                "--input=$WORK/extracted.knz",
+                "--output=$WORK/decoded-transform.bin"
+              ],
+              "cpu_ns": 19343214000,
+              "peak_rss_bytes": 1491156992,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 40509675542
+            },
+            {
+              "command": [
+                "python",
+                "$REPOSITORY/scripts/text-source-record-neighborhood-transform.py",
+                "decode",
+                "--max-output-size",
+                "25693307",
+                "$WORK/decoded-transform.bin",
+                "$WORK/restored.bin"
+              ],
+              "cpu_ns": 314558000,
+              "peak_rss_bytes": 158564352,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 673078291
+            }
+          ]
+        },
+        "repetition": 0,
+        "schema_version": 1,
+        "source_bytes": 25693307,
+        "source_sha256": "4c35679d66dc77e54cc87ee7b6fe17cf2262bc3242c37eff3fa527e385d64480",
+        "structural_control_bytes": 1712919,
+        "track": "source_code_bundles",
+        "transformed_bytes": 25665270,
+        "variant": "q1-bounded-minhash-record-neighborhood"
+      },
+      "sha256": "1e9dad053894ceb51aec955ec0fe1542539c7f04a3efda3e8016cb5988a729fb"
+    },
+    {
+      "path": "trials/q1-bounded-minhash-record-neighborhood/typescript-6.0.3-source.r1.json",
+      "receipt": {
+        "backend_payload_bytes": 1740976,
+        "baseline_bytes": 1709772,
+        "bindings": {
+          "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+          "config_sha256": "ef968c2a6f2f464438ef4c023e188e2bae8568eba4ccc712ab243f50e52f719c",
+          "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+          "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+          "long_range_result_sha256": "faad7b7736685a30e451cd7fc94f4fde9898b16afa102a0291e418f86a544d12",
+          "repository_commit": "bf84472d1ffe061c11f5f201f6d809c79ccdf0ce",
+          "structural_public_evidence_sha256": "e7b25f117866983214192183d076ed1cbac74490569653e302308c87ddeb3e97",
+          "structural_results_sha256": "92a29a1e184a04293ce04bfdd05f5e7ba7dd0d7f12873edce3d2926c1628db93",
+          "transform_script_sha256": "f79d48d1daccb62f00f8fd63904dfb543a618e8f243832623a6bde3472b0a6d5"
+        },
+        "candidate_bytes": 1741062,
+        "candidate_sha256": "92e836f70a779d80f7492c1f44cb0bded3722781924acc2fead9a1ad2e81df1a",
+        "compression_peak_rss_bytes": 1490468864,
+        "compression_wall_ns": 41932323749,
+        "decompression_peak_rss_bytes": 1441923072,
+        "decompression_wall_ns": 69282791668,
+        "error": null,
+        "exact_roundtrip": true,
+        "item_id": "typescript-6.0.3-source",
+        "passed": true,
+        "processes": {
+          "compression": [
+            {
+              "command": [
+                "python",
+                "$REPOSITORY/scripts/text-source-record-neighborhood-transform.py",
+                "encode",
+                "$REPOSITORY/corpora/text-source-development-v1/typescript-6.0.3-source.axsrc",
+                "$WORK/transformed.bin"
+              ],
+              "cpu_ns": 313467000,
+              "peak_rss_bytes": 158564352,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 800226333
+            },
+            {
+              "command": [
+                "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+                "--compress",
+                "--level=9",
+                "--block=1g",
+                "--jobs=1",
+                "--verbose=0",
+                "--force",
+                "--input=$WORK/transformed.bin",
+                "--output=$WORK/payload.knz"
+              ],
+              "cpu_ns": 19140276999,
+              "peak_rss_bytes": 1490468864,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 40824006500
+            },
+            {
+              "command": [
+                "python",
+                "$REPOSITORY/scripts/benchmark-text-source-record-neighborhood-screen.py",
+                "--worker-wrap",
+                "25693307",
+                "4c35679d66dc77e54cc87ee7b6fe17cf2262bc3242c37eff3fa527e385d64480",
+                "$WORK/payload.knz",
+                "$WORK/candidate.axrq"
+              ],
+              "cpu_ns": 192173999,
+              "peak_rss_bytes": 29753344,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 308090916
+            }
+          ],
+          "decompression": [
+            {
+              "command": [
+                "python",
+                "$REPOSITORY/scripts/benchmark-text-source-record-neighborhood-screen.py",
+                "--worker-unwrap",
+                "25693307",
+                "4c35679d66dc77e54cc87ee7b6fe17cf2262bc3242c37eff3fa527e385d64480",
+                "$WORK/candidate.axrq",
+                "$WORK/extracted.knz"
+              ],
+              "cpu_ns": 188749000,
+              "peak_rss_bytes": 29786112,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 426625334
+            },
+            {
+              "command": [
+                "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+                "--decompress",
+                "--jobs=1",
+                "--verbose=0",
+                "--force",
+                "--input=$WORK/extracted.knz",
+                "--output=$WORK/decoded-transform.bin"
+              ],
+              "cpu_ns": 20133862000,
+              "peak_rss_bytes": 1441923072,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 68194982542
+            },
+            {
+              "command": [
+                "python",
+                "$REPOSITORY/scripts/text-source-record-neighborhood-transform.py",
+                "decode",
+                "--max-output-size",
+                "25693307",
+                "$WORK/decoded-transform.bin",
+                "$WORK/restored.bin"
+              ],
+              "cpu_ns": 313717999,
+              "peak_rss_bytes": 158564352,
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "",
+              "timed_out": false,
+              "wall_ns": 661183792
+            }
+          ]
+        },
+        "repetition": 1,
+        "schema_version": 1,
+        "source_bytes": 25693307,
+        "source_sha256": "4c35679d66dc77e54cc87ee7b6fe17cf2262bc3242c37eff3fa527e385d64480",
+        "structural_control_bytes": 1712919,
+        "track": "source_code_bundles",
+        "transformed_bytes": 25665270,
+        "variant": "q1-bounded-minhash-record-neighborhood"
+      },
+      "sha256": "8889d89f5915acc658eeb8b599c3907f839e407b21b0471addf9003e9fa304ea"
+    }
+  ]
+}

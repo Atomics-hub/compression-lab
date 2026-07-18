@@ -131,8 +131,8 @@
         "integrity_portability_corruption_pass": false,
         "selector_product_release_chart_pass": false
       },
-      "current_evidence": "runs/text-source-development-baseline-census-v1/publication/README.md",
-      "current_result": "The frozen 15-codec practical development census completed all 630 trials exactly and deterministically. Kanzi-max was the ratio leader on all four source families and aggregated to 45,550,471 bytes from 529,449,573 source bytes (8.60%) at 3.47/2.95 MB/s compression/decompression and 1,890.5/1,909.7 MiB peak RSS. No Axiom candidate was entered, and the bounded research-ceiling tier remains pending, so this is baseline evidence rather than a category result.",
+      "current_evidence": "runs/text-source-record-neighborhood-screen-v1/publication/README.md",
+      "current_result": "The 630-trial practical census completed before the exact deterministic Axiom Q1 record-neighborhood candidate produced 6,310,078 complete bytes versus Kanzi-max's 6,221,486 and TS-H1's 6,216,920 on the CPython + TypeScript training subset, losing by 1.42% and 1.50%. All four measured trials restored exactly and both complete artifacts per item were byte-identical. The candidate failed both frozen ratio controls and earns no category win.",
       "tested_standards": [
         "store",
         "lz4-1",
@@ -150,7 +150,7 @@
         "kanzi-max",
         "libbsc-max"
       ],
-      "next_gate": "Run the predeclared structural-transform probe and bounded research-ceiling tier, then route only a materially credible successor into the complete development gate."
+      "next_gate": "Reject this exact bounded-minhash ordering, complete the declared external research-ceiling hosts, and freeze only a fundamentally stronger successor supported by those results."
     },
     {
       "id": "english_wikimedia_wikitext",
@@ -170,8 +170,8 @@
         "integrity_portability_corruption_pass": false,
         "selector_product_release_chart_pass": false
       },
-      "current_evidence": "runs/text-source-development-baseline-census-v1/publication/README.md",
-      "current_result": "The frozen 15-codec practical development census completed all 630 trials exactly and deterministically. Kanzi-max led all three Wikimedia families and aggregated to 35,081,062 bytes from 201,311,173 source bytes (17.43%) at 2.37/2.30 MB/s compression/decompression and 1,529.5/1,525.8 MiB peak RSS. No Axiom candidate was entered; ZPAQ, paq8px, cmix, and NNCP remain pending in the bounded research-ceiling tier.",
+      "current_evidence": "runs/text-source-record-neighborhood-screen-v1/publication/README.md",
+      "current_result": "The 630-trial practical census completed before the exact deterministic Axiom Q1 record-neighborhood candidate produced 24,598,152 complete bytes versus Kanzi-max's 24,156,788 and TS-H1's 24,155,142 on the Wikibooks + Wikinews training subset, losing by 1.83% to both controls. All four measured trials restored exactly and both complete artifacts per item were byte-identical. The candidate failed both frozen ratio controls and earns no category win.",
       "tested_standards": [
         "store",
         "lz4-1",
@@ -189,7 +189,7 @@
         "kanzi-max",
         "libbsc-max"
       ],
-      "next_gate": "Run the predeclared structural-transform probe and bounded research-ceiling tier. Keep the enwik9 corpus and published scores outside every unseen gate; a shipped profile named enwik9 may appear only as a same-input baseline."
+      "next_gate": "Reject this exact bounded-minhash ordering, complete the declared external research-ceiling hosts, and freeze only a fundamentally stronger successor; keep enwik9 diagnostic-only."
     },
     {
       "id": "tabular_csv",
