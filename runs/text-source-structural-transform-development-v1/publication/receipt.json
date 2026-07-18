@@ -1,0 +1,24 @@
+{
+  "artifacts": {
+    "README.md": "f842e38553df86674791fd68a71ca48b3d6dcb5fa6bf70355f9b97bc82111e9b",
+    "comparison.json": "5f91c163d2b66571999939db509457d27d2abb28cc2e56bd31a7730a99976a1b",
+    "comparison.svg": "e82940988f89cae29c183fda749c952e54b0ca4d0838f6c2a570ff9fea88c49f",
+    "evidence.json": "e7b25f117866983214192183d076ed1cbac74490569653e302308c87ddeb3e97"
+  },
+  "baseline_public_evidence_sha256": "b28429e3d12542eda21d03d981b9452cba2d4a329252e4876803b62852f1299f",
+  "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+  "baseline_trial_receipts_manifest_sha256": "a41eea623b86dd0382bf9d3136d1294864c5e63935e165fee1b19c8e83d3babf",
+  "bindings": {
+    "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+    "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+    "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+    "repository_commit": "d3a2570f8ad800a182573f4074e0dec66ee57a70"
+  },
+  "claim_ceiling": "Development structural-representation evidence only. Public validation and private holdout remain sealed, research-ceiling codecs remain pending, and this result cannot support a category-win, market-leading, world-best, or state-of-the-art claim.",
+  "name": "text-source-structural-transform-development-publication-receipt-v1",
+  "public_evidence_sha256": "e7b25f117866983214192183d076ed1cbac74490569653e302308c87ddeb3e97",
+  "public_structural_trial_receipts_manifest_sha256": "362548cbbb6a85e2e7c2e8792dd70343a2f76be525b7b1d5628965b3b9413e4b",
+  "schema_version": 1,
+  "structural_results_sha256": "92a29a1e184a04293ce04bfdd05f5e7ba7dd0d7f12873edce3d2926c1628db93",
+  "structural_trial_receipts_manifest_sha256": "d2839e05af5d1186b4264c09ddcc1fc63adeb5f899ac793091c0071d85a55ed4"
+}

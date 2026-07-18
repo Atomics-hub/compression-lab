@@ -94,7 +94,7 @@ claim boundary. Its optimization lineage remains independently inspectable:
 [scheduling A/B](runs/clue-jls2-decode-scheduling-v1/README.md), and
 [cold-start A/B](runs/jls2-cold-start-v1/README.md).
 
-## Text and source-code practical frontier
+## Text and source-code frontier
 
 The frozen development census is complete: **630/630 exact trials** across 15
 single-threaded practical codecs and seven licensed inputs. Kanzi-max is the
@@ -103,22 +103,31 @@ bytes (8.60%)** and **35,081,062 bytes from 201,311,173 Wikimedia bytes
 (17.43%)**. Those ratio points cost roughly 1.5–1.9 GiB peak RSS and 2.3–3.5
 MB/s, so faster and lower-memory operating points remain visible in the chart.
 
-![Text and source-code practical codecs compared by complete size, speed, memory, exactness, and determinism](runs/text-source-development-baseline-census-v1/publication/comparison.svg)
+The first frozen Axiom representation probe is also complete: **33/33 exact,
+deterministic trials**. TS-H1 improved source-code size by only **0.213%** and
+Wikimedia by **0.0068%** versus Kanzi-max, missing its 0.5% hypothesis gate.
+TS-H2 made source-code size **0.383% worse** and included a **0.893% regression**
+on LLVM, missing both its aggregate and per-item gates. Both hypotheses are
+rejected; neither will be promoted into the product.
 
-This establishes the practical target; it is **not an Axiom win**. No Axiom
-text/source candidate was entered, and ZPAQ, paq8px, cmix, and NNCP remain in a
-separate research-ceiling tier. The [offline-verifiable publication
-bundle](runs/text-source-development-baseline-census-v1/publication/README.md)
-contains every codec row, per-item leader, public recalculation evidence, and
-the exact claim ceiling.
+![Axiom structural variants and every practical text/source standard compared by complete size, speed, memory, exactness, and determinism](runs/text-source-structural-transform-development-v1/publication/comparison.svg)
+
+This establishes the practical target and records two clean negative Axiom
+results; it is **not an Axiom win**. ZPAQ, paq8px, cmix, and NNCP remain in a
+separate research-ceiling tier. The [structural publication
+bundle](runs/text-source-structural-transform-development-v1/publication/README.md)
+contains every practical standard and Axiom row, raw-receipt commitments,
+per-item results, speed, memory, exactness, determinism, and the claim ceiling.
+The earlier [practical census](runs/text-source-development-baseline-census-v1/publication/README.md)
+remains independently reproducible.
 
 ## Measured standings
 
 | Category | Objective completion | Best measured result | Gate status and evidence |
 | --- | ---: | --- | --- |
 | JSON and machine logs | **50%** | JLS2 is 52.97% smaller than the strongest eligible standard on the first frozen public-validation score | Ratio, both families, speed, exactness, integrity, and compression memory passed; overall gate failed only decoder RSS at 621.3 MiB vs 512 MiB ([immutable result](runs/clue-jls2-public-validation-v1/publication/README.md), [import receipt](runs/clue-jls2-public-validation-v1-import.json)) |
-| Source-code bundles | **10%** | Kanzi-max leads the completed practical census at 45,550,471 bytes from 529,449,573 bytes (8.60%) | Axiom remains untested; run the predeclared structural hypotheses and bounded research-ceiling tier ([chart](runs/text-source-development-baseline-census-v1/publication/README.md), [protocol](docs/benchmarks/2026-07-17-text-source-structural-transform-protocol.md)) |
-| English Wikimedia wikitext | **10%** | Kanzi-max leads the completed practical census at 35,081,062 bytes from 201,311,173 bytes (17.43%) | Axiom remains untested; run the structural hypothesis and research-ceiling tier; enwik9 remains diagnostic-only ([chart](runs/text-source-development-baseline-census-v1/publication/README.md), [protocol](docs/benchmarks/2026-07-17-text-source-structural-transform-protocol.md)) |
+| Source-code bundles | **10%** | TS-H1 was 0.213% smaller than Kanzi-max; TS-H2 was 0.383% larger | Both structural hypotheses failed their frozen gates; measure the bounded research-ceiling tier next ([full chart](runs/text-source-structural-transform-development-v1/publication/README.md), [protocol](docs/benchmarks/2026-07-17-text-source-structural-transform-protocol.md)) |
+| English Wikimedia wikitext | **10%** | TS-H1 was 0.0068% smaller than Kanzi-max | Structural hypothesis failed its frozen gate; measure the research-ceiling tier next and keep enwik9 diagnostic-only ([full chart](runs/text-source-structural-transform-development-v1/publication/README.md), [protocol](docs/benchmarks/2026-07-17-text-source-structural-transform-protocol.md)) |
 | Delimited tables | **50%** | TBS1 vs 7-Zip-9: 3.48% larger aggregate | Frozen gate failed ([decision](docs/benchmarks/2026-07-17-tbl1-public-validation-decision.md), [Fresh successor corpus protocol](docs/benchmarks/2026-07-17-tabular-successor-corpus-protocol.md)) |
 | Dense matrices and time series | **20%** | DMS2 vs Brotli-11: 43.55% larger; 33.45 / 313.99 MB/s compression / decompression | Frozen gate failed ([evidence](runs/dms2-public-validation-v1/README.md)) |
 | General binary/archive | **10%** | Exact `.clab` fallback; no strongest-standard lead established | Alpha |

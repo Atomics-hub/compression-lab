@@ -178,12 +178,30 @@ class TextSourceStructuralTransformPublicationTests(unittest.TestCase):
         write_structural_receipts(structural_path.parent, trials)
         return structural_path, baseline_path
 
+    def test_wikimedia_runner_command_uses_frozen_corpus_extension(self) -> None:
+        item = {
+            "id": "enwikibooks-20260701",
+            "format": "wikimedia-revision-text-v1",
+            "track": "english_wikimedia_wikitext",
+            "source_bytes": 1,
+            "source_sha256": "a" * 64,
+        }
+        commands = MODULE.expected_process_commands(item, "ts-h1-demux")
+        self.assertEqual(
+            commands["compression"][0][4],
+            "$REPOSITORY/corpora/text-source-development-v1/"
+            "enwikibooks-20260701.axwkt",
+        )
+
     def test_publication_keeps_every_standard_and_candidate_visible(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             structural_path, baseline_path = self.prepare(Path(raw))
             artifacts = MODULE.build_artifacts(structural_path, baseline_path)
             comparison = json.loads(artifacts["comparison.json"])
             source, wiki = comparison["tracks"]
+            self.assertEqual(
+                comparison["private_holdout_status"], "sealed and unaccessed"
+            )
             self.assertEqual(len(source["rows"]), 17)
             self.assertEqual(len(wiki["rows"]), 16)
             baseline_statuses = {

@@ -85,7 +85,7 @@ def expected_process_commands(
 ) -> dict[str, list[list[str]]]:
     extension = {
         "source-bundle-v1": "axsrc",
-        "wikimedia-revision-text-v1": "axwiki",
+        "wikimedia-revision-text-v1": "axwkt",
     }[item["format"]]
     runner_item = dict(item)
     runner_item["path"] = str(
@@ -742,6 +742,7 @@ def derive(
         },
         "research_ceiling_pending": ["ZPAQ", "paq8px", "cmix", "NNCP"],
         "validation_status": "sealed and unaccessed",
+        "private_holdout_status": "sealed and unaccessed",
         "runner_comparability": {
             "size": "Fully comparable: identical declared source bytes and complete self-contained artifact bytes are used for every row.",
             "speed_memory": "Contextual rather than paired: all rows use the same host and one codec thread, but candidate subprocess-chain measurements occur in the later structural run while baseline measurements come from the separately checksummed census.",

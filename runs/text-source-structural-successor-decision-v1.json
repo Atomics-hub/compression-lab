@@ -1,0 +1,79 @@
+{
+  "axiom_wins": 0,
+  "bindings": {
+    "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+    "routing_config_sha256": "aacfcafa25363682e001a11f82e002196589ca6cc8855c79b65d4d512077767b",
+    "structural_comparison_sha256": "5f91c163d2b66571999939db509457d27d2abb28cc2e56bd31a7730a99976a1b",
+    "structural_publication_receipt_sha256": "91ba73bfe618192d5024a419d53a27112deb09eb8887382236768b26ed95b3a7",
+    "structural_results_sha256": "92a29a1e184a04293ce04bfdd05f5e7ba7dd0d7f12873edce3d2926c1628db93"
+  },
+  "claim_ceiling": "A successor route is a development research decision only. It is not a codec result, baseline win, validation result, or state-of-the-art claim.",
+  "completed": true,
+  "decisions": [
+    {
+      "action": "Reject AXTS1 structural separation as the next source-code base. Develop TS-P1 directly over canonical source bundles: a bounded mixed byte/token predictor with a development-trained counted static dictionary, preserving raw escape channels for unsupported syntax.",
+      "axiom_win": false,
+      "observations": [
+        {
+          "complete_bytes": 45453564,
+          "decision": "development hypothesis rejected",
+          "deterministic_artifact": true,
+          "exact_roundtrip": true,
+          "final_specialist_admission_passed": false,
+          "gain_vs_kanzi_percent": 0.21274642802266522,
+          "hypothesis_gate_passed": false,
+          "minimum_item_gain_percent": -0.18405962900316533,
+          "variant": "ts-h1-demux"
+        },
+        {
+          "complete_bytes": 45725000,
+          "decision": "development hypothesis rejected",
+          "deterministic_artifact": true,
+          "exact_roundtrip": true,
+          "final_specialist_admission_passed": false,
+          "gain_vs_kanzi_percent": -0.38315520381776075,
+          "hypothesis_gate_passed": false,
+          "minimum_item_gain_percent": -0.8930898728008655,
+          "variant": "ts-h2-extension-lanes"
+        }
+      ],
+      "selected_hypothesis_id": "ts-p1-mixed-predictor-counted-dictionary",
+      "selected_rule_id": "source_structural_rejected",
+      "track_id": "source_code_bundles"
+    },
+    {
+      "action": "Reject framing demultiplex as the next Wikimedia base. Develop WK-P1 without the AXTS1 envelope: bounded markup-aware prediction plus a development-trained static token dictionary whose complete decoder bytes are counted once. Predeclare dictionary training and validation splits before fitting.",
+      "axiom_win": false,
+      "observations": [
+        {
+          "complete_bytes": 35078683,
+          "decision": "development hypothesis rejected",
+          "deterministic_artifact": true,
+          "exact_roundtrip": true,
+          "final_specialist_admission_passed": false,
+          "gain_vs_kanzi_percent": 0.006781436662322253,
+          "hypothesis_gate_passed": false,
+          "minimum_item_gain_percent": -0.05921830568940961,
+          "variant": "ts-h1-demux"
+        }
+      ],
+      "selected_hypothesis_id": "wk-p1-markup-predictor-counted-dictionary",
+      "selected_rule_id": "wikimedia_structural_rejected",
+      "track_id": "english_wikimedia_wikitext"
+    }
+  ],
+  "name": "text-source-structural-successor-decision-v1",
+  "private_holdout_status": "sealed and unaccessed",
+  "schema_version": 1,
+  "successor_gate": {
+    "complete_artifact_accounting": true,
+    "exact_roundtrip_required": true,
+    "maximum_item_regression_percent": 0.5,
+    "minimum_gain_vs_strongest_eligible_complete_baseline_percent": 5.0,
+    "private_holdout_status": "sealed and unaccessed",
+    "public_validation_status": "sealed and unaccessed",
+    "two_byte_identical_measured_artifacts_required": true,
+    "unavailable_or_incomplete_baseline_is_not_an_axiom_win": true
+  },
+  "validation_status": "sealed and unaccessed"
+}
