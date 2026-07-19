@@ -168,6 +168,10 @@ class JLS2InlineSingleWorkerA2BenchmarkTests(unittest.TestCase):
         self.assertIn("outer segment workers", protocol)
         self.assertIn("private holdout remains sealed", protocol)
         self.assertIn(
+            "neither experimental change replaces the pre-A1 product",
+            protocol,
+        )
+        self.assertIn(
             "jls2-context-reuse-inline-single-worker-a2-${{ github.run_id }}",
             workflow,
         )
