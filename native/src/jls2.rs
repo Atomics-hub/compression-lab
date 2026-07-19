@@ -146,6 +146,23 @@ fn decompress_streams(
         .min(MAX_ZSTD_WORKERS)
         .min(worker_limit.max(1));
     let mut decoded = vec![None; payloads.len()];
+    if workers == 1 {
+        let mut decompressor = new_zstd_decompressor()?;
+        let mut rows = Vec::new();
+        for index in (0..payloads.len()).step_by(workers) {
+            rows.push((
+                index,
+                decompress_zstd_with(&mut decompressor, payloads[index], raw_sizes[index])?,
+            ));
+        }
+        for (index, restored) in rows {
+            decoded[index] = Some(restored);
+        }
+        return decoded
+            .into_iter()
+            .map(|item| item.ok_or_else(|| "zstd worker omitted a stream".to_owned()))
+            .collect();
+    }
     let worker_results = thread::scope(|scope| {
         let mut handles = Vec::with_capacity(workers);
         for worker in 0..workers {
