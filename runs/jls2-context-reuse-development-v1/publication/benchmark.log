@@ -1,0 +1,102 @@
+{
+  "gates": {
+    "all_candidate_item_medians_at_or_above_250_mbps": true,
+    "all_candidate_rounds_at_or_above_225_mbps": true,
+    "all_exact": true,
+    "candidate_cv_at_or_below_20_percent": true,
+    "candidate_median_throughput_at_least_95_percent_of_baseline": true,
+    "candidate_peak_rss_at_or_below_448_mib": false,
+    "no_clue_family_peak_rss_regression": true,
+    "stress_peak_rss_reduction_at_least_20_percent": false
+  },
+  "passed": false,
+  "stress_peak_rss_reduction_percent": 0.0,
+  "variants": [
+    {
+      "aggregate_cv_percent": 1.490654105294399,
+      "all_exact": true,
+      "item_rows": [
+        {
+          "item_id": "clue-early-development",
+          "median_mbps": 578.8883826573472,
+          "minimum_mbps": 573.7499368591457,
+          "peak_rss_bytes": 655613952
+        },
+        {
+          "item_id": "clue-late-development",
+          "median_mbps": 574.9372560386695,
+          "minimum_mbps": 546.4604373519813,
+          "peak_rss_bytes": 655613952
+        },
+        {
+          "item_id": "clue-middle-development",
+          "median_mbps": 591.0925235511147,
+          "minimum_mbps": 576.9403664171612,
+          "peak_rss_bytes": 655613952
+        },
+        {
+          "item_id": "jls2-context-stress-256",
+          "median_mbps": 416.890422772075,
+          "minimum_mbps": 357.86290889493506,
+          "peak_rss_bytes": 655613952
+        }
+      ],
+      "median_aggregate_mbps": 537.5411214335298,
+      "minimum_aggregate_mbps": 517.759226379735,
+      "peak_rss_bytes": 655613952,
+      "round_rates_mbps": [
+        517.759226379735,
+        539.6536456654715,
+        538.90263295114,
+        531.5332011021413,
+        540.5163889389436,
+        533.7546033531953,
+        537.5411214335298
+      ],
+      "variant": "baseline"
+    },
+    {
+      "aggregate_cv_percent": 1.4234066151708051,
+      "all_exact": true,
+      "item_rows": [
+        {
+          "item_id": "clue-early-development",
+          "median_mbps": 576.151546941782,
+          "minimum_mbps": 572.8201739353906,
+          "peak_rss_bytes": 655613952
+        },
+        {
+          "item_id": "clue-late-development",
+          "median_mbps": 568.7974300596635,
+          "minimum_mbps": 566.5756606972255,
+          "peak_rss_bytes": 655613952
+        },
+        {
+          "item_id": "clue-middle-development",
+          "median_mbps": 586.9494866982828,
+          "minimum_mbps": 563.2291263934366,
+          "peak_rss_bytes": 655613952
+        },
+        {
+          "item_id": "jls2-context-stress-256",
+          "median_mbps": 412.8683065263257,
+          "minimum_mbps": 368.3480771946512,
+          "peak_rss_bytes": 655613952
+        }
+      ],
+      "median_aggregate_mbps": 536.6416405421927,
+      "minimum_aggregate_mbps": 516.4965532281033,
+      "peak_rss_bytes": 655613952,
+      "round_rates_mbps": [
+        516.4965532281033,
+        532.1967695358746,
+        537.3715795861337,
+        536.7397981753451,
+        536.6416405421927,
+        538.0846913850015,
+        532.7294741864516
+      ],
+      "variant": "candidate"
+    }
+  ]
+}
