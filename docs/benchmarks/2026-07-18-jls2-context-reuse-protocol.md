@@ -36,15 +36,22 @@ Run on GitHub-hosted `ubuntu-22.04`, where cold-child RSS is measured with
 `wait4` and Linux KiB values are converted to bytes.
 
 1. The three licensed CLUE-LDS development ranges pinned in
-   `config/clue-json-log-corpus-v1.json`. Their source hashes and complete JLS2
-   frame sizes/hashes must match the accepted standalone-decoder evidence.
+   `config/clue-json-log-corpus-v1.json`. Their source sizes and hashes must
+   match the frozen corpus manifest. Generate each complete JLS2 fixture twice
+   on the Linux measurement host with the unchanged encoder; both generated
+   archives must have identical size and SHA-256. Retain one and supply it
+   byte-identically to both decoder binaries. Do not compare the Linux archive
+   hash with an archive generated on a different operating system: the first
+   protocol attempt stopped before measurement after detecting that this was
+   not a valid cross-platform invariant.
 2. A generated `jls2-context-stress-256` development fixture. It contains
    exactly 21,800 compact NDJSON records. Every record has the 256 keys
    `k000` through `k255` in that order and a one-digit integer value
    `(record_index + key_index) mod 10`, followed by LF. It is encoded once with
    the unchanged 16 MiB JLS2 encoder and supplied byte-identically to both
    binaries. This fixture is operational stress evidence, not corpus or ratio
-   evidence.
+   evidence. Generate it twice and require identical complete JLS2 size and
+   SHA-256 before measurement.
 
 Record source/frame SHA-256, complete bytes, command, parent wall time,
 cold-child peak RSS, output identity, host, compiler, binary hashes, source
