@@ -61,14 +61,40 @@ def build_stress_source(path: Path) -> None:
 
 def prepare_items(corpus: Path, work: Path) -> list[dict[str, Any]]:
     fixtures = work / "fixtures"
-    NATIVE_GATE.prepare_fixtures(corpus, fixtures)
-    items = NATIVE_GATE.load_items(corpus, fixtures)
-    stress_source = work / f"{STRESS_ID}.jsonl"
-    stress_frame = fixtures / f"{STRESS_ID}.jls2"
-    build_stress_source(stress_source)
+    fixtures.mkdir(parents=True)
+    config = json.loads(NATIVE_GATE.CONFIG.read_text(encoding="utf-8"))
     from compresslab.json_log_codec import compress_file
 
+    items = []
+    for source_item in config["selection"]["development"]:
+        source = corpus / f"{source_item['id']}.jsonl"
+        if source.stat().st_size != source_item["size_bytes"]:
+            raise ValueError(f"source size mismatch: {source}")
+        if sha256_file(source) != source_item["sha256"]:
+            raise ValueError(f"source SHA-256 mismatch: {source}")
+        first = fixtures / f"{source_item['id']}.first.jls2"
+        second = fixtures / f"{source_item['id']}.second.jls2"
+        compress_file(source, first, overwrite=True)
+        compress_file(source, second, overwrite=True)
+        if (
+            first.stat().st_size != second.stat().st_size
+            or sha256_file(first) != sha256_file(second)
+        ):
+            raise ValueError(f"nondeterministic frame: {source_item['id']}")
+        second.unlink()
+        items.append({**source_item, "source": source, "frame": first})
+    stress_source = work / f"{STRESS_ID}.jsonl"
+    stress_frame = fixtures / f"{STRESS_ID}.jls2"
+    stress_second = fixtures / f"{STRESS_ID}.second.jls2"
+    build_stress_source(stress_source)
     telemetry = compress_file(stress_source, stress_frame, overwrite=True)
+    compress_file(stress_source, stress_second, overwrite=True)
+    if (
+        stress_frame.stat().st_size != stress_second.stat().st_size
+        or sha256_file(stress_frame) != sha256_file(stress_second)
+    ):
+        raise ValueError("nondeterministic stress frame")
+    stress_second.unlink()
     if telemetry["segment_count"] != 3:
         raise ValueError("stress fixture must contain exactly three JLS2 segments")
     items.append(
