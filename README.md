@@ -56,6 +56,19 @@ frozen product-delivery gate passed with the standalone decoder at
 The delivery A/B did not rerun standard codecs, so its speed numbers are kept
 separate from the immutable same-run standards table below.
 
+A later frozen Linux A/B tested whether reusing one Zstandard decompression
+context per existing stream worker would fix the public-validation memory
+miss. It preserved exact output and essentially all speed (**536.64 MB/s**
+versus **537.54 MB/s**), but peak RSS was unchanged at **625.2 MiB** on every
+development input. The hypothesis is rejected; it does not alter the consumed
+public-validation no-pass or the retained baseline.
+
+![Rejected JLS2 reusable-context memory experiment](runs/jls2-context-reuse-development-v1/publication/comparison.svg)
+
+The [reusable-context publication](runs/jls2-context-reuse-development-v1/publication/README.md)
+binds all 64 exact scheduled decodes to the hosted workflow, binary hashes,
+artifact digest, raw result, runner provenance, frozen gates, and claim ceiling.
+
 <details>
 <summary><strong>Open the full same-run scorecard</strong></summary>
 
@@ -142,11 +155,24 @@ control. This exact bounded-minhash record-neighborhood design is rejected.
 
 ![Axiom Q1 record-neighborhood candidate, attribution control, and all 15 practical standards on the identical training subsets](runs/text-source-record-neighborhood-screen-v1/publication/comparison.svg)
 
+The final cheap transform decomposition tested four exact BWT pipelines before
+any token-BWT implementation work. All **32/32 trials** were exact and all
+**16/16 item/variant pairs** were deterministic, but the best BWT chain was
+**34.75% larger than Kanzi-max** on CPython + TypeScript and **13.42% larger**
+on Wikibooks + Wikinews. Raw and token BWT are therefore rejected for both
+tracks; no Axiom artifact was built and `axiom_wins` remains zero.
+
+![All four BWT diagnostics compared transparently with Kanzi-max](runs/text-source-bwt-screen-v1/publication/comparison.svg)
+
 This establishes the practical target and records clean negative Axiom
-results; it is **not a category win**. The predictor rows are conservative
+results; it is **not a category win**. The BWT rows are complete competitor
+diagnostics rather than Axiom artifacts, and the predictor rows are conservative
 estimates, not decodable artifacts, and carry no speed, memory, exactness, or
 portability claim. ZPAQ, paq8px, cmix, and NNCP remain in a separate
-research-ceiling tier. The latest [record-neighborhood publication
+research-ceiling tier. The latest [BWT publication
+bundle](runs/text-source-bwt-screen-v1/publication/README.md) exposes every
+complete diagnostic size, same-host speed and memory, exactness, determinism,
+track decision, and the deliberately empty Axiom-win count. The earlier [record-neighborhood publication
 bundle](runs/text-source-record-neighborhood-screen-v1/publication/README.md)
 exposes the complete Axiom artifacts, all eight sanitized receipts, TS-H1
 attribution control, all 15 standards, and an offline verifier. The earlier [long-range publication
@@ -167,8 +193,8 @@ remains independently reproducible.
 | Category | Objective completion | Best measured result | Gate status and evidence |
 | --- | ---: | --- | --- |
 | JSON and machine logs | **50%** | JLS2 is 52.97% smaller than the strongest eligible standard on the first frozen public-validation score | Ratio, both families, speed, exactness, integrity, and compression memory passed; overall gate failed only decoder RSS at 621.3 MiB vs 512 MiB ([immutable result](runs/clue-jls2-public-validation-v1/publication/README.md), [import receipt](runs/clue-jls2-public-validation-v1-import.json)) |
-| Source-code bundles | **10%** | Exact Axiom Q1 was 1.42% larger than Kanzi-max and 1.50% larger than TS-H1 on CPython + TypeScript; 4/4 source trials were exact | Structural, low-order predictor, explicit-LZP, and bounded record-neighborhood directions all failed frozen gates; complete external research ceilings before freezing a fundamentally stronger successor ([latest chart](runs/text-source-record-neighborhood-screen-v1/publication/README.md), [protocol](docs/benchmarks/2026-07-18-text-source-record-neighborhood-screen-protocol.md)) |
-| English Wikimedia wikitext | **10%** | Exact Axiom Q1 was 1.83% larger than both Kanzi-max and TS-H1 on Wikibooks + Wikinews; 4/4 wiki trials were exact | Structural, low-order predictor, explicit-LZP, and bounded record-neighborhood directions all failed frozen gates; complete external research ceilings and keep enwik9 diagnostic-only ([latest chart](runs/text-source-record-neighborhood-screen-v1/publication/README.md), [protocol](docs/benchmarks/2026-07-18-text-source-record-neighborhood-screen-protocol.md)) |
+| Source-code bundles | **10%** | Exact Axiom Q1 was 1.42% larger than Kanzi-max; the later non-Axiom BWT ceiling was at least 34.75% larger | Structural, low-order predictor, explicit-LZP, record-neighborhood, and BWT directions all failed frozen gates; next candidate must expose grammar productions and identifier bindings ([latest chart](runs/text-source-bwt-screen-v1/publication/README.md), [protocol](docs/benchmarks/2026-07-18-text-source-bwt-screen-protocol.md)) |
+| English Wikimedia wikitext | **10%** | Exact Axiom Q1 was 1.83% larger than Kanzi-max; the later non-Axiom BWT ceiling was at least 13.42% larger | Structural, low-order predictor, explicit-LZP, record-neighborhood, and BWT directions all failed frozen gates; next candidate must expose recursive template/schema structure ([latest chart](runs/text-source-bwt-screen-v1/publication/README.md), [protocol](docs/benchmarks/2026-07-18-text-source-bwt-screen-protocol.md)) |
 | Delimited tables | **50%** | TBS1 vs 7-Zip-9: 3.48% larger aggregate | Frozen gate failed ([decision](docs/benchmarks/2026-07-17-tbl1-public-validation-decision.md), [Fresh successor corpus protocol](docs/benchmarks/2026-07-17-tabular-successor-corpus-protocol.md)) |
 | Dense matrices and time series | **20%** | DMS2 vs Brotli-11: 43.55% larger; 33.45 / 313.99 MB/s compression / decompression | Frozen gate failed ([evidence](runs/dms2-public-validation-v1/README.md)) |
 | General binary/archive | **10%** | Exact `.clab` fallback; no strongest-standard lead established | Alpha |
