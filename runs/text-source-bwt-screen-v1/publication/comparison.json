@@ -1,0 +1,291 @@
+{
+  "axiom_wins": 0,
+  "bindings": {
+    "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+    "config_sha256": "1d5e545d1ce7739f1a01b3e94d4bd6b026774ad123cf80ce65f6a01eff86b758",
+    "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+    "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+    "long_range_result_sha256": "faad7b7736685a30e451cd7fc94f4fde9898b16afa102a0291e418f86a544d12",
+    "predictor_result_sha256": "300a9cd657b0949b9b4af165d6e080ff3962afb1281a764bb5c894b508d2fa68",
+    "record_neighborhood_result_sha256": "724594043816e47fe3f0eabfe7870ee8f54a3fb75f1cdbd3a4b5696df297882a",
+    "repository_commit": "e69d64937677163ead94e4d29806f660420c9830",
+    "structural_results_sha256": "92a29a1e184a04293ce04bfdd05f5e7ba7dd0d7f12873edce3d2926c1628db93"
+  },
+  "claim_ceiling": "Training-split custom Kanzi pipeline decomposition only. Complete archives are exact competitor diagnostics, not Axiom artifacts, Axiom wins, validation results, private-holdout results, independent reproduction, novel-algorithm results, or state-of-the-art evidence.",
+  "decision": "track_specific_bwt_screen_complete",
+  "integrity": {
+    "all_diagnostic_gains_negative": true,
+    "axiom_artifact_count": 0,
+    "axiom_wins": 0,
+    "comparison_rows_per_track": 5,
+    "custom_kanzi_diagnostic_count_per_track": 4,
+    "exact_deterministic_item_variant_count": 16,
+    "trial_count": 32
+  },
+  "name": "text-source-bwt-kanzi-decomposition-publication-v1",
+  "private_holdout_status": "sealed and unaccessed",
+  "public_evidence_sha256": "ca4706658dab1f23b4becfba80b274b1c57aa488c52fa95e84211c949bfb5eef",
+  "public_validation_status": "sealed and unaccessed",
+  "result_sha256": "ef0c65b19ba6a7a6d5f3a9c439f5b2a5f9b563dec133862b4225b9490723e9fd",
+  "runner_comparability": {
+    "size": "Every byte value is one complete decodable .knz archive per item, aggregated once over the identical two-item track.",
+    "speed_memory": "BWT rows show same-host medians and peak RSS from the retained trials. Baseline speed/RSS was not copied into this diagnostic result and is intentionally blank."
+  },
+  "schema_version": 1,
+  "stage": "training-only custom Kanzi decomposition screen",
+  "track_decisions": {
+    "english_wikimedia_wikitext": "reject_raw_bwt_direction_for_track",
+    "source_code_bundles": "reject_raw_bwt_direction_for_track"
+  },
+  "tracks": [
+    {
+      "baseline": "Kanzi max (level 9)",
+      "rows": [
+        {
+          "complete_bytes": 6221486,
+          "compression_mbps": null,
+          "compression_peak_rss_mib": null,
+          "decision": "immutable practical comparison baseline",
+          "decompression_mbps": null,
+          "decompression_peak_rss_mib": null,
+          "deterministic": true,
+          "exact": true,
+          "gain_vs_kanzi_percent": 0.0,
+          "id": "kanzi-max",
+          "kind": "practical_baseline",
+          "label": "Kanzi max (level 9)",
+          "ratio": 11.2834036755849,
+          "resource_limit_passed": true,
+          "size_percent": 8.862573995857352,
+          "source_bytes": 70199538,
+          "speed_memory_availability": "not copied into this diagnostic result"
+        },
+        {
+          "complete_bytes": 8608181,
+          "compression_mbps": 2.4287293003367023,
+          "compression_peak_rss_mib": 1599.21875,
+          "decision": "rejected: 38.36% larger than Kanzi-max; no signal",
+          "decompression_mbps": 2.2983055094350013,
+          "decompression_peak_rss_mib": 1477.3125,
+          "deterministic": true,
+          "exact": true,
+          "gain_vs_kanzi_percent": -38.362137277171406,
+          "id": "tb1-text-bwt-tpaqx-direct",
+          "item_gains_vs_kanzi_percent": {
+            "cpython-3.14.6-source": -37.78765675306546,
+            "typescript-6.0.3-source": -39.87806561342682
+          },
+          "kind": "competitor_diagnostic",
+          "label": "TB1 TEXT + UTF + BWT / TPAQX",
+          "ratio": 8.154979315606862,
+          "resource_limit_passed": true,
+          "size_percent": 12.262446798439045,
+          "source_bytes": 70199538,
+          "speed_memory_availability": "measured same-host medians and peaks"
+        },
+        {
+          "complete_bytes": 8383238,
+          "compression_mbps": 5.225088966143069,
+          "compression_peak_rss_mib": 1584.828125,
+          "decision": "rejected: 34.75% larger than Kanzi-max; no signal",
+          "decompression_mbps": 5.24732854687439,
+          "decompression_peak_rss_mib": 1462.890625,
+          "deterministic": true,
+          "exact": true,
+          "gain_vs_kanzi_percent": -34.74655411906416,
+          "id": "tb2-text-bwt-srt-zrlt-tpaqx",
+          "item_gains_vs_kanzi_percent": {
+            "cpython-3.14.6-source": -34.73294184870761,
+            "typescript-6.0.3-source": -34.78247392049934
+          },
+          "kind": "competitor_diagnostic",
+          "label": "TB2 TEXT + UTF + BWT + SRT + ZRLT / TPAQX",
+          "ratio": 8.373797570819294,
+          "resource_limit_passed": true,
+          "size_percent": 11.942013065670034,
+          "source_bytes": 70199538,
+          "speed_memory_availability": "measured same-host medians and peaks"
+        },
+        {
+          "complete_bytes": 8457517,
+          "compression_mbps": 15.83901191189473,
+          "compression_peak_rss_mib": 726.515625,
+          "decision": "rejected: 35.94% larger than Kanzi-max; no signal",
+          "decompression_mbps": 24.858066813355926,
+          "decompression_peak_rss_mib": 736.15625,
+          "deterministic": true,
+          "exact": true,
+          "gain_vs_kanzi_percent": -35.94046502716554,
+          "id": "tb3-text-bwt-srt-zrlt-fpaq-control",
+          "item_gains_vs_kanzi_percent": {
+            "cpython-3.14.6-source": -36.101069349697255,
+            "typescript-6.0.3-source": -35.516665379945394
+          },
+          "kind": "competitor_diagnostic",
+          "label": "TB3 level-6 control / FPAQ",
+          "ratio": 8.300253845188841,
+          "resource_limit_passed": true,
+          "size_percent": 12.047824303345129,
+          "source_bytes": 70199538,
+          "speed_memory_availability": "measured same-host medians and peaks"
+        },
+        {
+          "complete_bytes": 8383704,
+          "compression_mbps": 2.9294409440484466,
+          "compression_peak_rss_mib": 1632.140625,
+          "decision": "rejected: 34.75% larger than Kanzi-max; no signal",
+          "decompression_mbps": 3.682292613142253,
+          "decompression_peak_rss_mib": 1519.046875,
+          "deterministic": true,
+          "exact": true,
+          "gain_vs_kanzi_percent": -34.75404429102629,
+          "id": "tb4-raw-bwt-srt-zrlt-tpaqx",
+          "item_gains_vs_kanzi_percent": {
+            "cpython-3.14.6-source": -34.9676863382741,
+            "typescript-6.0.3-source": -34.19028969944531
+          },
+          "kind": "competitor_diagnostic",
+          "label": "TB4 raw BWT + SRT + ZRLT / TPAQX",
+          "ratio": 8.373332121458487,
+          "resource_limit_passed": true,
+          "size_percent": 11.942676887702595,
+          "source_bytes": 70199538,
+          "speed_memory_availability": "measured same-host medians and peaks"
+        }
+      ],
+      "screen_items": [
+        "cpython-3.14.6-source",
+        "typescript-6.0.3-source"
+      ],
+      "selected_variant": null,
+      "track": "Source code: CPython + TypeScript",
+      "track_decision": "reject_raw_bwt_direction_for_track",
+      "track_id": "source_code_bundles"
+    },
+    {
+      "baseline": "Kanzi max (level 9)",
+      "rows": [
+        {
+          "complete_bytes": 24156788,
+          "compression_mbps": null,
+          "compression_peak_rss_mib": null,
+          "decision": "immutable practical comparison baseline",
+          "decompression_mbps": null,
+          "decompression_peak_rss_mib": null,
+          "deterministic": true,
+          "exact": true,
+          "gain_vs_kanzi_percent": 0.0,
+          "id": "kanzi-max",
+          "kind": "practical_baseline",
+          "label": "Kanzi max (level 9)",
+          "ratio": 5.555950608996527,
+          "resource_limit_passed": true,
+          "size_percent": 17.998720117863183,
+          "source_bytes": 134213921,
+          "speed_memory_availability": "not copied into this diagnostic result"
+        },
+        {
+          "complete_bytes": 28362606,
+          "compression_mbps": 2.8711246430629527,
+          "compression_peak_rss_mib": 1662.5,
+          "decision": "rejected: 17.41% larger than Kanzi-max; no signal",
+          "decompression_mbps": 3.1354557827399616,
+          "decompression_peak_rss_mib": 1529.03125,
+          "deterministic": true,
+          "exact": true,
+          "gain_vs_kanzi_percent": -17.41050176041616,
+          "id": "tb1-text-bwt-tpaqx-direct",
+          "item_gains_vs_kanzi_percent": {
+            "enwikibooks-20260701": -21.310438123564797,
+            "enwikinews-20260701": -13.142420124428625
+          },
+          "kind": "competitor_diagnostic",
+          "label": "TB1 TEXT + UTF + BWT / TPAQX",
+          "ratio": 4.7320729625479405,
+          "resource_limit_passed": true,
+          "size_percent": 21.13238760083613,
+          "source_bytes": 134213921,
+          "speed_memory_availability": "measured same-host medians and peaks"
+        },
+        {
+          "complete_bytes": 27399632,
+          "compression_mbps": 3.7104078308927875,
+          "compression_peak_rss_mib": 1652.515625,
+          "decision": "rejected: 13.42% larger than Kanzi-max; no signal",
+          "decompression_mbps": 3.5290449618328372,
+          "decompression_peak_rss_mib": 1519.03125,
+          "deterministic": true,
+          "exact": true,
+          "gain_vs_kanzi_percent": -13.424152250704854,
+          "id": "tb2-text-bwt-srt-zrlt-tpaqx",
+          "item_gains_vs_kanzi_percent": {
+            "enwikibooks-20260701": -17.150635366867505,
+            "enwikinews-20260701": -9.345897460395793
+          },
+          "kind": "competitor_diagnostic",
+          "label": "TB2 TEXT + UTF + BWT + SRT + ZRLT / TPAQX",
+          "ratio": 4.898384073187552,
+          "resource_limit_passed": true,
+          "size_percent": 20.41489570966338,
+          "source_bytes": 134213921,
+          "speed_memory_availability": "measured same-host medians and peaks"
+        },
+        {
+          "complete_bytes": 27565891,
+          "compression_mbps": 9.360028887795925,
+          "compression_peak_rss_mib": 781.171875,
+          "decision": "rejected: 14.11% larger than Kanzi-max; no signal",
+          "decompression_mbps": 19.072593570379766,
+          "decompression_peak_rss_mib": 805.875,
+          "deterministic": true,
+          "exact": true,
+          "gain_vs_kanzi_percent": -14.112401864022651,
+          "id": "tb3-text-bwt-srt-zrlt-fpaq-control",
+          "item_gains_vs_kanzi_percent": {
+            "enwikibooks-20260701": -17.77676497090262,
+            "enwikinews-20260701": -10.102131072978834
+          },
+          "kind": "competitor_diagnostic",
+          "label": "TB3 level-6 control / FPAQ",
+          "ratio": 4.86884029977482,
+          "resource_limit_passed": true,
+          "size_percent": 20.53877183127673,
+          "source_bytes": 134213921,
+          "speed_memory_availability": "measured same-host medians and peaks"
+        },
+        {
+          "complete_bytes": 27470474,
+          "compression_mbps": 2.143840413586685,
+          "compression_peak_rss_mib": 1528.125,
+          "decision": "rejected: 13.72% larger than Kanzi-max; no signal",
+          "decompression_mbps": 2.3467021087749775,
+          "decompression_peak_rss_mib": 1528.609375,
+          "deterministic": true,
+          "exact": true,
+          "gain_vs_kanzi_percent": -13.717411437315258,
+          "id": "tb4-raw-bwt-srt-zrlt-tpaqx",
+          "item_gains_vs_kanzi_percent": {
+            "enwikibooks-20260701": -17.629824350979252,
+            "enwikinews-20260701": -9.435675492339952
+          },
+          "kind": "competitor_diagnostic",
+          "label": "TB4 raw BWT + SRT + ZRLT / TPAQX",
+          "ratio": 4.885751916767071,
+          "resource_limit_passed": true,
+          "size_percent": 20.46767860988131,
+          "source_bytes": 134213921,
+          "speed_memory_availability": "measured same-host medians and peaks"
+        }
+      ],
+      "screen_items": [
+        "enwikibooks-20260701",
+        "enwikinews-20260701"
+      ],
+      "selected_variant": null,
+      "track": "English Wikimedia: Wikibooks + Wikinews",
+      "track_decision": "reject_raw_bwt_direction_for_track",
+      "track_id": "english_wikimedia_wikitext"
+    }
+  ],
+  "trial_receipts_manifest_sha256": "db50944920790df3959c84855ac7525d8d94c3c12b350de8dddd95a120d51c2b"
+}
