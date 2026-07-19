@@ -1,0 +1,119 @@
+{
+  "bindings": {
+    "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+    "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+    "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+    "long_range_result_sha256": "faad7b7736685a30e451cd7fc94f4fde9898b16afa102a0291e418f86a544d12",
+    "predictor_result_sha256": "300a9cd657b0949b9b4af165d6e080ff3962afb1281a764bb5c894b508d2fa68",
+    "record_neighborhood_result_sha256": "724594043816e47fe3f0eabfe7870ee8f54a3fb75f1cdbd3a4b5696df297882a",
+    "structural_results_sha256": "92a29a1e184a04293ce04bfdd05f5e7ba7dd0d7f12873edce3d2926c1628db93"
+  },
+  "claim_ceiling": "Training-split custom Kanzi pipeline decomposition only. Complete archives are exact competitor diagnostics, not Axiom artifacts, Axiom wins, validation results, private-holdout results, independent reproduction, novel-algorithm results, or state-of-the-art evidence.",
+  "decision": {
+    "final_axiom_codec_gate_reminder": {
+      "complete_artifact_accounting_required": true,
+      "exact_roundtrip_required": true,
+      "maximum_item_regression_percent": 0.5,
+      "minimum_aggregate_gain_vs_strongest_complete_baseline_percent": 5.0,
+      "two_byte_identical_measured_artifacts_required": true
+    },
+    "selection": {
+      "evaluate_tracks_independently": true,
+      "fixed_variant_tie_order": [
+        "tb1-text-bwt-tpaqx-direct",
+        "tb2-text-bwt-srt-zrlt-tpaqx",
+        "tb3-text-bwt-srt-zrlt-fpaq-control",
+        "tb4-raw-bwt-srt-zrlt-tpaqx"
+      ],
+      "report_shared_signal_variants": true
+    },
+    "track_gate": {
+      "integer_complete_byte_comparisons_only": true,
+      "maximum_item_regression_percent": 0.5,
+      "maximum_peak_rss_bytes": 4294967296,
+      "required_exact_roundtrip": true,
+      "required_identical_artifacts": 2,
+      "signal_gain_percent": 1.0,
+      "strong_gain_percent": 2.0
+    },
+    "tracks": {
+      "english_wikimedia_wikitext": {
+        "aggregate_baseline_complete_bytes": 24156788,
+        "item_maximum_complete_bytes": {
+          "enwikibooks-20260701": 12685899,
+          "enwikinews-20260701": 11591672
+        },
+        "signal_maximum_complete_bytes": 23915220,
+        "strong_maximum_complete_bytes": 23673652
+      },
+      "source_code_bundles": {
+        "aggregate_baseline_complete_bytes": 6221486,
+        "item_maximum_complete_bytes": {
+          "cpython-3.14.6-source": 4534272,
+          "typescript-6.0.3-source": 1718320
+        },
+        "signal_maximum_complete_bytes": 6159271,
+        "strong_maximum_complete_bytes": 6097056
+      }
+    }
+  },
+  "frozen_before_screen_results": true,
+  "measurement": {
+    "baseline_source": "Reuse exact per-item kanzi-max complete bytes from the immutable practical census; do not rerun or replace them.",
+    "block_bytes": 1073741824,
+    "jobs": 1,
+    "measured_repetitions": 2,
+    "order_seed": 20260718,
+    "timeout_seconds_per_process": 7200,
+    "warmups": 0
+  },
+  "name": "text-source-bwt-kanzi-decomposition-screen-v1",
+  "schema_version": 1,
+  "splits": {
+    "english_wikimedia_wikitext": {
+      "reserved_evaluation_not_accessed_by_screen": [
+        "enwikiversity-20260701"
+      ],
+      "screen_items": [
+        "enwikibooks-20260701",
+        "enwikinews-20260701"
+      ]
+    },
+    "source_code_bundles": {
+      "reserved_evaluation_not_accessed_by_screen": [
+        "rust-1.97.1-source",
+        "llvm-22.1.8-source"
+      ],
+      "screen_items": [
+        "cpython-3.14.6-source",
+        "typescript-6.0.3-source"
+      ]
+    }
+  },
+  "variants": [
+    {
+      "entropy": "TPAQX",
+      "id": "tb1-text-bwt-tpaqx-direct",
+      "purpose": "Preserve BWT-clustered symbol contexts for direct TPAQX prediction.",
+      "transform": "TEXT+UTF+BWT"
+    },
+    {
+      "entropy": "TPAQX",
+      "id": "tb2-text-bwt-srt-zrlt-tpaqx",
+      "purpose": "Test whether conventional post-BWT rank and zero-run shaping helps TPAQX.",
+      "transform": "TEXT+UTF+BWT+SRT+ZRLT"
+    },
+    {
+      "entropy": "FPAQ",
+      "id": "tb3-text-bwt-srt-zrlt-fpaq-control",
+      "purpose": "Retain the explicit official Kanzi level-6 BWT pipeline as an attribution control.",
+      "transform": "TEXT+UTF+BWT+SRT+ZRLT"
+    },
+    {
+      "entropy": "TPAQX",
+      "id": "tb4-raw-bwt-srt-zrlt-tpaqx",
+      "purpose": "Remove TEXT and UTF so any signal can be attributed to BWT and post-BWT shaping.",
+      "transform": "BWT+SRT+ZRLT"
+    }
+  ]
+}
