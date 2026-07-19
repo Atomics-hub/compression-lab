@@ -112,10 +112,13 @@ commits, frames, schedule, and thresholds. No input or threshold may change.
 ## Decision boundary
 
 A pass retains A1 context reuse plus the inline-one-worker path for a separately
-frozen future validation gate. A failure retains exact A1 and makes the next
-eligible memory experiment separately frozen declared-size-aware native
-batching. Either decision leaves the consumed public-validation no-pass
-unchanged and cannot authorize a rerun of those ranges.
+frozen future validation gate. A failure rejects the combined A1+A2 candidate
+for product integration: exact A1 remains the attribution baseline for this
+experiment, but neither experimental change replaces the pre-A1 product
+baseline. The next eligible memory experiment is separately frozen
+declared-size-aware native batching. Either decision leaves the consumed
+public-validation no-pass unchanged and cannot authorize a rerun of those
+ranges.
 
 Claim ceiling: **development-only decoder-memory evidence.** It cannot support
 public-validation, private-holdout, independent-reproduction, universal,
