@@ -1,0 +1,104 @@
+name: JLS2 reusable decode-context gate
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: jls2-context-reuse-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  linux-ab:
+    name: Frozen Linux context-reuse A/B
+    runs-on: ubuntu-22.04
+    timeout-minutes: 75
+    env:
+      PYTHONUNBUFFERED: "1"
+      PYTHONPATH: src
+      BASELINE_COMMIT: 7b081f6f11c2561c36289cfc57f7d3715ab8c594
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install candidate and verification tools
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Verify frozen runner and decoder
+        run: |
+          cargo fmt --manifest-path native/Cargo.toml --all -- --check
+          cargo clippy --manifest-path native/Cargo.toml --all-targets --locked -- -D warnings
+          cargo test --manifest-path native/Cargo.toml --release --locked
+          python -m unittest tests.test_jls2_native_decoder tests.test_jls2_context_reuse_benchmark -v
+          ruff check scripts/benchmark-jls2-context-reuse.py tests/test_jls2_context_reuse_benchmark.py
+
+      - name: Fetch licensed development ranges only
+        run: |
+          python scripts/fetch-clue-json-corpus.py \
+            --split development \
+            --output "$RUNNER_TEMP/clue-development" \
+            --cache "$RUNNER_TEMP/clue-cache"
+
+      - name: Build candidate and frozen baseline
+        run: |
+          cargo build --release --locked --manifest-path native/Cargo.toml --bin clab-jls2
+          git worktree add --detach "$RUNNER_TEMP/baseline" "$BASELINE_COMMIT"
+          cargo build --release --locked \
+            --manifest-path "$RUNNER_TEMP/baseline/native/Cargo.toml" \
+            --bin clab-jls2
+
+      - name: Run frozen paired gate
+        id: benchmark
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/jls2-context-reuse"
+          set +e
+          python scripts/benchmark-jls2-context-reuse.py \
+            --corpus "$RUNNER_TEMP/clue-development" \
+            --baseline-binary "$RUNNER_TEMP/baseline/native/target/release/clab-jls2" \
+            --candidate-binary native/target/release/clab-jls2 \
+            --output "$RUNNER_TEMP/jls2-context-reuse/results.json" \
+            --rounds 7 2>&1 | tee "$RUNNER_TEMP/jls2-context-reuse/benchmark.log"
+          status=${PIPESTATUS[0]}
+          echo "exit_code=$status" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Capture provenance
+        if: always()
+        run: |
+          {
+            uname -a
+            lscpu
+            free -b
+            python --version
+            rustc --version
+            git rev-parse HEAD
+            sha256sum native/target/release/clab-jls2
+            sha256sum "$RUNNER_TEMP/baseline/native/target/release/clab-jls2"
+          } > "$RUNNER_TEMP/jls2-context-reuse/provenance.txt"
+
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: jls2-context-reuse-${{ github.run_id }}
+          path: ${{ runner.temp }}/jls2-context-reuse
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Enforce frozen result
+        if: always()
+        run: |
+          status="${{ steps.benchmark.outputs.exit_code }}"
+          test -n "$status"
+          exit "$status"
