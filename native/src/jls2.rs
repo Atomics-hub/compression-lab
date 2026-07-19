@@ -104,6 +104,25 @@ fn decompress_zstd(payload: &[u8], expected_size: usize) -> DecodeResult<Vec<u8>
     Ok(restored)
 }
 
+fn new_zstd_decompressor() -> DecodeResult<zstd::bulk::Decompressor<'static>> {
+    zstd::bulk::Decompressor::new()
+        .map_err(|error| format!("cannot initialize zstd decoder: {error}"))
+}
+
+fn decompress_zstd_with(
+    decompressor: &mut zstd::bulk::Decompressor<'_>,
+    payload: &[u8],
+    expected_size: usize,
+) -> DecodeResult<Vec<u8>> {
+    let restored = decompressor
+        .decompress(payload, expected_size)
+        .map_err(|error| format!("invalid zstd payload: {error}"))?;
+    if restored.len() != expected_size {
+        return Err("zstd output size mismatch".to_owned());
+    }
+    Ok(restored)
+}
+
 fn decompress_streams(
     payloads: &[&[u8]],
     raw_sizes: &[usize],
@@ -113,10 +132,11 @@ fn decompress_streams(
         return Err("JSON-column stream table mismatch".to_owned());
     }
     if payloads.len() < 2 {
+        let mut decompressor = new_zstd_decompressor()?;
         return payloads
             .iter()
             .zip(raw_sizes)
-            .map(|(payload, &size)| decompress_zstd(payload, size))
+            .map(|(payload, &size)| decompress_zstd_with(&mut decompressor, payload, size))
             .collect();
     }
     let available = thread::available_parallelism().map_or(1, usize::from);
@@ -129,12 +149,16 @@ fn decompress_streams(
     let worker_results = thread::scope(|scope| {
         let mut handles = Vec::with_capacity(workers);
         for worker in 0..workers {
-            handles.push(scope.spawn(move || {
+            handles.push(scope.spawn(move || -> DecodeResult<Vec<(usize, Vec<u8>)>> {
+                let mut decompressor = new_zstd_decompressor()?;
                 let mut rows = Vec::new();
                 for index in (worker..payloads.len()).step_by(workers) {
-                    rows.push((index, decompress_zstd(payloads[index], raw_sizes[index])));
+                    rows.push((
+                        index,
+                        decompress_zstd_with(&mut decompressor, payloads[index], raw_sizes[index])?,
+                    ));
                 }
-                rows
+                Ok(rows)
             }));
         }
         handles
@@ -143,8 +167,8 @@ fn decompress_streams(
             .collect::<DecodeResult<Vec<_>>>()
     })?;
     for rows in worker_results {
-        for (index, result) in rows {
-            decoded[index] = Some(result?);
+        for (index, restored) in rows? {
+            decoded[index] = Some(restored);
         }
     }
     decoded
