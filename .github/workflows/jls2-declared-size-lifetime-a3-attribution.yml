@@ -105,6 +105,7 @@ jobs:
           python "$GITHUB_WORKSPACE/scripts/audit-jls2-declared-size-lifetime-a3.py" \
             --corpus "$RUNNER_TEMP/clue-development" \
             --audit-binary native/target/release/clab-jls2-a3-audit \
+            --a2-binary native/target/release/clab-jls2 \
             --output "$RUNNER_TEMP/$EVIDENCE_DIR/results.json" \
             --run-id "$GITHUB_RUN_ID" \
             --job-id "$job_id" \

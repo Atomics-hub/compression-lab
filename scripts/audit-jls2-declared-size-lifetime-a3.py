@@ -259,13 +259,17 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--corpus", type=Path, required=True)
     parser.add_argument("--audit-binary", type=Path, required=True)
+    parser.add_argument("--a2-binary", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--run-id", required=True)
     parser.add_argument("--job-id", required=True)
     parser.add_argument("--run-attempt", type=int, required=True)
     args = parser.parse_args()
-    if not args.audit_binary.is_file():
-        parser.error(f"audit binary is missing: {args.audit_binary}")
+    for binary in (args.audit_binary, args.a2_binary):
+        if not binary.is_file():
+            parser.error(f"binary is missing: {binary}")
+    if sha256_file(args.a2_binary) != A2_BINARY_SHA256:
+        raise ValueError("exact A2 product binary SHA-256 mismatch")
     if not args.run_id.isdigit() or not args.job_id.isdigit() or args.run_attempt < 1:
         parser.error("hosted run/job/attempt identity is invalid")
     if sha256_file(ROOT / "native" / "Cargo.lock") != EXPECTED_CARGO_LOCK_SHA256:
@@ -378,6 +382,7 @@ def main() -> int:
             ),
             "runner_sha256": sha256_file(Path(__file__).resolve()),
             "diagnostic_binary_sha256": sha256_file(args.audit_binary.resolve()),
+            "a2_product_binary_sha256": sha256_file(args.a2_binary.resolve()),
             "artifact_name": f"jls2-declared-size-lifetime-a3-attribution-{args.run_id}",
         },
         "host": host,
@@ -391,6 +396,7 @@ def main() -> int:
             "validation_accessed": False,
             "holdout_accessed": False,
             "product_ab_authorized_before_this_result": False,
+            "format_encoder_selector_changed": False,
         },
         "generations": generations,
         "summary": {
