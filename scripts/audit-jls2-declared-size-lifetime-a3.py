@@ -187,6 +187,9 @@ def validate_diagnostic_report(
         "phase_correlated_allocator_release_bytes",
         "credited_bytes",
         "live_encoded_bytes_report_only",
+        "live_declared_decoded_reassembly_bytes",
+        "allocator_in_use_not_represented_by_declared_buffers_bytes",
+        "free_allocator_arenas_or_mappings_retained_bytes",
         "unclassified_resident_bytes",
     ):
         if not isinstance(attribution.get(field), int) or attribution[field] < 0:
@@ -200,6 +203,8 @@ def validate_diagnostic_report(
         raise ValueError("credited attribution does not use the frozen minimum")
     if attribution.get("encoded_lifetime_authorization_credit_bytes") != 0:
         raise ValueError("encoded lifetime received prohibited authorization credit")
+    if attribution.get("declared_values_are_observed_allocations") is not False:
+        raise ValueError("declared bounds were mislabeled as observed allocations")
     if report.get("corruption_results") != {
         "product_regression_suite": (
             "verified separately by frozen workflow before corpus access"

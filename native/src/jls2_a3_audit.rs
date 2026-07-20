@@ -419,10 +419,17 @@ pub fn run(
         .unwrap_or(0);
     let potential = a2_peak.saturating_sub(proposed_peak);
     let rss_reduction = maximum_live.rss.saturating_sub(after_decoded_drop.rss);
-    let allocator_release = maximum_live
+    let observed_allocator_release = maximum_live
         .in_use
         .saturating_sub(after_decoded_drop.in_use);
+    let allocator_release = observed_allocator_release.saturating_sub(a2_peak);
     let credited = rss_reduction.min(potential.saturating_add(allocator_release));
+    let allocator_in_use_not_declared = maximum_live
+        .in_use
+        .saturating_sub(a2_peak.saturating_add(encoded.len()));
+    let retained_allocator = after_decoded_drop
+        .free_arena
+        .saturating_add(after_decoded_drop.mmap);
     let unclassified = maximum_live.rss.saturating_sub(
         maximum_live
             .in_use
@@ -465,7 +472,7 @@ pub fn run(
     ]
     .join(",");
     let json = format!(
-        "{{\"schema_version\":1,\"fixture_id\":{},\"encoded_bytes\":{},\"encoded_capacity_bytes\":{},\"encoded_sha256\":{},\"output_bytes\":{},\"output_sha256\":{},\"segment_count\":{},\"exact\":true,\"segments\":[{}],\"phase_snapshots\":[{}],\"attribution\":{{\"decoded_concurrency_potential_bytes\":{},\"phase_correlated_rss_reduction_bytes\":{},\"phase_correlated_allocator_release_bytes\":{},\"credited_bytes\":{},\"live_encoded_bytes_report_only\":{},\"encoded_lifetime_authorization_credit_bytes\":0,\"unclassified_resident_bytes\":{}}},\"corruption_results\":{{\"product_regression_suite\":\"verified separately by frozen workflow before corpus access\"}}}}\n",
+        "{{\"schema_version\":1,\"fixture_id\":{},\"encoded_bytes\":{},\"encoded_capacity_bytes\":{},\"encoded_sha256\":{},\"output_bytes\":{},\"output_sha256\":{},\"segment_count\":{},\"exact\":true,\"segments\":[{}],\"phase_snapshots\":[{}],\"attribution\":{{\"decoded_concurrency_potential_bytes\":{},\"phase_correlated_rss_reduction_bytes\":{},\"phase_correlated_allocator_release_bytes\":{},\"credited_bytes\":{},\"live_encoded_bytes_report_only\":{},\"live_declared_decoded_reassembly_bytes\":{},\"allocator_in_use_not_represented_by_declared_buffers_bytes\":{},\"free_allocator_arenas_or_mappings_retained_bytes\":{},\"encoded_lifetime_authorization_credit_bytes\":0,\"declared_values_are_observed_allocations\":false,\"unclassified_resident_bytes\":{}}},\"corruption_results\":{{\"product_regression_suite\":\"verified separately by frozen workflow before corpus access\"}}}}\n",
         json_escape(fixture_id),
         encoded.len(),
         encoded_capacity,
@@ -480,6 +487,9 @@ pub fn run(
         allocator_release,
         credited,
         encoded.len(),
+        a2_peak,
+        allocator_in_use_not_declared,
+        retained_allocator,
         unclassified,
     );
     fs::write(output_path, json).map_err(|error| format!("cannot write audit JSON: {error}"))

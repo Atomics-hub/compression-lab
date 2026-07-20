@@ -88,7 +88,11 @@ def valid_report(module) -> dict[str, object]:
             "phase_correlated_allocator_release_bytes": 5_000_000,
             "credited_bytes": 110_000_000,
             "live_encoded_bytes_report_only": expected["encoded_bytes"],
+            "live_declared_decoded_reassembly_bytes": 120_000_000,
+            "allocator_in_use_not_represented_by_declared_buffers_bytes": 1,
+            "free_allocator_arenas_or_mappings_retained_bytes": 2,
             "encoded_lifetime_authorization_credit_bytes": 0,
+            "declared_values_are_observed_allocations": False,
             "unclassified_resident_bytes": 1,
         },
         "corruption_results": {
