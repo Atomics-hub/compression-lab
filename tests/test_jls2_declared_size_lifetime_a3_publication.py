@@ -66,12 +66,12 @@ class JLS2DeclaredSizeLifetimeA3PublicationTests(unittest.TestCase):
                 99_414_016,
             )
             self.assertEqual(
-                (output / "README.md").read_bytes(),
-                (PUBLICATION / "README.md").read_bytes(),
+                (output / "README.md").read_text(encoding="utf-8"),
+                (PUBLICATION / "README.md").read_text(encoding="utf-8"),
             )
             self.assertEqual(
-                (output / "comparison.svg").read_bytes(),
-                (PUBLICATION / "comparison.svg").read_bytes(),
+                (output / "comparison.svg").read_text(encoding="utf-8"),
+                (PUBLICATION / "comparison.svg").read_text(encoding="utf-8"),
             )
 
     def test_publisher_rejects_overwrite_without_touching_output(self) -> None:

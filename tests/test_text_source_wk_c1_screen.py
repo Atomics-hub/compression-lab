@@ -238,6 +238,10 @@ class TextSourceWkC1ScreenTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "roster differs"):
             VERIFIER.validate_preflight(rows[:-1])
 
+    @unittest.skipUnless(
+        hasattr(os, "wait4"),
+        "WK-C1 measurement requires POSIX wait4 telemetry",
+    )
     def test_real_executor_launches_both_three_process_chains_and_binds_physical_artifact(
         self,
     ) -> None:
@@ -328,6 +332,10 @@ class TextSourceWkC1ScreenTests(unittest.TestCase):
                     repetition=0,
                 )
 
+    @unittest.skipUnless(
+        hasattr(os, "wait4"),
+        "WK-C1 measurement requires POSIX wait4 telemetry",
+    )
     def test_resource_smoke_is_authorized_only_and_fails_closed_above_four_gib(
         self,
     ) -> None:
@@ -430,6 +438,10 @@ class TextSourceWkC1ScreenTests(unittest.TestCase):
                 MODULE._set_process_memory_limit(123)
             self.assertEqual(fake.calls, [(fake.RLIMIT_AS, (123, 123))])
 
+    @unittest.skipUnless(
+        hasattr(os, "wait4"),
+        "WK-C1 measurement requires POSIX wait4 telemetry",
+    )
     def test_timeout_kills_spawned_process_group_end_to_end(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
