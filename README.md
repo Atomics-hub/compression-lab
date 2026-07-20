@@ -83,6 +83,21 @@ binds the 64 exact scheduled decodes to hosted run `29676674924`, the exact A1
 and A2 binaries, raw artifact digest, recomputed gates, and development-only
 claim ceiling.
 
+A hosted A3 diagnostic then measured the maximum memory reduction attributable
+to decoded-segment concurrency and allocator release without changing the A2
+product. All decodes were exact and topology repeated identically, but the
+minimum conservative credit was **83,722,100 bytes** and the minimum observed
+phase-correlated RSS reduction was **99,414,016 bytes**, both below the frozen
+**105,202,484-byte** requirement. A3 is rejected and **no product A/B is
+authorized**.
+
+![Rejected JLS2 A3 decoded-concurrency attribution](runs/jls2-declared-size-lifetime-a3-attribution-v1/publication/comparison.svg)
+
+The [A3 publication](runs/jls2-declared-size-lifetime-a3-attribution-v1/publication/README.md)
+binds hosted run `29765080842`, job `88429200694`, artifact `8470661511`, the
+GitHub artifact digest, exact A2 binary and protected sources, raw phase
+telemetry, recomputed gates, and the development-only claim ceiling.
+
 <details>
 <summary><strong>Open the full same-run scorecard</strong></summary>
 
