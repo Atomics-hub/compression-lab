@@ -38,10 +38,10 @@
     }
   },
   "build_toolchain": [
-    {"id": "cmake", "path": "/opt/homebrew/Cellar/cmake/4.2.0/bin/cmake", "bytes": 13340424, "sha256": "47e82b6fc50163d98780539c7a408505b707f67c7ef07a11e88b3b1bc32acbfe", "version_line": "cmake version 4.2.0"},
-    {"id": "make", "path": "/usr/bin/make", "bytes": 118928, "sha256": "179301dcb41ea78accc3fa0048a7e6f6710d891945a751a34addd622020c1818", "version_line": "GNU Make 3.81"},
-    {"id": "cxx", "path": "/usr/bin/c++", "bytes": 118928, "sha256": "179301dcb41ea78accc3fa0048a7e6f6710d891945a751a34addd622020c1818", "version_line": "Apple clang version 21.0.0 (clang-2100.1.1.101)"},
-    {"id": "cc", "path": "/usr/bin/cc", "bytes": 118928, "sha256": "179301dcb41ea78accc3fa0048a7e6f6710d891945a751a34addd622020c1818", "version_line": "Apple clang version 21.0.0 (clang-2100.1.1.101)"}
+    {"id": "cmake", "path": "/opt/homebrew/Cellar/cmake/4.4.0/bin/cmake", "bytes": 14081864, "sha256": "8f136fce6bb8e9dbea38320f8a615b1f4896fe80cc7da5c1ff3da69e834f5d4c", "version_line": "cmake version 4.4.0"},
+    {"id": "make", "path": "/usr/bin/make", "bytes": 118928, "sha256": "12bed4523661307059b879b9b54e77a73176e9d27d27a0e40363271d8f0668ba", "version_line": "GNU Make 3.81"},
+    {"id": "cxx", "path": "/usr/bin/c++", "bytes": 118928, "sha256": "12bed4523661307059b879b9b54e77a73176e9d27d27a0e40363271d8f0668ba", "version_line": "Apple clang version 21.0.0 (clang-2100.1.1.101)"},
+    {"id": "cc", "path": "/usr/bin/cc", "bytes": 118928, "sha256": "12bed4523661307059b879b9b54e77a73176e9d27d27a0e40363271d8f0668ba", "version_line": "Apple clang version 21.0.0 (clang-2100.1.1.101)"}
   ],
   "sources": [
     {

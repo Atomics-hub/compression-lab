@@ -184,6 +184,10 @@ class FrontierHeadroomE1RunnerTests(unittest.TestCase):
         self.assertIn("--split development", text)
         self.assertNotIn("--allow-public-validation", text)
         self.assertIn("--phase segment", text)
+        self.assertEqual(
+            text.count("/opt/homebrew/Cellar/cmake/4.4.0/bin/cmake"), 2
+        )
+        self.assertIn("brew install cmake zstd xz lz4", text)
         self.assertIn(
             "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a", text
         )

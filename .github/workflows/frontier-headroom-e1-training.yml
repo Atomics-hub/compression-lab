@@ -57,11 +57,13 @@ jobs:
           python scripts/safe-extract-frontier-headroom-e1-source.py \
             --archive "$RUNNER_TEMP/e1-tool-root/cache/kanzi-6eea1658897019ab3107df2806d5e534ef0798df.tar.gz" \
             --output "$tools/kanzi-src" --strip-components 1
-          cmake -S "$tools/kanzi-src" -B "$tools/kanzi-build" \
+          /opt/homebrew/Cellar/cmake/4.4.0/bin/cmake \
+            -S "$tools/kanzi-src" -B "$tools/kanzi-build" \
             -DCMAKE_BUILD_TYPE=Release \
             -DKANZI_ENABLE_NATIVE_OPTIMIZATIONS=ON \
             -DCMAKE_CXX_COMPILER=/usr/bin/c++
-          cmake --build "$tools/kanzi-build" --config Release \
+          /opt/homebrew/Cellar/cmake/4.4.0/bin/cmake \
+            --build "$tools/kanzi-build" --config Release \
             --target kanzi_static --parallel 10
 
           python scripts/safe-extract-frontier-headroom-e1-source.py \

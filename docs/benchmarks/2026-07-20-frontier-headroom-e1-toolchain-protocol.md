@@ -43,6 +43,12 @@ frozen executable SHA-256; otherwise changing to it requires a separately
 audited successor census. This distinction avoids a false source-to-binary
 reproducibility claim.
 
+The macOS 26 build-tool boundary was independently repeated in hosted runs
+`29775201136` and `29775315737`. Both exposed byte-for-byte identical CMake
+4.4.0, GNU Make 3.81, and Apple clang 21.0.0 paths, sizes, SHA-256 values, and
+version lines. The workflow invokes CMake through its exact Cellar path; every
+build tool is still reverified by the receipt generator before promotion.
+
 Because those two distribution executables are dynamically linked, E1 also
 binds the exact non-system `libzstd`, `liblzma`, and `liblz4` bytes under the
 loader names they request. The sealed root sets its library search path to

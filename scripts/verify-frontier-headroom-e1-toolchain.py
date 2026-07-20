@@ -186,27 +186,27 @@ EXPECTED_SOURCE_METADATA: dict[str, dict[str, Any]] = {
 }
 EXPECTED_TOOLCHAIN_IDS = {
     "cmake": (
-        "/opt/homebrew/Cellar/cmake/4.2.0/bin/cmake",
-        13340424,
-        "47e82b6fc50163d98780539c7a408505b707f67c7ef07a11e88b3b1bc32acbfe",
-        "cmake version 4.2.0",
+        "/opt/homebrew/Cellar/cmake/4.4.0/bin/cmake",
+        14081864,
+        "8f136fce6bb8e9dbea38320f8a615b1f4896fe80cc7da5c1ff3da69e834f5d4c",
+        "cmake version 4.4.0",
     ),
     "make": (
         "/usr/bin/make",
         118928,
-        "179301dcb41ea78accc3fa0048a7e6f6710d891945a751a34addd622020c1818",
+        "12bed4523661307059b879b9b54e77a73176e9d27d27a0e40363271d8f0668ba",
         "GNU Make 3.81",
     ),
     "cxx": (
         "/usr/bin/c++",
         118928,
-        "179301dcb41ea78accc3fa0048a7e6f6710d891945a751a34addd622020c1818",
+        "12bed4523661307059b879b9b54e77a73176e9d27d27a0e40363271d8f0668ba",
         "Apple clang version 21.0.0 (clang-2100.1.1.101)",
     ),
     "cc": (
         "/usr/bin/cc",
         118928,
-        "179301dcb41ea78accc3fa0048a7e6f6710d891945a751a34addd622020c1818",
+        "12bed4523661307059b879b9b54e77a73176e9d27d27a0e40363271d8f0668ba",
         "Apple clang version 21.0.0 (clang-2100.1.1.101)",
     ),
 }
