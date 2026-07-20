@@ -1,0 +1,154 @@
+experiment=jls2-declared-size-lifetime-a3-attribution
+run_id=29765080842
+job_id=linux-a3-attribution
+run_attempt=1
+audit_commit=3cfd54e798056bd419dbbd3daec4359be873a87b
+a2_commit=0f3377dff647e8a6d99b65d8f8a269687faa8ec6
+Linux runnervm76tkm 6.8.0-1062-azure #69~22.04.1-Ubuntu SMP Mon Jun 29 19:32:04 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux
+Architecture:                            x86_64
+CPU op-mode(s):                          32-bit, 64-bit
+Address sizes:                           48 bits physical, 48 bits virtual
+Byte Order:                              Little Endian
+CPU(s):                                  4
+On-line CPU(s) list:                     0-3
+Vendor ID:                               AuthenticAMD
+Model name:                              AMD EPYC 9V74 80-Core Processor
+CPU family:                              25
+Model:                                   17
+Thread(s) per core:                      2
+Core(s) per socket:                      2
+Socket(s):                               1
+Stepping:                                1
+BogoMIPS:                                5192.25
+Flags:                                   fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl tsc_reliable nonstop_tsc cpuid extd_apicid aperfmperf tsc_known_freq pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm cmp_legacy svm cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw topoext vmmcall fsgsbase bmi1 avx2 smep bmi2 erms invpcid rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves user_shstk clzero xsaveerptr rdpru arat npt nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold v_vmsave_vmload umip vaes vpclmulqdq rdpid fsrm
+Virtualization:                          AMD-V
+Hypervisor vendor:                       Microsoft
+Virtualization type:                     full
+L1d cache:                               64 KiB (2 instances)
+L1i cache:                               64 KiB (2 instances)
+L2 cache:                                2 MiB (2 instances)
+L3 cache:                                32 MiB (1 instance)
+NUMA node(s):                            1
+NUMA node0 CPU(s):                       0-3
+Vulnerability Gather data sampling:      Not affected
+Vulnerability Indirect target selection: Not affected
+Vulnerability Itlb multihit:             Not affected
+Vulnerability L1tf:                      Not affected
+Vulnerability Mds:                       Not affected
+Vulnerability Meltdown:                  Not affected
+Vulnerability Mmio stale data:           Not affected
+Vulnerability Reg file data sampling:    Not affected
+Vulnerability Retbleed:                  Not affected
+Vulnerability Spec rstack overflow:      Vulnerable: Safe RET, no microcode
+Vulnerability Spec store bypass:         Vulnerable
+Vulnerability Spectre v1:                Mitigation; usercopy/swapgs barriers and __user pointer sanitization
+Vulnerability Spectre v2:                Mitigation; Retpolines; STIBP disabled; RSB filling; PBRSB-eIBRS Not affected; BHI Not affected
+Vulnerability Srbds:                     Not affected
+Vulnerability Tsa:                       Vulnerable: Clear CPU buffers attempted, no microcode
+Vulnerability Tsx async abort:           Not affected
+Vulnerability Vmscape:                   Not affected
+               total        used        free      shared  buff/cache   available
+Mem:     16767819776   648830976 11471327232    51240960  4647661568 15705124864
+Swap:     3221221376           0  3221221376
+glibc 2.35
+Python 3.12.13
+rustc 1.97.0 (2d8144b78 2026-07-07)
+cargo 1.97.0 (c980f4866 2026-06-30)
+compression-lab-native v0.1.0 (/home/runner/work/compression-lab/compression-lab/native)
+├── sha2 v0.11.0
+│   ├── cfg-if v1.0.4
+│   ├── cpufeatures v0.3.0
+│   └── digest v0.11.3
+│       ├── block-buffer v0.12.1
+│       │   └── hybrid-array v0.4.13
+│       │       └── typenum v1.20.1
+│       ├── const-oid v0.10.2
+│       └── crypto-common v0.2.2
+│           └── hybrid-array v0.4.13 (*)
+└── zstd v0.13.3
+    └── zstd-safe v7.2.4
+        └── zstd-sys v2.0.16+zstd.1.5.7
+            [build-dependencies]
+            ├── cc v1.2.67
+            │   ├── find-msvc-tools v0.1.9
+            │   ├── jobserver v0.1.34
+            │   │   └── libc v0.2.186
+            │   ├── libc v0.2.186
+            │   └── shlex v2.0.1
+            └── pkg-config v0.3.33
+a905547d069da6d55bf6739307ffe9c75202cc15e87a6ae399e10b8890544783  native/Cargo.lock
+e8f15c2fb820540da386a1994daf7ecc7f498669ac7c15ac8671aec7807e7b86  scripts/audit-jls2-declared-size-lifetime-a3.py
+6d7424085ed774fe85cb898c0d63db45bbca19d16d822e8a584aa8eeff966c6d  scripts/verify-jls2-declared-size-lifetime-a3-attribution.py
+3b052fc0b38588c1e29b1d703e05c2b4063b4d55b0a47b770abe0194d0946dbd  .github/workflows/jls2-declared-size-lifetime-a3-attribution.yml
+a01b3ef1a4aecfd6dea2383bb03b3372f363e06a6cf60b39e9a0ec724433b724  /home/runner/work/_temp/a2-audit/native/target/release/clab-jls2-a3-audit
+c67e9c9b1902414c2b2e67991631d4cd065041242e6dd39392d673da2ca752fd  /home/runner/work/_temp/a2-audit/native/target/release/clab-jls2
+ .../jls2-declared-size-lifetime-a3-attribution.yml |  194 ++
+ README.md                                          |   62 +-
+ config/source-python-grammar-binding-gdb1-v1.json  |  191 ++
+ config/text-source-bwt-screen-v1.json              |  119 +
+ config/text-source-wk-c1-screen-v1.json            |  141 +
+ .../2026-07-18-text-source-bwt-screen-protocol.md  |  118 +
+ .../2026-07-18-text-source-wk-c1-protocol.md       |  169 ++
+ .../2026-07-19-jls2-a3-synthetic-audit-note.md     |   53 +
+ ...ls2-declared-size-lifetime-a3-audit-protocol.md |  253 ++
+ ...-source-python-grammar-binding-gdb1-protocol.md |  174 ++
+ native/Cargo.toml                                  |    4 +
+ native/src/bin/clab-jls2-a3-audit.rs               |   63 +
+ native/src/jls2_a3_audit.rs                        |  591 ++++
+ .../publication/README.md                          |   56 +
+ .../publication/benchmark.log                      |  102 +
+ .../publication/comparison.json                    |  195 ++
+ .../publication/comparison.svg                     |   72 +
+ .../publication/provenance.txt                     |   51 +
+ .../publication/receipt.json                       |  131 +
+ .../publication/results.json                       | 1742 ++++++++++++
+ .../publication/README.md                          |   59 +
+ .../publication/benchmark.log                      |  102 +
+ .../publication/comparison.json                    |  228 ++
+ .../publication/comparison.svg                     |   69 +
+ .../publication/provenance.txt                     |   92 +
+ .../publication/receipt.json                       |  150 +
+ .../publication/results.json                       | 1750 ++++++++++++
+ .../publication/README.md                          |   40 +
+ .../publication/comparison.json                    |  291 ++
+ .../publication/comparison.svg                     |  124 +
+ .../publication/evidence.json                      | 2902 ++++++++++++++++++++
+ .../publication/receipt.json                       |   26 +
+ .../publication/README.md                          |   37 +
+ .../publication/benchmark.log                      |   11 +
+ .../publication/comparison.json                    |  192 ++
+ .../publication/comparison.svg                     |    1 +
+ .../publication/evidence.json                      | 2170 +++++++++++++++
+ .../publication/provenance.txt                     |   14 +
+ .../publication/publication-provenance.json        |   22 +
+ .../publication/receipt.json                       |   27 +
+ .../publication/results.json                       |  520 ++++
+ scripts/audit-jls2-a3-memory-plan.py               |  448 +++
+ scripts/audit-jls2-declared-size-lifetime-a3.py    |  450 +++
+ scripts/benchmark-text-source-bwt-screen.py        |  538 ++++
+ scripts/benchmark-text-source-wk-c1-screen.py      | 1370 +++++++++
+ scripts/fuzz-text-source-wk-c1.py                  |  138 +
+ ...h-jls2-context-reuse-inline-single-worker-a2.py |  918 +++++++
+ scripts/publish-jls2-context-reuse.py              |  899 ++++++
+ scripts/publish-text-source-bwt-screen.py          |  678 +++++
+ scripts/publish-text-source-wk-c1-screen.py        |  634 +++++
+ scripts/text-source-wk-c1-transform.py             |  826 ++++++
+ ...y-jls2-declared-size-lifetime-a3-attribution.py |  171 ++
+ ...fy-source-python-grammar-binding-gdb1-result.py |  417 +++
+ .../verify-text-source-bwt-screen-publication.py   |  153 ++
+ scripts/verify-text-source-bwt-screen-run.py       |  197 ++
+ .../verify-text-source-wk-c1-screen-publication.py |  171 ++
+ scripts/verify-text-source-wk-c1-screen-run.py     |  285 ++
+ tests/test_jls2_a3_memory_plan_audit.py            |  264 ++
+ ...xt_reuse_inline_single_worker_a2_publication.py |  352 +++
+ tests/test_jls2_context_reuse_publication.py       |  294 ++
+ ...t_jls2_declared_size_lifetime_a3_attribution.py |  282 ++
+ ..._source_python_grammar_binding_gdb1_protocol.py |  400 +++
+ tests/test_text_source_bwt_screen.py               |  297 ++
+ tests/test_text_source_bwt_screen_publication.py   |   82 +
+ ..._text_source_bwt_screen_publication_verifier.py |   87 +
+ .../test_text_source_wk_c1_decoder_adversarial.py  |  230 ++
+ tests/test_text_source_wk_c1_publication.py        |  327 +++
+ tests/test_text_source_wk_c1_screen.py             |  599 ++++
+ tests/test_text_source_wk_c1_transform.py          |  201 ++
+ 69 files changed, 25012 insertions(+), 4 deletions(-)
