@@ -169,7 +169,7 @@ control. This exact bounded-minhash record-neighborhood design is rejected.
 
 ![Axiom Q1 record-neighborhood candidate, attribution control, and all 15 practical standards on the identical training subsets](runs/text-source-record-neighborhood-screen-v1/publication/comparison.svg)
 
-The final cheap transform decomposition tested four exact BWT pipelines before
+The next cheap transform decomposition tested four exact BWT pipelines before
 any token-BWT implementation work. All **32/32 trials** were exact and all
 **16/16 item/variant pairs** were deterministic, but the best BWT chain was
 **34.75% larger than Kanzi-max** on CPython + TypeScript and **13.42% larger**
@@ -178,12 +178,26 @@ tracks; no Axiom artifact was built and `axiom_wins` remains zero.
 
 ![All four BWT diagnostics compared transparently with Kanzi-max](runs/text-source-bwt-screen-v1/publication/comparison.svg)
 
+The subsequent WK-C1 experiment tested recursive wikitext template parsing,
+schema columns, and a structure-only attribution control as complete decodable
+artifacts. All **8/8 trials** round-tripped exactly and both repetitions were
+byte-identical, but the full candidate was **0.158% larger than Kanzi-max** on
+Wikibooks + Wikinews. It beat its structure-only ablation by only **0.032%**,
+far below the frozen 0.5% attribution and 1% advancement gates. WK-C1 is
+rejected; validation, holdout, and reserved evaluation remain sealed.
+
+![WK-C1 full schema columns, structure-only ablation, and frozen controls compared by complete bytes](runs/text-source-wk-c1-screen-v1/publication/comparison.svg)
+
 This establishes the practical target and records clean negative Axiom
-results; it is **not a category win**. The BWT rows are complete competitor
+results; it is **not a category win**. WK-C1 is the latest complete Axiom
+artifact, while the BWT rows are complete competitor
 diagnostics rather than Axiom artifacts, and the predictor rows are conservative
 estimates, not decodable artifacts, and carry no speed, memory, exactness, or
 portability claim. ZPAQ, paq8px, cmix, and NNCP remain in a separate
-research-ceiling tier. The latest [BWT publication
+research-ceiling tier. The latest [WK-C1 publication
+bundle](runs/text-source-wk-c1-screen-v1/publication/README.md) exposes all eight
+receipts, the complete-byte chart, candidate speed and memory, frozen controls,
+recomputed gates, provenance, and an offline verifier. The earlier [BWT publication
 bundle](runs/text-source-bwt-screen-v1/publication/README.md) exposes every
 complete diagnostic size, same-host speed and memory, exactness, determinism,
 track decision, and the deliberately empty Axiom-win count. The earlier [record-neighborhood publication
@@ -208,7 +222,7 @@ remains independently reproducible.
 | --- | ---: | --- | --- |
 | JSON and machine logs | **50%** | JLS2 is 52.97% smaller than the strongest eligible standard on the first frozen public-validation score | Ratio, both families, speed, exactness, integrity, and compression memory passed; overall gate failed only decoder RSS at 621.3 MiB vs 512 MiB ([immutable result](runs/clue-jls2-public-validation-v1/publication/README.md), [import receipt](runs/clue-jls2-public-validation-v1-import.json)) |
 | Source-code bundles | **10%** | Exact Axiom Q1 was 1.42% larger than Kanzi-max; the later non-Axiom BWT ceiling was at least 34.75% larger | Structural, low-order predictor, explicit-LZP, record-neighborhood, and BWT directions all failed frozen gates; next candidate must expose grammar productions and identifier bindings ([latest chart](runs/text-source-bwt-screen-v1/publication/README.md), [protocol](docs/benchmarks/2026-07-18-text-source-bwt-screen-protocol.md)) |
-| English Wikimedia wikitext | **10%** | Exact Axiom Q1 was 1.83% larger than Kanzi-max; the later non-Axiom BWT ceiling was at least 13.42% larger | Structural, low-order predictor, explicit-LZP, record-neighborhood, and BWT directions all failed frozen gates; next candidate must expose recursive template/schema structure ([latest chart](runs/text-source-bwt-screen-v1/publication/README.md), [protocol](docs/benchmarks/2026-07-18-text-source-bwt-screen-protocol.md)) |
+| English Wikimedia wikitext | **10%** | Exact WK-C1 was 0.158% larger than Kanzi-max and only 0.032% better than its structure-only ablation | Structural, low-order predictor, explicit-LZP, record-neighborhood, BWT, and recursive template-column directions all failed frozen gates; the next candidate must improve prediction or coding rather than only rearrange structure ([latest chart](runs/text-source-wk-c1-screen-v1/publication/README.md), [protocol](docs/benchmarks/2026-07-18-text-source-wk-c1-protocol.md)) |
 | Delimited tables | **50%** | TBS1 vs 7-Zip-9: 3.48% larger aggregate | Frozen gate failed ([decision](docs/benchmarks/2026-07-17-tbl1-public-validation-decision.md), [Fresh successor corpus protocol](docs/benchmarks/2026-07-17-tabular-successor-corpus-protocol.md)) |
 | Dense matrices and time series | **20%** | DMS2 vs Brotli-11: 43.55% larger; 33.45 / 313.99 MB/s compression / decompression | Frozen gate failed ([evidence](runs/dms2-public-validation-v1/README.md)) |
 | General binary/archive | **10%** | Exact `.clab` fallback; no strongest-standard lead established | Alpha |

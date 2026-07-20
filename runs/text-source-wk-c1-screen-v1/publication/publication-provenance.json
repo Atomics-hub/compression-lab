@@ -1,0 +1,22 @@
+{
+  "codec_execution_performed_by_publication": false,
+  "frozen_dependencies": {
+    "config/text-source-wk-c1-screen-v1.json": "af334f5528df39535e484ba28b36c8363443305f90d8fac35f5943a7a94d3270",
+    "docs/benchmarks/2026-07-18-text-source-wk-c1-protocol.md": "febfd22003021654269a66f24fa06de3b9c97c6c3a0370b9884adbdc6978b278",
+    "scripts/benchmark-text-source-wk-c1-screen.py": "f434fe9e1e244166a729435d33af4d20534747bfdfd085156de568d31ed71f4b",
+    "scripts/text-source-wk-c1-transform.py": "dcee5264690befb493360d28dbc4465a587471741788fdabc3aae2137d0408e7",
+    "scripts/verify-text-source-wk-c1-screen-run.py": "2bb331666c1e55546a1bcbc9c94b192071a3ce7a33fb8d2df6ffdb79b060f580"
+  },
+  "name": "text-source-wk-c1-publication-provenance-v1",
+  "offline_verification_scope": "Offline verification validates the recorded evidence, internal recomputations, and cryptographic hashes; it does not re-run codecs, rehash sealed corpus bytes, or re-measure peak RSS.",
+  "peak_rss_remeasured_by_publication": false,
+  "public_evidence_sha256": "f3561d5a3b1a9f005909ffcd3967f6d64ebc2954f254dcf939dacbeec614a0cf",
+  "schema_version": 1,
+  "sealed_corpus_bytes_opened_or_rehashed_by_publication": false,
+  "source_artifacts": {
+    "benchmark.log": "6666f8840dce46df7559c6f1bfcfc4573c8d83f4e88c1f842e12037fc2788b2c",
+    "provenance.txt": "4def2472b90f772d2906a04007e99e1c99f2c28228e03b3cdf1fecf7d846023a",
+    "results.json": "41de639f26e08b9d02802277c86788d492db205d3740b341b976b27f24f162d1"
+  },
+  "trial_receipts_manifest_sha256": "962d103be6737615d0890266d6e7db8dadd7310009b23899fa7c12cc1f9d7d1d"
+}

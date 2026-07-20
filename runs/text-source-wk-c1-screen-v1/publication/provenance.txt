@@ -1,0 +1,14 @@
+WK-C1 retained training-only measurement provenance
+measurement command: .venv/bin/python scripts/benchmark-text-source-wk-c1-screen.py run
+measurement repository commit: 3ab716bdd4cb997238e22bd35551d8a71e1a2f07
+result completed: 2026-07-20T10:33:18-0700
+host operating system: macOS 26.5.2 (25F84), Darwin 25.5.0 arm64
+host processor: Apple M4, 10 logical CPUs
+measurement executor pinned child concurrency: 1 job
+Python: 3.12.12
+Kanzi SHA-256: 3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618
+corpus scope: training-only enwikibooks-20260701 and enwikinews-20260701
+public validation status: sealed and unaccessed
+private holdout status: sealed and unaccessed
+reserved evaluation status: sealed and unaccessed
+host note: local interactive workstation; results are development evidence, not controlled-runner speed claims or independent reproduction

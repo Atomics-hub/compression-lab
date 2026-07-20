@@ -1,0 +1,11 @@
+WK-C1 command output retained from the successful measurement executor
+[1/8] r1 enwikibooks-20260701 x wk-c1-full-schema-columns
+[2/8] r0 enwikinews-20260701 x wk-c1-structure-only
+[3/8] r1 enwikinews-20260701 x wk-c1-structure-only
+[4/8] r0 enwikibooks-20260701 x wk-c1-structure-only
+[5/8] r0 enwikinews-20260701 x wk-c1-full-schema-columns
+[6/8] r1 enwikinews-20260701 x wk-c1-full-schema-columns
+[7/8] r0 enwikibooks-20260701 x wk-c1-full-schema-columns
+[8/8] r1 enwikibooks-20260701 x wk-c1-structure-only
+/Users/guts/Documents/Codex/2026-07-14/i/outputs/compression-lab/runs/text-source-wk-c1-screen-v1/results.json
+process exit code: 0

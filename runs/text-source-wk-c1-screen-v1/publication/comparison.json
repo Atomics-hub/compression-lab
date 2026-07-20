@@ -1,0 +1,192 @@
+{
+  "axiom_wins": 0,
+  "candidates": [
+    {
+      "complete_bytes": 24194892,
+      "compression_mbps": 0.8256894774416805,
+      "decompression_mbps": 0.5301198140359381,
+      "deterministic": true,
+      "exact": true,
+      "gain_vs_kanzi_percent": -0.1577362023461066,
+      "gain_vs_ts_h1_percent": -0.16456123503641584,
+      "id": "wk-c1-full-schema-columns",
+      "item_rows": [
+        {
+          "artifact_bytes": 12627602,
+          "artifact_sha256": "b9e7b2202fdd584f7ad35581dfc08971a4d460c48b8d3d7f4e2347a63da011c6",
+          "deterministic_artifact": true,
+          "exact_roundtrip": true,
+          "item_guard_passed": true,
+          "item_id": "enwikibooks-20260701",
+          "passed": true,
+          "peak_rss_bytes": 1603878912,
+          "resource_limit_passed": true,
+          "variant": "wk-c1-full-schema-columns"
+        },
+        {
+          "artifact_bytes": 11567290,
+          "artifact_sha256": "50c8364708d7d5c2566e1d851818794a7fabc17bde87b050338b62aa567ffd44",
+          "deterministic_artifact": true,
+          "exact_roundtrip": true,
+          "item_guard_passed": true,
+          "item_id": "enwikinews-20260701",
+          "passed": true,
+          "peak_rss_bytes": 1603223552,
+          "resource_limit_passed": true,
+          "variant": "wk-c1-full-schema-columns"
+        }
+      ],
+      "label": "WK-C1 full schema columns",
+      "measurement": "WK-C1 training screen, two exact repetitions",
+      "peak_rss_bytes": 1603878912
+    },
+    {
+      "complete_bytes": 24202704,
+      "compression_mbps": 1.240731644882743,
+      "decompression_mbps": 1.1804906088925031,
+      "deterministic": true,
+      "exact": true,
+      "gain_vs_kanzi_percent": -0.19007493877083326,
+      "gain_vs_ts_h1_percent": -0.196902175114516,
+      "id": "wk-c1-structure-only",
+      "item_rows": [
+        {
+          "artifact_bytes": 12627934,
+          "artifact_sha256": "64d371c49cee48840b65bb9aa8146c3d2787a0407d207adca85978b70e1d9986",
+          "deterministic_artifact": true,
+          "exact_roundtrip": true,
+          "item_guard_passed": true,
+          "item_id": "enwikibooks-20260701",
+          "passed": true,
+          "peak_rss_bytes": 1603846144,
+          "resource_limit_passed": true,
+          "variant": "wk-c1-structure-only"
+        },
+        {
+          "artifact_bytes": 11574770,
+          "artifact_sha256": "23cfe9a19b3adb6578cd14818165d4787b35998d1668b09201fb95aac96fbca0",
+          "deterministic_artifact": true,
+          "exact_roundtrip": true,
+          "item_guard_passed": true,
+          "item_id": "enwikinews-20260701",
+          "passed": true,
+          "peak_rss_bytes": 1603272704,
+          "resource_limit_passed": true,
+          "variant": "wk-c1-structure-only"
+        }
+      ],
+      "label": "WK-C1 structure-only",
+      "measurement": "WK-C1 training screen, two exact repetitions",
+      "peak_rss_bytes": 1603846144
+    }
+  ],
+  "claim_ceiling": "Training-only recursive wikitext representation screen. Exact complete candidates are development artifacts, not Axiom wins, validation results, holdout results, independent reproduction, product codecs, novel-algorithm results, or state-of-the-art evidence.",
+  "controls": [
+    {
+      "complete_bytes": 24156788,
+      "compression_mbps": null,
+      "decompression_mbps": null,
+      "deterministic": true,
+      "exact": true,
+      "gain_vs_kanzi_percent": 0.0,
+      "id": "kanzi-max",
+      "label": "Kanzi-max",
+      "measurement": "immutable census control",
+      "peak_rss_bytes": null
+    },
+    {
+      "complete_bytes": 24155142,
+      "compression_mbps": null,
+      "decompression_mbps": null,
+      "deterministic": true,
+      "exact": true,
+      "gain_vs_kanzi_percent": 0.006813819784319008,
+      "id": "ts-h1",
+      "label": "TS-H1",
+      "measurement": "immutable two-item control",
+      "peak_rss_bytes": null
+    }
+  ],
+  "decision": "reject_wk_c1_recursive_template_columnarization",
+  "frozen_dependencies": {
+    "config/text-source-wk-c1-screen-v1.json": "af334f5528df39535e484ba28b36c8363443305f90d8fac35f5943a7a94d3270",
+    "docs/benchmarks/2026-07-18-text-source-wk-c1-protocol.md": "febfd22003021654269a66f24fa06de3b9c97c6c3a0370b9884adbdc6978b278",
+    "scripts/benchmark-text-source-wk-c1-screen.py": "f434fe9e1e244166a729435d33af4d20534747bfdfd085156de568d31ed71f4b",
+    "scripts/text-source-wk-c1-transform.py": "dcee5264690befb493360d28dbc4465a587471741788fdabc3aae2137d0408e7",
+    "scripts/verify-text-source-wk-c1-screen-run.py": "2bb331666c1e55546a1bcbc9c94b192071a3ce7a33fb8d2df6ffdb79b060f580"
+  },
+  "gates": {
+    "all_item_guards": true,
+    "all_resource_guards": true,
+    "attribution_half_percent_vs_structure_only": false,
+    "complete_bytes_recomputed": 24194892,
+    "exact_and_deterministic": true,
+    "full_signal": false,
+    "full_strong_signal": false,
+    "one_percent_vs_ts_h1": false,
+    "signal_1_percent_vs_kanzi": false,
+    "strong_2_percent_vs_kanzi": false
+  },
+  "name": "text-source-wk-c1-public-comparison-v1",
+  "public_evidence_sha256": "f3561d5a3b1a9f005909ffcd3967f6d64ebc2954f254dcf939dacbeec614a0cf",
+  "rejected": true,
+  "result_sha256": "41de639f26e08b9d02802277c86788d492db205d3740b341b976b27f24f162d1",
+  "schedule": [
+    {
+      "item_id": "enwikibooks-20260701",
+      "ordinal": 1,
+      "repetition": 1,
+      "variant": "wk-c1-full-schema-columns"
+    },
+    {
+      "item_id": "enwikinews-20260701",
+      "ordinal": 2,
+      "repetition": 0,
+      "variant": "wk-c1-structure-only"
+    },
+    {
+      "item_id": "enwikinews-20260701",
+      "ordinal": 3,
+      "repetition": 1,
+      "variant": "wk-c1-structure-only"
+    },
+    {
+      "item_id": "enwikibooks-20260701",
+      "ordinal": 4,
+      "repetition": 0,
+      "variant": "wk-c1-structure-only"
+    },
+    {
+      "item_id": "enwikinews-20260701",
+      "ordinal": 5,
+      "repetition": 0,
+      "variant": "wk-c1-full-schema-columns"
+    },
+    {
+      "item_id": "enwikinews-20260701",
+      "ordinal": 6,
+      "repetition": 1,
+      "variant": "wk-c1-full-schema-columns"
+    },
+    {
+      "item_id": "enwikibooks-20260701",
+      "ordinal": 7,
+      "repetition": 0,
+      "variant": "wk-c1-full-schema-columns"
+    },
+    {
+      "item_id": "enwikibooks-20260701",
+      "ordinal": 8,
+      "repetition": 1,
+      "variant": "wk-c1-structure-only"
+    }
+  ],
+  "schema_version": 1,
+  "screen_scope": "training-only English Wikibooks + Wikinews",
+  "sealed_splits": {
+    "private_holdout": "sealed and unaccessed",
+    "public_validation": "sealed and unaccessed",
+    "reserved_evaluation": "sealed and unaccessed"
+  },
+  "source_bytes": 134213921
+}
