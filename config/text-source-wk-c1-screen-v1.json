@@ -81,9 +81,16 @@
         "enwikibooks-20260701",
         "enwikinews-20260701"
       ],
+      "backend_encode_and_decode_each_variant": true,
       "maximum_peak_rss_bytes": 4294967296,
       "required_before_candidate_trials": true,
       "transform_encode_and_decode_each_variant": true
+    },
+    "process_memory_limit": {
+      "address_space_limit_bytes": 4294967296,
+      "darwin_behavior": "RLIMIT_AS is not lowered; wait4 peak RSS is measured and the same 4 GiB gate fails closed",
+      "posix_behavior": "RLIMIT_AS is set before exec and wait4 peak RSS is also measured",
+      "unsupported_behavior": "measurement is refused without POSIX wait4 telemetry or resource-limit support"
     },
     "timeout_seconds_per_process": 43200,
     "warmups": 0

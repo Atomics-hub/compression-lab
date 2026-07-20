@@ -132,7 +132,9 @@ def validate_receipt(
 
 def validate_resource_smoke(rows: object, config: dict[str, Any]) -> None:
     expected = {
-        (variant, item_id) for variant in RUNNER.VARIANTS for item_id in RUNNER.SCREEN_ITEMS
+        (variant, item_id)
+        for variant in RUNNER.VARIANTS
+        for item_id in RUNNER.SCREEN_ITEMS
     }
     if not isinstance(rows, list) or len(rows) != 4:
         raise ValueError("WK-C1 resource smoke roster differs")
@@ -144,12 +146,16 @@ def validate_resource_smoke(rows: object, config: dict[str, Any]) -> None:
         raise ValueError("WK-C1 resource smoke roster differs")
     for row in rows:
         encode = row.get("encode")
+        backend_encode = row.get("backend_encode")
+        backend_decode = row.get("backend_decode")
         decode = row.get("decode")
-        RUNNER.validate_process_record(encode)
-        RUNNER.validate_process_record(decode)
+        for process in (encode, backend_encode, backend_decode, decode):
+            RUNNER.validate_process_record(process)
         transform_evidence = row.get("transform_file_evidence")
         if (
             not isinstance(encode, dict)
+            or not isinstance(backend_encode, dict)
+            or not isinstance(backend_decode, dict)
             or not isinstance(decode, dict)
             or row.get("passed") is not True
             or row.get("exact_roundtrip") is not True
@@ -160,12 +166,17 @@ def validate_resource_smoke(rows: object, config: dict[str, Any]) -> None:
             or not isinstance(transform_evidence.get("sha256"), str)
             or len(transform_evidence["sha256"]) != 64
             or row["maximum_peak_rss_bytes"]
-            != max(encode.get("peak_rss_bytes", -1), decode.get("peak_rss_bytes", -1))
+            != max(
+                process.get("peak_rss_bytes", -1)
+                for process in (encode, backend_encode, backend_decode, decode)
+            )
             or row["maximum_peak_rss_bytes"] > maximum_rss
-            or encode.get("returncode") != 0
-            or decode.get("returncode") != 0
-            or encode.get("timed_out") is not False
-            or decode.get("timed_out") is not False
+            or any(
+                process.get("returncode") != 0 or process.get("timed_out") is not False
+                for process in (encode, backend_encode, backend_decode, decode)
+            )
+            or "--compress" not in backend_encode.get("command", [])
+            or "--decompress" not in backend_decode.get("command", [])
         ):
             raise ValueError("WK-C1 resource smoke evidence differs")
 
@@ -257,7 +268,14 @@ def main() -> int:
     args = parser.parse_args()
     try:
         result = verify(args.config, args.output)
-    except (KeyError, OSError, TypeError, ValueError, RuntimeError, json.JSONDecodeError) as error:
+    except (
+        KeyError,
+        OSError,
+        TypeError,
+        ValueError,
+        RuntimeError,
+        json.JSONDecodeError,
+    ) as error:
         raise SystemExit(f"WK-C1 run verification failed: {error}") from error
     print(json.dumps(result, indent=2, sort_keys=True))
     return 0

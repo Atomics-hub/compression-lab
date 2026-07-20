@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import sys
 import tempfile
+import time
 import unittest
 from unittest import mock
 
@@ -15,10 +16,7 @@ SCRIPT = REPOSITORY / "scripts" / "benchmark-text-source-wk-c1-screen.py"
 VERIFIER_SCRIPT = REPOSITORY / "scripts" / "verify-text-source-wk-c1-screen-run.py"
 CONFIG = REPOSITORY / "config" / "text-source-wk-c1-screen-v1.json"
 PROTOCOL = (
-    REPOSITORY
-    / "docs"
-    / "benchmarks"
-    / "2026-07-18-text-source-wk-c1-protocol.md"
+    REPOSITORY / "docs" / "benchmarks" / "2026-07-18-text-source-wk-c1-protocol.md"
 )
 
 
@@ -152,7 +150,9 @@ class TextSourceWkC1ScreenTests(unittest.TestCase):
         self.assertIn("--decompress", decode[1])
         self.assertIn("decode", decode[2])
 
-    def test_complete_axwk2_frame_counts_and_authenticates_backend_payload(self) -> None:
+    def test_complete_axwk2_frame_counts_and_authenticates_backend_payload(
+        self,
+    ) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
             source = root / "source"
@@ -187,7 +187,9 @@ class TextSourceWkC1ScreenTests(unittest.TestCase):
                 )
             self.assertFalse(restored_payload.exists())
 
-    def test_integer_gates_require_ts_h1_attribution_and_strong_for_admission(self) -> None:
+    def test_integer_gates_require_ts_h1_attribution_and_strong_for_admission(
+        self,
+    ) -> None:
         config = self.config()
         strong = MODULE.summarize(
             self.trials(
@@ -236,7 +238,9 @@ class TextSourceWkC1ScreenTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "roster differs"):
             VERIFIER.validate_preflight(rows[:-1])
 
-    def test_real_executor_launches_both_three_process_chains_and_binds_physical_artifact(self) -> None:
+    def test_real_executor_launches_both_three_process_chains_and_binds_physical_artifact(
+        self,
+    ) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
             source = root / "source.axwkt"
@@ -268,6 +272,7 @@ class TextSourceWkC1ScreenTests(unittest.TestCase):
                 transform=MODULE.DEFAULT_TRANSFORM,
                 kanzi=fake_kanzi,
                 timeout_seconds=30,
+                max_address_bytes=4 * 1024**3,
             )
             self.assertTrue(receipt["passed"])
             self.assertEqual(len(receipt["encode_processes"]), 3)
@@ -323,7 +328,9 @@ class TextSourceWkC1ScreenTests(unittest.TestCase):
                     repetition=0,
                 )
 
-    def test_resource_smoke_is_authorized_only_and_fails_closed_above_four_gib(self) -> None:
+    def test_resource_smoke_is_authorized_only_and_fails_closed_above_four_gib(
+        self,
+    ) -> None:
         config = self.config()
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
@@ -339,13 +346,30 @@ class TextSourceWkC1ScreenTests(unittest.TestCase):
                         "source_sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
                     }
                 )
+            fake_kanzi = root / "fake-kanzi"
+            fake_kanzi.write_text(
+                "#!/usr/bin/env python3\n"
+                "import shutil, sys\n"
+                "source = next(x.split('=', 1)[1] for x in sys.argv if x.startswith('--input='))\n"
+                "destination = next(x.split('=', 1)[1] for x in sys.argv if x.startswith('--output='))\n"
+                "shutil.copyfile(source, destination)\n",
+                encoding="utf-8",
+            )
+            os.chmod(fake_kanzi, 0o755)
             rows = MODULE.resource_smoke(
                 items=items,
                 config=config,
                 transform=MODULE.DEFAULT_TRANSFORM,
+                kanzi=fake_kanzi,
             )
             self.assertEqual(len(rows), 4)
             self.assertTrue(all(row["passed"] for row in rows))
+            self.assertTrue(
+                all("--compress" in row["backend_encode"]["command"] for row in rows)
+            )
+            self.assertTrue(
+                all("--decompress" in row["backend_decode"]["command"] for row in rows)
+            )
             VERIFIER.validate_resource_smoke(rows, config)
 
             oversized = {
@@ -364,9 +388,80 @@ class TextSourceWkC1ScreenTests(unittest.TestCase):
                         items=items,
                         config=config,
                         transform=MODULE.DEFAULT_TRANSFORM,
+                        kanzi=fake_kanzi,
                     )
 
-    def test_census_provenance_reconstructs_controls_and_rejects_rebound_edit(self) -> None:
+    @unittest.skipIf(
+        MODULE.RESOURCE is None or sys.platform == "darwin",
+        "RLIMIT_AS is enforced only where the platform supports lowering it",
+    )
+    def test_process_applies_memory_limit_before_exec_end_to_end(self) -> None:
+        limit = 512 * 1024**2
+        process = MODULE.run_process(
+            [
+                sys.executable,
+                "-c",
+                "import resource; print(resource.getrlimit(resource.RLIMIT_AS)[0])",
+            ],
+            stdout_path=None,
+            timeout_seconds=10,
+            max_address_bytes=limit,
+        )
+        self.assertEqual(process["returncode"], 0)
+        self.assertFalse(process["timed_out"])
+        self.assertEqual(int(process["stdout"].strip()), limit)
+
+    def test_darwin_memory_limit_behavior_is_explicit(self) -> None:
+        class FakeResource:
+            RLIMIT_AS = 1
+
+            def __init__(self) -> None:
+                self.calls = []
+
+            def setrlimit(self, kind, limits) -> None:
+                self.calls.append((kind, limits))
+
+        fake = FakeResource()
+        with mock.patch.object(MODULE, "RESOURCE", fake):
+            with mock.patch.object(MODULE.sys, "platform", "darwin"):
+                MODULE._set_process_memory_limit(123)
+            self.assertEqual(fake.calls, [])
+            with mock.patch.object(MODULE.sys, "platform", "linux"):
+                MODULE._set_process_memory_limit(123)
+            self.assertEqual(fake.calls, [(fake.RLIMIT_AS, (123, 123))])
+
+    def test_timeout_kills_spawned_process_group_end_to_end(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            marker = root / "grandchild-survived"
+            grandchild = root / "grandchild.py"
+            grandchild.write_text(
+                "import pathlib, sys, time\n"
+                "time.sleep(0.35)\n"
+                "pathlib.Path(sys.argv[1]).write_text('survived', encoding='utf-8')\n",
+                encoding="utf-8",
+            )
+            parent = root / "parent.py"
+            parent.write_text(
+                "import subprocess, sys, time\n"
+                "subprocess.Popen([sys.executable, sys.argv[1], sys.argv[2]])\n"
+                "time.sleep(10)\n",
+                encoding="utf-8",
+            )
+            process = MODULE.run_process(
+                [sys.executable, str(parent), str(grandchild), str(marker)],
+                stdout_path=None,
+                timeout_seconds=0.15,
+                max_address_bytes=4 * 1024**3,
+            )
+            self.assertTrue(process["timed_out"])
+            self.assertNotEqual(process["returncode"], 0)
+            time.sleep(0.45)
+            self.assertFalse(marker.exists())
+
+    def test_census_provenance_reconstructs_controls_and_rejects_rebound_edit(
+        self,
+    ) -> None:
         config = self.config()
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)

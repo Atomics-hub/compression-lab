@@ -104,14 +104,25 @@ exactly the maximum primary-process peak, never a sum or an inferred value.
 ## Frozen premeasurement resource smoke
 
 After dependency and item-identity checks but before any candidate trial, the
-runner executes transform encode and transform decode once for each variant on
-only Wikibooks and Wikinews. These four smoke pairs use the same 43,200-second
-per-process timeout and measured peak-RSS sampler as the screen. Each decode
-must restore the manifest-bound size and SHA-256. If any process fails, times
-out, reconstructs differently, or exceeds 4,294,967,296 bytes peak RSS, the
-runner stops before the eight-trial candidate schedule. Smoke receipts are
-bound into the final result. Rust, LLVM, Wikiversity, CPython, TypeScript,
-validation, and holdout paths are never opened by this phase.
+runner executes transform encode, pinned Kanzi encode, pinned Kanzi decode, and
+transform decode once for each variant on only Wikibooks and Wikinews. These
+four smoke chains use the same 43,200-second per-process timeout and measured
+peak-RSS sampler as the screen. Each Kanzi decode must reproduce the transform
+frame exactly and each transform decode must restore the manifest-bound size
+and SHA-256. If any process fails, times out, reconstructs differently, or
+exceeds 4,294,967,296 bytes peak RSS, the runner stops before the eight-trial
+candidate schedule. Smoke receipts are bound into the final result.
+
+Every subprocess starts in a new POSIX session. A timeout kills the entire
+process group before the direct child is reaped, preventing codec descendants
+from surviving a failed trial. On POSIX systems other than Darwin, the runner
+sets `RLIMIT_AS=4,294,967,296` before exec and also measures peak RSS. Darwin
+cannot safely lower inherited address space before exec, so macOS explicitly
+uses the same measured-RSS fail-closed gate without `RLIMIT_AS`. A platform
+without POSIX `wait4` telemetry, or without resource-limit support outside the
+documented Darwin exception, is refused as a measurement runner. Rust, LLVM,
+Wikiversity, CPython, TypeScript, validation, and holdout paths are never opened
+by this phase.
 
 The Kanzi-max control is reused from immutable census evidence and is not
 rerun. Its complete bytes are 12,622,786 for Wikibooks, 11,534,002 for

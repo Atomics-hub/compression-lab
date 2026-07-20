@@ -7,14 +7,22 @@ import argparse
 import hashlib
 import importlib.util
 import json
+import os
 from pathlib import Path
 import random
+import signal
 import struct
 import subprocess
 import sys
 import tempfile
+import time
 from types import ModuleType
 from typing import Any
+
+try:
+    import resource as RESOURCE
+except ImportError:  # pragma: no cover - Windows does not expose resource
+    RESOURCE = None  # type: ignore[assignment]
 
 
 REPOSITORY = Path(__file__).resolve().parents[1]
@@ -34,7 +42,10 @@ DEFAULT_KANZI = REPOSITORY / ".baseline-tools" / "text-source-v1" / "bin" / "kan
 DEFAULT_TRANSFORM = REPOSITORY / "scripts" / "text-source-wk-c1-transform.py"
 DEFAULT_OUTPUT = REPOSITORY / "runs" / "text-source-wk-c1-screen-v1"
 DEFAULT_STRUCTURAL_RESULT = (
-    REPOSITORY / "runs" / "text-source-structural-transform-development-v1" / "results.json"
+    REPOSITORY
+    / "runs"
+    / "text-source-structural-transform-development-v1"
+    / "results.json"
 )
 DEFAULT_STRUCTURAL_EVIDENCE = (
     REPOSITORY
@@ -46,7 +57,9 @@ DEFAULT_STRUCTURAL_EVIDENCE = (
 DEFAULT_SUCCESSOR_DECISION = (
     REPOSITORY / "runs" / "text-source-structural-successor-decision-v1.json"
 )
-DEFAULT_SUCCESSOR_ROUTING = REPOSITORY / "config" / "text-source-successor-routing-v1.json"
+DEFAULT_SUCCESSOR_ROUTING = (
+    REPOSITORY / "config" / "text-source-successor-routing-v1.json"
+)
 DEFAULT_BWT_RESULT = REPOSITORY / "runs" / "text-source-bwt-screen-v1" / "results.json"
 DEFAULT_BWT_EVIDENCE = (
     REPOSITORY / "runs" / "text-source-bwt-screen-v1" / "publication" / "evidence.json"
@@ -82,9 +95,108 @@ json_bytes = COMMON.json_bytes
 sha256_bytes = COMMON.sha256_bytes
 sha256_file = COMMON.sha256_file
 read_canonical = COMMON.read_canonical
-run_process = COMMON.BASELINE_RUNNER.run_process
 write_json_atomic = COMMON.BASELINE_RUNNER.write_json_atomic
 sanitize_process = COMMON.sanitize_process
+
+
+def _set_process_memory_limit(max_address_bytes: int) -> None:
+    """Apply the hard address-space cap where the platform supports it."""
+    if RESOURCE is None or sys.platform == "darwin":
+        return
+    RESOURCE.setrlimit(RESOURCE.RLIMIT_AS, (max_address_bytes, max_address_bytes))
+
+
+def run_process(
+    command: list[str],
+    *,
+    stdout_path: Path | None,
+    timeout_seconds: float,
+    max_address_bytes: int,
+) -> dict[str, Any]:
+    """Run one bounded process in its own session and retain wait4 telemetry.
+
+    Linux and other POSIX platforms with ``resource.RLIMIT_AS`` enforce the
+    address-space bound before exec. Darwin cannot safely lower RLIMIT_AS for
+    an already-large inherited virtual address space, so macOS explicitly uses
+    measured wait4 peak RSS and the caller's fail-closed 4 GiB gate instead.
+    Platforms without wait4 are not valid measurement runners.
+    """
+    if not hasattr(os, "wait4"):
+        raise RuntimeError("WK-C1 measurement requires POSIX wait4 telemetry")
+    if sys.platform != "darwin" and RESOURCE is None:
+        raise RuntimeError("WK-C1 measurement requires POSIX resource-limit support")
+    if timeout_seconds <= 0 or max_address_bytes <= 0:
+        raise ValueError("WK-C1 process limits must be positive")
+    environment = dict(os.environ)
+    environment.update(
+        {
+            "LC_ALL": "C",
+            "TZ": "UTC",
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+        }
+    )
+    stdout_file = (
+        stdout_path.open("wb") if stdout_path is not None else tempfile.TemporaryFile()
+    )
+    stderr_file = tempfile.TemporaryFile()
+    started = time.perf_counter_ns()
+    process: subprocess.Popen[bytes] | None = None
+    try:
+        process = subprocess.Popen(
+            command,
+            cwd=REPOSITORY,
+            env=environment,
+            stdin=subprocess.DEVNULL,
+            stdout=stdout_file,
+            stderr=stderr_file,
+            start_new_session=True,
+            preexec_fn=lambda: _set_process_memory_limit(max_address_bytes),
+        )
+        deadline = time.monotonic() + timeout_seconds
+        timed_out = False
+        while True:
+            pid, wait_status, usage = os.wait4(process.pid, os.WNOHANG)
+            if pid == process.pid:
+                break
+            if time.monotonic() >= deadline:
+                os.killpg(process.pid, signal.SIGKILL)
+                _, wait_status, usage = os.wait4(process.pid, 0)
+                timed_out = True
+                break
+            time.sleep(0.05)
+        process.returncode = os.waitstatus_to_exitcode(wait_status)
+        peak_rss_bytes = int(usage.ru_maxrss)
+        if sys.platform != "darwin":
+            peak_rss_bytes *= 1024
+        stderr_file.seek(0)
+        stderr = stderr_file.read(16384).decode("utf-8", errors="replace")
+        if stdout_path is None:
+            stdout_file.seek(0)
+            stdout = stdout_file.read(16384).decode("utf-8", errors="replace")
+        else:
+            stdout = "<artifact>"
+        return {
+            "command": command,
+            "returncode": process.returncode,
+            "timed_out": timed_out,
+            "wall_ns": time.perf_counter_ns() - started,
+            "cpu_ns": int((usage.ru_utime + usage.ru_stime) * 1_000_000_000),
+            "peak_rss_bytes": peak_rss_bytes,
+            "stdout": stdout,
+            "stderr": stderr,
+        }
+    except BaseException:
+        if process is not None and process.poll() is None:
+            try:
+                os.killpg(process.pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+            process.wait()
+        raise
+    finally:
+        stdout_file.close()
+        stderr_file.close()
 
 
 def validate_config(config: dict[str, Any]) -> None:
@@ -117,18 +229,29 @@ def validate_config(config: dict[str, Any]) -> None:
         or config.get("splits", {}).get("screen_items") != list(SCREEN_ITEMS)
         or config.get("splits", {}).get("reserved_evaluation_not_accessed")
         != ["rust-1.97.1-source", "llvm-22.1.8-source", "enwikiversity-20260701"]
-        or [(row.get("id"), row.get("columnarize_values")) for row in config.get("variants", [])]
+        or [
+            (row.get("id"), row.get("columnarize_values"))
+            for row in config.get("variants", [])
+        ]
         != expected_variants
         or config.get("measurement", {}).get("jobs") != 1
         or config.get("measurement", {}).get("measured_repetitions") != 2
         or config.get("measurement", {}).get("order_seed") != 20260718
         or config.get("measurement", {}).get("timeout_seconds_per_process") != 43200
         or config.get("measurement", {}).get("warmups") != 0
+        or config.get("measurement", {}).get("process_memory_limit")
+        != {
+            "address_space_limit_bytes": 4 * 1024**3,
+            "darwin_behavior": "RLIMIT_AS is not lowered; wait4 peak RSS is measured and the same 4 GiB gate fails closed",
+            "posix_behavior": "RLIMIT_AS is set before exec and wait4 peak RSS is also measured",
+            "unsupported_behavior": "measurement is refused without POSIX wait4 telemetry or resource-limit support",
+        }
         or config.get("measurement", {}).get("premeasurement_resource_smoke")
         != {
             "authorized_items_only": list(SCREEN_ITEMS),
             "maximum_peak_rss_bytes": 4 * 1024**3,
             "required_before_candidate_trials": True,
+            "backend_encode_and_decode_each_variant": True,
             "transform_encode_and_decode_each_variant": True,
         }
         or limits
@@ -183,7 +306,10 @@ def verify_screen_items(
         *config["splits"]["reserved_evaluation_not_accessed"],
     }
     rows = {row.get("source_id"): row for row in manifest.get("items", [])}
-    if set(rows) != expected_ids or manifest.get("public_validation_accessed") is not False:
+    if (
+        set(rows) != expected_ids
+        or manifest.get("public_validation_accessed") is not False
+    ):
         raise ValueError("WK-C1 development manifest roster or seal differs")
     items = []
     for item_id in SCREEN_ITEMS:
@@ -240,8 +366,7 @@ def verify_dependencies(
     _bwt_raw, bwt_public = read_canonical(bwt_evidence)
     _decision_raw, decision = read_canonical(successor_decision)
     if (
-        baseline_public.get("raw_results_sha256")
-        != bindings["baseline_results_sha256"]
+        baseline_public.get("raw_results_sha256") != bindings["baseline_results_sha256"]
         or baseline_public.get("results") != baseline_result
     ):
         raise ValueError("WK-C1 raw census public-evidence provenance differs")
@@ -254,10 +379,14 @@ def verify_dependencies(
         or bwt_public.get("results", {}).get("summary", {}).get("axiom_wins") != 0
         or any(
             row.get("decision") != "reject_raw_bwt_direction_for_track"
-            for row in bwt_public.get("results", {}).get("summary", {}).get("tracks", [])
+            for row in bwt_public.get("results", {})
+            .get("summary", {})
+            .get("tracks", [])
         )
         or decision.get("name") != "text-source-structural-successor-decision-v1"
-        or any(row.get("axiom_win") is not False for row in decision.get("decisions", []))
+        or any(
+            row.get("axiom_win") is not False for row in decision.get("decisions", [])
+        )
     ):
         raise ValueError("WK-C1 dependency evidence differs")
     structural_rows = {
@@ -299,7 +428,9 @@ def verify_dependencies(
         or gate["strong_maximum_complete_bytes"]
         != aggregate_bytes * (10_000 - int(gate["strong_percent"] * 100)) // 10_000
     ):
-        raise ValueError("WK-C1 Kanzi-max control does not reconstruct from census evidence")
+        raise ValueError(
+            "WK-C1 Kanzi-max control does not reconstruct from census evidence"
+        )
 
 
 def schedule(config: dict[str, Any]) -> list[tuple[str, str, int]]:
@@ -466,7 +597,9 @@ def repository_commit() -> str:
     ).stdout.strip()
     if status:
         raise ValueError("WK-C1 screen requires a completely clean commit")
-    if len(commit) != 40 or any(character not in "0123456789abcdef" for character in commit):
+    if len(commit) != 40 or any(
+        character not in "0123456789abcdef" for character in commit
+    ):
         raise ValueError("WK-C1 repository commit identity is invalid")
     return commit
 
@@ -518,6 +651,7 @@ def run_command_chain(
     *,
     work: Path,
     timeout_seconds: float,
+    max_address_bytes: int,
 ) -> tuple[list[dict[str, Any]], str | None]:
     records = []
     error = None
@@ -526,6 +660,7 @@ def run_command_chain(
             command,
             stdout_path=None,
             timeout_seconds=timeout_seconds,
+            max_address_bytes=max_address_bytes,
         )
         records.append(sanitize_process(process, work))
         if process["timed_out"]:
@@ -542,18 +677,24 @@ def resource_smoke(
     items: list[dict[str, Any]],
     config: dict[str, Any],
     transform: Path,
+    kanzi: Path,
 ) -> list[dict[str, Any]]:
     policy = config["measurement"]["premeasurement_resource_smoke"]
     if [item["id"] for item in items] != policy["authorized_items_only"]:
         raise ValueError("WK-C1 resource smoke item roster differs")
     timeout = config["measurement"]["timeout_seconds_per_process"]
     maximum_rss = policy["maximum_peak_rss_bytes"]
+    max_address_bytes = config["measurement"]["process_memory_limit"][
+        "address_space_limit_bytes"
+    ]
     rows = []
     for variant in VARIANTS:
         for item in items:
             with tempfile.TemporaryDirectory(prefix="wk-c1-smoke-") as raw:
                 work = Path(raw)
                 transformed = work / "transform.wkc1"
+                payload = work / "payload.knz"
+                decoded_transform = work / "decoded.wkc1"
                 restored = work / "restored.bin"
                 encode_command = [
                     sys.executable,
@@ -564,9 +705,14 @@ def resource_smoke(
                     str(transformed),
                 ]
                 encode_raw = run_process(
-                    encode_command, stdout_path=None, timeout_seconds=timeout
+                    encode_command,
+                    stdout_path=None,
+                    timeout_seconds=timeout,
+                    max_address_bytes=max_address_bytes,
                 )
                 encode = sanitize_process(encode_raw, work)
+                backend_encode: dict[str, Any] | None = None
+                backend_decode: dict[str, Any] | None = None
                 decode: dict[str, Any] | None = None
                 error = None
                 if not process_succeeded(encode_raw):
@@ -576,17 +722,70 @@ def resource_smoke(
                 elif not transformed.is_file():
                     error = "transform encode smoke produced no frame"
                 else:
+                    backend_encode_command = [
+                        str(kanzi),
+                        "--compress",
+                        "--level=9",
+                        "--block=1g",
+                        "--jobs=1",
+                        "--verbose=0",
+                        "--force",
+                        f"--input={transformed}",
+                        f"--output={payload}",
+                    ]
+                    backend_encode_raw = run_process(
+                        backend_encode_command,
+                        stdout_path=None,
+                        timeout_seconds=timeout,
+                        max_address_bytes=max_address_bytes,
+                    )
+                    backend_encode = sanitize_process(backend_encode_raw, work)
+                    if not process_succeeded(backend_encode_raw):
+                        error = "Kanzi encode smoke failed or timed out"
+                    elif backend_encode_raw["peak_rss_bytes"] > maximum_rss:
+                        error = "Kanzi encode smoke exceeded 4 GiB"
+                    elif not payload.is_file():
+                        error = "Kanzi encode smoke produced no payload"
+                if error is None:
+                    backend_decode_command = [
+                        str(kanzi),
+                        "--decompress",
+                        "--jobs=1",
+                        "--verbose=0",
+                        "--force",
+                        f"--input={payload}",
+                        f"--output={decoded_transform}",
+                    ]
+                    backend_decode_raw = run_process(
+                        backend_decode_command,
+                        stdout_path=None,
+                        timeout_seconds=timeout,
+                        max_address_bytes=max_address_bytes,
+                    )
+                    backend_decode = sanitize_process(backend_decode_raw, work)
+                    if not process_succeeded(backend_decode_raw):
+                        error = "Kanzi decode smoke failed or timed out"
+                    elif backend_decode_raw["peak_rss_bytes"] > maximum_rss:
+                        error = "Kanzi decode smoke exceeded 4 GiB"
+                    elif not decoded_transform.is_file():
+                        error = "Kanzi decode smoke produced no transform"
+                    elif sha256_file(decoded_transform) != sha256_file(transformed):
+                        error = "Kanzi smoke restored transform differs"
+                if error is None:
                     decode_command = [
                         sys.executable,
                         str(transform),
                         "decode",
-                        str(transformed),
+                        str(decoded_transform),
                         str(restored),
                         "--maximum-size",
                         str(item["source_bytes"]),
                     ]
                     decode_raw = run_process(
-                        decode_command, stdout_path=None, timeout_seconds=timeout
+                        decode_command,
+                        stdout_path=None,
+                        timeout_seconds=timeout,
+                        max_address_bytes=max_address_bytes,
                     )
                     decode = sanitize_process(decode_raw, work)
                     if not process_succeeded(decode_raw):
@@ -613,10 +812,13 @@ def resource_smoke(
                         else None
                     ),
                     "encode": encode,
+                    "backend_encode": backend_encode,
+                    "backend_decode": backend_decode,
                     "decode": decode,
-                    "maximum_peak_rss_bytes": maximum(
-                        encode["peak_rss_bytes"],
-                        decode["peak_rss_bytes"] if decode is not None else 0,
+                    "maximum_peak_rss_bytes": max(
+                        row["peak_rss_bytes"]
+                        for row in (encode, backend_encode, backend_decode, decode)
+                        if row is not None
                     ),
                     "exact_roundtrip": not error,
                     "passed": not error,
@@ -624,12 +826,10 @@ def resource_smoke(
                 }
                 rows.append(row)
                 if error:
-                    raise ValueError(f"WK-C1 premeasurement resource smoke failed: {error}")
+                    raise ValueError(
+                        f"WK-C1 premeasurement resource smoke failed: {error}"
+                    )
     return rows
-
-
-def maximum(first: int, second: int) -> int:
-    return first if first >= second else second
 
 
 def trial_path(output: Path, variant: str, item_id: str, repetition: int) -> Path:
@@ -678,17 +878,29 @@ def validate_trial_receipt(
         raise ValueError("WK-C1 aggregate encode metrics differ")
     if receipt.get("decode_totals") != aggregate_processes(decode_processes):
         raise ValueError("WK-C1 aggregate decode metrics differ")
-    if receipt.get("encode_peak_rss_bytes") != receipt["encode_totals"]["peak_rss_bytes"]:
-        raise ValueError("WK-C1 aggregate encode RSS differs from primary process peaks")
-    if receipt.get("decode_peak_rss_bytes") != receipt["decode_totals"]["peak_rss_bytes"]:
-        raise ValueError("WK-C1 aggregate decode RSS differs from primary process peaks")
+    if (
+        receipt.get("encode_peak_rss_bytes")
+        != receipt["encode_totals"]["peak_rss_bytes"]
+    ):
+        raise ValueError(
+            "WK-C1 aggregate encode RSS differs from primary process peaks"
+        )
+    if (
+        receipt.get("decode_peak_rss_bytes")
+        != receipt["decode_totals"]["peak_rss_bytes"]
+    ):
+        raise ValueError(
+            "WK-C1 aggregate decode RSS differs from primary process peaks"
+        )
     artifact = receipt.get("artifact_file_evidence")
     transform = receipt.get("transform_file_evidence")
     if receipt.get("passed") is True:
         if (
             len(encode_processes) != 3
             or len(decode_processes) != 3
-            or not all(process_succeeded(row) for row in [*encode_processes, *decode_processes])
+            or not all(
+                process_succeeded(row) for row in [*encode_processes, *decode_processes]
+            )
             or receipt.get("exact_roundtrip") is not True
             or receipt.get("error") is not None
             or not isinstance(artifact, dict)
@@ -707,7 +919,9 @@ def validate_trial_receipt(
             or len(transform["sha256"]) != 64
         ):
             raise ValueError("WK-C1 successful retained trial differs")
-    elif receipt.get("passed") is not False or not isinstance(receipt.get("error"), str):
+    elif receipt.get("passed") is not False or not isinstance(
+        receipt.get("error"), str
+    ):
         raise ValueError("WK-C1 failed retained trial differs")
 
 
@@ -721,6 +935,7 @@ def run_trial(
     transform: Path,
     kanzi: Path,
     timeout_seconds: float,
+    max_address_bytes: int,
 ) -> dict[str, Any]:
     destination = trial_path(output, variant, item["id"], repetition)
     if destination.exists():
@@ -758,7 +973,10 @@ def run_trial(
             source_sha256=item["source_sha256"],
         )
         encode_processes, error = run_command_chain(
-            encode_commands, work=work, timeout_seconds=timeout_seconds
+            encode_commands,
+            work=work,
+            timeout_seconds=timeout_seconds,
+            max_address_bytes=max_address_bytes,
         )
         artifact_evidence = (
             {"size_bytes": artifact.stat().st_size, "sha256": sha256_file(artifact)}
@@ -776,7 +994,10 @@ def run_trial(
         decode_processes: list[dict[str, Any]] = []
         if error is None:
             decode_processes, error = run_command_chain(
-                decode_commands, work=work, timeout_seconds=timeout_seconds
+                decode_commands,
+                work=work,
+                timeout_seconds=timeout_seconds,
+                max_address_bytes=max_address_bytes,
             )
         if error is None:
             if not restored.is_file():
@@ -796,8 +1017,12 @@ def run_trial(
             "source_sha256": item["source_sha256"],
             "transform_file_evidence": transform_evidence,
             "artifact_file_evidence": artifact_evidence,
-            "artifact_bytes": artifact_evidence["size_bytes"] if artifact_evidence else None,
-            "artifact_sha256": artifact_evidence["sha256"] if artifact_evidence else None,
+            "artifact_bytes": artifact_evidence["size_bytes"]
+            if artifact_evidence
+            else None,
+            "artifact_sha256": artifact_evidence["sha256"]
+            if artifact_evidence
+            else None,
             "encode_processes": encode_processes,
             "decode_processes": decode_processes,
             "encode_totals": aggregate_processes(encode_processes),
@@ -823,9 +1048,7 @@ def run_trial(
         return receipt
 
 
-def summarize(
-    trials: list[dict[str, Any]], config: dict[str, Any]
-) -> dict[str, Any]:
+def summarize(trials: list[dict[str, Any]], config: dict[str, Any]) -> dict[str, Any]:
     repetitions = config["measurement"]["measured_repetitions"]
     gate = config["decision"]["track_gate"]
     item_rows = []
@@ -849,7 +1072,10 @@ def summarize(
             artifact_bytes = next(iter(sizes)) if exact else None
             peak = max(
                 (
-                    max(row.get("encode_peak_rss_bytes", 0), row.get("decode_peak_rss_bytes", 0))
+                    max(
+                        row.get("encode_peak_rss_bytes", 0),
+                        row.get("decode_peak_rss_bytes", 0),
+                    )
                     for row in group
                 ),
                 default=0,
@@ -878,7 +1104,9 @@ def summarize(
     for variant in VARIANTS:
         selected = [row for row in item_rows if row["variant"] == variant]
         complete = len(selected) == 2 and all(row["passed"] for row in selected)
-        artifact_bytes = sum(row["artifact_bytes"] for row in selected) if complete else None
+        artifact_bytes = (
+            sum(row["artifact_bytes"] for row in selected) if complete else None
+        )
         variants.append(
             {
                 "variant": variant,
@@ -1003,7 +1231,9 @@ def benchmark(
         **config["bindings"],
     }
     preflight_rows = preflight()
-    smoke_rows = resource_smoke(items=items, config=config, transform=transform)
+    smoke_rows = resource_smoke(
+        items=items, config=config, transform=transform, kanzi=kanzi
+    )
     items_by_id = {item["id"]: item for item in items}
     trials = []
     for index, (variant, item_id, repetition) in enumerate(schedule(config), start=1):
@@ -1018,6 +1248,9 @@ def benchmark(
                 transform=transform,
                 kanzi=kanzi,
                 timeout_seconds=config["measurement"]["timeout_seconds_per_process"],
+                max_address_bytes=config["measurement"]["process_memory_limit"][
+                    "address_space_limit_bytes"
+                ],
             )
         )
     summary = summarize(trials, config)
@@ -1063,13 +1296,23 @@ def main() -> int:
     run.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     run.add_argument("--corpus", type=Path, default=DEFAULT_CORPUS)
     run.add_argument("--baseline", type=Path, default=DEFAULT_BASELINE)
-    run.add_argument("--baseline-evidence", type=Path, default=DEFAULT_BASELINE_EVIDENCE)
+    run.add_argument(
+        "--baseline-evidence", type=Path, default=DEFAULT_BASELINE_EVIDENCE
+    )
     run.add_argument("--kanzi", type=Path, default=DEFAULT_KANZI)
     run.add_argument("--transform", type=Path, default=DEFAULT_TRANSFORM)
-    run.add_argument("--structural-result", type=Path, default=DEFAULT_STRUCTURAL_RESULT)
-    run.add_argument("--structural-evidence", type=Path, default=DEFAULT_STRUCTURAL_EVIDENCE)
-    run.add_argument("--successor-decision", type=Path, default=DEFAULT_SUCCESSOR_DECISION)
-    run.add_argument("--successor-routing", type=Path, default=DEFAULT_SUCCESSOR_ROUTING)
+    run.add_argument(
+        "--structural-result", type=Path, default=DEFAULT_STRUCTURAL_RESULT
+    )
+    run.add_argument(
+        "--structural-evidence", type=Path, default=DEFAULT_STRUCTURAL_EVIDENCE
+    )
+    run.add_argument(
+        "--successor-decision", type=Path, default=DEFAULT_SUCCESSOR_DECISION
+    )
+    run.add_argument(
+        "--successor-routing", type=Path, default=DEFAULT_SUCCESSOR_ROUTING
+    )
     run.add_argument("--bwt-result", type=Path, default=DEFAULT_BWT_RESULT)
     run.add_argument("--bwt-evidence", type=Path, default=DEFAULT_BWT_EVIDENCE)
     run.add_argument("--bwt-receipt", type=Path, default=DEFAULT_BWT_RECEIPT)
