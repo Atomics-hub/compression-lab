@@ -40,6 +40,11 @@ jobs:
           set -euo pipefail
           tools="$RUNNER_TEMP/e1-build"
           mkdir -p "$tools/kanzi-build"
+          brew install cmake zstd xz lz4
+          test "$(brew --prefix cmake)" = /opt/homebrew/opt/cmake
+          test "$(brew --prefix zstd)" = /opt/homebrew/opt/zstd
+          test "$(brew --prefix xz)" = /opt/homebrew/opt/xz
+          test "$(brew --prefix lz4)" = /opt/homebrew/opt/lz4
           python scripts/prepare-frontier-headroom-e1-toolchain.py \
             --root "$RUNNER_TEMP/e1-tool-root" --allow-download --sources-only
           python scripts/safe-extract-frontier-headroom-e1-source.py \
@@ -63,11 +68,6 @@ jobs:
               '-D__DATE__="Jul 18 2026"' -o libzpaq.o -c libzpaq.cpp
             /usr/bin/c++ -o zpaq zpaq.o libzpaq.o -pthread
           )
-
-          brew install zstd xz lz4
-          test "$(brew --prefix zstd)" = /opt/homebrew/opt/zstd
-          test "$(brew --prefix xz)" = /opt/homebrew/opt/xz
-          test "$(brew --prefix lz4)" = /opt/homebrew/opt/lz4
 
           python scripts/prepare-frontier-headroom-e1-toolchain.py \
             --root "$RUNNER_TEMP/e1-tool-root" --allow-download \

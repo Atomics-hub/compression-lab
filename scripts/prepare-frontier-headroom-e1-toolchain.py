@@ -142,6 +142,13 @@ def verify_build_toolchain(config: dict[str, Any]) -> list[dict[str, Any]]:
     records = []
     for row in config["build_toolchain"]:
         path = Path(row["path"])
+        if path.is_file():
+            print(
+                "prepared build tool "
+                f"{row['id']}: path={path} bytes={path.stat().st_size} "
+                f"sha256={VERIFIER.sha256_file(path)} "
+                f"expected_bytes={row['bytes']} expected_sha256={row['sha256']}"
+            )
         VERIFIER.verify_file(path, row["bytes"], row["sha256"], executable=True)
         completed = subprocess.run(
             [str(path), "--version"],
