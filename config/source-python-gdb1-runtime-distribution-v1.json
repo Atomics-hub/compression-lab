@@ -1,0 +1,188 @@
+{
+  "accounting": {
+    "installed_library_secondary_view": "May report payload bytes and one-time installed footprint separately, but can never satisfy G0, G1, product, or strongest-ratio gates.",
+    "primary_mode": "standalone",
+    "primary_rule": "Every GDB1 complete bundle counts one exact stripped CPython runtime archive, the target LibCST and PyYAML wheels, decoder code, format/table/fallback bytes, and license/version/inventory manifests. Nothing is amortized away.",
+    "required_result_components": [
+      "format_header_and_flags",
+      "solid_payload",
+      "file_manifest_paths_modes_and_sizes",
+      "fallback_map_and_raw_escape_bytes",
+      "all_tables_permutations_and_stream_directory_bytes",
+      "trained_dictionary_if_any",
+      "decoder_source_or_binary",
+      "parser_and_runtime_distribution",
+      "license_and_version_manifest"
+    ],
+    "symmetric_baseline_rule": "A GDB1 stage remains unauthorized until each required Kanzi, XZ, Zstandard, and cmix baseline has a separately frozen self-contained distribution identity under the same one-copy complete-bundle rule."
+  },
+  "bindings": {
+    "dependency_lock_sha256": "d31eda5ed923263a7a76f5a3d85cbf35a9e26b78bd3f8cdd7f627863e9f65108",
+    "gdb1_protocol_config_sha256": "59f635f56738d6c908828735646dd463bffbdf44f1801064cf6317ca8a4b3954"
+  },
+  "builder": {
+    "license_spdx": "MPL-2.0",
+    "license_url": "https://github.com/astral-sh/python-build-standalone/blob/main/LICENSE",
+    "project": "astral-sh/python-build-standalone",
+    "release_api_url": "https://api.github.com/repos/astral-sh/python-build-standalone/releases/tags/20251028",
+    "release_tag": "20251028",
+    "source_url": "https://github.com/astral-sh/python-build-standalone"
+  },
+  "claim_ceiling": "Standalone decoder distribution identity and accounting only. No corpus was accessed, no compression was measured, and this contract does not authorize G0, G1, validation, a product claim, or a compression win.",
+  "created_before_corpus_access": true,
+  "measurement_authorized": false,
+  "name": "source-python-gdb1-runtime-distribution-v1",
+  "python_source": {
+    "filename": "Python-3.12.12.tar.xz",
+    "license_member": "Python-3.12.12/LICENSE",
+    "license_sha256": "3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf",
+    "license_spdx": "PSF-2.0",
+    "sha256": "fb85a13414b028c49ba18bbd523c2d055a30b56b18b92ce454ea2c51edc656c4",
+    "size_bytes": 20798712,
+    "source_url": "https://www.python.org/ftp/python/3.12.12/Python-3.12.12.tar.xz",
+    "version": "3.12.12"
+  },
+  "schema_version": 1,
+  "targets": [
+    {
+      "archive": {
+        "filename": "cpython-3.12.12+20251028-aarch64-apple-darwin-install_only_stripped.tar.gz",
+        "release_asset_url": "https://github.com/astral-sh/python-build-standalone/releases/download/20251028/cpython-3.12.12%2B20251028-aarch64-apple-darwin-install_only_stripped.tar.gz",
+        "sha256": "194997bc8cc08f1ed19a7e6a72544d8ce6688ef5e8969d61de2848aeb68fbf6c",
+        "size_bytes": 16722813,
+        "updated_at": "2025-10-28T15:02:32Z"
+      },
+      "base_distribution_bytes": 18980512,
+      "external_system_dependencies": [
+        "/System/Library/Frameworks/AppKit.framework/Versions/C/AppKit",
+        "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/ApplicationServices",
+        "/System/Library/Frameworks/Carbon.framework/Versions/A/Carbon",
+        "/System/Library/Frameworks/Cocoa.framework/Versions/A/Cocoa",
+        "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+        "/System/Library/Frameworks/CoreGraphics.framework/Versions/A/CoreGraphics",
+        "/System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices",
+        "/System/Library/Frameworks/CoreText.framework/Versions/A/CoreText",
+        "/System/Library/Frameworks/Foundation.framework/Versions/C/Foundation",
+        "/System/Library/Frameworks/IOKit.framework/Versions/A/IOKit",
+        "/System/Library/Frameworks/QuartzCore.framework/Versions/A/QuartzCore",
+        "/System/Library/Frameworks/SystemConfiguration.framework/Versions/A/SystemConfiguration",
+        "/System/Library/Frameworks/UniformTypeIdentifiers.framework/Versions/A/UniformTypeIdentifiers",
+        "/usr/lib/libSystem.B.dylib",
+        "/usr/lib/libedit.3.dylib",
+        "/usr/lib/libiconv.2.dylib",
+        "/usr/lib/libncurses.5.4.dylib",
+        "/usr/lib/libobjc.A.dylib",
+        "/usr/lib/libpanel.5.4.dylib",
+        "/usr/lib/libz.1.dylib",
+        "@executable_path/../lib/libpython3.12.dylib",
+        "@rpath/libtcl8.6.dylib",
+        "@rpath/libtk8.6.dylib"
+      ],
+      "inventory": {
+        "filename": "source-python-gdb1-runtime-macos-arm64-v1.json",
+        "inventory_manifest_sha256": "ef0b981779c2e793b19a7ee66371ef9c5cea60bd34a82a6c99c9e0a39700e0ef",
+        "license_manifest_sha256": "72077c6f3b1b1ee965e416fdc3fa17a3b117af3d78fee52c556ffb0d82a7f9e7",
+        "native_manifest_sha256": "1f4364af0660ad9b3a62899319458c406cc1286833713ca3f6702787b555757e",
+        "sha256": "fd574cdc52294303bdc3028aa8532e923109d0aebeab29656dc69c84b88d7843",
+        "stdlib_manifest_sha256": "73c7704665392bf8164d2adc9a87500e36a3cb5697fdbfc39b3f309bb43cc761"
+      },
+      "package_native": {
+        "manifest_sha256": "1ba93d44797e89fa743031d3067a5c5fde17e350a8f61d2d1eda35c6a97718b1",
+        "native_bytes": 4593608,
+        "object_count": 2,
+        "records": [
+          {
+            "bytes": 4211840,
+            "dependencies": [
+              "/usr/lib/libSystem.B.dylib",
+              "/usr/lib/libiconv.2.dylib"
+            ],
+            "format": "mach-o-64-little",
+            "path": "libcst/native.cpython-312-darwin.so",
+            "sha256": "78929bb533d21e60900afecb69f9aafd23ec02a01c4f13e838bc2cda481e63dc",
+            "wheel": "libcst-1.8.6-cp312-cp312-macosx_11_0_arm64.whl"
+          },
+          {
+            "bytes": 381768,
+            "dependencies": [
+              "/usr/lib/libSystem.B.dylib"
+            ],
+            "format": "mach-o-64-little",
+            "path": "yaml/_yaml.cpython-312-darwin.so",
+            "sha256": "e22e20c9ba0922aea16158d839a651b58226eb0e86544879b7d5f5229135d928",
+            "wheel": "pyyaml-6.0.3-cp312-cp312-macosx_11_0_arm64.whl"
+          }
+        ]
+      },
+      "package_wheel_bytes": 2257699,
+      "runtime_archive_bytes": 16722813,
+      "target_id": "cpython-3.12.12-macos-arm64"
+    },
+    {
+      "archive": {
+        "filename": "cpython-3.12.12+20251028-x86_64-unknown-linux-gnu-install_only_stripped.tar.gz",
+        "release_asset_url": "https://github.com/astral-sh/python-build-standalone/releases/download/20251028/cpython-3.12.12%2B20251028-x86_64-unknown-linux-gnu-install_only_stripped.tar.gz",
+        "sha256": "d136b7168603620bf82fd2ec0fcaed2a5853551aae66f8023b3ae32b435683f2",
+        "size_bytes": 33321975,
+        "updated_at": "2025-10-28T15:02:45Z"
+      },
+      "base_distribution_bytes": 36431318,
+      "external_system_dependencies": [
+        "$ORIGIN/../lib/libpython3.12.so.1.0",
+        "ld-linux-x86-64.so.2",
+        "libc.so.6",
+        "libcrypt.so.1",
+        "libdl.so.2",
+        "libgcc_s.so.1",
+        "libm.so.6",
+        "libpthread.so.0",
+        "librt.so.1",
+        "libtcl8.6.so",
+        "libtk8.6.so",
+        "libutil.so.1"
+      ],
+      "inventory": {
+        "filename": "source-python-gdb1-runtime-linux-x86_64-v1.json",
+        "inventory_manifest_sha256": "e136bf38b8c3225a75a7043c0101ab7019b2424ecae6cef78e5e663a77bb21e8",
+        "license_manifest_sha256": "72077c6f3b1b1ee965e416fdc3fa17a3b117af3d78fee52c556ffb0d82a7f9e7",
+        "native_manifest_sha256": "6d443d55e47f3e8d4b5741e2bb36144732f189b6079ae9e1055e754aa60e3530",
+        "sha256": "69487bbbdc4f2c865de8b132e982ffe5e87ad25ebb0a2118163e6d5ef592ed84",
+        "stdlib_manifest_sha256": "5695406158e161c192d1d9e238258acf978b0c67054b203cc4472d9f24a051d5"
+      },
+      "package_native": {
+        "manifest_sha256": "db0380d21e867fe636a9311e1b33f75913b08a46196f3333d538f4fc341681f7",
+        "native_bytes": 7976176,
+        "object_count": 2,
+        "records": [
+          {
+            "bytes": 5296912,
+            "dependencies": [
+              "ld-linux-x86-64.so.2",
+              "libc.so.6",
+              "libgcc_s.so.1",
+              "libpthread.so.0"
+            ],
+            "format": "elf-64-little",
+            "path": "libcst/native.cpython-312-x86_64-linux-gnu.so",
+            "sha256": "a3631904b120badb609e5d376d37376fddc648b740539c4d6e948bb5ee64d646",
+            "wheel": "libcst-1.8.6-cp312-cp312-manylinux_2_28_x86_64.whl"
+          },
+          {
+            "bytes": 2679264,
+            "dependencies": [
+              "libc.so.6",
+              "libpthread.so.0"
+            ],
+            "format": "elf-64-little",
+            "path": "yaml/_yaml.cpython-312-x86_64-linux-gnu.so",
+            "sha256": "957a099a4521c1f7669306fb6f79ca63fa4b9a0b4c463f7cac833a65a5c5c0cb",
+            "wheel": "pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl"
+          }
+        ]
+      },
+      "package_wheel_bytes": 3109343,
+      "runtime_archive_bytes": 33321975,
+      "target_id": "cpython-3.12.12-linux-x86_64"
+    }
+  ]
+}
