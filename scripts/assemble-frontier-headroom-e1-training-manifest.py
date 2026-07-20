@@ -85,17 +85,20 @@ def assemble(base: Path, manifests: dict[str, Path]) -> dict[str, Any]:
             available[item_id] = row
     items = []
     for declared in e1["items"]:
-        row = available.get(declared["id"])
-        if row is None:
+        selected = available.get(declared["id"])
+        if selected is None:
             raise ValueError(f"declared E1 training item is absent: {declared['id']}")
-        if (row["bytes"], row["sha256"]) != (declared["bytes"], declared["sha256"]):
+        if (selected["bytes"], selected["sha256"]) != (
+            declared["bytes"],
+            declared["sha256"],
+        ):
             raise ValueError(f"E1 training declaration differs: {declared['id']}")
         items.append(
             {
                 "id": declared["id"],
                 "category": declared["category"],
                 "license": declared["license"],
-                **row,
+                **selected,
             }
         )
     if len(items) != 17 or {row["id"] for row in items} != {

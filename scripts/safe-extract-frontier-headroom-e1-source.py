@@ -48,35 +48,35 @@ def extract(archive: Path, root: Path, strip_components: int) -> None:
     try:
         if tarfile.is_tarfile(archive):
             with tarfile.open(archive, "r:*") as bundle:
-                for member in bundle:
-                    destination = target(root, member.name, strip_components)
-                    if destination is None or member.isdir():
+                for tar_member in bundle:
+                    destination = target(root, tar_member.name, strip_components)
+                    if destination is None or tar_member.isdir():
                         continue
-                    if not member.isfile():
+                    if not tar_member.isfile():
                         raise ValueError("archive contains a link or special entry")
-                    total += member.size
+                    total += tar_member.size
                     if total > MAX_EXTRACTED_BYTES:
                         raise ValueError("archive exceeds the extraction byte limit")
-                    source = bundle.extractfile(member)
+                    source = bundle.extractfile(tar_member)
                     if source is None:
                         raise ValueError("archive regular member is unreadable")
                     with source:
-                        write_member(source, destination, member.size, seen)
+                        write_member(source, destination, tar_member.size, seen)
         else:
             with zipfile.ZipFile(archive) as bundle:
-                for member in bundle.infolist():
-                    destination = target(root, member.filename, strip_components)
-                    if destination is None or member.is_dir():
+                for zip_member in bundle.infolist():
+                    destination = target(root, zip_member.filename, strip_components)
+                    if destination is None or zip_member.is_dir():
                         continue
-                    mode = member.external_attr >> 16
+                    mode = zip_member.external_attr >> 16
                     kind = stat.S_IFMT(mode)
                     if kind not in {0, stat.S_IFREG}:
                         raise ValueError("archive contains a link or special entry")
-                    total += member.file_size
+                    total += zip_member.file_size
                     if total > MAX_EXTRACTED_BYTES:
                         raise ValueError("archive exceeds the extraction byte limit")
-                    with bundle.open(member) as source:
-                        write_member(source, destination, member.file_size, seen)
+                    with bundle.open(zip_member) as source:
+                        write_member(source, destination, zip_member.file_size, seen)
     except BaseException:
         shutil.rmtree(root, ignore_errors=True)
         raise

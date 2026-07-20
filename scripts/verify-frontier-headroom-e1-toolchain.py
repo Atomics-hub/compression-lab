@@ -65,7 +65,7 @@ EXPECTED_RUNTIME_IDS = {
         "3ce8bec34557e6a5c76129cef6588dc59959caa51e1e54321f45ea7c6e528e07",
     ),
 }
-EXPECTED_SOURCE_METADATA = {
+EXPECTED_SOURCE_METADATA: dict[str, dict[str, Any]] = {
     "kanzi-max": {
         "version": "2.5.3",
         "official_project": "https://github.com/flanglet/kanzi-cpp",

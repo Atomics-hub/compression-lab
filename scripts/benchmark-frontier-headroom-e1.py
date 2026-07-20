@@ -96,7 +96,7 @@ def axe1g(
     frame.extend(struct.pack("<Q", item["bytes"]))
     frame.extend(bytes.fromhex(item["sha256"]))
     frame.extend(struct.pack("<QI", segment_bytes, len(choices)))
-    artifacts = []
+    artifacts: list[bytes] = []
     for row in choices:
         artifact = Path(row["artifact_path"])
         ordinary(artifact)
@@ -106,8 +106,8 @@ def axe1g(
         frame.extend(struct.pack("<Q", row["artifact_bytes"]))
         frame.extend(bytes.fromhex(row["artifact_sha256"]))
         artifacts.append(artifact.read_bytes())
-    for artifact in artifacts:
-        frame.extend(artifact)
+    for artifact_bytes in artifacts:
+        frame.extend(artifact_bytes)
     return bytes(frame)
 
 
