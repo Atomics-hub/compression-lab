@@ -1,5 +1,6 @@
 {
   "bindings": {
+    "baseline_public_evidence_sha256": "b28429e3d12542eda21d03d981b9452cba2d4a329252e4876803b62852f1299f",
     "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
     "bwt_public_evidence_sha256": "ca4706658dab1f23b4becfba80b274b1c57aa488c52fa95e84211c949bfb5eef",
     "bwt_publication_receipt_sha256": "fc15cf05e538a69c0f2a84043d435b51339d937b6771615888de720f9e30c0f0",
@@ -75,6 +76,15 @@
     "jobs": 1,
     "measured_repetitions": 2,
     "order_seed": 20260718,
+    "premeasurement_resource_smoke": {
+      "authorized_items_only": [
+        "enwikibooks-20260701",
+        "enwikinews-20260701"
+      ],
+      "maximum_peak_rss_bytes": 4294967296,
+      "required_before_candidate_trials": true,
+      "transform_encode_and_decode_each_variant": true
+    },
     "timeout_seconds_per_process": 43200,
     "warmups": 0
   },

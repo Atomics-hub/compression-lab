@@ -26,8 +26,11 @@ out-of-scope paths need not exist.
 
 The practical census, manifest, pinned Kanzi binary, structural result and
 public evidence, successor-routing decision, and completed BWT rejection and
-publication are SHA-256-bound in the config. The BWT result remains an exact
-negative diagnostic with `axiom_wins = 0`.
+publication are SHA-256-bound in the config. The immutable census public
+evidence is separately bound and must reproduce the raw census result plus the
+two per-item and aggregate Kanzi-max controls; literals in this protocol are
+never sufficient provenance. The BWT result remains an exact negative
+diagnostic with `axiom_wins = 0`.
 
 ## Frozen scanner and reversible grammar
 
@@ -63,6 +66,16 @@ Decoder reconstruction must reproduce the original byte length and SHA-256.
 Malformed, unsupported, or noncanonical input cannot disappear: it is either
 an exact counted raw escape or a closed failure.
 
+The premeasurement implementation audit includes seeded adversarial and
+near-limit synthetic roundtrips plus the bounded
+`scripts/fuzz-text-source-wk-c1.py` entrypoint. The decoder must reject
+out-of-range references, reordered/non-bijective value permutations, schema
+mismatches and reordered schema tables, oversized value documents, zero or
+adjacent raw nodes, unknown tags, noncanonical varints, excessive reference
+depth, truncation, appended bytes, and identity mutations. The fuzz harness is
+bounded to at most 10,000 iterations and 1 MiB per generated input and mutates
+both WKC1 and AXWK2 framing.
+
 ## Complete candidate and backend
 
 Each transform frame is compressed with the pinned Kanzi 2.5.3 level-9 path:
@@ -83,12 +96,30 @@ file. Encode and decode measurements cover transform, Kanzi, wrapping,
 unwrapping, and inverse transform. Two measured repetitions after zero warmups
 must produce identical complete AXWK2 SHA-256 values. Every decode must restore
 the manifest-bound size and SHA-256. Complete encode and decode peak RSS must
-not exceed 4 GiB.
+not exceed 4 GiB. Each receipt records the physical AXWK2 filesystem size and
+SHA-256 before the temporary file is removed. Aggregate encode/decode wall and
+CPU time are sums of their three primary subprocesses; aggregate peak RSS is
+exactly the maximum primary-process peak, never a sum or an inferred value.
+
+## Frozen premeasurement resource smoke
+
+After dependency and item-identity checks but before any candidate trial, the
+runner executes transform encode and transform decode once for each variant on
+only Wikibooks and Wikinews. These four smoke pairs use the same 43,200-second
+per-process timeout and measured peak-RSS sampler as the screen. Each decode
+must restore the manifest-bound size and SHA-256. If any process fails, times
+out, reconstructs differently, or exceeds 4,294,967,296 bytes peak RSS, the
+runner stops before the eight-trial candidate schedule. Smoke receipts are
+bound into the final result. Rust, LLVM, Wikiversity, CPython, TypeScript,
+validation, and holdout paths are never opened by this phase.
 
 The Kanzi-max control is reused from immutable census evidence and is not
 rerun. Its complete bytes are 12,622,786 for Wikibooks, 11,534,002 for
-Wikinews, and 24,156,788 in aggregate. The matching two-item TS-H1 control is
-12,630,261 plus 11,524,881 = 24,155,142 complete bytes.
+Wikinews, and 24,156,788 in aggregate. Before measurement, the runner derives
+the aggregate signal thresholds and both +0.5% item guards directly from those
+two evidence rows and requires exact equality with the frozen config. The
+matching two-item TS-H1 control is 12,630,261 plus 11,524,881 = 24,155,142
+complete bytes.
 
 ## Frozen integer gates
 

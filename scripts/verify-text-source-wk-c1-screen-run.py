@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Offline receipt verifier scaffold for a future WK-C1 screen run."""
+"""Verify a retained WK-C1 screen run from canonical receipts."""
 
 from __future__ import annotations
 
@@ -94,6 +94,17 @@ def validate_receipt(
         or len(receipt["decode_processes"]) != 3
     ):
         raise ValueError("WK-C1 successful receipt differs")
+    RUNNER.validate_trial_receipt(
+        receipt,
+        bindings=bindings,
+        variant=variant,
+        item={
+            "id": item_id,
+            "source_bytes": receipt["source_bytes"],
+            "source_sha256": receipt["source_sha256"],
+        },
+        repetition=repetition,
+    )
     encode_commands = [row.get("command", []) for row in receipt["encode_processes"]]
     decode_commands = [row.get("command", []) for row in receipt["decode_processes"]]
     if (
@@ -119,6 +130,46 @@ def validate_receipt(
             raise ValueError("WK-C1 successful process differs")
 
 
+def validate_resource_smoke(rows: object, config: dict[str, Any]) -> None:
+    expected = {
+        (variant, item_id) for variant in RUNNER.VARIANTS for item_id in RUNNER.SCREEN_ITEMS
+    }
+    if not isinstance(rows, list) or len(rows) != 4:
+        raise ValueError("WK-C1 resource smoke roster differs")
+    observed = {(row.get("variant"), row.get("item_id")) for row in rows}
+    maximum_rss = config["measurement"]["premeasurement_resource_smoke"][
+        "maximum_peak_rss_bytes"
+    ]
+    if observed != expected:
+        raise ValueError("WK-C1 resource smoke roster differs")
+    for row in rows:
+        encode = row.get("encode")
+        decode = row.get("decode")
+        RUNNER.validate_process_record(encode)
+        RUNNER.validate_process_record(decode)
+        transform_evidence = row.get("transform_file_evidence")
+        if (
+            not isinstance(encode, dict)
+            or not isinstance(decode, dict)
+            or row.get("passed") is not True
+            or row.get("exact_roundtrip") is not True
+            or row.get("error") is not None
+            or not isinstance(transform_evidence, dict)
+            or type(transform_evidence.get("size_bytes")) is not int
+            or transform_evidence["size_bytes"] <= 0
+            or not isinstance(transform_evidence.get("sha256"), str)
+            or len(transform_evidence["sha256"]) != 64
+            or row["maximum_peak_rss_bytes"]
+            != max(encode.get("peak_rss_bytes", -1), decode.get("peak_rss_bytes", -1))
+            or row["maximum_peak_rss_bytes"] > maximum_rss
+            or encode.get("returncode") != 0
+            or decode.get("returncode") != 0
+            or encode.get("timed_out") is not False
+            or decode.get("timed_out") is not False
+        ):
+            raise ValueError("WK-C1 resource smoke evidence differs")
+
+
 def verify(config_path: Path, output: Path) -> dict[str, Any]:
     config_raw, config = RUNNER.read_canonical(config_path)
     RUNNER.validate_config(config)
@@ -131,6 +182,8 @@ def verify(config_path: Path, output: Path) -> dict[str, Any]:
         or result.get("completed") is not True
         or result.get("all_required_completed") is not True
         or result.get("trial_count") != 8
+        or not isinstance(result.get("trial_receipts_manifest_sha256"), str)
+        or len(result["trial_receipts_manifest_sha256"]) != 64
         or result.get("measurement") != config["measurement"]
         or result.get("variants") != config["variants"]
         or result.get("screen_boundary") != config["splits"]
@@ -141,31 +194,45 @@ def verify(config_path: Path, output: Path) -> dict[str, Any]:
         or any(bindings.get(key) != value for key, value in config["bindings"].items())
         or not isinstance(bindings.get("repository_commit"), str)
         or len(bindings["repository_commit"]) != 40
+        or any(
+            character not in "0123456789abcdef"
+            for character in bindings["repository_commit"]
+        )
         or not isinstance(bindings.get("transform_sha256"), str)
         or len(bindings["transform_sha256"]) != 64
+        or bindings["transform_sha256"] != RUNNER.sha256_file(RUNNER.DEFAULT_TRANSFORM)
     ):
         raise ValueError("WK-C1 result identity or binding differs")
     validate_preflight(result.get("preflight"))
+    validate_resource_smoke(result.get("premeasurement_resource_smoke"), config)
     expected_paths = {
-        output / "trials" / variant / f"{item_id}.r{repetition}.json"
+        output / "trials" / variant / f"{item_id}.r{repetition}.json": (
+            variant,
+            item_id,
+            repetition,
+        )
         for variant in RUNNER.VARIANTS
         for item_id in RUNNER.SCREEN_ITEMS
         for repetition in range(config["measurement"]["measured_repetitions"])
     }
     observed_paths = set((output / "trials").glob("*/*.json"))
-    if len(expected_paths) != 8 or observed_paths != expected_paths:
+    if len(expected_paths) != 8 or observed_paths != set(expected_paths):
         raise ValueError("WK-C1 trial receipt roster differs")
     trials = []
-    for path in sorted(expected_paths):
+    for path, (variant, item_id, repetition) in sorted(expected_paths.items()):
         _raw, receipt = RUNNER.read_canonical(path)
         validate_receipt(
             receipt,
             bindings=bindings,
-            variant=receipt["variant"],
-            item_id=receipt["item_id"],
-            repetition=receipt["repetition"],
+            variant=variant,
+            item_id=item_id,
+            repetition=repetition,
         )
         trials.append(receipt)
+    if result["trial_receipts_manifest_sha256"] != RUNNER.receipt_manifest(
+        output, list(expected_paths)
+    ):
+        raise ValueError("WK-C1 trial receipt manifest binding differs")
     expected_summary = RUNNER.summarize(trials, config)
     if result.get("summary") != expected_summary:
         raise ValueError("WK-C1 decision does not reconstruct from receipts")

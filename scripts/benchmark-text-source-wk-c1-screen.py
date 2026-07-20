@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Execution scaffold for the frozen WK-C1 training-only screen."""
+"""Run the frozen WK-C1 training-only screen."""
 
 from __future__ import annotations
 
@@ -10,7 +10,9 @@ import json
 from pathlib import Path
 import random
 import struct
+import subprocess
 import sys
+import tempfile
 from types import ModuleType
 from typing import Any
 
@@ -20,6 +22,13 @@ DEFAULT_CONFIG = REPOSITORY / "config" / "text-source-wk-c1-screen-v1.json"
 DEFAULT_CORPUS = REPOSITORY / "corpora" / "text-source-development-v1"
 DEFAULT_BASELINE = (
     REPOSITORY / "runs" / "text-source-development-baseline-census-v1" / "results.json"
+)
+DEFAULT_BASELINE_EVIDENCE = (
+    REPOSITORY
+    / "runs"
+    / "text-source-development-baseline-census-v1"
+    / "publication"
+    / "evidence.json"
 )
 DEFAULT_KANZI = REPOSITORY / ".baseline-tools" / "text-source-v1" / "bin" / "kanzi"
 DEFAULT_TRANSFORM = REPOSITORY / "scripts" / "text-source-wk-c1-transform.py"
@@ -73,10 +82,14 @@ json_bytes = COMMON.json_bytes
 sha256_bytes = COMMON.sha256_bytes
 sha256_file = COMMON.sha256_file
 read_canonical = COMMON.read_canonical
+run_process = COMMON.BASELINE_RUNNER.run_process
+write_json_atomic = COMMON.BASELINE_RUNNER.write_json_atomic
+sanitize_process = COMMON.sanitize_process
 
 
 def validate_config(config: dict[str, Any]) -> None:
     expected_bindings = {
+        "baseline_public_evidence_sha256": "b28429e3d12542eda21d03d981b9452cba2d4a329252e4876803b62852f1299f",
         "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
         "bwt_public_evidence_sha256": "ca4706658dab1f23b4becfba80b274b1c57aa488c52fa95e84211c949bfb5eef",
         "bwt_publication_receipt_sha256": "fc15cf05e538a69c0f2a84043d435b51339d937b6771615888de720f9e30c0f0",
@@ -106,13 +119,17 @@ def validate_config(config: dict[str, Any]) -> None:
         != ["rust-1.97.1-source", "llvm-22.1.8-source", "enwikiversity-20260701"]
         or [(row.get("id"), row.get("columnarize_values")) for row in config.get("variants", [])]
         != expected_variants
-        or config.get("measurement")
+        or config.get("measurement", {}).get("jobs") != 1
+        or config.get("measurement", {}).get("measured_repetitions") != 2
+        or config.get("measurement", {}).get("order_seed") != 20260718
+        or config.get("measurement", {}).get("timeout_seconds_per_process") != 43200
+        or config.get("measurement", {}).get("warmups") != 0
+        or config.get("measurement", {}).get("premeasurement_resource_smoke")
         != {
-            "jobs": 1,
-            "measured_repetitions": 2,
-            "order_seed": 20260718,
-            "timeout_seconds_per_process": 43200,
-            "warmups": 0,
+            "authorized_items_only": list(SCREEN_ITEMS),
+            "maximum_peak_rss_bytes": 4 * 1024**3,
+            "required_before_candidate_trials": True,
+            "transform_encode_and_decode_each_variant": True,
         }
         or limits
         != {
@@ -192,6 +209,7 @@ def verify_dependencies(
     *,
     config: dict[str, Any],
     baseline: Path,
+    baseline_evidence: Path,
     kanzi: Path,
     structural_result: Path,
     structural_evidence: Path,
@@ -203,6 +221,7 @@ def verify_dependencies(
 ) -> None:
     bindings = config["bindings"]
     paths = {
+        "baseline_public_evidence_sha256": baseline_evidence,
         "baseline_results_sha256": baseline,
         "kanzi_binary_sha256": kanzi,
         "structural_results_sha256": structural_result,
@@ -216,9 +235,16 @@ def verify_dependencies(
     if any(sha256_file(path) != bindings[key] for key, path in paths.items()):
         raise ValueError("WK-C1 dependency binding differs")
     _baseline_raw, baseline_result = read_canonical(baseline)
+    _baseline_evidence_raw, baseline_public = read_canonical(baseline_evidence)
     _structural_raw, structural_public = read_canonical(structural_evidence)
     _bwt_raw, bwt_public = read_canonical(bwt_evidence)
     _decision_raw, decision = read_canonical(successor_decision)
+    if (
+        baseline_public.get("raw_results_sha256")
+        != bindings["baseline_results_sha256"]
+        or baseline_public.get("results") != baseline_result
+    ):
+        raise ValueError("WK-C1 raw census public-evidence provenance differs")
     if (
         baseline_result.get("completed") is not True
         or baseline_result.get("all_required_completed") is not True
@@ -241,6 +267,39 @@ def verify_dependencies(
     }
     if structural_rows != config["ts_h1_controls"]:
         raise ValueError("WK-C1 two-item TS-H1 control differs")
+    baseline_rows = {
+        row["item_id"]: row
+        for row in baseline_public["results"]["summary"]["item_codec_rows"]
+        if row.get("codec_id") == "kanzi-max" and row.get("item_id") in SCREEN_ITEMS
+    }
+    expected_bytes = {
+        "enwikibooks-20260701": 12622786,
+        "enwikinews-20260701": 11534002,
+    }
+    aggregate_bytes = sum(row["artifact_bytes"] for row in baseline_rows.values())
+    gate = config["decision"]["track_gate"]
+    item_regression_basis_points = int(gate["maximum_item_regression_percent"] * 100)
+    derived_item_guards = {
+        item_id: complete_bytes * (10_000 + item_regression_basis_points) // 10_000
+        for item_id, complete_bytes in expected_bytes.items()
+    }
+    if (
+        set(baseline_rows) != set(SCREEN_ITEMS)
+        or any(
+            baseline_rows[item_id].get("artifact_bytes") != complete_bytes
+            or baseline_rows[item_id].get("passed") is not True
+            or baseline_rows[item_id].get("exact_roundtrip") is not True
+            or baseline_rows[item_id].get("deterministic_artifact") is not True
+            for item_id, complete_bytes in expected_bytes.items()
+        )
+        or aggregate_bytes != gate["kanzi_max_complete_bytes"]
+        or gate["item_maximum_complete_bytes"] != derived_item_guards
+        or gate["signal_maximum_complete_bytes"]
+        != aggregate_bytes * (10_000 - int(gate["signal_percent"] * 100)) // 10_000
+        or gate["strong_maximum_complete_bytes"]
+        != aggregate_bytes * (10_000 - int(gate["strong_percent"] * 100)) // 10_000
+    ):
+        raise ValueError("WK-C1 Kanzi-max control does not reconstruct from census evidence")
 
 
 def schedule(config: dict[str, Any]) -> list[tuple[str, str, int]]:
@@ -390,6 +449,380 @@ def unwrap_payload(
     destination.write_bytes(payload)
 
 
+def repository_commit() -> str:
+    commit = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=REPOSITORY,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+    status = subprocess.run(
+        ["git", "status", "--porcelain", "--untracked-files=all"],
+        cwd=REPOSITORY,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+    if status:
+        raise ValueError("WK-C1 screen requires a completely clean commit")
+    if len(commit) != 40 or any(character not in "0123456789abcdef" for character in commit):
+        raise ValueError("WK-C1 repository commit identity is invalid")
+    return commit
+
+
+def aggregate_processes(processes: list[dict[str, Any]]) -> dict[str, int]:
+    return {
+        "wall_ns": sum(row["wall_ns"] for row in processes),
+        "cpu_ns": sum(row["cpu_ns"] for row in processes),
+        "peak_rss_bytes": max((row["peak_rss_bytes"] for row in processes), default=0),
+    }
+
+
+def process_succeeded(process: dict[str, Any]) -> bool:
+    return process["returncode"] == 0 and process["timed_out"] is False
+
+
+def validate_process_record(process: object) -> None:
+    if (
+        not isinstance(process, dict)
+        or set(process)
+        != {
+            "command",
+            "returncode",
+            "timed_out",
+            "wall_ns",
+            "cpu_ns",
+            "peak_rss_bytes",
+            "stdout",
+            "stderr",
+        }
+        or not isinstance(process.get("command"), list)
+        or not all(isinstance(value, str) for value in process["command"])
+        or type(process.get("returncode")) is not int
+        or not isinstance(process.get("timed_out"), bool)
+        or type(process.get("wall_ns")) is not int
+        or process["wall_ns"] <= 0
+        or type(process.get("cpu_ns")) is not int
+        or process["cpu_ns"] < 0
+        or type(process.get("peak_rss_bytes")) is not int
+        or process["peak_rss_bytes"] < 0
+        or not isinstance(process.get("stdout"), str)
+        or not isinstance(process.get("stderr"), str)
+    ):
+        raise ValueError("WK-C1 process record differs")
+
+
+def run_command_chain(
+    commands_to_run: list[list[str]],
+    *,
+    work: Path,
+    timeout_seconds: float,
+) -> tuple[list[dict[str, Any]], str | None]:
+    records = []
+    error = None
+    for index, command in enumerate(commands_to_run):
+        process = run_process(
+            command,
+            stdout_path=None,
+            timeout_seconds=timeout_seconds,
+        )
+        records.append(sanitize_process(process, work))
+        if process["timed_out"]:
+            error = f"process {index} timed out"
+            break
+        if process["returncode"] != 0:
+            error = f"process {index} exited {process['returncode']}"
+            break
+    return records, error
+
+
+def resource_smoke(
+    *,
+    items: list[dict[str, Any]],
+    config: dict[str, Any],
+    transform: Path,
+) -> list[dict[str, Any]]:
+    policy = config["measurement"]["premeasurement_resource_smoke"]
+    if [item["id"] for item in items] != policy["authorized_items_only"]:
+        raise ValueError("WK-C1 resource smoke item roster differs")
+    timeout = config["measurement"]["timeout_seconds_per_process"]
+    maximum_rss = policy["maximum_peak_rss_bytes"]
+    rows = []
+    for variant in VARIANTS:
+        for item in items:
+            with tempfile.TemporaryDirectory(prefix="wk-c1-smoke-") as raw:
+                work = Path(raw)
+                transformed = work / "transform.wkc1"
+                restored = work / "restored.bin"
+                encode_command = [
+                    sys.executable,
+                    str(transform),
+                    "encode",
+                    variant,
+                    item["path"],
+                    str(transformed),
+                ]
+                encode_raw = run_process(
+                    encode_command, stdout_path=None, timeout_seconds=timeout
+                )
+                encode = sanitize_process(encode_raw, work)
+                decode: dict[str, Any] | None = None
+                error = None
+                if not process_succeeded(encode_raw):
+                    error = "transform encode smoke failed or timed out"
+                elif encode_raw["peak_rss_bytes"] > maximum_rss:
+                    error = "transform encode smoke exceeded 4 GiB"
+                elif not transformed.is_file():
+                    error = "transform encode smoke produced no frame"
+                else:
+                    decode_command = [
+                        sys.executable,
+                        str(transform),
+                        "decode",
+                        str(transformed),
+                        str(restored),
+                        "--maximum-size",
+                        str(item["source_bytes"]),
+                    ]
+                    decode_raw = run_process(
+                        decode_command, stdout_path=None, timeout_seconds=timeout
+                    )
+                    decode = sanitize_process(decode_raw, work)
+                    if not process_succeeded(decode_raw):
+                        error = "transform decode smoke failed or timed out"
+                    elif decode_raw["peak_rss_bytes"] > maximum_rss:
+                        error = "transform decode smoke exceeded 4 GiB"
+                    elif not restored.is_file():
+                        error = "transform decode smoke produced no output"
+                    elif restored.stat().st_size != item["source_bytes"]:
+                        error = "transform smoke restored size differs"
+                    elif sha256_file(restored) != item["source_sha256"]:
+                        error = "transform smoke restored digest differs"
+                row = {
+                    "variant": variant,
+                    "item_id": item["id"],
+                    "source_bytes": item["source_bytes"],
+                    "source_sha256": item["source_sha256"],
+                    "transform_file_evidence": (
+                        {
+                            "size_bytes": transformed.stat().st_size,
+                            "sha256": sha256_file(transformed),
+                        }
+                        if transformed.is_file()
+                        else None
+                    ),
+                    "encode": encode,
+                    "decode": decode,
+                    "maximum_peak_rss_bytes": maximum(
+                        encode["peak_rss_bytes"],
+                        decode["peak_rss_bytes"] if decode is not None else 0,
+                    ),
+                    "exact_roundtrip": not error,
+                    "passed": not error,
+                    "error": error,
+                }
+                rows.append(row)
+                if error:
+                    raise ValueError(f"WK-C1 premeasurement resource smoke failed: {error}")
+    return rows
+
+
+def maximum(first: int, second: int) -> int:
+    return first if first >= second else second
+
+
+def trial_path(output: Path, variant: str, item_id: str, repetition: int) -> Path:
+    return output / "trials" / variant / f"{item_id}.r{repetition}.json"
+
+
+def receipt_manifest(output: Path, paths: list[Path]) -> str:
+    payload = {
+        "trials": [
+            {
+                "path": path.relative_to(output).as_posix(),
+                "sha256": sha256_file(path),
+            }
+            for path in sorted(paths)
+        ]
+    }
+    return sha256_bytes(json_bytes(payload))
+
+
+def validate_trial_receipt(
+    receipt: dict[str, Any],
+    *,
+    bindings: dict[str, Any],
+    variant: str,
+    item: dict[str, Any],
+    repetition: int,
+) -> None:
+    if (
+        receipt.get("schema_version") != 1
+        or receipt.get("bindings") != bindings
+        or receipt.get("variant") != variant
+        or receipt.get("item_id") != item["id"]
+        or receipt.get("track") != "english_wikimedia_wikitext"
+        or receipt.get("repetition") != repetition
+        or receipt.get("source_bytes") != item["source_bytes"]
+        or receipt.get("source_sha256") != item["source_sha256"]
+        or not isinstance(receipt.get("encode_processes"), list)
+        or not isinstance(receipt.get("decode_processes"), list)
+    ):
+        raise ValueError("WK-C1 retained trial identity differs")
+    encode_processes = receipt["encode_processes"]
+    decode_processes = receipt["decode_processes"]
+    for process in [*encode_processes, *decode_processes]:
+        validate_process_record(process)
+    if receipt.get("encode_totals") != aggregate_processes(encode_processes):
+        raise ValueError("WK-C1 aggregate encode metrics differ")
+    if receipt.get("decode_totals") != aggregate_processes(decode_processes):
+        raise ValueError("WK-C1 aggregate decode metrics differ")
+    if receipt.get("encode_peak_rss_bytes") != receipt["encode_totals"]["peak_rss_bytes"]:
+        raise ValueError("WK-C1 aggregate encode RSS differs from primary process peaks")
+    if receipt.get("decode_peak_rss_bytes") != receipt["decode_totals"]["peak_rss_bytes"]:
+        raise ValueError("WK-C1 aggregate decode RSS differs from primary process peaks")
+    artifact = receipt.get("artifact_file_evidence")
+    transform = receipt.get("transform_file_evidence")
+    if receipt.get("passed") is True:
+        if (
+            len(encode_processes) != 3
+            or len(decode_processes) != 3
+            or not all(process_succeeded(row) for row in [*encode_processes, *decode_processes])
+            or receipt.get("exact_roundtrip") is not True
+            or receipt.get("error") is not None
+            or not isinstance(artifact, dict)
+            or receipt.get("artifact_bytes") != artifact.get("size_bytes")
+            or receipt.get("artifact_sha256") != artifact.get("sha256")
+            or receipt.get("artifact_bytes", 0) <= FRAME_HEADER.size
+            or not isinstance(artifact.get("sha256"), str)
+            or len(artifact["sha256"]) != 64
+            or not isinstance(transform, dict)
+            or transform.get("variant") != variant
+            or transform.get("complete_transform_bytes")
+            != transform.get("header_bytes", 0)
+            + transform.get("metadata_bytes", 0)
+            + transform.get("value_stream_bytes", 0)
+            or not isinstance(transform.get("sha256"), str)
+            or len(transform["sha256"]) != 64
+        ):
+            raise ValueError("WK-C1 successful retained trial differs")
+    elif receipt.get("passed") is not False or not isinstance(receipt.get("error"), str):
+        raise ValueError("WK-C1 failed retained trial differs")
+
+
+def run_trial(
+    *,
+    output: Path,
+    bindings: dict[str, Any],
+    item: dict[str, Any],
+    variant: str,
+    repetition: int,
+    transform: Path,
+    kanzi: Path,
+    timeout_seconds: float,
+) -> dict[str, Any]:
+    destination = trial_path(output, variant, item["id"], repetition)
+    if destination.exists():
+        _raw, retained = read_canonical(destination)
+        validate_trial_receipt(
+            retained,
+            bindings=bindings,
+            variant=variant,
+            item=item,
+            repetition=repetition,
+        )
+        return retained
+    with tempfile.TemporaryDirectory(prefix="wk-c1-trial-") as raw:
+        work = Path(raw)
+        transformed = work / "transform.wkc1"
+        payload = work / "payload.knz"
+        artifact = work / "artifact.axwk2"
+        extracted = work / "extracted.knz"
+        decoded_transform = work / "decoded.wkc1"
+        restored = work / "restored.bin"
+        encode_commands, decode_commands = commands(
+            python=sys.executable,
+            runner=Path(__file__).resolve(),
+            transform=transform,
+            kanzi=kanzi,
+            variant=variant,
+            source=Path(item["path"]),
+            transformed=transformed,
+            payload=payload,
+            artifact=artifact,
+            extracted=extracted,
+            decoded_transform=decoded_transform,
+            restored=restored,
+            source_bytes=item["source_bytes"],
+            source_sha256=item["source_sha256"],
+        )
+        encode_processes, error = run_command_chain(
+            encode_commands, work=work, timeout_seconds=timeout_seconds
+        )
+        artifact_evidence = (
+            {"size_bytes": artifact.stat().st_size, "sha256": sha256_file(artifact)}
+            if artifact.is_file()
+            else None
+        )
+        transform_evidence = (
+            {
+                **TRANSFORM.inspect_frame(transformed.read_bytes()),
+                "sha256": sha256_file(transformed),
+            }
+            if transformed.is_file()
+            else None
+        )
+        decode_processes: list[dict[str, Any]] = []
+        if error is None:
+            decode_processes, error = run_command_chain(
+                decode_commands, work=work, timeout_seconds=timeout_seconds
+            )
+        if error is None:
+            if not restored.is_file():
+                error = "inverse chain produced no restored source"
+            elif restored.stat().st_size != item["source_bytes"]:
+                error = "restored source size differs"
+            elif sha256_file(restored) != item["source_sha256"]:
+                error = "restored source digest differs"
+        receipt = {
+            "schema_version": 1,
+            "bindings": bindings,
+            "variant": variant,
+            "item_id": item["id"],
+            "track": "english_wikimedia_wikitext",
+            "repetition": repetition,
+            "source_bytes": item["source_bytes"],
+            "source_sha256": item["source_sha256"],
+            "transform_file_evidence": transform_evidence,
+            "artifact_file_evidence": artifact_evidence,
+            "artifact_bytes": artifact_evidence["size_bytes"] if artifact_evidence else None,
+            "artifact_sha256": artifact_evidence["sha256"] if artifact_evidence else None,
+            "encode_processes": encode_processes,
+            "decode_processes": decode_processes,
+            "encode_totals": aggregate_processes(encode_processes),
+            "decode_totals": aggregate_processes(decode_processes),
+            "encode_peak_rss_bytes": aggregate_processes(encode_processes)[
+                "peak_rss_bytes"
+            ],
+            "decode_peak_rss_bytes": aggregate_processes(decode_processes)[
+                "peak_rss_bytes"
+            ],
+            "exact_roundtrip": error is None,
+            "passed": error is None,
+            "error": error,
+        }
+        validate_trial_receipt(
+            receipt,
+            bindings=bindings,
+            variant=variant,
+            item=item,
+            repetition=repetition,
+        )
+        write_json_atomic(destination, receipt)
+        return receipt
+
+
 def summarize(
     trials: list[dict[str, Any]], config: dict[str, Any]
 ) -> dict[str, Any]:
@@ -525,10 +958,122 @@ def preflight() -> list[dict[str, Any]]:
     return rows
 
 
+def benchmark(
+    *,
+    config_path: Path,
+    corpus: Path,
+    baseline: Path,
+    baseline_evidence: Path,
+    kanzi: Path,
+    transform: Path,
+    structural_result: Path,
+    structural_evidence: Path,
+    successor_decision: Path,
+    successor_routing: Path,
+    bwt_result: Path,
+    bwt_evidence: Path,
+    bwt_receipt: Path,
+    output: Path,
+) -> Path:
+    config_raw, config = read_canonical(config_path)
+    validate_config(config)
+    commit = repository_commit()
+    manifest_raw, items = verify_screen_items(corpus, config)
+    if sha256_bytes(manifest_raw) != config["bindings"]["corpus_manifest_sha256"]:
+        raise ValueError("WK-C1 corpus manifest binding differs")
+    verify_dependencies(
+        config=config,
+        baseline=baseline,
+        baseline_evidence=baseline_evidence,
+        kanzi=kanzi,
+        structural_result=structural_result,
+        structural_evidence=structural_evidence,
+        successor_decision=successor_decision,
+        successor_routing=successor_routing,
+        bwt_result=bwt_result,
+        bwt_evidence=bwt_evidence,
+        bwt_receipt=bwt_receipt,
+    )
+    if not transform.is_file():
+        raise ValueError("WK-C1 transform is unavailable")
+    bindings = {
+        "repository_commit": commit,
+        "config_sha256": sha256_bytes(config_raw),
+        "transform_sha256": sha256_file(transform),
+        **config["bindings"],
+    }
+    preflight_rows = preflight()
+    smoke_rows = resource_smoke(items=items, config=config, transform=transform)
+    items_by_id = {item["id"]: item for item in items}
+    trials = []
+    for index, (variant, item_id, repetition) in enumerate(schedule(config), start=1):
+        print(f"[{index}/8] r{repetition} {item_id} x {variant}", flush=True)
+        trials.append(
+            run_trial(
+                output=output,
+                bindings=bindings,
+                item=items_by_id[item_id],
+                variant=variant,
+                repetition=repetition,
+                transform=transform,
+                kanzi=kanzi,
+                timeout_seconds=config["measurement"]["timeout_seconds_per_process"],
+            )
+        )
+    summary = summarize(trials, config)
+    retained_paths = [
+        trial_path(output, variant, item_id, repetition)
+        for variant in VARIANTS
+        for item_id in SCREEN_ITEMS
+        for repetition in range(config["measurement"]["measured_repetitions"])
+    ]
+    result = {
+        "schema_version": 1,
+        "name": "text-source-wk-c1-recursive-template-columnarization-screen-result-v1",
+        "completed": True,
+        "all_required_completed": all(row["passed"] for row in trials),
+        "trial_count": len(trials),
+        "trial_receipts_manifest_sha256": receipt_manifest(output, retained_paths),
+        "bindings": bindings,
+        "screen_boundary": config["splits"],
+        "measurement": config["measurement"],
+        "preflight": preflight_rows,
+        "premeasurement_resource_smoke": smoke_rows,
+        "variants": config["variants"],
+        "summary": summary,
+        "claim_ceiling": config["claim_ceiling"],
+        "public_validation_status": "sealed and unaccessed",
+        "private_holdout_status": "sealed and unaccessed",
+    }
+    destination = output / "results.json"
+    if destination.exists():
+        _raw, existing = read_canonical(destination)
+        if existing != result:
+            raise ValueError("WK-C1 result differs from retained result")
+    else:
+        write_json_atomic(destination, result)
+    return destination
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
     subparsers.add_parser("preflight")
+    run = subparsers.add_parser("run")
+    run.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
+    run.add_argument("--corpus", type=Path, default=DEFAULT_CORPUS)
+    run.add_argument("--baseline", type=Path, default=DEFAULT_BASELINE)
+    run.add_argument("--baseline-evidence", type=Path, default=DEFAULT_BASELINE_EVIDENCE)
+    run.add_argument("--kanzi", type=Path, default=DEFAULT_KANZI)
+    run.add_argument("--transform", type=Path, default=DEFAULT_TRANSFORM)
+    run.add_argument("--structural-result", type=Path, default=DEFAULT_STRUCTURAL_RESULT)
+    run.add_argument("--structural-evidence", type=Path, default=DEFAULT_STRUCTURAL_EVIDENCE)
+    run.add_argument("--successor-decision", type=Path, default=DEFAULT_SUCCESSOR_DECISION)
+    run.add_argument("--successor-routing", type=Path, default=DEFAULT_SUCCESSOR_ROUTING)
+    run.add_argument("--bwt-result", type=Path, default=DEFAULT_BWT_RESULT)
+    run.add_argument("--bwt-evidence", type=Path, default=DEFAULT_BWT_EVIDENCE)
+    run.add_argument("--bwt-receipt", type=Path, default=DEFAULT_BWT_RECEIPT)
+    run.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     wrap = subparsers.add_parser("wrap")
     wrap.add_argument("variant", choices=VARIANTS)
     wrap.add_argument("source", type=Path)
@@ -542,7 +1087,26 @@ def main() -> int:
     unwrap.add_argument("--source-sha256", required=True)
     args = parser.parse_args()
     try:
-        if args.command == "preflight":
+        if args.command == "run":
+            print(
+                benchmark(
+                    config_path=args.config,
+                    corpus=args.corpus,
+                    baseline=args.baseline,
+                    baseline_evidence=args.baseline_evidence,
+                    kanzi=args.kanzi,
+                    transform=args.transform,
+                    structural_result=args.structural_result,
+                    structural_evidence=args.structural_evidence,
+                    successor_decision=args.successor_decision,
+                    successor_routing=args.successor_routing,
+                    bwt_result=args.bwt_result,
+                    bwt_evidence=args.bwt_evidence,
+                    bwt_receipt=args.bwt_receipt,
+                    output=args.output,
+                )
+            )
+        elif args.command == "preflight":
             print(json.dumps(preflight(), indent=2, sort_keys=True))
         elif args.command == "wrap":
             wrap_payload(args.variant, args.source, args.payload, args.destination)

@@ -1,10 +1,13 @@
+import copy
 import hashlib
 import importlib.util
 import json
+import os
 from pathlib import Path
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 
 REPOSITORY = Path(__file__).resolve().parents[1]
@@ -232,6 +235,269 @@ class TextSourceWkC1ScreenTests(unittest.TestCase):
         self.assertTrue(all(row["exact_roundtrip"] for row in rows))
         with self.assertRaisesRegex(ValueError, "roster differs"):
             VERIFIER.validate_preflight(rows[:-1])
+
+    def test_real_executor_launches_both_three_process_chains_and_binds_physical_artifact(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            source = root / "source.axwkt"
+            source.write_bytes(b"prefix {{T|a=one|nested={{U|x=y}}}} suffix")
+            fake_kanzi = root / "fake-kanzi"
+            fake_kanzi.write_text(
+                "#!/usr/bin/env python3\n"
+                "import shutil, sys\n"
+                "source = next(x.split('=', 1)[1] for x in sys.argv if x.startswith('--input='))\n"
+                "destination = next(x.split('=', 1)[1] for x in sys.argv if x.startswith('--output='))\n"
+                "shutil.copyfile(source, destination)\n",
+                encoding="utf-8",
+            )
+            os.chmod(fake_kanzi, 0o755)
+            item = {
+                "id": MODULE.SCREEN_ITEMS[0],
+                "track": "english_wikimedia_wikitext",
+                "path": str(source),
+                "source_bytes": source.stat().st_size,
+                "source_sha256": hashlib.sha256(source.read_bytes()).hexdigest(),
+            }
+            bindings = {"fixture": "a" * 64}
+            receipt = MODULE.run_trial(
+                output=root / "run",
+                bindings=bindings,
+                item=item,
+                variant=MODULE.VARIANTS[0],
+                repetition=0,
+                transform=MODULE.DEFAULT_TRANSFORM,
+                kanzi=fake_kanzi,
+                timeout_seconds=30,
+            )
+            self.assertTrue(receipt["passed"])
+            self.assertEqual(len(receipt["encode_processes"]), 3)
+            self.assertEqual(len(receipt["decode_processes"]), 3)
+            self.assertEqual(
+                receipt["encode_totals"]["peak_rss_bytes"],
+                max(row["peak_rss_bytes"] for row in receipt["encode_processes"]),
+            )
+            self.assertEqual(
+                receipt["decode_totals"]["peak_rss_bytes"],
+                max(row["peak_rss_bytes"] for row in receipt["decode_processes"]),
+            )
+            self.assertEqual(
+                receipt["artifact_bytes"],
+                receipt["artifact_file_evidence"]["size_bytes"],
+            )
+            self.assertEqual(
+                receipt["artifact_sha256"],
+                receipt["artifact_file_evidence"]["sha256"],
+            )
+            MODULE.validate_trial_receipt(
+                receipt,
+                bindings=bindings,
+                variant=MODULE.VARIANTS[0],
+                item=item,
+                repetition=0,
+            )
+            VERIFIER.validate_receipt(
+                receipt,
+                bindings=bindings,
+                variant=MODULE.VARIANTS[0],
+                item_id=item["id"],
+                repetition=0,
+            )
+            tampered = copy.deepcopy(receipt)
+            tampered["encode_totals"]["peak_rss_bytes"] += 1
+            with self.assertRaisesRegex(ValueError, "aggregate encode metrics"):
+                MODULE.validate_trial_receipt(
+                    tampered,
+                    bindings=bindings,
+                    variant=MODULE.VARIANTS[0],
+                    item=item,
+                    repetition=0,
+                )
+            tampered = copy.deepcopy(receipt)
+            tampered["artifact_bytes"] += 1
+            with self.assertRaisesRegex(ValueError, "successful retained trial"):
+                VERIFIER.validate_receipt(
+                    tampered,
+                    bindings=bindings,
+                    variant=MODULE.VARIANTS[0],
+                    item_id=item["id"],
+                    repetition=0,
+                )
+
+    def test_resource_smoke_is_authorized_only_and_fails_closed_above_four_gib(self) -> None:
+        config = self.config()
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            items = []
+            for item_id in MODULE.SCREEN_ITEMS:
+                path = root / item_id
+                path.write_bytes(b"{{T|a=one|nested={{U|x=y}}}}")
+                items.append(
+                    {
+                        "id": item_id,
+                        "path": str(path),
+                        "source_bytes": path.stat().st_size,
+                        "source_sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+                    }
+                )
+            rows = MODULE.resource_smoke(
+                items=items,
+                config=config,
+                transform=MODULE.DEFAULT_TRANSFORM,
+            )
+            self.assertEqual(len(rows), 4)
+            self.assertTrue(all(row["passed"] for row in rows))
+            VERIFIER.validate_resource_smoke(rows, config)
+
+            oversized = {
+                "command": ["python"],
+                "returncode": 0,
+                "timed_out": False,
+                "wall_ns": 1,
+                "cpu_ns": 1,
+                "peak_rss_bytes": 4 * 1024**3 + 1,
+                "stdout": "",
+                "stderr": "",
+            }
+            with mock.patch.object(MODULE, "run_process", return_value=oversized):
+                with self.assertRaisesRegex(ValueError, "exceeded 4 GiB"):
+                    MODULE.resource_smoke(
+                        items=items,
+                        config=config,
+                        transform=MODULE.DEFAULT_TRANSFORM,
+                    )
+
+    def test_census_provenance_reconstructs_controls_and_rejects_rebound_edit(self) -> None:
+        config = self.config()
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+
+            def write_json(name: str, value: dict) -> Path:
+                path = root / name
+                path.write_bytes(MODULE.json_bytes(value))
+                return path
+
+            baseline_result = {
+                "completed": True,
+                "all_required_completed": True,
+                "summary": {
+                    "item_codec_rows": [
+                        {
+                            "codec_id": "kanzi-max",
+                            "item_id": "enwikibooks-20260701",
+                            "artifact_bytes": 12622786,
+                            "passed": True,
+                            "exact_roundtrip": True,
+                            "deterministic_artifact": True,
+                        },
+                        {
+                            "codec_id": "kanzi-max",
+                            "item_id": "enwikinews-20260701",
+                            "artifact_bytes": 11534002,
+                            "passed": True,
+                            "exact_roundtrip": True,
+                            "deterministic_artifact": True,
+                        },
+                    ]
+                },
+            }
+            baseline = write_json("baseline.json", baseline_result)
+            baseline_evidence = write_json(
+                "baseline-evidence.json",
+                {
+                    "raw_results_sha256": MODULE.sha256_file(baseline),
+                    "results": baseline_result,
+                },
+            )
+            structural_result = write_json("structural.json", {})
+            structural_evidence = write_json(
+                "structural-evidence.json",
+                {
+                    "structural_results_sha256": MODULE.sha256_file(structural_result),
+                    "results": {
+                        "summary": {
+                            "item_rows": [
+                                {
+                                    "variant": "ts-h1-demux",
+                                    "item_id": item_id,
+                                    "candidate_bytes": size,
+                                }
+                                for item_id, size in config["ts_h1_controls"].items()
+                            ]
+                        }
+                    },
+                },
+            )
+            successor = write_json(
+                "successor.json",
+                {
+                    "name": "text-source-structural-successor-decision-v1",
+                    "decisions": [{"axiom_win": False}, {"axiom_win": False}],
+                },
+            )
+            routing = write_json("routing.json", {})
+            bwt_result = write_json("bwt.json", {})
+            bwt_evidence = write_json(
+                "bwt-evidence.json",
+                {
+                    "result_sha256": MODULE.sha256_file(bwt_result),
+                    "results": {
+                        "summary": {
+                            "axiom_wins": 0,
+                            "tracks": [
+                                {"decision": "reject_raw_bwt_direction_for_track"},
+                                {"decision": "reject_raw_bwt_direction_for_track"},
+                            ],
+                        }
+                    },
+                },
+            )
+            bwt_receipt = write_json("bwt-receipt.json", {})
+            kanzi = root / "kanzi"
+            kanzi.write_bytes(b"pinned binary fixture")
+            paths = {
+                "baseline_results_sha256": baseline,
+                "baseline_public_evidence_sha256": baseline_evidence,
+                "kanzi_binary_sha256": kanzi,
+                "structural_results_sha256": structural_result,
+                "structural_public_evidence_sha256": structural_evidence,
+                "successor_decision_sha256": successor,
+                "successor_routing_config_sha256": routing,
+                "bwt_result_sha256": bwt_result,
+                "bwt_public_evidence_sha256": bwt_evidence,
+                "bwt_publication_receipt_sha256": bwt_receipt,
+            }
+            fixture_config = copy.deepcopy(config)
+            fixture_config["bindings"].update(
+                {key: MODULE.sha256_file(path) for key, path in paths.items()}
+            )
+            arguments = {
+                "config": fixture_config,
+                "baseline": baseline,
+                "baseline_evidence": baseline_evidence,
+                "kanzi": kanzi,
+                "structural_result": structural_result,
+                "structural_evidence": structural_evidence,
+                "successor_decision": successor,
+                "successor_routing": routing,
+                "bwt_result": bwt_result,
+                "bwt_evidence": bwt_evidence,
+                "bwt_receipt": bwt_receipt,
+            }
+            MODULE.verify_dependencies(**arguments)
+            edited_gate = copy.deepcopy(fixture_config)
+            edited_gate["decision"]["track_gate"]["item_maximum_complete_bytes"][
+                "enwikibooks-20260701"
+            ] += 1
+            with self.assertRaisesRegex(ValueError, "Kanzi-max control"):
+                MODULE.verify_dependencies(**{**arguments, "config": edited_gate})
+            edited = json.loads(baseline_evidence.read_bytes())
+            edited["results"]["summary"]["item_codec_rows"][0]["artifact_bytes"] += 1
+            baseline_evidence.write_bytes(MODULE.json_bytes(edited))
+            fixture_config["bindings"]["baseline_public_evidence_sha256"] = (
+                MODULE.sha256_file(baseline_evidence)
+            )
+            with self.assertRaisesRegex(ValueError, "raw census|Kanzi-max control"):
+                MODULE.verify_dependencies(**arguments)
 
 
 if __name__ == "__main__":

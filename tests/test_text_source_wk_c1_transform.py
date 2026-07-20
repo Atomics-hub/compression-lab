@@ -1,6 +1,7 @@
 import hashlib
 import importlib.util
 from pathlib import Path
+import random
 import struct
 import sys
 import unittest
@@ -21,6 +22,10 @@ def load_module(name: str, path: Path):
 
 
 MODULE = load_module("text_source_wk_c1_transform", SCRIPT)
+FUZZ = load_module(
+    "text_source_wk_c1_fuzz",
+    REPOSITORY / "scripts" / "fuzz-text-source-wk-c1.py",
+)
 
 
 class TextSourceWkC1TransformTests(unittest.TestCase):
@@ -152,6 +157,44 @@ class TextSourceWkC1TransformTests(unittest.TestCase):
         forged = MODULE.HEADER.pack(*header) + frame[MODULE.HEADER.size :]
         with self.assertRaisesRegex(MODULE.FormatError, "structure counts"):
             MODULE.decode(forged, len(payload))
+
+    def test_seeded_adversarial_roundtrips(self) -> None:
+        rng = random.Random(20260719)
+        tokens = [
+            b"plain",
+            b"{{T|a=x|b={{U|1}}}}",
+            b"[[A|B=C]]",
+            b"<!--{{raw}}-->",
+            b"<nowiki>{{raw}}</nowiki>",
+            b"{{{parameter|default}}}",
+            b"{{unclosed|x",
+            bytes(range(32)),
+        ]
+        for _ in range(200):
+            payload = b"".join(rng.choice(tokens) for _ in range(rng.randrange(12)))
+            for variant in MODULE.VARIANTS:
+                self.assertEqual(MODULE.decode(MODULE.encode(payload, variant), len(payload)), payload)
+
+    def test_near_limit_name_key_field_count_and_depth_roundtrip(self) -> None:
+        payloads = [
+            b"{{" + b"N" * MODULE.MAXIMUM_TEMPLATE_NAME_BYTES + b"|x}}",
+            b"{{T|" + b"K" * MODULE.MAXIMUM_PARAMETER_KEY_BYTES + b"=x}}",
+            b"{{T" + b"|x" * MODULE.MAXIMUM_FIELDS_PER_TEMPLATE + b"}}",
+            b"{{T|" * MODULE.MAXIMUM_NESTING_DEPTH
+            + b"x"
+            + b"}}" * MODULE.MAXIMUM_NESTING_DEPTH,
+        ]
+        for payload in payloads:
+            for variant in MODULE.VARIANTS:
+                frame = MODULE.encode(payload, variant)
+                self.assertEqual(MODULE.decode(frame, len(payload)), payload)
+
+    def test_bounded_fuzz_entrypoint(self) -> None:
+        result = FUZZ.fuzz(seed=20260719, iterations=40, maximum_input_bytes=512)
+        self.assertEqual(result["roundtrips"], 80)
+        self.assertGreaterEqual(result["mutations_rejected"], 80)
+        with self.assertRaisesRegex(ValueError, "1 MiB"):
+            FUZZ.fuzz(seed=1, iterations=1, maximum_input_bytes=1024 * 1024 + 1)
 
 
 if __name__ == "__main__":
