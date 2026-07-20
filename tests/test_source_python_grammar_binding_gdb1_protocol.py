@@ -52,6 +52,13 @@ class SourcePythonGrammarBindingGdb1ProtocolTests(unittest.TestCase):
             "components": components,
             "corruption_preflight_passed": True,
             "id": system_id,
+            "implementation_identity_sha256": (
+                self.config()["bindings"]["kanzi_binary_sha256"]
+                if system_id == "kanzi-max"
+                else hashlib.sha256(
+                    ("implementation/" + system_id).encode()
+                ).hexdigest()
+            ),
             "per_file_diagnostics": [
                 {
                     "exact_roundtrip": True,
@@ -100,7 +107,13 @@ class SourcePythonGrammarBindingGdb1ProtocolTests(unittest.TestCase):
                 "config_sha256": config_sha256,
                 "dependency_lock_sha256": "a" * 64,
                 "derived_corpus_manifest_sha256": "b" * 64,
+                "prior_baseline_public_evidence_sha256": self.config()["bindings"][
+                    "existing_baseline_public_evidence_sha256"
+                ],
                 "repository_commit": "c" * 40,
+                "source_corpus_manifest_sha256": self.config()["bindings"][
+                    "existing_corpus_manifest_sha256"
+                ],
             },
             "claim_ceiling": self.config()["claim_ceiling"],
             "decision": (
@@ -133,6 +146,10 @@ class SourcePythonGrammarBindingGdb1ProtocolTests(unittest.TestCase):
         self.assertIn(
             "only its occurrence stream replaced", config["arms"][2]["occurrence_model"]
         )
+        changed = json.loads(MODULE.json_bytes(config))
+        changed["arms"][0]["occurrence_model"] = "flat"
+        with self.assertRaisesRegex(ValueError, "A2-minus-A1 attribution differs"):
+            MODULE.validate_config(changed)
 
     def test_protocol_freezes_strong_baselines_gates_and_claim_ceiling(self) -> None:
         protocol = PROTOCOL.read_text(encoding="utf-8")
@@ -203,6 +220,179 @@ class SourcePythonGrammarBindingGdb1ProtocolTests(unittest.TestCase):
             a2["components"][1]["bytes"] = 849
             path.write_bytes(MODULE.json_bytes(result))
             with self.assertRaisesRegex(ValueError, "declared decision differs"):
+                MODULE.verify(path)
+
+    def test_required_baseline_cannot_disappear_or_become_ineligible(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            result = self.result(
+                "training_screen", MODULE.sha256_bytes(CONFIG.read_bytes())
+            )
+            cmix = next(
+                row for row in result["systems"] if row["id"] == "cmix-v21-text"
+            )
+            cmix["repetitions"][0]["compression_seconds"] = 21_601
+            result["decision"] = "reject_gdb1_without_opening_development_holdout"
+            path = root / "ineligible.json"
+            path.write_bytes(MODULE.json_bytes(result))
+            verified = MODULE.verify(path)
+            self.assertFalse(verified["passed"])
+            self.assertFalse(verified["gate_checks"]["common"])
+            self.assertIsNone(verified["strongest_complete_baseline"])
+
+            result["systems"] = [
+                row for row in result["systems"] if row["id"] != "cmix-v21-text"
+            ]
+            path.write_bytes(MODULE.json_bytes(result))
+            with self.assertRaisesRegex(ValueError, "system roster differs"):
+                MODULE.verify(path)
+
+    def test_determinism_memory_and_time_fail_closed_as_honest_negative(self) -> None:
+        mutations = {
+            "nondeterministic": lambda row: row["repetitions"][1].__setitem__(
+                "artifact_sha256", "d" * 64
+            ),
+            "over_memory": lambda row: row["repetitions"][0].__setitem__(
+                "peak_rss_bytes", 8 * 1024**3 + 1
+            ),
+            "over_time": lambda row: row["repetitions"][0].__setitem__(
+                "decompression_seconds", 21_601
+            ),
+        }
+        with tempfile.TemporaryDirectory() as raw:
+            path = Path(raw) / "negative.json"
+            for name, mutate in mutations.items():
+                with self.subTest(name=name):
+                    result = self.result(
+                        "training_screen", MODULE.sha256_bytes(CONFIG.read_bytes())
+                    )
+                    mutate(result["systems"][0])
+                    result["decision"] = (
+                        "reject_gdb1_without_opening_development_holdout"
+                    )
+                    path.write_bytes(MODULE.json_bytes(result))
+                    verified = MODULE.verify(path)
+                    self.assertFalse(verified["passed"])
+                    self.assertFalse(verified["gate_checks"]["common"])
+
+    def test_holdout_rejects_per_file_regression(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            config_sha = MODULE.sha256_bytes(CONFIG.read_bytes())
+            g0_path = root / "g0.json"
+            g0_path.write_bytes(
+                MODULE.json_bytes(self.result("training_screen", config_sha))
+            )
+            g1 = self.result("development_holdout", config_sha)
+            g1["bindings"]["g0_result_sha256"] = MODULE.sha256_bytes(
+                g0_path.read_bytes()
+            )
+            a2 = next(row for row in g1["systems"] if row["id"] == "a2-scope-bindings")
+            a2["per_file_diagnostics"][0]["frame_bytes"] = 101
+            g1["decision"] = "reject_gdb1_and_do_not_tune_on_consumed_holdout"
+            g1_path = root / "g1.json"
+            g1_path.write_bytes(MODULE.json_bytes(g1))
+            verified = MODULE.verify(g1_path, g0_result_path=g0_path)
+            self.assertFalse(verified["passed"])
+            self.assertFalse(verified["gate_checks"]["per_file_guard"])
+
+    def test_holdout_rejects_failed_g0_and_stage_identity_drift(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            config_sha = MODULE.sha256_bytes(CONFIG.read_bytes())
+            failed_g0 = self.result("training_screen", config_sha)
+            a2 = next(
+                row for row in failed_g0["systems"] if row["id"] == "a2-scope-bindings"
+            )
+            a2["complete_bundle_bytes"] = 849
+            a2["components"][1]["bytes"] = 849
+            failed_g0["decision"] = "reject_gdb1_without_opening_development_holdout"
+            g0_path = root / "failed-g0.json"
+            g0_path.write_bytes(MODULE.json_bytes(failed_g0))
+            g1 = self.result("development_holdout", config_sha)
+            g1["bindings"]["g0_result_sha256"] = MODULE.sha256_bytes(
+                g0_path.read_bytes()
+            )
+            g1_path = root / "g1.json"
+            g1_path.write_bytes(MODULE.json_bytes(g1))
+            with self.assertRaisesRegex(ValueError, "opened without a G0 pass"):
+                MODULE.verify(g1_path, g0_result_path=g0_path)
+
+            passing_g0 = self.result("training_screen", config_sha)
+            g0_path.write_bytes(MODULE.json_bytes(passing_g0))
+            g1["bindings"]["g0_result_sha256"] = MODULE.sha256_bytes(
+                g0_path.read_bytes()
+            )
+            for field in (
+                "dependency_lock_sha256",
+                "derived_corpus_manifest_sha256",
+            ):
+                with self.subTest(field=field):
+                    changed = json.loads(MODULE.json_bytes(g1))
+                    changed["bindings"][field] = "e" * 64
+                    g1_path.write_bytes(MODULE.json_bytes(changed))
+                    with self.assertRaisesRegex(
+                        ValueError, "dependency lock or derived corpus changed"
+                    ):
+                        MODULE.verify(g1_path, g0_result_path=g0_path)
+
+    def test_pinned_source_baseline_and_kanzi_identities_fail_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            path = Path(raw) / "identity.json"
+            config_sha = MODULE.sha256_bytes(CONFIG.read_bytes())
+            result = self.result("training_screen", config_sha)
+            result["bindings"]["source_corpus_manifest_sha256"] = "e" * 64
+            path.write_bytes(MODULE.json_bytes(result))
+            with self.assertRaisesRegex(ValueError, "evidence binding differs"):
+                MODULE.verify(path)
+
+            result = self.result("training_screen", config_sha)
+            result["bindings"]["prior_baseline_public_evidence_sha256"] = "e" * 64
+            path.write_bytes(MODULE.json_bytes(result))
+            with self.assertRaisesRegex(ValueError, "evidence binding differs"):
+                MODULE.verify(path)
+
+            result = self.result("training_screen", config_sha)
+            kanzi = next(row for row in result["systems"] if row["id"] == "kanzi-max")
+            kanzi["implementation_identity_sha256"] = "e" * 64
+            path.write_bytes(MODULE.json_bytes(result))
+            with self.assertRaisesRegex(ValueError, "Kanzi binary identity differs"):
+                MODULE.verify(path)
+
+    def test_noncanonical_symlink_access_and_roster_inputs_are_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            path = root / "result.json"
+            result = self.result(
+                "training_screen", MODULE.sha256_bytes(CONFIG.read_bytes())
+            )
+            path.write_bytes(MODULE.json_bytes(result) + b"\n")
+            with self.assertRaisesRegex(ValueError, "not canonical JSON"):
+                MODULE.verify(path)
+            canonical = root / "canonical.json"
+            canonical.write_bytes(MODULE.json_bytes(result))
+            symlink = root / "symlink.json"
+            symlink.symlink_to(canonical)
+            with self.assertRaisesRegex(ValueError, "ordinary file"):
+                MODULE.verify(symlink)
+
+            result["access"]["development_holdout"] = "accessed exactly once"
+            path.write_bytes(MODULE.json_bytes(result))
+            with self.assertRaisesRegex(ValueError, "sealed-data declaration differs"):
+                MODULE.verify(path)
+            result = self.result(
+                "training_screen", MODULE.sha256_bytes(CONFIG.read_bytes())
+            )
+            result["stage"] = "validation"
+            path.write_bytes(MODULE.json_bytes(result))
+            with self.assertRaisesRegex(ValueError, "stage differs"):
+                MODULE.verify(path)
+            result = self.result(
+                "training_screen", MODULE.sha256_bytes(CONFIG.read_bytes())
+            )
+            result["systems"].append(result["systems"][0])
+            path.write_bytes(MODULE.json_bytes(result))
+            with self.assertRaisesRegex(ValueError, "system roster differs"):
                 MODULE.verify(path)
 
 

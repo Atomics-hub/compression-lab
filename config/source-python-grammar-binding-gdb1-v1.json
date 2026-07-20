@@ -60,7 +60,8 @@
   "bindings": {
     "existing_baseline_public_evidence_sha256": "b28429e3d12542eda21d03d981b9452cba2d4a329252e4876803b62852f1299f",
     "existing_corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
-    "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618"
+    "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+    "result_binding_policy": "Every result repeats and the verifier checks the existing source-manifest, prior-baseline-evidence, and Kanzi-binary identities. G0 additionally binds a new exact-hash dependency lock and derived Python split manifest; G1 must match both G0 identities exactly."
   },
   "claim_ceiling": "Frozen Python-only development experiment. Passing G0 or G1 is not validation, a product win, a source-code category win, an Axiom win, independent reproduction, or state-of-the-art evidence.",
   "coder": {

@@ -31,6 +31,9 @@ derived manifest and dependency lock must be committed before any file bytes
 are opened by the experiment. G1 may be opened exactly once and only after a
 verified, immutable G0 pass. A failed G0 kills GDB1 without inspecting G1. No
 parameter, split, parser, coder, fallback, or gate may change after G0.
+Each stage repeats the pinned source-corpus manifest, prior baseline evidence,
+and Kanzi binary digests. G1 must use the exact G0 dependency lock and derived
+Python manifest digests; a changed digest is a hard attribution failure.
 
 ## Pinned lossless syntax strategy
 
@@ -161,3 +164,11 @@ and a decision reconstructed by an offline verifier. Charts must show all four
 baselines and A0/A1/A2, distinguish solid complete bundles from per-file
 diagnostics, and state which gates passed. Sealed data must never be read by a
 publisher or verifier.
+
+The scaffold verifier checks canonical receipt consistency, exact identity
+bindings, component arithmetic, stage continuity, and gate decisions. It does
+not possess artifacts and therefore cannot prove that a self-declared byte
+count or digest came from real bytes. The eventual runner and publisher must
+recompute component sizes and hashes from ordinary artifact files and immutable
+receipts; independent reproduction remains required. A scaffold-verifier pass
+alone is never measurement evidence.

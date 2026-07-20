@@ -68,9 +68,12 @@ def validate_config(config: dict[str, Any]) -> None:
     ]:
         raise ValueError("GDB1 attributable arm roster differs")
     if (
-        arms[1].get("occurrence_model") == arms[2].get("occurrence_model")
-        or "only its occurrence stream replaced"
-        not in arms[2].get("occurrence_model", "")
+        [row.get("occurrence_model") for row in arms]
+        != [
+            "none",
+            "One first-occurrence spelling lexicon plus a single global identifier MTF list; no scope information.",
+            "The A1 spelling lexicon with only its occurrence stream replaced by deterministic lexical-scope NEW, FREE, and current-scope MTF-rank events.",
+        ]
         or config.get("coder", {}).get("version") != "axiom-int-range-v1"
         or "identical coder" not in config.get("coder", {}).get("rule", "")
     ):
@@ -88,6 +91,15 @@ def validate_config(config: dict[str, Any]) -> None:
         or any(row.get("required") is not True for row in baselines)
     ):
         raise ValueError("GDB1 required baseline roster differs")
+    bindings = config.get("bindings", {})
+    if (
+        not is_sha256(bindings.get("existing_baseline_public_evidence_sha256"))
+        or not is_sha256(bindings.get("existing_corpus_manifest_sha256"))
+        or not is_sha256(bindings.get("kanzi_binary_sha256"))
+        or "G1 must match both G0 identities exactly"
+        not in bindings.get("result_binding_policy", "")
+    ):
+        raise ValueError("GDB1 pinned evidence identities differ")
     corpus = config.get("corpus", {})
     partitions = corpus.get("partitions", {})
     buckets = {
@@ -104,14 +116,14 @@ def validate_config(config: dict[str, Any]) -> None:
             if left is not right
         )
         or buckets["development_holdout"] != {8, 9}
-        or not any(
-            "rust-1.97.1-source" == item
-            for item in corpus.get("reserved_not_accessed", [])
-        )
-        or not any(
-            "llvm-22.1.8-source" == item
-            for item in corpus.get("reserved_not_accessed", [])
-        )
+        or set(corpus.get("reserved_not_accessed", []))
+        != {
+            "rust-1.97.1-source",
+            "llvm-22.1.8-source",
+            "typescript-6.0.3-source",
+            "all public-validation inputs",
+            "all private-holdout inputs",
+        }
     ):
         raise ValueError("GDB1 Python-only split or sealed roster differs")
     dependency = config.get("dependencies", {}).get("cst", {})
@@ -165,6 +177,7 @@ def validate_components(system: dict[str, Any]) -> bool:
 def common_eligible(system: dict[str, Any], config: dict[str, Any]) -> bool:
     if (
         not validate_components(system)
+        or not is_sha256(system.get("implementation_identity_sha256"))
         or system.get("corruption_preflight_passed") is not True
     ):
         return False
@@ -234,6 +247,10 @@ def verify(
         result.get("name") != "source-python-grammar-binding-gdb1-result-v1"
         or result.get("claim_ceiling") != config["claim_ceiling"]
         or bindings.get("config_sha256") != sha256_bytes(config_raw)
+        or bindings.get("source_corpus_manifest_sha256")
+        != config["bindings"]["existing_corpus_manifest_sha256"]
+        or bindings.get("prior_baseline_public_evidence_sha256")
+        != config["bindings"]["existing_baseline_public_evidence_sha256"]
         or not is_sha256(bindings.get("dependency_lock_sha256"))
         or not is_sha256(bindings.get("derived_corpus_manifest_sha256"))
         or not isinstance(bindings.get("repository_commit"), str)
@@ -270,6 +287,11 @@ def verify(
     ]
     if len(by_id) != len(systems) or set(by_id) != set(required_ids):
         raise ValueError("GDB1 system roster differs")
+    if (
+        by_id["kanzi-max"].get("implementation_identity_sha256")
+        != config["bindings"]["kanzi_binary_sha256"]
+    ):
+        raise ValueError("GDB1 Kanzi binary identity differs")
     eligibility = {
         system_id: common_eligible(by_id[system_id], config)
         for system_id in required_ids
@@ -306,9 +328,16 @@ def verify(
             raise ValueError(
                 "GDB1 development holdout requires the immutable G0 result"
             )
-        g0_raw, _g0 = read_canonical(g0_result_path)
+        g0_raw, g0 = read_canonical(g0_result_path)
         if bindings.get("g0_result_sha256") != sha256_bytes(g0_raw):
             raise ValueError("GDB1 G0 binding differs")
+        g0_bindings = g0.get("bindings", {})
+        if bindings.get("dependency_lock_sha256") != g0_bindings.get(
+            "dependency_lock_sha256"
+        ) or bindings.get("derived_corpus_manifest_sha256") != g0_bindings.get(
+            "derived_corpus_manifest_sha256"
+        ):
+            raise ValueError("GDB1 dependency lock or derived corpus changed after G0")
         g0_verification = verify(g0_result_path, config_path)
         if not g0_verification["passed"]:
             raise ValueError("GDB1 development holdout was opened without a G0 pass")
