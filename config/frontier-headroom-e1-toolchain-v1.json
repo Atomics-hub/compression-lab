@@ -4,11 +4,11 @@
   "declared_at": "2026-07-20",
   "e1_bindings": {
     "config_path": "config/frontier-headroom-oracle-census-e1-v1.json",
-    "config_sha256": "62d5c0cfb28cae0cbfee0d84f607c634ea7c8729a77d1148b0cc65dbf3c96c64",
+    "config_sha256": "3d05ac79718e80b422831b08d13fe2e82d975213945d10d444600b8cd8aa881f",
     "protocol_path": "docs/benchmarks/2026-07-20-frontier-headroom-oracle-census-e1-protocol.md",
-    "protocol_sha256": "63af23f64fe64017fc564eb44bf484df26ede80bdfb88fcce4090df1bb311485",
+    "protocol_sha256": "925542c5547424705fd4bf6ddcfebb7a1db808bdeb1b8e2588db62449e47cb37",
     "plan_verifier_path": "scripts/verify-frontier-headroom-e1-plan.py",
-    "plan_verifier_sha256": "7de3c585e8db346c73b890ac2b0d2aa233ebf21b60411cb795fe379877483244"
+    "plan_verifier_sha256": "018ec3ac8768f423be6d4e3880442c5f1cbaf8d92408e970895119a4d4010237"
   },
   "security_boundary": {
     "official_sources_only": true,
@@ -118,15 +118,15 @@
     }
   ],
   "executables": [
-    {"codec_id": "kanzi-max", "path": "bin/kanzi", "bytes": 779328, "sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618", "version_command": ["$EXECUTABLE", "--help"], "version_exit_codes": [0], "version_substring": "Kanzi 2.5.3", "runtime_assets": []},
-    {"codec_id": "zstd-19-long", "path": "bin/zstd", "bytes": 205776, "sha256": "aff8169fb421bb925fb16c44a7e0143fa2c7a941dc45cce76b15062a2ce54917", "version_command": ["$EXECUTABLE", "--version"], "version_exit_codes": [0], "version_substring": "v1.5.7", "runtime_assets": ["lib/libzstd.1.dylib", "lib/liblzma.5.dylib", "lib/liblz4.1.dylib"]},
-    {"codec_id": "xz-lzma2-9e", "path": "bin/xz", "bytes": 131664, "sha256": "995c8e2f72446f0d0e3a29f6c3d52286cfecedfc4ffb2b42d25c3ce1ad77034c", "version_command": ["$EXECUTABLE", "--version"], "version_exit_codes": [0], "version_substring": "xz (XZ Utils) 5.8.3", "runtime_assets": ["lib/liblzma.5.dylib"]},
+    {"codec_id": "kanzi-max", "path": "bin/kanzi", "bytes": 779328, "sha256": "1518708ef729b2520ac706997721eb90c024266d72e97cc3a1db25a3a1afcbdd", "version_command": ["$EXECUTABLE", "--help"], "version_exit_codes": [0], "version_substring": "Kanzi 2.5.3", "runtime_assets": []},
+    {"codec_id": "zstd-19-long", "path": "bin/zstd", "bytes": 188864, "sha256": "9b5676aae3cb048cf68e2b40c543d9523db3b4cb911b31861bd5f4fcb050c4b6", "version_command": ["$EXECUTABLE", "--version"], "version_exit_codes": [0], "version_substring": "v1.5.7", "runtime_assets": ["lib/libzstd.1.dylib", "lib/liblzma.5.dylib", "lib/liblz4.1.dylib"]},
+    {"codec_id": "xz-lzma2-9e", "path": "bin/xz", "bytes": 114336, "sha256": "16b9994cca884ed2a66ba63736f1450049cbc6fd1d93076c51e5f0e7f7a71381", "version_command": ["$EXECUTABLE", "--version"], "version_exit_codes": [0], "version_substring": "xz (XZ Utils) 5.8.3", "runtime_assets": ["lib/liblzma.5.dylib"]},
     {"codec_id": "zpaq-5-m510", "path": "bin/zpaq", "bytes": 433288, "sha256": "c54e06fca84580951509656c8b938b594727014acd3fddabcff787d021d032e8", "version_command": ["$EXECUTABLE"], "version_exit_codes": [1], "version_substring": "zpaq v7.15", "runtime_assets": []}
   ],
   "runtime_assets": [
-    {"path": "lib/libzstd.1.dylib", "bytes": 649648, "sha256": "e2847c4613b386683c234913ae3b7b04299254096caf7616e3b3cd9bb97a39ab"},
-    {"path": "lib/liblzma.5.dylib", "bytes": 184512, "sha256": "3d5bfa2f097c31463642b1daab5e662b44368bb4da368f85e412e7f9adcbaa10"},
-    {"path": "lib/liblz4.1.dylib", "bytes": 176960, "sha256": "3ce8bec34557e6a5c76129cef6588dc59959caa51e1e54321f45ea7c6e528e07"}
+    {"path": "lib/libzstd.1.dylib", "bytes": 635328, "sha256": "602d50cbe6fad0f0da6d1b73284ae3f75316015aea482ebd55614b6df2406b43"},
+    {"path": "lib/liblzma.5.dylib", "bytes": 167472, "sha256": "606a5184911c876c7446f932685183d8b348f5c9a95f764b01607be0e40b64ea"},
+    {"path": "lib/liblz4.1.dylib", "bytes": 160944, "sha256": "eb5734d2edaf7e9aa64d03d0add9a9ac3656830d7acb14ff69a43b1d96ead0f5"}
   ],
   "receipt": {
     "path": "receipt.json",

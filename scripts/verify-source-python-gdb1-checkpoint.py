@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 FILES = {
     "config/source-python-gdb1-codec-format-v1.json": "4145b3096683f10557651c618e34d82987d7c604aae343e99eec636b5faa4123",
     "config/source-python-gdb1-derived-corpus-contract-v1.json": "90f4eccd8dfd0a0baa9ba9e35426323c27639ee32408039ecac16b1326f8fa59",
-    "config/source-python-gdb1-baseline-distributions-v1.json": "54e08cc49d9ce0ba271cf7054ab36d41bc86d663bb297ea707dc5e330d22a8f1",
+    "config/source-python-gdb1-baseline-distributions-v1.json": "06115e15161cef03bf83015228a2b13d62776f5df20c9413f16a1bdf350880eb",
 }
 CMIX_ARTIFACTS = {
     "cmix": (9890616, "59a16200f2b00ecd72c7c91217e5a5f7df467dc5952a8fdcaafbcf1457b0a644"),

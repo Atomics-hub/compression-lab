@@ -36,15 +36,15 @@ EXPECTED_SOURCE_IDS = {
 EXPECTED_EXECUTABLE_IDS = {
     "kanzi-max": (
         779328,
-        "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+        "1518708ef729b2520ac706997721eb90c024266d72e97cc3a1db25a3a1afcbdd",
     ),
     "zstd-19-long": (
-        205776,
-        "aff8169fb421bb925fb16c44a7e0143fa2c7a941dc45cce76b15062a2ce54917",
+        188864,
+        "9b5676aae3cb048cf68e2b40c543d9523db3b4cb911b31861bd5f4fcb050c4b6",
     ),
     "xz-lzma2-9e": (
-        131664,
-        "995c8e2f72446f0d0e3a29f6c3d52286cfecedfc4ffb2b42d25c3ce1ad77034c",
+        114336,
+        "16b9994cca884ed2a66ba63736f1450049cbc6fd1d93076c51e5f0e7f7a71381",
     ),
     "zpaq-5-m510": (
         433288,
@@ -53,16 +53,16 @@ EXPECTED_EXECUTABLE_IDS = {
 }
 EXPECTED_RUNTIME_IDS = {
     "lib/libzstd.1.dylib": (
-        649648,
-        "e2847c4613b386683c234913ae3b7b04299254096caf7616e3b3cd9bb97a39ab",
+        635328,
+        "602d50cbe6fad0f0da6d1b73284ae3f75316015aea482ebd55614b6df2406b43",
     ),
     "lib/liblzma.5.dylib": (
-        184512,
-        "3d5bfa2f097c31463642b1daab5e662b44368bb4da368f85e412e7f9adcbaa10",
+        167472,
+        "606a5184911c876c7446f932685183d8b348f5c9a95f764b01607be0e40b64ea",
     ),
     "lib/liblz4.1.dylib": (
-        176960,
-        "3ce8bec34557e6a5c76129cef6588dc59959caa51e1e54321f45ea7c6e528e07",
+        160944,
+        "eb5734d2edaf7e9aa64d03d0add9a9ac3656830d7acb14ff69a43b1d96ead0f5",
     ),
 }
 EXPECTED_SOURCE_METADATA: dict[str, dict[str, Any]] = {

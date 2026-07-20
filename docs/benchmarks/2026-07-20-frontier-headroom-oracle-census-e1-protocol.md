@@ -1,8 +1,8 @@
 # E1 frontier-headroom and oracle-routing census
 
-Status: frozen training-only protocol. No E1 codec invocation, sample, segment,
-or result existed when
-`config/frontier-headroom-oracle-census-e1-v1.json` was committed.
+Status: frozen training-only protocol. Hosted identity preflights built and
+version-probed the tools. No E1 codec invocation, sample, segment, or result
+against a corpus existed when this binding was promoted.
 
 ## Decision being purchased
 
@@ -44,6 +44,13 @@ Before the first allowed item is opened, a clean pre-execution lock must bind:
 
 Any mismatch stops before corpus access. A first promoted result is immutable;
 partial or interrupted attempts remain recorded and cannot be overwritten.
+
+The macOS 26 hosted identity preflight was repeated before this binding was
+promoted. Runs `29773961392` and `29774099968` independently produced the same
+Kanzi, zstd, xz, ZPAQ, `libzstd`, `liblzma`, and `liblz4` byte counts and
+SHA-256 values now frozen in the E1 declarations. This establishes repeatable
+hosted identities only; both attempts stopped before corpus access and created
+no compression measurement.
 
 ## Codecs and complete artifacts
 

@@ -57,6 +57,20 @@ class FrontierHeadroomE1ToolchainTests(unittest.TestCase):
             {row["path"] for row in self.config["runtime_assets"]},
             set(VERIFIER.EXPECTED_RUNTIME_IDS),
         )
+        self.assertEqual(
+            {
+                row["codec_id"]: (row["bytes"], row["sha256"])
+                for row in self.config["executables"]
+            },
+            VERIFIER.EXPECTED_EXECUTABLE_IDS,
+        )
+        self.assertEqual(
+            {
+                row["path"]: (row["bytes"], row["sha256"])
+                for row in self.config["runtime_assets"]
+            },
+            VERIFIER.EXPECTED_RUNTIME_IDS,
+        )
 
     def test_source_and_build_drift_fail_closed(self) -> None:
         drifted = copy.deepcopy(self.config)
@@ -70,6 +84,10 @@ class FrontierHeadroomE1ToolchainTests(unittest.TestCase):
         drifted = copy.deepcopy(self.config)
         drifted["executables"][0]["sha256"] = "f" * 64
         with self.assertRaisesRegex(ValueError, "executable identity differs"):
+            VERIFIER.validate_declaration(drifted)
+        drifted = copy.deepcopy(self.config)
+        drifted["runtime_assets"][0]["bytes"] += 1
+        with self.assertRaisesRegex(ValueError, "runtime asset identities differ"):
             VERIFIER.validate_declaration(drifted)
 
     def test_only_official_https_hosts_are_admitted(self) -> None:
