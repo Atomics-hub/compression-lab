@@ -222,7 +222,14 @@ def prepare(
             f"expected_bytes={row['bytes']} expected_sha256={row['sha256']}"
         )
     for row in config["runtime_assets"]:
-        copy_atomic(assets[row["path"]], root / row["path"])
+        destination = root / row["path"]
+        copy_atomic(assets[row["path"]], destination)
+        print(
+            "prepared runtime asset "
+            f"{row['path']}: bytes={destination.stat().st_size} "
+            f"sha256={VERIFIER.sha256_file(destination)} "
+            f"expected_bytes={row['bytes']} expected_sha256={row['sha256']}"
+        )
     VERIFIER.verify_tool_root(config, root, verify_receipt=False)
     toolchain = verify_build_toolchain(config)
     host = host_record(config)
