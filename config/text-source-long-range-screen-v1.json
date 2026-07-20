@@ -1,0 +1,94 @@
+{
+  "bindings": {
+    "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+    "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+    "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+    "predictor_result_sha256": "300a9cd657b0949b9b4af165d6e080ff3962afb1281a764bb5c894b508d2fa68"
+  },
+  "claim_ceiling": "Training-split Kanzi pipeline decomposition only. These custom Kanzi archives are exact competitor diagnostics, not Axiom artifacts, Axiom wins, validation results, private-holdout results, novel-algorithm results, or state-of-the-art evidence.",
+  "decision": {
+    "axiom_prototype_admission": {
+      "maximum_item_regression_percent": 0.5,
+      "minimum_aggregate_gain_percent_each_track": 2.0,
+      "required_exact_roundtrip": true,
+      "required_identical_artifacts": 2,
+      "required_same_variant_across_tracks": true,
+      "selected_successor_if_passed": "ts-wk-q1-bounded-multi-reference-implicit-long-range-factorizer"
+    },
+    "final_axiom_codec_gate_reminder": {
+      "complete_artifact_accounting_required": true,
+      "exact_roundtrip_required": true,
+      "maximum_item_regression_percent": 0.5,
+      "minimum_aggregate_gain_vs_strongest_complete_baseline_percent": 5.0,
+      "two_byte_identical_measured_artifacts_required": true
+    },
+    "rejection": "If no one augmentation variant passes the admission gate on both tracks, reject implicit-reference long-range factorization as the next shared text/source successor. Track-specific signals may motivate separately frozen successors but cannot satisfy the shared admission."
+  },
+  "frozen_before_screen_results": true,
+  "measurement": {
+    "baseline_source": "Reuse exact per-item kanzi-max complete bytes from the immutable 630-trial practical census; do not rerun or replace them.",
+    "block_bytes": 1073741824,
+    "jobs": 1,
+    "measured_repetitions": 2,
+    "order_seed": 20260718,
+    "timeout_seconds_per_process": 7200,
+    "warmups": 0
+  },
+  "name": "text-source-long-range-kanzi-decomposition-screen-v1",
+  "research_basis": [
+    {
+      "finding": "Large standard compressors can miss far-apart repetitions because of local windows; approximate LZ77 precompression can assist a standard backend on large repetitive text.",
+      "source": "https://doi.org/10.4230/LIPIcs.SEA.2026.16"
+    },
+    {
+      "finding": "LZ77 is especially effective on repetitive software repositories and versioned document collections.",
+      "source": "https://arxiv.org/abs/1101.4065"
+    },
+    {
+      "finding": "A practical bidirectional parse can use fewer phrases than left-only LZ77, motivating a later multi-reference search while keeping this screen strictly backward-decodable.",
+      "source": "https://arxiv.org/abs/1812.04261"
+    }
+  ],
+  "schema_version": 1,
+  "splits": {
+    "english_wikimedia_wikitext": {
+      "reserved_evaluation_not_accessed_by_screen": [
+        "enwikiversity-20260701"
+      ],
+      "screen_items": [
+        "enwikibooks-20260701",
+        "enwikinews-20260701"
+      ]
+    },
+    "source_code_bundles": {
+      "reserved_evaluation_not_accessed_by_screen": [
+        "rust-1.97.1-source",
+        "llvm-22.1.8-source"
+      ],
+      "screen_items": [
+        "cpython-3.14.6-source",
+        "typescript-6.0.3-source"
+      ]
+    }
+  },
+  "variants": [
+    {
+      "entropy": "TPAQX",
+      "id": "k1-lzp-prepend-level9",
+      "purpose": "Test whether an explicit implicit-reference match pass adds value before the complete level-9 transform chain.",
+      "transform": "LZP+EXE+RLT+TEXT+UTF+DNA"
+    },
+    {
+      "entropy": "TPAQX",
+      "id": "k2-lzp-text-utf",
+      "purpose": "Test the interaction between explicit factorization and only the text/UTF transforms.",
+      "transform": "LZP+TEXT+UTF"
+    },
+    {
+      "entropy": "TPAQX",
+      "id": "k3-lzp-only",
+      "purpose": "Attribute any signal to generic implicit-reference factorization without Kanzi text transforms.",
+      "transform": "LZP"
+    }
+  ]
+}

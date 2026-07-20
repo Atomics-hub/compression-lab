@@ -1,0 +1,466 @@
+{
+  "schema_version": 1,
+  "name": "numeric-ar5-numr-training-v1",
+  "status": "frozen_protocol_only",
+  "claim_scope": "training-only numeric specialist research",
+  "claim_ceiling": "This protocol can authorize only training advancement. It cannot support validation, holdout, independent-reproduction, product, market-leading, world-best, state-of-the-art, or universal claims.",
+  "measurement_authorized": false,
+  "authorization_blockers": [
+    "licensed training manifest with exact byte counts and SHA-256 identities is not frozen",
+    "every external baseline source/archive and built binary SHA-256 is not frozen",
+    "candidate implementation and binary SHA-256 do not exist",
+    "benchmark runner and host receipt are not frozen"
+  ],
+  "evaluation": {
+    "training": "protocol_defined_but_not_acquired",
+    "validation": "sealed_and_unauthorized",
+    "private_holdout": "sealed_and_unauthorized",
+    "independent_reproduction": "not_started",
+    "forbidden_prior_numeric_validation_families": [
+      "UCI Gisette",
+      "UCI Madelon"
+    ]
+  },
+  "tracks": [
+    "float32_time_series",
+    "float64_time_series",
+    "float32_dense_matrix",
+    "float64_dense_matrix",
+    "signed_integer_time_series",
+    "unsigned_integer_time_series",
+    "signed_integer_dense_matrix",
+    "unsigned_integer_dense_matrix"
+  ],
+  "input_contract": {
+    "accepted_dtypes": [
+      "float32",
+      "float64",
+      "int16",
+      "int32",
+      "int64",
+      "uint16",
+      "uint32",
+      "uint64"
+    ],
+    "accepted_endianness": [
+      "little",
+      "big"
+    ],
+    "layouts": [
+      "one_dimensional_ordered_series",
+      "row_major_dense_matrix",
+      "column_major_dense_matrix"
+    ],
+    "required_side_metadata": [
+      "dtype",
+      "endianness",
+      "rank",
+      "shape",
+      "layout",
+      "optional_regular_interval_or_complete_timestamp_column"
+    ],
+    "exactness": "decoded payload bytes and all side metadata must be byte-identical",
+    "float_special_values": "preserve signed zero, infinities, every NaN sign/payload/signaling bit, and subnormal bits exactly",
+    "integer_arithmetic": "all predictors and residuals use explicitly checked widening or modulo-2^N arithmetic; signed overflow is never language-undefined",
+    "maximum_item_bytes": 4294967296,
+    "minimum_values_per_item": 4096
+  },
+  "block_contract": {
+    "vector_values": 1024,
+    "superblock_values": 65536,
+    "stream_chunk_max_bytes": 67108864,
+    "independent_superblocks": true,
+    "random_access_index_accounted": true,
+    "checksum": "SHA-256 over original side metadata and payload",
+    "complete_accounting": [
+      "file header and version",
+      "dtype endianness rank shape and layout",
+      "superblock and vector directories",
+      "mode selector bytes",
+      "decimal exponent factor and origin",
+      "predictor IDs coefficients and seeds",
+      "exception bitmap positions raw IEEE words and counts",
+      "width tables residual payloads padding and checksums",
+      "timestamp metadata",
+      "fallback frame headers",
+      "footer and random-access index"
+    ]
+  },
+  "candidate": {
+    "family": "AR5/NUM-R",
+    "float_decimal_origin_recast": {
+      "description": "ALP-style decimal recasting followed by a per-vector integer origin",
+      "float32_exponents": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "float64_exponents": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18
+      ],
+      "factor_rule": "enumerate factor from zero through exponent and retain only pairs whose integer-rational inverse reproduces the original IEEE bits",
+      "origin_rule": "minimum nonexception recast integer with deterministic zero when every value is exceptional",
+      "arithmetic_rule": "integer decomposition of IEEE sign/exponent/mantissa and checked powers of 2 and 5; host floating-point multiply, cast, rounding mode, fused operations, and fast-math are forbidden",
+      "exceptions": "nonfinite values and any value that does not round-trip bit-exactly are raw-word exceptions",
+      "selection": "minimum complete vector bytes then exponent then factor then origin"
+    },
+    "predictors": [
+      "none_or_origin_only",
+      "xor_previous_with_reused_front_and_trailing_zero_window",
+      "delta",
+      "delta2",
+      "integer_lpc_order_1",
+      "integer_lpc_order_2",
+      "integer_lpc_order_4"
+    ],
+    "lpc_coefficients": {
+      "orders": [
+        1,
+        2,
+        4
+      ],
+      "coefficient_bits": 16,
+      "coefficient_selection": "deterministic integer least-squares with checked 128-bit intermediates and lexicographic tie breaks",
+      "coefficient_table_accounted": true,
+      "seed_values_accounted": true
+    },
+    "residual_encodings": [
+      "zigzag_bitpack",
+      "two_complement_bitpack",
+      "zero_run_plus_bitpack",
+      "byte_plane_plus_zstd",
+      "raw_word_byte_plane_plus_zstd"
+    ],
+    "internal_zstd": {
+      "repository": "https://github.com/facebook/zstd.git",
+      "revision": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+      "license": "BSD-3-Clause OR GPL-2.0-only",
+      "level": 9,
+      "threads": 1,
+      "dictionary": "none",
+      "frame_checksum": true,
+      "content_size": true,
+      "long_distance_matching": false,
+      "parameter_lock_rule": "the candidate format specification must freeze every effective ZSTD_CCtx parameter before implementation or measurement"
+    },
+    "fallbacks": [
+      "xor_front_bit",
+      "byte_plane_zstd",
+      "direct_zstd",
+      "store"
+    ],
+    "selector": {
+      "evidence": "current vector or superblock bytes only",
+      "rule": "materialize every eligible complete candidate frame and choose smallest complete bytes, then lower declared decode-cost rank, then lower stable mode ID",
+      "maximum_probe_bytes": 67108864,
+      "fallback_expansion_rule": "choose direct zstd only when its complete frame is smaller than store; otherwise store",
+      "maximum_expansion_over_store_bytes": 96,
+      "deterministic": true,
+      "selector_metadata_accounted": true,
+      "analysis_time_counted": true,
+      "temporary_memory_counted": true
+    }
+  },
+  "cheap_ablations": [
+    {
+      "id": "NUM-R0",
+      "change": "store, direct zstd, and raw-word byte-plane fallback only",
+      "kill_rule": "reference floor"
+    },
+    {
+      "id": "NUM-R1",
+      "change": "add XOR/front-bit mode",
+      "kill_rule": "drop if aggregate complete-byte improvement is below 1% and no declared track improves by 2%"
+    },
+    {
+      "id": "AR5-A",
+      "change": "add exact decimal recast without origin",
+      "kill_rule": "drop if aggregate complete-byte improvement over NUM-R1 is below 1%"
+    },
+    {
+      "id": "AR5-B",
+      "change": "add decimal origin",
+      "kill_rule": "drop if complete-byte improvement over AR5-A is below 0.5%"
+    },
+    {
+      "id": "NUM-R2",
+      "change": "add delta and delta2 residuals",
+      "kill_rule": "drop any predictor that never wins a vector and improves no item by 1%"
+    },
+    {
+      "id": "NUM-R3",
+      "change": "add integer LPC orders 1, 2, and 4",
+      "kill_rule": "drop LPC if it improves aggregate bytes below 1% or raises compression wall time above 2x NUM-R2"
+    },
+    {
+      "id": "NUM-R4",
+      "change": "full exception, byte-plane, entropy, and selector integration",
+      "kill_rule": "must clear the frozen training gates before validation can be proposed"
+    }
+  ],
+  "external_baselines": [
+    {
+      "id": "fastlanes-alp",
+      "applies_to": [
+        "float32",
+        "float64"
+      ],
+      "repository": "https://github.com/cwida/FastLanes.git",
+      "revision": "f0edc1020a538f1f8098640fce8347c9ac247a0d",
+      "license": "MIT",
+      "license_file": "LICENSE",
+      "binary": "build/baselines/numr-fastlanes",
+      "build": "cmake -S third_party/FastLanes -B build/fastlanes -DCMAKE_BUILD_TYPE=Release && cmake --build build/fastlanes --parallel 1",
+      "encode": "numr-fastlanes encode --mode alp --dtype {dtype} --shape {shape} --input {input} --output {output}",
+      "decode": "numr-fastlanes decode --input {input} --output {output}",
+      "binary_sha256": null
+    },
+    {
+      "id": "fastlanes-integer",
+      "applies_to": [
+        "int16",
+        "int32",
+        "int64",
+        "uint16",
+        "uint32",
+        "uint64"
+      ],
+      "repository": "https://github.com/cwida/FastLanes.git",
+      "revision": "f0edc1020a538f1f8098640fce8347c9ac247a0d",
+      "license": "MIT",
+      "license_file": "LICENSE",
+      "binary": "build/baselines/numr-fastlanes",
+      "build": "cmake -S third_party/FastLanes -B build/fastlanes -DCMAKE_BUILD_TYPE=Release && cmake --build build/fastlanes --parallel 1",
+      "encode": "numr-fastlanes encode --mode best-integer --dtype {dtype} --shape {shape} --input {input} --output {output}",
+      "decode": "numr-fastlanes decode --input {input} --output {output}",
+      "binary_sha256": null
+    },
+    {
+      "id": "chimp-paper",
+      "applies_to": [
+        "float64_time_series"
+      ],
+      "repository": "https://github.com/panagiotisl/chimp.git",
+      "revision": "320d397157c7e0696b3c64dc1711fc17a3add3da",
+      "license": "Apache-2.0",
+      "license_file": "LICENCE.md",
+      "binary": "build/baselines/numr-chimp.jar",
+      "build": "mvn -f third_party/chimp/pom.xml -DskipTests=false package",
+      "encode": "java -jar numr-chimp.jar encode --codec chimp128 --dtype float64 --timestamps {timestamps} --input {input} --output {output}",
+      "decode": "java -jar numr-chimp.jar decode --input {input} --output {output}",
+      "binary_sha256": null
+    },
+    {
+      "id": "gorilla-reference-class",
+      "applies_to": [
+        "float32_time_series",
+        "float64_time_series"
+      ],
+      "repository": "https://github.com/ghilesmeddour/gorilla-time-series-compression.git",
+      "revision": "093544c6e643aef911ff83527f595bc2d9280ed8",
+      "license": "MIT",
+      "license_file": "LICENSE",
+      "binary": "build/baselines/numr-gorilla",
+      "build": "python -m build third_party/gorilla-time-series-compression && python -m pip install --no-deps third_party/gorilla-time-series-compression/dist/gorillacompression-1.0.2-py3-none-any.whl",
+      "encode": "numr-gorilla encode --dtype {dtype} --timestamps {timestamps} --input {input} --output {output}",
+      "decode": "numr-gorilla decode --input {input} --output {output}",
+      "binary_sha256": null
+    },
+    {
+      "id": "blosc2-shuffle-zstd",
+      "applies_to": [
+        "all"
+      ],
+      "repository": "https://github.com/Blosc/c-blosc2.git",
+      "revision": "d52cbeec8afb35ada7ea62f04168e5d970d9c40b",
+      "license": "BSD-3-Clause",
+      "license_file": "LICENSE.txt",
+      "binary": "build/baselines/numr-blosc2",
+      "build": "cmake -S third_party/c-blosc2 -B build/c-blosc2 -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=OFF -DBUILD_EXAMPLES=OFF && cmake --build build/c-blosc2 --parallel 1",
+      "encode": "numr-blosc2 encode --codec zstd --level 9 --filter shuffle --typesize {typesize} --input {input} --output {output}",
+      "decode": "numr-blosc2 decode --input {input} --output {output}",
+      "binary_sha256": null
+    },
+    {
+      "id": "blosc2-bytedelta-zstd",
+      "applies_to": [
+        "all"
+      ],
+      "repository": "https://github.com/Blosc/c-blosc2.git",
+      "revision": "d52cbeec8afb35ada7ea62f04168e5d970d9c40b",
+      "license": "BSD-3-Clause",
+      "license_file": "LICENSE.txt",
+      "binary": "build/baselines/numr-blosc2",
+      "build": "cmake -S third_party/c-blosc2 -B build/c-blosc2 -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=OFF -DBUILD_EXAMPLES=OFF && cmake --build build/c-blosc2 --parallel 1",
+      "encode": "numr-blosc2 encode --codec zstd --level 9 --filter bytedelta,shuffle --typesize {typesize} --input {input} --output {output}",
+      "decode": "numr-blosc2 decode --input {input} --output {output}",
+      "binary_sha256": null
+    },
+    {
+      "id": "fpzip-exact",
+      "applies_to": [
+        "float32_dense_matrix",
+        "float64_dense_matrix"
+      ],
+      "repository": "https://github.com/LLNL/fpzip.git",
+      "revision": "4a539c06d98b1c029b08324a086d4b75689a2b72",
+      "license": "BSD-3-Clause",
+      "license_file": "LICENSE",
+      "binary": "build/baselines/numr-fpzip",
+      "build": "cmake -S third_party/fpzip -B build/fpzip -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON && cmake --build build/fpzip --parallel 1",
+      "encode": "numr-fpzip encode --precision full --dtype {dtype} --shape {shape} --input {input} --output {output}",
+      "decode": "numr-fpzip decode --input {input} --output {output}",
+      "binary_sha256": null
+    },
+    {
+      "id": "zstd-19",
+      "applies_to": [
+        "all"
+      ],
+      "repository": "https://github.com/facebook/zstd.git",
+      "revision": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+      "license": "BSD-3-Clause OR GPL-2.0-only",
+      "license_file": "LICENSE",
+      "binary": "build/baselines/zstd",
+      "build": "make -C third_party/zstd -j1 zstd-release",
+      "encode": "zstd -19 --threads=1 --no-progress --force -o {output} {input}",
+      "decode": "zstd -d --threads=1 --no-progress --force -o {output} {input}",
+      "binary_sha256": null
+    },
+    {
+      "id": "brotli-11",
+      "applies_to": [
+        "all"
+      ],
+      "repository": "https://github.com/google/brotli.git",
+      "revision": "028fb5a23661f123017c060daa546b55cf4bde29",
+      "license": "MIT",
+      "license_file": "LICENSE",
+      "binary": "build/baselines/brotli",
+      "build": "cmake -S third_party/brotli -B build/brotli -DCMAKE_BUILD_TYPE=Release && cmake --build build/brotli --parallel 1",
+      "encode": "brotli --quality=11 --force --output={output} {input}",
+      "decode": "brotli --decompress --force --output={output} {input}",
+      "binary_sha256": null
+    },
+    {
+      "id": "lz4-12",
+      "applies_to": [
+        "all"
+      ],
+      "repository": "https://github.com/lz4/lz4.git",
+      "revision": "ebb370ca83af193212df4dcbadcc5d87bc0de2f0",
+      "license": "BSD-2-Clause",
+      "license_file": "lib/LICENSE",
+      "binary": "build/baselines/lz4",
+      "build": "make -C third_party/lz4 -j1 lz4-release",
+      "encode": "lz4 -12 --force {input} {output}",
+      "decode": "lz4 -d --force {input} {output}",
+      "binary_sha256": null
+    },
+    {
+      "id": "store",
+      "applies_to": [
+        "all"
+      ],
+      "repository": "in-tree deterministic adapter",
+      "revision": null,
+      "license": "MIT",
+      "license_file": "LICENSE",
+      "binary": "build/baselines/numr-store",
+      "build": "cargo build --release --locked --manifest-path native/Cargo.toml --bin numr-store",
+      "encode": "numr-store encode --dtype {dtype} --shape {shape} --input {input} --output {output}",
+      "decode": "numr-store decode --input {input} --output {output}",
+      "binary_sha256": null
+    }
+  ],
+  "baseline_artifact_rule": "Every specialist adapter must emit a self-contained exact-decode artifact and count its complete envelope, type/shape/timestamp metadata, codec payload, padding, checksum, and footer. In-memory payload-bit counters are inadmissible.",
+  "baseline_applicability_rule": "A baseline applies only when its declared track or dtype matches the item. Chimp and Gorilla additionally require a source-provided complete timestamp column; they are ineligible for value-only series, and synthetic timestamps are forbidden. Every declared track must retain at least one applicable specialist plus generic controls.",
+  "toolchain_lock_rule": "Before any measurement, a separate reviewed acquisition lock must bind source archive SHA-256, source tree revision, license digest, compiler and runtime versions, adapter source SHA-256, built binary SHA-256, and the exact expanded command for every baseline. Any null binary_sha256 keeps measurement_authorized false.",
+  "gates": {
+    "training": {
+      "exact_all_items": true,
+      "aggregate_complete_bytes_at_most_fraction_of_strongest_applicable_baseline": 0.94,
+      "each_declared_track_complete_bytes_at_most_fraction_of_strongest_applicable_baseline": 0.94,
+      "maximum_per_item_regression_vs_safe_direct_or_store_fraction": 0.005,
+      "compression_mbps_minimum": 300.0,
+      "decompression_mbps_minimum": 1000.0,
+      "compression_speed_fraction_of_fastest_ratio_baseline_minimum": 0.5,
+      "decompression_speed_fraction_of_fastest_ratio_baseline_minimum": 0.8,
+      "peak_rss_bytes_maximum": 536870912,
+      "stream_chunk_bytes_maximum": 67108864,
+      "two_identical_encoded_repetitions": true,
+      "cross_arch_same_encoded_sha256": true,
+      "cross_arch_cross_decode_exact": true,
+      "corruption_and_truncation_suite": true
+    },
+    "future_validation": {
+      "authorization": "only after training candidate, runner, commands, and gates are frozen",
+      "aggregate_and_each_track_advancement_fraction": 0.06,
+      "no_tuning_or_rerun": true
+    },
+    "future_private_holdout": {
+      "authorization": "only after one clean validation pass and independent protocol review",
+      "aggregate_and_each_track_advancement_fraction": 0.05,
+      "threshold_rationale": "the one-shot independently controlled holdout allows one percentage point for ordinary split variance after the unchanged candidate first clears 6% on training and fresh validation; it is not a retuning allowance",
+      "one_shot": true,
+      "independent_custodian": true
+    }
+  },
+  "timing": {
+    "host": "dedicated pinned Linux x86_64 plus independent arm64 cross-architecture gate",
+    "process": "fresh child process and fresh atomic destination per trial",
+    "warmups_per_item_variant": 1,
+    "measured_rounds": 7,
+    "order": "predeclared alternating Latin-style order",
+    "included": [
+      "startup",
+      "input read",
+      "type and shape validation",
+      "candidate analysis and selector probes",
+      "compression or decompression",
+      "all metadata checksums and indexes",
+      "output write flush and atomic publication",
+      "restored SHA-256 verification"
+    ],
+    "excluded": [
+      "corpus acquisition",
+      "tool compilation"
+    ],
+    "rss": "cold child peak RSS from wait4 or platform-equivalent whole-process accounting"
+  },
+  "required_next_artifacts": [
+    "licensed training manifest",
+    "external baseline acquisition and binary lock",
+    "candidate format specification",
+    "candidate implementation commit and binary digest",
+    "frozen benchmark runner and verifier",
+    "synthetic exactness corruption determinism and cross-architecture tests"
+  ],
+  "results": null
+}

@@ -1,0 +1,141 @@
+{
+  "bindings": {
+    "baseline_public_evidence_sha256": "b28429e3d12542eda21d03d981b9452cba2d4a329252e4876803b62852f1299f",
+    "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+    "bwt_public_evidence_sha256": "ca4706658dab1f23b4becfba80b274b1c57aa488c52fa95e84211c949bfb5eef",
+    "bwt_publication_receipt_sha256": "fc15cf05e538a69c0f2a84043d435b51339d937b6771615888de720f9e30c0f0",
+    "bwt_result_sha256": "ef0c65b19ba6a7a6d5f3a9c439f5b2a5f9b563dec133862b4225b9490723e9fd",
+    "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+    "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+    "structural_public_evidence_sha256": "e7b25f117866983214192183d076ed1cbac74490569653e302308c87ddeb3e97",
+    "structural_results_sha256": "92a29a1e184a04293ce04bfdd05f5e7ba7dd0d7f12873edce3d2926c1628db93",
+    "successor_decision_sha256": "436521a4ef66c2142058abd2806e86f4c52e208877455dcf9353738849da5a7f",
+    "successor_routing_config_sha256": "aacfcafa25363682e001a11f82e002196589ca6cc8855c79b65d4d512077767b"
+  },
+  "claim_ceiling": "Training-only recursive wikitext representation screen. Exact complete candidates are development artifacts, not Axiom wins, validation results, holdout results, independent reproduction, product codecs, novel-algorithm results, or state-of-the-art evidence.",
+  "decision": {
+    "attribution": {
+      "full_must_be_smaller_than_structure_only_basis_points": 50,
+      "integer_test": "full_complete_bytes * 10000 <= structure_only_complete_bytes * 9950",
+      "purpose": "Require at least 0.50% aggregate gain from schema-value columnarization beyond recursive structure alone."
+    },
+    "final_product_gate_reminder": {
+      "maximum_complete_bytes_vs_kanzi_max": 22948948,
+      "minimum_gain_percent": 5.0,
+      "requires_counted_decoder_code_and_state": true
+    },
+    "routing": {
+      "no_signal": "Reject recursive template/schema columnarization on this training split.",
+      "signal_only": "Retain diagnostic evidence; do not admit a codec.",
+      "strong_signal": "Admit only a separately frozen codec prototype; do not claim a product or Axiom win."
+    },
+    "track_gate": {
+      "full_maximum_complete_bytes_to_beat_ts_h1_by_one_percent": 23913590,
+      "item_maximum_complete_bytes": {
+        "enwikibooks-20260701": 12685899,
+        "enwikinews-20260701": 11591672
+      },
+      "kanzi_max_complete_bytes": 24156788,
+      "maximum_item_regression_percent": 0.5,
+      "maximum_peak_rss_bytes": 4294967296,
+      "signal_maximum_complete_bytes": 23915220,
+      "signal_percent": 1.0,
+      "strong_maximum_complete_bytes": 23673652,
+      "strong_percent": 2.0,
+      "ts_h1_complete_bytes": 24155142
+    }
+  },
+  "format": {
+    "backend": {
+      "block": "1g",
+      "codec": "kanzi-max",
+      "jobs": 1,
+      "level": 9
+    },
+    "complete_artifact": {
+      "backend_payload_sha256": true,
+      "backend_payload_size": true,
+      "magic": "AXWK2",
+      "original_sha256": true,
+      "original_size": true,
+      "transform_frame_and_all_tables_permutations_streams_counted": true,
+      "variant_id": true,
+      "version": 1
+    },
+    "transform_frame": {
+      "column_table_order": "lexicographic serialized (template-name,param-key) bytes",
+      "magic": "WKC1",
+      "metadata": "counted preorder invocation and parameter-order stream",
+      "raw_escape": "counted exact bytes",
+      "schema_source": "current input bytes only; no external template database",
+      "version": 1
+    }
+  },
+  "frozen_before_screen_results": true,
+  "measurement": {
+    "jobs": 1,
+    "measured_repetitions": 2,
+    "order_seed": 20260718,
+    "premeasurement_resource_smoke": {
+      "authorized_items_only": [
+        "enwikibooks-20260701",
+        "enwikinews-20260701"
+      ],
+      "backend_encode_and_decode_each_variant": true,
+      "maximum_peak_rss_bytes": 4294967296,
+      "required_before_candidate_trials": true,
+      "transform_encode_and_decode_each_variant": true
+    },
+    "process_memory_limit": {
+      "address_space_limit_bytes": 4294967296,
+      "darwin_behavior": "RLIMIT_AS is not lowered; wait4 peak RSS is measured and the same 4 GiB gate fails closed",
+      "posix_behavior": "RLIMIT_AS is set before exec and wait4 peak RSS is also measured",
+      "unsupported_behavior": "measurement is refused without POSIX wait4 telemetry or resource-limit support"
+    },
+    "timeout_seconds_per_process": 43200,
+    "warmups": 0
+  },
+  "name": "text-source-wk-c1-recursive-template-columnarization-screen-v1",
+  "scanner_limits": {
+    "maximum_field_bytes": 134217728,
+    "maximum_fields_per_template": 1024,
+    "maximum_input_bytes": 2147483648,
+    "maximum_nesting_depth": 64,
+    "maximum_parameter_key_bytes": 4096,
+    "maximum_template_name_bytes": 4096,
+    "maximum_templates": 1000000,
+    "maximum_total_fields": 8000000
+  },
+  "schema_version": 1,
+  "splits": {
+    "out_of_scope_training_not_accessed": [
+      "cpython-3.14.6-source",
+      "typescript-6.0.3-source"
+    ],
+    "reserved_evaluation_not_accessed": [
+      "rust-1.97.1-source",
+      "llvm-22.1.8-source",
+      "enwikiversity-20260701"
+    ],
+    "screen_items": [
+      "enwikibooks-20260701",
+      "enwikinews-20260701"
+    ]
+  },
+  "ts_h1_controls": {
+    "enwikibooks-20260701": 12630261,
+    "enwikinews-20260701": 11524881
+  },
+  "variants": [
+    {
+      "columnarize_values": true,
+      "id": "wk-c1-full-schema-columns",
+      "purpose": "Recursive structure plus data-derived (template,param) value columns."
+    },
+    {
+      "columnarize_values": false,
+      "id": "wk-c1-structure-only",
+      "purpose": "Exact recursive structure ablation with parameter values retained in invocation order."
+    }
+  ]
+}

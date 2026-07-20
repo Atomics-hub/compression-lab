@@ -1,0 +1,198 @@
+name: JLS2 A3 hosted decoded-concurrency attribution
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - .github/workflows/jls2-declared-size-lifetime-a3-attribution.yml
+      - docs/benchmarks/2026-07-20-jls2-declared-size-lifetime-a3-audit-protocol.md
+      - native/Cargo.toml
+      - native/src/bin/clab-jls2-a3-audit.rs
+      - native/src/jls2_a3_audit.rs
+      - scripts/audit-jls2-declared-size-lifetime-a3.py
+      - scripts/verify-jls2-declared-size-lifetime-a3-attribution.py
+      - tests/test_jls2_declared_size_lifetime_a3_attribution.py
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: jls2-declared-size-lifetime-a3-attribution-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  linux-a3-attribution:
+    name: Frozen Linux A3 diagnostic-only preflight
+    runs-on: ubuntu-22.04
+    timeout-minutes: 75
+    env:
+      PYTHONUNBUFFERED: "1"
+      PYTHONPATH: src
+      A2_COMMIT: 0f3377dff647e8a6d99b65d8f8a269687faa8ec6
+      AUTHORIZED_PROTOCOL_COMMIT: fc3f44e2bc595afeafb2f0848122ccaa9ddc9905
+      AUDIT_CARGO_TOML_SHA256: 984a69ab00314eaef3659fbc7642c0ea738f7d19d3895cf6530738278691c707
+      EVIDENCE_DIR: jls2-declared-size-lifetime-a3-attribution
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12.13"
+          cache: pip
+
+      - name: Install verification tools
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Enforce diagnostic-only A3 change boundary
+        shell: bash
+        run: |
+          # A2 is intentionally not assumed to be an ancestor of this research
+          # branch. Its immutable tree and binary are checked out and bound below.
+          git cat-file -e "$A2_COMMIT^{commit}"
+          git merge-base --is-ancestor "$AUTHORIZED_PROTOCOL_COMMIT" HEAD
+          for file in \
+            native/src/lib.rs \
+            native/src/jls2.rs \
+            native/src/bin/clab-jls2.rs \
+            native/Cargo.lock
+          do
+            test "$(git show "$A2_COMMIT:$file" | sha256sum | cut -d' ' -f1)" = \
+              "$(sha256sum "$file" | cut -d' ' -f1)"
+          done
+          test "$(sha256sum native/Cargo.toml | cut -d' ' -f1)" = \
+            "$AUDIT_CARGO_TOML_SHA256"
+          git diff --check
+
+      - name: Verify frozen runner and diagnostic build
+        run: |
+          cargo fmt --manifest-path native/Cargo.toml --all -- --check
+          cargo clippy --manifest-path native/Cargo.toml --all-targets --features jls2-a3-audit --locked -- -D warnings
+          cargo test --manifest-path native/Cargo.toml --release --features jls2-a3-audit --locked
+          python -m unittest \
+            tests.test_jls2_declared_size_lifetime_a3_attribution \
+            tests.test_jls2_native_decoder \
+            tests.test_jls2_context_reuse_benchmark \
+            tests.test_jls2_context_reuse_inline_single_worker_a2_benchmark \
+            -v
+          ruff check \
+            scripts/audit-jls2-declared-size-lifetime-a3.py \
+            scripts/verify-jls2-declared-size-lifetime-a3-attribution.py \
+            tests/test_jls2_declared_size_lifetime_a3_attribution.py
+
+      - name: Fetch licensed development ranges only
+        run: |
+          python scripts/fetch-clue-json-corpus.py \
+            --split development \
+            --output "$RUNNER_TEMP/clue-development" \
+            --cache "$RUNNER_TEMP/clue-cache"
+
+      - name: Build exact A2 diagnostic worktree
+        shell: bash
+        run: |
+          git worktree add --detach "$RUNNER_TEMP/a2-audit" "$A2_COMMIT"
+          test "$(git -C "$RUNNER_TEMP/a2-audit" rev-parse HEAD)" = "$A2_COMMIT"
+          cp native/src/bin/clab-jls2-a3-audit.rs \
+            "$RUNNER_TEMP/a2-audit/native/src/bin/clab-jls2-a3-audit.rs"
+          cp native/src/jls2_a3_audit.rs \
+            "$RUNNER_TEMP/a2-audit/native/src/jls2_a3_audit.rs"
+          cp native/Cargo.toml "$RUNNER_TEMP/a2-audit/native/Cargo.toml"
+          cargo build --release --locked \
+            --manifest-path "$RUNNER_TEMP/a2-audit/native/Cargo.toml" \
+            --bin clab-jls2
+          test "$(sha256sum "$RUNNER_TEMP/a2-audit/native/target/release/clab-jls2" | cut -d' ' -f1)" = \
+            "c67e9c9b1902414c2b2e67991631d4cd065041242e6dd39392d673da2ca752fd"
+          cargo build --release --locked \
+            --manifest-path "$RUNNER_TEMP/a2-audit/native/Cargo.toml" \
+            --features jls2-a3-audit \
+            --bin clab-jls2-a3-audit
+
+      - name: Run frozen hosted attribution preflight
+        id: attribution
+        shell: bash
+        working-directory: ${{ runner.temp }}/a2-audit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/$EVIDENCE_DIR"
+          job_id="$(
+            gh api "/repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/attempts/$GITHUB_RUN_ATTEMPT/jobs" \
+              --jq '.jobs[] | select(.name == "Frozen Linux A3 diagnostic-only preflight") | .id'
+          )"
+          test -n "$job_id"
+          set +e
+          python "$GITHUB_WORKSPACE/scripts/audit-jls2-declared-size-lifetime-a3.py" \
+            --corpus "$RUNNER_TEMP/clue-development" \
+            --audit-binary native/target/release/clab-jls2-a3-audit \
+            --a2-binary native/target/release/clab-jls2 \
+            --output "$RUNNER_TEMP/$EVIDENCE_DIR/results.json" \
+            --run-id "$GITHUB_RUN_ID" \
+            --job-id "$job_id" \
+            --run-attempt "$GITHUB_RUN_ATTEMPT" \
+            2>&1 | tee "$RUNNER_TEMP/$EVIDENCE_DIR/attribution.log"
+          status=${PIPESTATUS[0]}
+          echo "exit_code=$status" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Verify strict A3 artifact schema
+        if: always()
+        shell: bash
+        run: |
+          if test -f "$RUNNER_TEMP/$EVIDENCE_DIR/results.json"; then
+            python scripts/verify-jls2-declared-size-lifetime-a3-attribution.py \
+              "$RUNNER_TEMP/$EVIDENCE_DIR/results.json"
+          fi
+
+      - name: Capture bound provenance and detached digest
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/$EVIDENCE_DIR"
+          {
+            echo "experiment=jls2-declared-size-lifetime-a3-attribution"
+            echo "run_id=$GITHUB_RUN_ID"
+            echo "job_id=$GITHUB_JOB"
+            echo "run_attempt=$GITHUB_RUN_ATTEMPT"
+            echo "audit_commit=$(git rev-parse HEAD)"
+            echo "a2_commit=$A2_COMMIT"
+            uname -a
+            lscpu
+            free -b
+            getconf GNU_LIBC_VERSION
+            python --version
+            rustc --version
+            cargo --version
+            cargo tree --manifest-path native/Cargo.toml --locked
+            sha256sum native/Cargo.lock
+            sha256sum scripts/audit-jls2-declared-size-lifetime-a3.py
+            sha256sum scripts/verify-jls2-declared-size-lifetime-a3-attribution.py
+            sha256sum .github/workflows/jls2-declared-size-lifetime-a3-attribution.yml
+            sha256sum "$RUNNER_TEMP/a2-audit/native/target/release/clab-jls2-a3-audit"
+            sha256sum "$RUNNER_TEMP/a2-audit/native/target/release/clab-jls2"
+            git diff --stat "$A2_COMMIT"..HEAD
+          } > "$RUNNER_TEMP/$EVIDENCE_DIR/provenance.txt"
+          if test -f "$RUNNER_TEMP/$EVIDENCE_DIR/results.json"; then
+            sha256sum "$RUNNER_TEMP/$EVIDENCE_DIR/results.json" \
+              > "$RUNNER_TEMP/$EVIDENCE_DIR/results.sha256"
+          fi
+
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: jls2-declared-size-lifetime-a3-attribution-${{ github.run_id }}
+          path: ${{ runner.temp }}/jls2-declared-size-lifetime-a3-attribution
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Enforce frozen attribution result
+        if: always()
+        run: |
+          status="${{ steps.attribution.outputs.exit_code }}"
+          test -n "$status"
+          exit "$status"

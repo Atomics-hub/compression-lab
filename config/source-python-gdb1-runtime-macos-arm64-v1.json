@@ -1,0 +1,397 @@
+{
+  "archive": {
+    "filename": "cpython-3.12.12+20251028-aarch64-apple-darwin-install_only_stripped.tar.gz",
+    "sha256": "194997bc8cc08f1ed19a7e6a72544d8ce6688ef5e8969d61de2848aeb68fbf6c",
+    "size_bytes": 16722813
+  },
+  "claim_ceiling": "Runtime distribution identity only; no corpus access or measurement.",
+  "critical_members": {
+    "python/bin/python3.12": {
+      "bytes": 49968,
+      "mode": 509,
+      "path": "python/bin/python3.12",
+      "sha256": "06002b7deb221e0e15086843b150ffa3886e6f787dcf120f9511b999d5540691",
+      "type": "file"
+    },
+    "python/lib/python3.12/LICENSE.txt": {
+      "bytes": 13936,
+      "mode": 436,
+      "path": "python/lib/python3.12/LICENSE.txt",
+      "sha256": "3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf",
+      "type": "file"
+    }
+  },
+  "external_system_dependencies": [
+    "/System/Library/Frameworks/AppKit.framework/Versions/C/AppKit",
+    "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/ApplicationServices",
+    "/System/Library/Frameworks/Carbon.framework/Versions/A/Carbon",
+    "/System/Library/Frameworks/Cocoa.framework/Versions/A/Cocoa",
+    "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+    "/System/Library/Frameworks/CoreGraphics.framework/Versions/A/CoreGraphics",
+    "/System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices",
+    "/System/Library/Frameworks/CoreText.framework/Versions/A/CoreText",
+    "/System/Library/Frameworks/Foundation.framework/Versions/C/Foundation",
+    "/System/Library/Frameworks/IOKit.framework/Versions/A/IOKit",
+    "/System/Library/Frameworks/QuartzCore.framework/Versions/A/QuartzCore",
+    "/System/Library/Frameworks/SystemConfiguration.framework/Versions/A/SystemConfiguration",
+    "/System/Library/Frameworks/UniformTypeIdentifiers.framework/Versions/A/UniformTypeIdentifiers",
+    "/usr/lib/libSystem.B.dylib",
+    "/usr/lib/libedit.3.dylib",
+    "/usr/lib/libncurses.5.4.dylib",
+    "/usr/lib/libobjc.A.dylib",
+    "/usr/lib/libpanel.5.4.dylib",
+    "/usr/lib/libz.1.dylib",
+    "@executable_path/../lib/libpython3.12.dylib",
+    "@rpath/libtcl8.6.dylib",
+    "@rpath/libtk8.6.dylib"
+  ],
+  "inventory": {
+    "directory_count": 0,
+    "hardlink_count": 0,
+    "manifest_sha256": "ef0b981779c2e793b19a7ee66371ef9c5cea60bd34a82a6c99c9e0a39700e0ef",
+    "member_count": 1869,
+    "regular_file_bytes": 46443288,
+    "regular_file_count": 1860,
+    "symlink_count": 9
+  },
+  "licenses": {
+    "manifest_sha256": "72077c6f3b1b1ee965e416fdc3fa17a3b117af3d78fee52c556ffb0d82a7f9e7",
+    "members": [
+      {
+        "bytes": 13936,
+        "path": "python/lib/python3.12/LICENSE.txt",
+        "sha256": "3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf"
+      },
+      {
+        "bytes": 1093,
+        "path": "python/lib/python3.12/site-packages/pip-25.3.dist-info/licenses/LICENSE.txt",
+        "sha256": "634300a669d49aeae65b12c6c48c924c51a4cdf3d1ff086dc3456dc8bcaa2104"
+      },
+      {
+        "bytes": 558,
+        "path": "python/lib/python3.12/site-packages/pip-25.3.dist-info/licenses/src/pip/_vendor/cachecontrol/LICENSE.txt",
+        "sha256": "86eeee87be2a43f3ff1f56496f451f69243926f025fedbb033666c304c4c161b"
+      },
+      {
+        "bytes": 989,
+        "path": "python/lib/python3.12/site-packages/pip-25.3.dist-info/licenses/src/pip/_vendor/certifi/LICENSE",
+        "sha256": "e93716da6b9c0d5a4a1df60fe695b370f0695603d21f6f83f053e42cfc10caf7"
+      },
+      {
+        "bytes": 1099,
+        "path": "python/lib/python3.12/site-packages/pip-25.3.dist-info/licenses/src/pip/_vendor/dependency_groups/LICENSE.txt",
+        "sha256": "1ab36e3e2a4ba8631625384f87e9e091db1faed034c5b23325b3239abf2cc525"
+      },
+      {
+        "bytes": 14531,
+        "path": "python/lib/python3.12/site-packages/pip-25.3.dist-info/licenses/src/pip/_vendor/distlib/LICENSE.txt",
+        "sha256": "808e10c8a6ab8deb149ff9b3fb19f447a808094606d712a9ca57fead3552599d"
+      },
+      {
+        "bytes": 11325,
+        "path": "python/lib/python3.12/site-packages/pip-25.3.dist-info/licenses/src/pip/_vendor/distro/LICENSE",
+        "sha256": "cb5e8e7e5f4a3988e1063c142c60dc2df75605f4c46515e776e3aca6df976e14"
+      },
+      {
+        "bytes": 1541,
+        "path": "python/lib/python3.12/site-packages/pip-25.3.dist-info/licenses/src/pip/_vendor/idna/LICENSE.md",
+        "sha256": "a59f0b0ef3635874109a4461ca44ff7a70d50696e814767bfaf721d4c9b0db0f"
+      },
+      {
+        "bytes": 614,
+        "path": "python/lib/python3.12/site-packages/pip-25.3.dist-info/licenses/src/pip/_vendor/msgpack/COPYING",
+        "sha256": "492dedba85da5872f78e6091bcd1fea474d660d35acb4dee964b8aab3f007427"
+      },
+      {
+        "bytes": 197,
+        "path": "python/lib/python3.12/site-packages/pip-25.3.dist-info/licenses/src/pip/_vendor/packaging/LICENSE",
+        "sha256": "cad1ef5bd340d73e074ba614d26f7deaca5c7940c3d8c34852e65c4909686c48"
+      },
+      {
+        "bytes": 10174,
+        "path": "python/lib/python3.12/site-packages/pip-25.3.dist-info/licenses/src/pip/_vendor/packaging/LICENSE.APACHE",
+        "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594"
+      },
+      {
+        "bytes": 1344,
+        "path": "python/lib/python3.12/site-packages/pip-25.3.dist-info/licenses/src/pip/_vendor/packaging/LICENSE.BSD",
+        "sha256": "b70e7e9b742f1cc6f948b34c16aa39ffece94196364bc88ff0d2180f0028fac5"
+      },
+      {
+        "bytes": 1023,
+        "path": "python/lib/python3.12/site-packages/pip-25.3.dist-info/licenses/src/pip/_vendor/pkg_resources/LICENSE",
+        "sha256": "86da0f01aeae46348a3c3d465195dc1ceccde79f79e87769a64b8da04b2a4741"
+      },
+      {
+        "bytes": 1089,
+        "path": "python/lib/python3.12/site-packages/pip-25.3.dist-info/licenses/src/pip/_vendor/platformdirs/LICENSE",
+        "sha256": "29e0fd62e929850e86eb28c3fdccf0cefdf4fa94879011cffb3d0d4bed6d4db6"
+      },
+      {
+        "bytes": 1331,
+        "path": "python/lib/python3.12/site-packages/pip-25.3.dist-info/licenses/src/pip/_vendor/pygments/LICENSE",
+        "sha256": "a9d66f1d526df02e29dce73436d34e56e8632f46c275bbdffc70569e882f9f17"
+      },
+      {
+        "bytes": 1081,
+        "path": "python/lib/python3.12/site-packages/pip-25.3.dist-info/licenses/src/pip/_vendor/pyproject_hooks/LICENSE",
+        "sha256": "1b22b049b5267d6dfc23a67bf4a84d8ec04b9fdfb1a51d360e42b4342c8b4154"
+      },
+      {
+        "bytes": 10142,
+        "path": "python/lib/python3.12/site-packages/pip-25.3.dist-info/licenses/src/pip/_vendor/requests/LICENSE",
+        "sha256": "09e8a9bcec8067104652c168685ab0931e7868f9c8284b66f5ae6edae5f1130b"
+      },
+      {
+        "bytes": 751,
+        "path": "python/lib/python3.12/site-packages/pip-25.3.dist-info/licenses/src/pip/_vendor/resolvelib/LICENSE",
+        "sha256": "f388fd38cad13112c1dc0f669bbe80e7f84541edbafb72f3030d2ca7642c3c9d"
+      },
+      {
+        "bytes": 1056,
+        "path": "python/lib/python3.12/site-packages/pip-25.3.dist-info/licenses/src/pip/_vendor/rich/LICENSE",
+        "sha256": "deed7c17a4318158190a3ea239cc879a5a50271cebb98ae7025f48fbe58dca15"
+      },
+      {
+        "bytes": 1072,
+        "path": "python/lib/python3.12/site-packages/pip-25.3.dist-info/licenses/src/pip/_vendor/tomli/LICENSE",
+        "sha256": "b80816b0d530b8accb4c2211783790984a6e3b61922c2b5ee92f3372ab2742fe"
+      },
+      {
+        "bytes": 1072,
+        "path": "python/lib/python3.12/site-packages/pip-25.3.dist-info/licenses/src/pip/_vendor/tomli_w/LICENSE",
+        "sha256": "b80816b0d530b8accb4c2211783790984a6e3b61922c2b5ee92f3372ab2742fe"
+      },
+      {
+        "bytes": 1086,
+        "path": "python/lib/python3.12/site-packages/pip-25.3.dist-info/licenses/src/pip/_vendor/truststore/LICENSE",
+        "sha256": "33be7b7e8fa4fd19b1760e1a8ed8a668bdab852c91b692dd41424bcb725a9fca"
+      },
+      {
+        "bytes": 1115,
+        "path": "python/lib/python3.12/site-packages/pip-25.3.dist-info/licenses/src/pip/_vendor/urllib3/LICENSE.txt",
+        "sha256": "c37bf186e27cf9dbe9619e55edfe3cea7b30091ceb3da63c7dacbe0e6d77907b"
+      },
+      {
+        "bytes": 558,
+        "path": "python/lib/python3.12/site-packages/pip/_vendor/cachecontrol/LICENSE.txt",
+        "sha256": "86eeee87be2a43f3ff1f56496f451f69243926f025fedbb033666c304c4c161b"
+      },
+      {
+        "bytes": 989,
+        "path": "python/lib/python3.12/site-packages/pip/_vendor/certifi/LICENSE",
+        "sha256": "e93716da6b9c0d5a4a1df60fe695b370f0695603d21f6f83f053e42cfc10caf7"
+      },
+      {
+        "bytes": 1099,
+        "path": "python/lib/python3.12/site-packages/pip/_vendor/dependency_groups/LICENSE.txt",
+        "sha256": "1ab36e3e2a4ba8631625384f87e9e091db1faed034c5b23325b3239abf2cc525"
+      },
+      {
+        "bytes": 14531,
+        "path": "python/lib/python3.12/site-packages/pip/_vendor/distlib/LICENSE.txt",
+        "sha256": "808e10c8a6ab8deb149ff9b3fb19f447a808094606d712a9ca57fead3552599d"
+      },
+      {
+        "bytes": 11325,
+        "path": "python/lib/python3.12/site-packages/pip/_vendor/distro/LICENSE",
+        "sha256": "cb5e8e7e5f4a3988e1063c142c60dc2df75605f4c46515e776e3aca6df976e14"
+      },
+      {
+        "bytes": 1541,
+        "path": "python/lib/python3.12/site-packages/pip/_vendor/idna/LICENSE.md",
+        "sha256": "a59f0b0ef3635874109a4461ca44ff7a70d50696e814767bfaf721d4c9b0db0f"
+      },
+      {
+        "bytes": 614,
+        "path": "python/lib/python3.12/site-packages/pip/_vendor/msgpack/COPYING",
+        "sha256": "492dedba85da5872f78e6091bcd1fea474d660d35acb4dee964b8aab3f007427"
+      },
+      {
+        "bytes": 197,
+        "path": "python/lib/python3.12/site-packages/pip/_vendor/packaging/LICENSE",
+        "sha256": "cad1ef5bd340d73e074ba614d26f7deaca5c7940c3d8c34852e65c4909686c48"
+      },
+      {
+        "bytes": 10174,
+        "path": "python/lib/python3.12/site-packages/pip/_vendor/packaging/LICENSE.APACHE",
+        "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594"
+      },
+      {
+        "bytes": 1344,
+        "path": "python/lib/python3.12/site-packages/pip/_vendor/packaging/LICENSE.BSD",
+        "sha256": "b70e7e9b742f1cc6f948b34c16aa39ffece94196364bc88ff0d2180f0028fac5"
+      },
+      {
+        "bytes": 1023,
+        "path": "python/lib/python3.12/site-packages/pip/_vendor/pkg_resources/LICENSE",
+        "sha256": "86da0f01aeae46348a3c3d465195dc1ceccde79f79e87769a64b8da04b2a4741"
+      },
+      {
+        "bytes": 1089,
+        "path": "python/lib/python3.12/site-packages/pip/_vendor/platformdirs/LICENSE",
+        "sha256": "29e0fd62e929850e86eb28c3fdccf0cefdf4fa94879011cffb3d0d4bed6d4db6"
+      },
+      {
+        "bytes": 1331,
+        "path": "python/lib/python3.12/site-packages/pip/_vendor/pygments/LICENSE",
+        "sha256": "a9d66f1d526df02e29dce73436d34e56e8632f46c275bbdffc70569e882f9f17"
+      },
+      {
+        "bytes": 1081,
+        "path": "python/lib/python3.12/site-packages/pip/_vendor/pyproject_hooks/LICENSE",
+        "sha256": "1b22b049b5267d6dfc23a67bf4a84d8ec04b9fdfb1a51d360e42b4342c8b4154"
+      },
+      {
+        "bytes": 10142,
+        "path": "python/lib/python3.12/site-packages/pip/_vendor/requests/LICENSE",
+        "sha256": "09e8a9bcec8067104652c168685ab0931e7868f9c8284b66f5ae6edae5f1130b"
+      },
+      {
+        "bytes": 751,
+        "path": "python/lib/python3.12/site-packages/pip/_vendor/resolvelib/LICENSE",
+        "sha256": "f388fd38cad13112c1dc0f669bbe80e7f84541edbafb72f3030d2ca7642c3c9d"
+      },
+      {
+        "bytes": 1056,
+        "path": "python/lib/python3.12/site-packages/pip/_vendor/rich/LICENSE",
+        "sha256": "deed7c17a4318158190a3ea239cc879a5a50271cebb98ae7025f48fbe58dca15"
+      },
+      {
+        "bytes": 1072,
+        "path": "python/lib/python3.12/site-packages/pip/_vendor/tomli/LICENSE",
+        "sha256": "b80816b0d530b8accb4c2211783790984a6e3b61922c2b5ee92f3372ab2742fe"
+      },
+      {
+        "bytes": 1072,
+        "path": "python/lib/python3.12/site-packages/pip/_vendor/tomli_w/LICENSE",
+        "sha256": "b80816b0d530b8accb4c2211783790984a6e3b61922c2b5ee92f3372ab2742fe"
+      },
+      {
+        "bytes": 1086,
+        "path": "python/lib/python3.12/site-packages/pip/_vendor/truststore/LICENSE",
+        "sha256": "33be7b7e8fa4fd19b1760e1a8ed8a668bdab852c91b692dd41424bcb725a9fca"
+      },
+      {
+        "bytes": 1115,
+        "path": "python/lib/python3.12/site-packages/pip/_vendor/urllib3/LICENSE.txt",
+        "sha256": "c37bf186e27cf9dbe9619e55edfe3cea7b30091ceb3da63c7dacbe0e6d77907b"
+      },
+      {
+        "bytes": 2267,
+        "path": "python/lib/tk8.6/demos/license.terms",
+        "sha256": "2cde822b93ca16ae535c954b7dfe658b4ad10df2a193628d1b358f1765e8b198"
+      }
+    ]
+  },
+  "name": "source-python-gdb1-runtime-inventory-v1",
+  "native": {
+    "manifest_sha256": "1f4364af0660ad9b3a62899319458c406cc1286833713ca3f6702787b555757e",
+    "object_count": 9,
+    "records": [
+      {
+        "dependencies": [
+          "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+          "/usr/lib/libSystem.B.dylib",
+          "@executable_path/../lib/libpython3.12.dylib"
+        ],
+        "format": "mach-o-64-little",
+        "path": "python/bin/python3.12",
+        "sha256": "06002b7deb221e0e15086843b150ffa3886e6f787dcf120f9511b999d5540691"
+      },
+      {
+        "dependencies": [
+          "/usr/lib/libSystem.B.dylib"
+        ],
+        "format": "mach-o-64-little",
+        "path": "python/lib/itcl4.2.4/libitcl4.2.4.dylib",
+        "sha256": "0d12fc9c5780028af53abb26d28f21f95ec951ed443cdc4d3c0c6a3ded5570db"
+      },
+      {
+        "dependencies": [
+          "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+          "/System/Library/Frameworks/SystemConfiguration.framework/Versions/A/SystemConfiguration",
+          "/usr/lib/libSystem.B.dylib",
+          "/usr/lib/libedit.3.dylib",
+          "/usr/lib/libncurses.5.4.dylib",
+          "/usr/lib/libpanel.5.4.dylib",
+          "/usr/lib/libz.1.dylib"
+        ],
+        "format": "mach-o-64-little",
+        "path": "python/lib/libpython3.12.dylib",
+        "sha256": "eddee4828a730c1c9a7ee80ba30b3c26d0988b9ad6f3ee7f1f85c9d9a33db29f"
+      },
+      {
+        "dependencies": [
+          "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+          "/usr/lib/libSystem.B.dylib"
+        ],
+        "format": "mach-o-64-little",
+        "path": "python/lib/libtcl8.6.dylib",
+        "sha256": "3821563004ea52075455e92929217baeedf5aeb21007c79f7c62cd9ff542f5df"
+      },
+      {
+        "dependencies": [
+          "/System/Library/Frameworks/AppKit.framework/Versions/C/AppKit",
+          "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/ApplicationServices",
+          "/System/Library/Frameworks/Carbon.framework/Versions/A/Carbon",
+          "/System/Library/Frameworks/Cocoa.framework/Versions/A/Cocoa",
+          "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+          "/System/Library/Frameworks/CoreGraphics.framework/Versions/A/CoreGraphics",
+          "/System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices",
+          "/System/Library/Frameworks/CoreText.framework/Versions/A/CoreText",
+          "/System/Library/Frameworks/Foundation.framework/Versions/C/Foundation",
+          "/System/Library/Frameworks/IOKit.framework/Versions/A/IOKit",
+          "/System/Library/Frameworks/QuartzCore.framework/Versions/A/QuartzCore",
+          "/System/Library/Frameworks/UniformTypeIdentifiers.framework/Versions/A/UniformTypeIdentifiers",
+          "/usr/lib/libSystem.B.dylib",
+          "/usr/lib/libobjc.A.dylib"
+        ],
+        "format": "mach-o-64-little",
+        "path": "python/lib/libtk8.6.dylib",
+        "sha256": "78e4c2e121cf0ad68a23b1ee46e0f9608ce01fea877e582288071db1c9a96497"
+      },
+      {
+        "dependencies": [
+          "/usr/lib/libSystem.B.dylib"
+        ],
+        "format": "mach-o-64-little",
+        "path": "python/lib/python3.12/lib-dynload/_crypt.cpython-312-darwin.so",
+        "sha256": "276b5c6d448d623293b910e00629822b19a792d153eb04e062c18bfae1e591e9"
+      },
+      {
+        "dependencies": [
+          "/usr/lib/libSystem.B.dylib"
+        ],
+        "format": "mach-o-64-little",
+        "path": "python/lib/python3.12/lib-dynload/_ctypes_test.cpython-312-darwin.so",
+        "sha256": "c2cccdbe4fc1d4bf81ab7f19ff89e9934d1fe1c10a500eb2b018236256831acd"
+      },
+      {
+        "dependencies": [
+          "/usr/lib/libSystem.B.dylib",
+          "@rpath/libtcl8.6.dylib",
+          "@rpath/libtk8.6.dylib"
+        ],
+        "format": "mach-o-64-little",
+        "path": "python/lib/python3.12/lib-dynload/_tkinter.cpython-312-darwin.so",
+        "sha256": "641e5089d5dcb54be6a65356dd7bce71cd54a61cd6003f63197df438a2bac35a"
+      },
+      {
+        "dependencies": [
+          "/usr/lib/libSystem.B.dylib"
+        ],
+        "format": "mach-o-64-little",
+        "path": "python/lib/thread2.8.9/libthread2.8.9.dylib",
+        "sha256": "a2c521035bf5f5c97c929f422e0d7280b04ffbab99d32df095f01bfe2991d152"
+      }
+    ]
+  },
+  "schema_version": 1,
+  "stdlib": {
+    "manifest_sha256": "73c7704665392bf8164d2adc9a87500e36a3cb5697fdbfc39b3f309bb43cc761",
+    "member_count": 749,
+    "regular_file_bytes": 14112289
+  },
+  "target_id": "cpython-3.12.12-macos-arm64"
+}

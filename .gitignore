@@ -1,6 +1,8 @@
 __pycache__/
 *.py[cod]
 .venv/
+.baseline-tools/
+.research-tools/
 corpora/
 runs/
 dist/

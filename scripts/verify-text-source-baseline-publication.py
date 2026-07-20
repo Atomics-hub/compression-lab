@@ -1,0 +1,167 @@
+#!/usr/bin/env python3
+"""Verify a checked-in text/source baseline publication without private run files."""
+
+from __future__ import annotations
+
+import argparse
+import importlib.util
+import json
+from pathlib import Path
+from types import ModuleType
+from typing import Any
+from xml.etree import ElementTree
+
+
+REPOSITORY = Path(__file__).resolve().parents[1]
+DEFAULT_PUBLICATION = (
+    REPOSITORY / "runs" / "text-source-development-baseline-census-v1" / "publication"
+)
+EXPECTED_FILES = {
+    "README.md",
+    "comparison.json",
+    "comparison.svg",
+    "evidence.json",
+    "receipt.json",
+}
+
+
+def load_script(name: str, path: Path) -> ModuleType:
+    spec = importlib.util.spec_from_file_location(name, path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"could not load {path.name}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+PUBLICATION = load_script(
+    "text_source_baseline_publication_verifier_dependency",
+    REPOSITORY / "scripts" / "publish-text-source-baseline-census.py",
+)
+
+
+def read_canonical_json(path: Path) -> dict[str, Any]:
+    raw = path.read_bytes()
+    value = json.loads(raw)
+    if not isinstance(value, dict) or raw != PUBLICATION.json_bytes(value):
+        raise ValueError(f"publication artifact is not canonical JSON: {path.name}")
+    return value
+
+
+def verify(publication: Path) -> dict[str, Any]:
+    if publication.is_symlink() or not publication.is_dir():
+        raise ValueError("publication must be an ordinary directory")
+    observed = {path.name for path in publication.iterdir()}
+    if observed != EXPECTED_FILES:
+        raise ValueError("publication file roster is invalid")
+    if any(path.is_symlink() or not path.is_file() for path in publication.iterdir()):
+        raise ValueError("publication contains a non-ordinary artifact")
+
+    receipt = read_canonical_json(publication / "receipt.json")
+    comparison = read_canonical_json(publication / "comparison.json")
+    evidence = read_canonical_json(publication / "evidence.json")
+    if (
+        type(receipt.get("schema_version")) is not int
+        or receipt["schema_version"] != 1
+        or receipt.get("name")
+        != "text-source-development-practical-baseline-publication-receipt-v1"
+        or set(receipt.get("artifacts", {})) != EXPECTED_FILES - {"receipt.json"}
+    ):
+        raise ValueError("publication receipt identity is invalid")
+    for name, digest in receipt["artifacts"].items():
+        if (
+            not PUBLICATION.is_lower_hex(digest, 64)
+            or PUBLICATION.sha256_file(publication / name) != digest
+        ):
+            raise ValueError(f"publication artifact digest differs: {name}")
+    if (
+        comparison.get("name")
+        != "text-source-development-practical-baseline-publication-v1"
+        or receipt.get("results_sha256") != comparison.get("results_sha256")
+        or evidence.get("raw_results_sha256") != comparison.get("results_sha256")
+        or receipt.get("trial_receipts_manifest_sha256")
+        != comparison.get("trial_receipts_manifest_sha256")
+        or evidence.get("raw_trial_receipts_manifest_sha256")
+        != comparison.get("trial_receipts_manifest_sha256")
+        or receipt.get("public_evidence_sha256")
+        != comparison.get("public_evidence_sha256")
+        or receipt.get("public_evidence_sha256")
+        != PUBLICATION.sha256_file(publication / "evidence.json")
+        or receipt.get("public_trial_receipts_manifest_sha256")
+        != comparison.get("public_trial_receipts_manifest_sha256")
+        or evidence.get("public_trial_receipts_manifest_sha256")
+        != comparison.get("public_trial_receipts_manifest_sha256")
+        or receipt.get("bindings") != comparison.get("bindings")
+        or evidence.get("results", {}).get("bindings") != comparison.get("bindings")
+        or receipt.get("claim_ceiling") != comparison.get("claim_ceiling")
+    ):
+        raise ValueError("publication cross-artifact binding is inconsistent")
+    PUBLICATION.validate_public_evidence(evidence)
+    expected_comparison = PUBLICATION.derive(
+        evidence["results"],
+        source_sha256=evidence["raw_results_sha256"],
+        trial_receipts_sha256=evidence[
+            "raw_trial_receipts_manifest_sha256"
+        ],
+        public_evidence_sha256=PUBLICATION.sha256_file(
+            publication / "evidence.json"
+        ),
+        public_receipts_sha256=evidence[
+            "public_trial_receipts_manifest_sha256"
+        ],
+    )
+    if comparison != expected_comparison:
+        raise ValueError("publication comparison does not reconstruct from evidence")
+    expected_presentation = {
+        "README.md": PUBLICATION.render_markdown(expected_comparison).encode("utf-8"),
+        "comparison.svg": PUBLICATION.render_svg(expected_comparison).encode("utf-8"),
+    }
+    for name, expected in expected_presentation.items():
+        if (publication / name).read_bytes() != expected:
+            raise ValueError(f"publication presentation does not reconstruct: {name}")
+    expected_artifact_digests = {
+        name: PUBLICATION.sha256_file(publication / name)
+        for name in EXPECTED_FILES - {"receipt.json"}
+    }
+    expected_receipt = {
+        "schema_version": 1,
+        "name": "text-source-development-practical-baseline-publication-receipt-v1",
+        "results_path": "results.json",
+        "results_sha256": expected_comparison["results_sha256"],
+        "trial_receipts_manifest_sha256": expected_comparison[
+            "trial_receipts_manifest_sha256"
+        ],
+        "public_evidence_sha256": expected_comparison["public_evidence_sha256"],
+        "public_trial_receipts_manifest_sha256": expected_comparison[
+            "public_trial_receipts_manifest_sha256"
+        ],
+        "bindings": expected_comparison["bindings"],
+        "artifacts": expected_artifact_digests,
+        "claim_ceiling": expected_comparison["claim_ceiling"],
+    }
+    if receipt != expected_receipt:
+        raise ValueError("publication receipt does not reconstruct")
+    ElementTree.fromstring((publication / "comparison.svg").read_bytes())
+    return {
+        "verified": True,
+        "trial_count": comparison["trial_count"],
+        "results_sha256": comparison["results_sha256"],
+        "public_evidence_sha256": comparison["public_evidence_sha256"],
+        "claim_ceiling": comparison["claim_ceiling"],
+    }
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("publication", nargs="?", type=Path, default=DEFAULT_PUBLICATION)
+    args = parser.parse_args()
+    try:
+        result = verify(args.publication)
+    except (KeyError, OSError, TypeError, ValueError, json.JSONDecodeError) as error:
+        raise SystemExit(f"text/source publication verification failed: {error}") from error
+    print(json.dumps(result, indent=2, sort_keys=True))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

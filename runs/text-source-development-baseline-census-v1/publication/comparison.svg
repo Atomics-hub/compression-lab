@@ -1,0 +1,370 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1224" viewBox="0 0 1500 1224" role="img" aria-labelledby="title desc">
+<title id="title">Text and source practical compression baseline census</title>
+<desc id="desc">Two complete same-host tables compare every practical baseline by compressed size, compression and decompression speed, peak memory, exactness, and determinism. Axiom is explicitly untested.</desc>
+<style>
+text{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;fill:#172033}
+.title{font-size:28px;font-weight:700}.subtitle{font-size:15px;fill:#526078}
+.track{font-size:21px;font-weight:700}.head{font-size:12px;font-weight:700;fill:#526078}
+.label{font-size:13px}.num{font-size:12px;font-variant-numeric:tabular-nums}
+.leader{font-weight:700;fill:#087b52}.note{font-size:13px;fill:#526078}
+.grid{stroke:#d8dee9;stroke-width:1}.bar{fill:#aeb8c8}.best{fill:#13a36f}.store{fill:#657189}
+</style>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text class="title" x="28" y="40">Text/source practical baseline census</text>
+<text class="subtitle" x="28" y="67">Complete artifact bytes · one thread · same host · five measured repetitions · exact + deterministic required</text>
+<text class="subtitle" x="28" y="91">Axiom text/source specialist: UNTESTED · development evidence only · lower size % is better</text>
+<text class="track" x="28" y="126">Source-code bundles</text>
+<text class="subtitle" x="320" y="126">529,449,573 source bytes · leader Kanzi-max</text>
+<text class="head" x="28" y="156">Codec</text>
+<text class="head" x="205" y="156">Size %</text>
+<text class="head" x="605" y="156">Complete bytes</text>
+<text class="head" x="735" y="156">Ratio</text>
+<text class="head" x="815" y="156">C MB/s</text>
+<text class="head" x="905" y="156">D MB/s</text>
+<text class="head" x="1000" y="156">Peak RSS C / D MiB</text>
+<text class="head" x="1175" y="156">Exact / deterministic</text>
+<text class="head" x="1365" y="156">Axiom</text>
+<line class="grid" x1="28" x2="1470" y1="196" y2="196"/>
+<text class="label" x="28" y="187">Store</text>
+<rect class="store" x="205" y="177" width="365.00" height="14" rx="3"/>
+<text class="num" x="578" y="187" text-anchor="end">100.00%</text>
+<text class="num" x="705" y="187" text-anchor="end">529,449,573</text>
+<text class="num" x="790" y="187" text-anchor="end">1.00x</text>
+<text class="num" x="880" y="187" text-anchor="end">598.62</text>
+<text class="num" x="970" y="187" text-anchor="end">936.29</text>
+<text class="num" x="1145" y="187" text-anchor="end">2.1 / 2.2</text>
+<text class="num" x="1260" y="187">yes / yes</text>
+<text class="num" x="1365" y="187">untested</text>
+<line class="grid" x1="28" x2="1470" y1="223" y2="223"/>
+<text class="label" x="28" y="214">LZ4-1</text>
+<rect class="bar" x="205" y="204" width="113.76" height="14" rx="3"/>
+<text class="num" x="578" y="214" text-anchor="end">31.17%</text>
+<text class="num" x="705" y="214" text-anchor="end">165,015,213</text>
+<text class="num" x="790" y="214" text-anchor="end">3.21x</text>
+<text class="num" x="880" y="214" text-anchor="end">782.35</text>
+<text class="num" x="970" y="214" text-anchor="end">524.13</text>
+<text class="num" x="1145" y="214" text-anchor="end">62.2 / 33.1</text>
+<text class="num" x="1260" y="214">yes / yes</text>
+<text class="num" x="1365" y="214">untested</text>
+<line class="grid" x1="28" x2="1470" y1="250" y2="250"/>
+<text class="label" x="28" y="241">gzip-9</text>
+<rect class="bar" x="205" y="231" width="67.79" height="14" rx="3"/>
+<text class="num" x="578" y="241" text-anchor="end">18.57%</text>
+<text class="num" x="705" y="241" text-anchor="end">98,332,593</text>
+<text class="num" x="790" y="241" text-anchor="end">5.38x</text>
+<text class="num" x="880" y="241" text-anchor="end">11.76</text>
+<text class="num" x="970" y="241" text-anchor="end">386.81</text>
+<text class="num" x="1145" y="241" text-anchor="end">1.6 / 1.4</text>
+<text class="num" x="1260" y="241">yes / yes</text>
+<text class="num" x="1365" y="241">untested</text>
+<line class="grid" x1="28" x2="1470" y1="277" y2="277"/>
+<text class="label" x="28" y="268">bzip2-9</text>
+<rect class="bar" x="205" y="258" width="51.90" height="14" rx="3"/>
+<text class="num" x="578" y="268" text-anchor="end">14.22%</text>
+<text class="num" x="705" y="268" text-anchor="end">75,279,437</text>
+<text class="num" x="790" y="268" text-anchor="end">7.03x</text>
+<text class="num" x="880" y="268" text-anchor="end">11.39</text>
+<text class="num" x="970" y="268" text-anchor="end">41.83</text>
+<text class="num" x="1145" y="268" text-anchor="end">8.5 / 4.7</text>
+<text class="num" x="1260" y="268">yes / yes</text>
+<text class="num" x="1365" y="268">untested</text>
+<line class="grid" x1="28" x2="1470" y1="304" y2="304"/>
+<text class="label" x="28" y="295">bzip3-max</text>
+<rect class="bar" x="205" y="285" width="41.25" height="14" rx="3"/>
+<text class="num" x="578" y="295" text-anchor="end">11.30%</text>
+<text class="num" x="705" y="295" text-anchor="end">59,840,101</text>
+<text class="num" x="790" y="295" text-anchor="end">8.85x</text>
+<text class="num" x="880" y="295" text-anchor="end">7.65</text>
+<text class="num" x="970" y="295" text-anchor="end">11.16</text>
+<text class="num" x="1145" y="295" text-anchor="end">2595.8 / 2596.2</text>
+<text class="num" x="1260" y="295">yes / yes</text>
+<text class="num" x="1365" y="295">untested</text>
+<line class="grid" x1="28" x2="1470" y1="331" y2="331"/>
+<text class="label" x="28" y="322">zstd-3</text>
+<rect class="bar" x="205" y="312" width="65.92" height="14" rx="3"/>
+<text class="num" x="578" y="322" text-anchor="end">18.06%</text>
+<text class="num" x="705" y="322" text-anchor="end">95,618,572</text>
+<text class="num" x="790" y="322" text-anchor="end">5.54x</text>
+<text class="num" x="880" y="322" text-anchor="end">119.38</text>
+<text class="num" x="970" y="322" text-anchor="end">370.16</text>
+<text class="num" x="1145" y="322" text-anchor="end">41.6 / 7.8</text>
+<text class="num" x="1260" y="322">yes / yes</text>
+<text class="num" x="1365" y="322">untested</text>
+<line class="grid" x1="28" x2="1470" y1="358" y2="358"/>
+<text class="label" x="28" y="349">zstd-9</text>
+<rect class="bar" x="205" y="339" width="54.96" height="14" rx="3"/>
+<text class="num" x="578" y="349" text-anchor="end">15.06%</text>
+<text class="num" x="705" y="349" text-anchor="end">79,715,660</text>
+<text class="num" x="790" y="349" text-anchor="end">6.64x</text>
+<text class="num" x="880" y="349" text-anchor="end">34.77</text>
+<text class="num" x="970" y="349" text-anchor="end">355.19</text>
+<text class="num" x="1145" y="349" text-anchor="end">83.0 / 9.8</text>
+<text class="num" x="1260" y="349">yes / yes</text>
+<text class="num" x="1365" y="349">untested</text>
+<line class="grid" x1="28" x2="1470" y1="385" y2="385"/>
+<text class="label" x="28" y="376">zstd-19</text>
+<rect class="bar" x="205" y="366" width="45.92" height="14" rx="3"/>
+<text class="num" x="578" y="376" text-anchor="end">12.58%</text>
+<text class="num" x="705" y="376" text-anchor="end">66,615,701</text>
+<text class="num" x="790" y="376" text-anchor="end">7.95x</text>
+<text class="num" x="880" y="376" text-anchor="end">1.63</text>
+<text class="num" x="970" y="376" text-anchor="end">479.46</text>
+<text class="num" x="1145" y="376" text-anchor="end">219.3 / 13.8</text>
+<text class="num" x="1260" y="376">yes / yes</text>
+<text class="num" x="1365" y="376">untested</text>
+<line class="grid" x1="28" x2="1470" y1="412" y2="412"/>
+<text class="label" x="28" y="403">zstd-22 ultra</text>
+<rect class="bar" x="205" y="393" width="43.83" height="14" rx="3"/>
+<text class="num" x="578" y="403" text-anchor="end">12.01%</text>
+<text class="num" x="705" y="403" text-anchor="end">63,584,273</text>
+<text class="num" x="790" y="403" text-anchor="end">8.33x</text>
+<text class="num" x="880" y="403" text-anchor="end">1.35</text>
+<text class="num" x="970" y="403" text-anchor="end">415.26</text>
+<text class="num" x="1145" y="403" text-anchor="end">1017.5 / 133.8</text>
+<text class="num" x="1260" y="403">yes / yes</text>
+<text class="num" x="1365" y="403">untested</text>
+<line class="grid" x1="28" x2="1470" y1="439" y2="439"/>
+<text class="label" x="28" y="430">Brotli-11</text>
+<rect class="bar" x="205" y="420" width="43.93" height="14" rx="3"/>
+<text class="num" x="578" y="430" text-anchor="end">12.04%</text>
+<text class="num" x="705" y="430" text-anchor="end">63,728,402</text>
+<text class="num" x="790" y="430" text-anchor="end">8.31x</text>
+<text class="num" x="880" y="430" text-anchor="end">0.48</text>
+<text class="num" x="970" y="430" text-anchor="end">269.85</text>
+<text class="num" x="1145" y="430" text-anchor="end">292.0 / 20.8</text>
+<text class="num" x="1260" y="430">yes / yes</text>
+<text class="num" x="1365" y="430">untested</text>
+<line class="grid" x1="28" x2="1470" y1="466" y2="466"/>
+<text class="label" x="28" y="457">XZ LZMA2-9e</text>
+<rect class="bar" x="205" y="447" width="42.84" height="14" rx="3"/>
+<text class="num" x="578" y="457" text-anchor="end">11.74%</text>
+<text class="num" x="705" y="457" text-anchor="end">62,145,332</text>
+<text class="num" x="790" y="457" text-anchor="end">8.52x</text>
+<text class="num" x="880" y="457" text-anchor="end">1.16</text>
+<text class="num" x="970" y="457" text-anchor="end">89.34</text>
+<text class="num" x="1145" y="457" text-anchor="end">674.8 / 65.6</text>
+<text class="num" x="1260" y="457">yes / yes</text>
+<text class="num" x="1365" y="457">untested</text>
+<line class="grid" x1="28" x2="1470" y1="493" y2="493"/>
+<text class="label" x="28" y="484">7-Zip LZMA2-9</text>
+<rect class="bar" x="205" y="474" width="43.12" height="14" rx="3"/>
+<text class="num" x="578" y="484" text-anchor="end">11.81%</text>
+<text class="num" x="705" y="484" text-anchor="end">62,545,755</text>
+<text class="num" x="790" y="484" text-anchor="end">8.46x</text>
+<text class="num" x="880" y="484" text-anchor="end">1.24</text>
+<text class="num" x="970" y="484" text-anchor="end">133.48</text>
+<text class="num" x="1145" y="484" text-anchor="end">2562.6 / 297.0</text>
+<text class="num" x="1260" y="484">yes / yes</text>
+<text class="num" x="1365" y="484">untested</text>
+<line class="grid" x1="28" x2="1470" y1="520" y2="520"/>
+<text class="label" x="28" y="511">7-Zip PPMd-9</text>
+<rect class="bar" x="205" y="501" width="40.99" height="14" rx="3"/>
+<text class="num" x="578" y="511" text-anchor="end">11.23%</text>
+<text class="num" x="705" y="511" text-anchor="end">59,457,949</text>
+<text class="num" x="790" y="511" text-anchor="end">8.90x</text>
+<text class="num" x="880" y="511" text-anchor="end">5.68</text>
+<text class="num" x="970" y="511" text-anchor="end">4.91</text>
+<text class="num" x="1145" y="511" text-anchor="end">261.1 / 261.1</text>
+<text class="num" x="1260" y="511">yes / yes</text>
+<text class="num" x="1365" y="511">untested</text>
+<line class="grid" x1="28" x2="1470" y1="547" y2="547"/>
+<text class="leader" x="28" y="538">Kanzi-max</text>
+<rect class="best" x="205" y="528" width="31.40" height="14" rx="3"/>
+<text class="num" x="578" y="538" text-anchor="end">8.60%</text>
+<text class="num" x="705" y="538" text-anchor="end">45,550,471</text>
+<text class="num" x="790" y="538" text-anchor="end">11.62x</text>
+<text class="num" x="880" y="538" text-anchor="end">3.47</text>
+<text class="num" x="970" y="538" text-anchor="end">2.95</text>
+<text class="num" x="1145" y="538" text-anchor="end">1890.5 / 1909.7</text>
+<text class="num" x="1260" y="538">yes / yes</text>
+<text class="num" x="1365" y="538">untested</text>
+<line class="grid" x1="28" x2="1470" y1="574" y2="574"/>
+<text class="label" x="28" y="565">libbsc-max</text>
+<rect class="bar" x="205" y="555" width="40.73" height="14" rx="3"/>
+<text class="num" x="578" y="565" text-anchor="end">11.16%</text>
+<text class="num" x="705" y="565" text-anchor="end">59,077,676</text>
+<text class="num" x="790" y="565" text-anchor="end">8.96x</text>
+<text class="num" x="880" y="565" text-anchor="end">20.31</text>
+<text class="num" x="970" y="565" text-anchor="end">21.27</text>
+<text class="num" x="1145" y="565" text-anchor="end">1377.3 / 1399.0</text>
+<text class="num" x="1260" y="565">yes / yes</text>
+<text class="num" x="1365" y="565">untested</text>
+<text class="track" x="28" y="623">English Wikimedia wikitext</text>
+<text class="subtitle" x="320" y="623">201,311,173 source bytes · leader Kanzi-max</text>
+<text class="head" x="28" y="653">Codec</text>
+<text class="head" x="205" y="653">Size %</text>
+<text class="head" x="605" y="653">Complete bytes</text>
+<text class="head" x="735" y="653">Ratio</text>
+<text class="head" x="815" y="653">C MB/s</text>
+<text class="head" x="905" y="653">D MB/s</text>
+<text class="head" x="1000" y="653">Peak RSS C / D MiB</text>
+<text class="head" x="1175" y="653">Exact / deterministic</text>
+<text class="head" x="1365" y="653">Axiom</text>
+<line class="grid" x1="28" x2="1470" y1="693" y2="693"/>
+<text class="label" x="28" y="684">Store</text>
+<rect class="store" x="205" y="674" width="365.00" height="14" rx="3"/>
+<text class="num" x="578" y="684" text-anchor="end">100.00%</text>
+<text class="num" x="705" y="684" text-anchor="end">201,311,173</text>
+<text class="num" x="790" y="684" text-anchor="end">1.00x</text>
+<text class="num" x="880" y="684" text-anchor="end">399.61</text>
+<text class="num" x="970" y="684" text-anchor="end">1139.30</text>
+<text class="num" x="1145" y="684" text-anchor="end">2.2 / 2.1</text>
+<text class="num" x="1260" y="684">yes / yes</text>
+<text class="num" x="1365" y="684">untested</text>
+<line class="grid" x1="28" x2="1470" y1="720" y2="720"/>
+<text class="label" x="28" y="711">LZ4-1</text>
+<rect class="bar" x="205" y="701" width="188.29" height="14" rx="3"/>
+<text class="num" x="578" y="711" text-anchor="end">51.59%</text>
+<text class="num" x="705" y="711" text-anchor="end">103,846,482</text>
+<text class="num" x="790" y="711" text-anchor="end">1.94x</text>
+<text class="num" x="880" y="711" text-anchor="end">587.85</text>
+<text class="num" x="970" y="711" text-anchor="end">360.58</text>
+<text class="num" x="1145" y="711" text-anchor="end">67.4 / 32.0</text>
+<text class="num" x="1260" y="711">yes / yes</text>
+<text class="num" x="1365" y="711">untested</text>
+<line class="grid" x1="28" x2="1470" y1="747" y2="747"/>
+<text class="label" x="28" y="738">gzip-9</text>
+<rect class="bar" x="205" y="728" width="120.39" height="14" rx="3"/>
+<text class="num" x="578" y="738" text-anchor="end">32.98%</text>
+<text class="num" x="705" y="738" text-anchor="end">66,397,616</text>
+<text class="num" x="790" y="738" text-anchor="end">3.03x</text>
+<text class="num" x="880" y="738" text-anchor="end">14.49</text>
+<text class="num" x="970" y="738" text-anchor="end">283.19</text>
+<text class="num" x="1145" y="738" text-anchor="end">1.6 / 1.4</text>
+<text class="num" x="1260" y="738">yes / yes</text>
+<text class="num" x="1365" y="738">untested</text>
+<line class="grid" x1="28" x2="1470" y1="774" y2="774"/>
+<text class="label" x="28" y="765">bzip2-9</text>
+<rect class="bar" x="205" y="755" width="96.03" height="14" rx="3"/>
+<text class="num" x="578" y="765" text-anchor="end">26.31%</text>
+<text class="num" x="705" y="765" text-anchor="end">52,961,853</text>
+<text class="num" x="790" y="765" text-anchor="end">3.80x</text>
+<text class="num" x="880" y="765" text-anchor="end">10.23</text>
+<text class="num" x="970" y="765" text-anchor="end">26.56</text>
+<text class="num" x="1145" y="765" text-anchor="end">7.6 / 4.7</text>
+<text class="num" x="1260" y="765">yes / yes</text>
+<text class="num" x="1365" y="765">untested</text>
+<line class="grid" x1="28" x2="1470" y1="801" y2="801"/>
+<text class="label" x="28" y="792">bzip3-max</text>
+<rect class="bar" x="205" y="782" width="71.16" height="14" rx="3"/>
+<text class="num" x="578" y="792" text-anchor="end">19.50%</text>
+<text class="num" x="705" y="792" text-anchor="end">39,246,217</text>
+<text class="num" x="790" y="792" text-anchor="end">5.13x</text>
+<text class="num" x="880" y="792" text-anchor="end">5.09</text>
+<text class="num" x="970" y="792" text-anchor="end">6.79</text>
+<text class="num" x="1145" y="792" text-anchor="end">2215.4 / 2215.9</text>
+<text class="num" x="1260" y="792">yes / yes</text>
+<text class="num" x="1365" y="792">untested</text>
+<line class="grid" x1="28" x2="1470" y1="828" y2="828"/>
+<text class="label" x="28" y="819">zstd-3</text>
+<rect class="bar" x="205" y="809" width="114.94" height="14" rx="3"/>
+<text class="num" x="578" y="819" text-anchor="end">31.49%</text>
+<text class="num" x="705" y="819" text-anchor="end">63,392,884</text>
+<text class="num" x="790" y="819" text-anchor="end">3.18x</text>
+<text class="num" x="880" y="819" text-anchor="end">91.31</text>
+<text class="num" x="970" y="819" text-anchor="end">305.06</text>
+<text class="num" x="1145" y="819" text-anchor="end">43.4 / 7.8</text>
+<text class="num" x="1260" y="819">yes / yes</text>
+<text class="num" x="1365" y="819">untested</text>
+<line class="grid" x1="28" x2="1470" y1="855" y2="855"/>
+<text class="label" x="28" y="846">zstd-9</text>
+<rect class="bar" x="205" y="836" width="100.57" height="14" rx="3"/>
+<text class="num" x="578" y="846" text-anchor="end">27.55%</text>
+<text class="num" x="705" y="846" text-anchor="end">55,470,795</text>
+<text class="num" x="790" y="846" text-anchor="end">3.63x</text>
+<text class="num" x="880" y="846" text-anchor="end">30.46</text>
+<text class="num" x="970" y="846" text-anchor="end">390.69</text>
+<text class="num" x="1145" y="846" text-anchor="end">87.9 / 9.8</text>
+<text class="num" x="1260" y="846">yes / yes</text>
+<text class="num" x="1365" y="846">untested</text>
+<line class="grid" x1="28" x2="1470" y1="882" y2="882"/>
+<text class="label" x="28" y="873">zstd-19</text>
+<rect class="bar" x="205" y="863" width="87.22" height="14" rx="3"/>
+<text class="num" x="578" y="873" text-anchor="end">23.90%</text>
+<text class="num" x="705" y="873" text-anchor="end">48,105,758</text>
+<text class="num" x="790" y="873" text-anchor="end">4.18x</text>
+<text class="num" x="880" y="873" text-anchor="end">0.97</text>
+<text class="num" x="970" y="873" text-anchor="end">304.51</text>
+<text class="num" x="1145" y="873" text-anchor="end">165.8 / 13.9</text>
+<text class="num" x="1260" y="873">yes / yes</text>
+<text class="num" x="1365" y="873">untested</text>
+<line class="grid" x1="28" x2="1470" y1="909" y2="909"/>
+<text class="label" x="28" y="900">zstd-22 ultra</text>
+<rect class="bar" x="205" y="890" width="83.84" height="14" rx="3"/>
+<text class="num" x="578" y="900" text-anchor="end">22.97%</text>
+<text class="num" x="705" y="900" text-anchor="end">46,240,875</text>
+<text class="num" x="790" y="900" text-anchor="end">4.35x</text>
+<text class="num" x="880" y="900" text-anchor="end">0.90</text>
+<text class="num" x="970" y="900" text-anchor="end">399.75</text>
+<text class="num" x="1145" y="900" text-anchor="end">725.2 / 69.5</text>
+<text class="num" x="1260" y="900">yes / yes</text>
+<text class="num" x="1365" y="900">untested</text>
+<line class="grid" x1="28" x2="1470" y1="936" y2="936"/>
+<text class="label" x="28" y="927">Brotli-11</text>
+<rect class="bar" x="205" y="917" width="83.88" height="14" rx="3"/>
+<text class="num" x="578" y="927" text-anchor="end">22.98%</text>
+<text class="num" x="705" y="927" text-anchor="end">46,260,763</text>
+<text class="num" x="790" y="927" text-anchor="end">4.35x</text>
+<text class="num" x="880" y="927" text-anchor="end">0.33</text>
+<text class="num" x="970" y="927" text-anchor="end">216.51</text>
+<text class="num" x="1145" y="927" text-anchor="end">348.1 / 19.9</text>
+<text class="num" x="1260" y="927">yes / yes</text>
+<text class="num" x="1365" y="927">untested</text>
+<line class="grid" x1="28" x2="1470" y1="963" y2="963"/>
+<text class="label" x="28" y="954">XZ LZMA2-9e</text>
+<rect class="bar" x="205" y="944" width="82.07" height="14" rx="3"/>
+<text class="num" x="578" y="954" text-anchor="end">22.48%</text>
+<text class="num" x="705" y="954" text-anchor="end">45,264,200</text>
+<text class="num" x="790" y="954" text-anchor="end">4.45x</text>
+<text class="num" x="880" y="954" text-anchor="end">0.93</text>
+<text class="num" x="970" y="954" text-anchor="end">63.72</text>
+<text class="num" x="1145" y="954" text-anchor="end">642.2 / 65.6</text>
+<text class="num" x="1260" y="954">yes / yes</text>
+<text class="num" x="1365" y="954">untested</text>
+<line class="grid" x1="28" x2="1470" y1="990" y2="990"/>
+<text class="label" x="28" y="981">7-Zip LZMA2-9</text>
+<rect class="bar" x="205" y="971" width="82.26" height="14" rx="3"/>
+<text class="num" x="578" y="981" text-anchor="end">22.54%</text>
+<text class="num" x="705" y="981" text-anchor="end">45,368,850</text>
+<text class="num" x="790" y="981" text-anchor="end">4.44x</text>
+<text class="num" x="880" y="981" text-anchor="end">0.94</text>
+<text class="num" x="970" y="981" text-anchor="end">94.58</text>
+<text class="num" x="1145" y="981" text-anchor="end">643.6 / 83.5</text>
+<text class="num" x="1260" y="981">yes / yes</text>
+<text class="num" x="1365" y="981">untested</text>
+<line class="grid" x1="28" x2="1470" y1="1017" y2="1017"/>
+<text class="label" x="28" y="1008">7-Zip PPMd-9</text>
+<rect class="bar" x="205" y="998" width="75.57" height="14" rx="3"/>
+<text class="num" x="578" y="1008" text-anchor="end">20.71%</text>
+<text class="num" x="705" y="1008" text-anchor="end">41,682,047</text>
+<text class="num" x="790" y="1008" text-anchor="end">4.83x</text>
+<text class="num" x="880" y="1008" text-anchor="end">3.54</text>
+<text class="num" x="970" y="1008" text-anchor="end">3.46</text>
+<text class="num" x="1145" y="1008" text-anchor="end">261.0 / 260.1</text>
+<text class="num" x="1260" y="1008">yes / yes</text>
+<text class="num" x="1365" y="1008">untested</text>
+<line class="grid" x1="28" x2="1470" y1="1044" y2="1044"/>
+<text class="leader" x="28" y="1035">Kanzi-max</text>
+<rect class="best" x="205" y="1025" width="63.61" height="14" rx="3"/>
+<text class="num" x="578" y="1035" text-anchor="end">17.43%</text>
+<text class="num" x="705" y="1035" text-anchor="end">35,081,062</text>
+<text class="num" x="790" y="1035" text-anchor="end">5.74x</text>
+<text class="num" x="880" y="1035" text-anchor="end">2.37</text>
+<text class="num" x="970" y="1035" text-anchor="end">2.30</text>
+<text class="num" x="1145" y="1035" text-anchor="end">1529.5 / 1525.8</text>
+<text class="num" x="1260" y="1035">yes / yes</text>
+<text class="num" x="1365" y="1035">untested</text>
+<line class="grid" x1="28" x2="1470" y1="1071" y2="1071"/>
+<text class="label" x="28" y="1062">libbsc-max</text>
+<rect class="bar" x="205" y="1052" width="71.58" height="14" rx="3"/>
+<text class="num" x="578" y="1062" text-anchor="end">19.61%</text>
+<text class="num" x="705" y="1062" text-anchor="end">39,476,840</text>
+<text class="num" x="790" y="1062" text-anchor="end">5.10x</text>
+<text class="num" x="880" y="1062" text-anchor="end">13.71</text>
+<text class="num" x="970" y="1062" text-anchor="end">16.61</text>
+<text class="num" x="1145" y="1062" text-anchor="end">394.4 / 396.4</text>
+<text class="num" x="1260" y="1062">yes / yes</text>
+<text class="num" x="1365" y="1062">untested</text>
+<text class="note" x="28" y="1176">Research-ceiling codecs ZPAQ, paq8px, cmix, and NNCP remain pending; validation and holdout remain sealed.</text>
+<text class="note" x="28" y="1200">This chart establishes the practical development frontier only. It does not claim an Axiom win or state of the art.</text>
+</svg>

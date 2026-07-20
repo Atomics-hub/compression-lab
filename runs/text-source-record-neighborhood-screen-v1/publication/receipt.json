@@ -1,0 +1,27 @@
+{
+  "artifacts": {
+    "README.md": "4508c0238ab446233c03bd30ce1fa8569cf73409ac4e075dbfc379f4115cd6c7",
+    "comparison.json": "a5505d30740f9d33c35aa76ff2e79e05576781ea408f00dd7473cc6bc51423a4",
+    "comparison.svg": "beeabee6641eb5a7d5c0c83e7c76080cdea6b857dc46c8c04feca3bc54f01d45",
+    "evidence.json": "fe2681382da4ce24d721086b2b5b7ca5e7892373dd24cb5c4da2bcc2a82a9194"
+  },
+  "baseline_public_evidence_sha256": "b28429e3d12542eda21d03d981b9452cba2d4a329252e4876803b62852f1299f",
+  "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+  "bindings": {
+    "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+    "config_sha256": "ef968c2a6f2f464438ef4c023e188e2bae8568eba4ccc712ab243f50e52f719c",
+    "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+    "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+    "long_range_result_sha256": "faad7b7736685a30e451cd7fc94f4fde9898b16afa102a0291e418f86a544d12",
+    "repository_commit": "bf84472d1ffe061c11f5f201f6d809c79ccdf0ce",
+    "structural_public_evidence_sha256": "e7b25f117866983214192183d076ed1cbac74490569653e302308c87ddeb3e97",
+    "structural_results_sha256": "92a29a1e184a04293ce04bfdd05f5e7ba7dd0d7f12873edce3d2926c1628db93",
+    "transform_script_sha256": "f79d48d1daccb62f00f8fd63904dfb543a618e8f243832623a6bde3472b0a6d5"
+  },
+  "claim_ceiling": "Training-split record-neighborhood representation experiment only. A passing result admits an Axiom prototype but is not validation, private-holdout, independent-reproduction, category-win, market-leading, world-best, or state-of-the-art evidence.",
+  "name": "text-source-record-neighborhood-publication-receipt-v1",
+  "public_evidence_sha256": "fe2681382da4ce24d721086b2b5b7ca5e7892373dd24cb5c4da2bcc2a82a9194",
+  "result_sha256": "724594043816e47fe3f0eabfe7870ee8f54a3fb75f1cdbd3a4b5696df297882a",
+  "schema_version": 1,
+  "trial_receipts_manifest_sha256": "85d2812521a5761eb0ad1ed8b50924be564c38321a41e76f90b1238c411884b1"
+}

@@ -1,0 +1,520 @@
+{
+  "all_required_completed": true,
+  "bindings": {
+    "baseline_public_evidence_sha256": "b28429e3d12542eda21d03d981b9452cba2d4a329252e4876803b62852f1299f",
+    "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+    "bwt_public_evidence_sha256": "ca4706658dab1f23b4becfba80b274b1c57aa488c52fa95e84211c949bfb5eef",
+    "bwt_publication_receipt_sha256": "fc15cf05e538a69c0f2a84043d435b51339d937b6771615888de720f9e30c0f0",
+    "bwt_result_sha256": "ef0c65b19ba6a7a6d5f3a9c439f5b2a5f9b563dec133862b4225b9490723e9fd",
+    "config_sha256": "af334f5528df39535e484ba28b36c8363443305f90d8fac35f5943a7a94d3270",
+    "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+    "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+    "repository_commit": "3ab716bdd4cb997238e22bd35551d8a71e1a2f07",
+    "structural_public_evidence_sha256": "e7b25f117866983214192183d076ed1cbac74490569653e302308c87ddeb3e97",
+    "structural_results_sha256": "92a29a1e184a04293ce04bfdd05f5e7ba7dd0d7f12873edce3d2926c1628db93",
+    "successor_decision_sha256": "436521a4ef66c2142058abd2806e86f4c52e208877455dcf9353738849da5a7f",
+    "successor_routing_config_sha256": "aacfcafa25363682e001a11f82e002196589ca6cc8855c79b65d4d512077767b",
+    "transform_sha256": "dcee5264690befb493360d28dbc4465a587471741788fdabc3aae2137d0408e7"
+  },
+  "claim_ceiling": "Training-only recursive wikitext representation screen. Exact complete candidates are development artifacts, not Axiom wins, validation results, holdout results, independent reproduction, product codecs, novel-algorithm results, or state-of-the-art evidence.",
+  "completed": true,
+  "measurement": {
+    "jobs": 1,
+    "measured_repetitions": 2,
+    "order_seed": 20260718,
+    "premeasurement_resource_smoke": {
+      "authorized_items_only": [
+        "enwikibooks-20260701",
+        "enwikinews-20260701"
+      ],
+      "backend_encode_and_decode_each_variant": true,
+      "maximum_peak_rss_bytes": 4294967296,
+      "required_before_candidate_trials": true,
+      "transform_encode_and_decode_each_variant": true
+    },
+    "process_memory_limit": {
+      "address_space_limit_bytes": 4294967296,
+      "darwin_behavior": "RLIMIT_AS is not lowered; wait4 peak RSS is measured and the same 4 GiB gate fails closed",
+      "posix_behavior": "RLIMIT_AS is set before exec and wait4 peak RSS is also measured",
+      "unsupported_behavior": "measurement is refused without POSIX wait4 telemetry or resource-limit support"
+    },
+    "timeout_seconds_per_process": 43200,
+    "warmups": 0
+  },
+  "name": "text-source-wk-c1-recursive-template-columnarization-screen-result-v1",
+  "preflight": [
+    {
+      "deterministic_transform": true,
+      "exact_roundtrip": true,
+      "source_bytes": 92,
+      "transform_bytes": 226,
+      "transform_sha256": "a6e3267890e9f05079f689f2dd86aadbd0539ee702321d98b5698287d85b24f0",
+      "variant": "wk-c1-full-schema-columns"
+    },
+    {
+      "deterministic_transform": true,
+      "exact_roundtrip": true,
+      "source_bytes": 92,
+      "transform_bytes": 194,
+      "transform_sha256": "6bd1b55945a6a5da1e5426bcaedc178f21cef52129856e66a74394c112519c32",
+      "variant": "wk-c1-structure-only"
+    }
+  ],
+  "premeasurement_resource_smoke": [
+    {
+      "backend_decode": {
+        "command": [
+          "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+          "--decompress",
+          "--jobs=1",
+          "--verbose=0",
+          "--force",
+          "--input=$WORK/payload.knz",
+          "--output=$WORK/decoded.wkc1"
+        ],
+        "cpu_ns": 25828284000,
+        "peak_rss_bytes": 1599864832,
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "",
+        "timed_out": false,
+        "wall_ns": 26040736666
+      },
+      "backend_encode": {
+        "command": [
+          "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+          "--compress",
+          "--level=9",
+          "--block=1g",
+          "--jobs=1",
+          "--verbose=0",
+          "--force",
+          "--input=$WORK/transform.wkc1",
+          "--output=$WORK/payload.knz"
+        ],
+        "cpu_ns": 23178275000,
+        "peak_rss_bytes": 1603698688,
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "",
+        "timed_out": false,
+        "wall_ns": 23357310208
+      },
+      "decode": {
+        "command": [
+          "$REPOSITORY/.venv/bin/python",
+          "$REPOSITORY/scripts/text-source-wk-c1-transform.py",
+          "decode",
+          "$WORK/decoded.wkc1",
+          "$WORK/restored.bin",
+          "--maximum-size",
+          "67107953"
+        ],
+        "cpu_ns": 164684000,
+        "peak_rss_bytes": 362364928,
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "",
+        "timed_out": false,
+        "wall_ns": 219715958
+      },
+      "encode": {
+        "command": [
+          "$REPOSITORY/.venv/bin/python",
+          "$REPOSITORY/scripts/text-source-wk-c1-transform.py",
+          "encode",
+          "wk-c1-full-schema-columns",
+          "$REPOSITORY/corpora/text-source-development-v1/enwikibooks-20260701.axwkt",
+          "$WORK/transform.wkc1"
+        ],
+        "cpu_ns": 371596000,
+        "peak_rss_bytes": 429342720,
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "",
+        "timed_out": false,
+        "wall_ns": 489288917
+      },
+      "error": null,
+      "exact_roundtrip": true,
+      "item_id": "enwikibooks-20260701",
+      "maximum_peak_rss_bytes": 1603698688,
+      "passed": true,
+      "source_bytes": 67107953,
+      "source_sha256": "d4e99fa76d224995f03512df7fe2d9b0411e283b21157c934be6c10e2059998a",
+      "transform_file_evidence": {
+        "sha256": "0803bd13971b53fe6d7628bcadd0f46eb06bf8611c335ab45901199bb62dc995",
+        "size_bytes": 67113644
+      },
+      "variant": "wk-c1-full-schema-columns"
+    },
+    {
+      "backend_decode": {
+        "command": [
+          "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+          "--decompress",
+          "--jobs=1",
+          "--verbose=0",
+          "--force",
+          "--input=$WORK/payload.knz",
+          "--output=$WORK/decoded.wkc1"
+        ],
+        "cpu_ns": 26340478000,
+        "peak_rss_bytes": 1599012864,
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "",
+        "timed_out": false,
+        "wall_ns": 26545416250
+      },
+      "backend_encode": {
+        "command": [
+          "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+          "--compress",
+          "--level=9",
+          "--block=1g",
+          "--jobs=1",
+          "--verbose=0",
+          "--force",
+          "--input=$WORK/transform.wkc1",
+          "--output=$WORK/payload.knz"
+        ],
+        "cpu_ns": 24337445000,
+        "peak_rss_bytes": 1603125248,
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "",
+        "timed_out": false,
+        "wall_ns": 24604263625
+      },
+      "decode": {
+        "command": [
+          "$REPOSITORY/.venv/bin/python",
+          "$REPOSITORY/scripts/text-source-wk-c1-transform.py",
+          "decode",
+          "$WORK/decoded.wkc1",
+          "$WORK/restored.bin",
+          "--maximum-size",
+          "67105968"
+        ],
+        "cpu_ns": 305229000,
+        "peak_rss_bytes": 438370304,
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "",
+        "timed_out": false,
+        "wall_ns": 333913125
+      },
+      "encode": {
+        "command": [
+          "$REPOSITORY/.venv/bin/python",
+          "$REPOSITORY/scripts/text-source-wk-c1-transform.py",
+          "encode",
+          "wk-c1-full-schema-columns",
+          "$REPOSITORY/corpora/text-source-development-v1/enwikinews-20260701.axwkt",
+          "$WORK/transform.wkc1"
+        ],
+        "cpu_ns": 19193461000,
+        "peak_rss_bytes": 439058432,
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "",
+        "timed_out": false,
+        "wall_ns": 19440345583
+      },
+      "error": null,
+      "exact_roundtrip": true,
+      "item_id": "enwikinews-20260701",
+      "maximum_peak_rss_bytes": 1603125248,
+      "passed": true,
+      "source_bytes": 67105968,
+      "source_sha256": "ac803f7c66400659801b4dd72576ad88602952db4dbc78e82c1c4c4d39c92b9e",
+      "transform_file_evidence": {
+        "sha256": "62db9dbd9972f134cd87eca4e3a60751729fc36c6046baed0524cb518eac01d8",
+        "size_bytes": 67198859
+      },
+      "variant": "wk-c1-full-schema-columns"
+    },
+    {
+      "backend_decode": {
+        "command": [
+          "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+          "--decompress",
+          "--jobs=1",
+          "--verbose=0",
+          "--force",
+          "--input=$WORK/payload.knz",
+          "--output=$WORK/decoded.wkc1"
+        ],
+        "cpu_ns": 30993606999,
+        "peak_rss_bytes": 1599881216,
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "",
+        "timed_out": false,
+        "wall_ns": 33651099333
+      },
+      "backend_encode": {
+        "command": [
+          "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+          "--compress",
+          "--level=9",
+          "--block=1g",
+          "--jobs=1",
+          "--verbose=0",
+          "--force",
+          "--input=$WORK/transform.wkc1",
+          "--output=$WORK/payload.knz"
+        ],
+        "cpu_ns": 25438303000,
+        "peak_rss_bytes": 1603698688,
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "",
+        "timed_out": false,
+        "wall_ns": 27086647042
+      },
+      "decode": {
+        "command": [
+          "$REPOSITORY/.venv/bin/python",
+          "$REPOSITORY/scripts/text-source-wk-c1-transform.py",
+          "decode",
+          "$WORK/decoded.wkc1",
+          "$WORK/restored.bin",
+          "--maximum-size",
+          "67107953"
+        ],
+        "cpu_ns": 206129999,
+        "peak_rss_bytes": 362201088,
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "",
+        "timed_out": false,
+        "wall_ns": 237292917
+      },
+      "encode": {
+        "command": [
+          "$REPOSITORY/.venv/bin/python",
+          "$REPOSITORY/scripts/text-source-wk-c1-transform.py",
+          "encode",
+          "wk-c1-structure-only",
+          "$REPOSITORY/corpora/text-source-development-v1/enwikibooks-20260701.axwkt",
+          "$WORK/transform.wkc1"
+        ],
+        "cpu_ns": 373120000,
+        "peak_rss_bytes": 429293568,
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "",
+        "timed_out": false,
+        "wall_ns": 389416625
+      },
+      "error": null,
+      "exact_roundtrip": true,
+      "item_id": "enwikibooks-20260701",
+      "maximum_peak_rss_bytes": 1603698688,
+      "passed": true,
+      "source_bytes": 67107953,
+      "source_sha256": "d4e99fa76d224995f03512df7fe2d9b0411e283b21157c934be6c10e2059998a",
+      "transform_file_evidence": {
+        "sha256": "8dbf15b5d0e94357ede0e823a3aa9461aecce3fbc8def9f82943f4455616b5c3",
+        "size_bytes": 67112016
+      },
+      "variant": "wk-c1-structure-only"
+    },
+    {
+      "backend_decode": {
+        "command": [
+          "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+          "--decompress",
+          "--jobs=1",
+          "--verbose=0",
+          "--force",
+          "--input=$WORK/payload.knz",
+          "--output=$WORK/decoded.wkc1"
+        ],
+        "cpu_ns": 28116665000,
+        "peak_rss_bytes": 1598980096,
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "",
+        "timed_out": false,
+        "wall_ns": 28508285166
+      },
+      "backend_encode": {
+        "command": [
+          "$REPOSITORY/.baseline-tools/text-source-v1/bin/kanzi",
+          "--compress",
+          "--level=9",
+          "--block=1g",
+          "--jobs=1",
+          "--verbose=0",
+          "--force",
+          "--input=$WORK/transform.wkc1",
+          "--output=$WORK/payload.knz"
+        ],
+        "cpu_ns": 24013046000,
+        "peak_rss_bytes": 1603092480,
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "",
+        "timed_out": false,
+        "wall_ns": 24754700375
+      },
+      "decode": {
+        "command": [
+          "$REPOSITORY/.venv/bin/python",
+          "$REPOSITORY/scripts/text-source-wk-c1-transform.py",
+          "decode",
+          "$WORK/decoded.wkc1",
+          "$WORK/restored.bin",
+          "--maximum-size",
+          "67105968"
+        ],
+        "cpu_ns": 303110000,
+        "peak_rss_bytes": 438403072,
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "",
+        "timed_out": false,
+        "wall_ns": 340926334
+      },
+      "encode": {
+        "command": [
+          "$REPOSITORY/.venv/bin/python",
+          "$REPOSITORY/scripts/text-source-wk-c1-transform.py",
+          "encode",
+          "wk-c1-structure-only",
+          "$REPOSITORY/corpora/text-source-development-v1/enwikinews-20260701.axwkt",
+          "$WORK/transform.wkc1"
+        ],
+        "cpu_ns": 20525672000,
+        "peak_rss_bytes": 439500800,
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "",
+        "timed_out": false,
+        "wall_ns": 21383398917
+      },
+      "error": null,
+      "exact_roundtrip": true,
+      "item_id": "enwikinews-20260701",
+      "maximum_peak_rss_bytes": 1603092480,
+      "passed": true,
+      "source_bytes": 67105968,
+      "source_sha256": "ac803f7c66400659801b4dd72576ad88602952db4dbc78e82c1c4c4d39c92b9e",
+      "transform_file_evidence": {
+        "sha256": "e39dc99e62d2c931b4fbd599a2e4b06a743f2d1a004a2fd1fcefd5b0842c1ba2",
+        "size_bytes": 67186340
+      },
+      "variant": "wk-c1-structure-only"
+    }
+  ],
+  "private_holdout_status": "sealed and unaccessed",
+  "public_validation_status": "sealed and unaccessed",
+  "schema_version": 1,
+  "screen_boundary": {
+    "out_of_scope_training_not_accessed": [
+      "cpython-3.14.6-source",
+      "typescript-6.0.3-source"
+    ],
+    "reserved_evaluation_not_accessed": [
+      "rust-1.97.1-source",
+      "llvm-22.1.8-source",
+      "enwikiversity-20260701"
+    ],
+    "screen_items": [
+      "enwikibooks-20260701",
+      "enwikinews-20260701"
+    ]
+  },
+  "summary": {
+    "axiom_wins": 0,
+    "decision": "reject_wk_c1_recursive_template_columnarization",
+    "full_beats_structure_only_by_half_percent": false,
+    "full_signal": false,
+    "full_strong_signal": false,
+    "item_rows": [
+      {
+        "artifact_bytes": 12627602,
+        "artifact_sha256": "b9e7b2202fdd584f7ad35581dfc08971a4d460c48b8d3d7f4e2347a63da011c6",
+        "deterministic_artifact": true,
+        "exact_roundtrip": true,
+        "item_guard_passed": true,
+        "item_id": "enwikibooks-20260701",
+        "passed": true,
+        "peak_rss_bytes": 1603878912,
+        "resource_limit_passed": true,
+        "variant": "wk-c1-full-schema-columns"
+      },
+      {
+        "artifact_bytes": 11567290,
+        "artifact_sha256": "50c8364708d7d5c2566e1d851818794a7fabc17bde87b050338b62aa567ffd44",
+        "deterministic_artifact": true,
+        "exact_roundtrip": true,
+        "item_guard_passed": true,
+        "item_id": "enwikinews-20260701",
+        "passed": true,
+        "peak_rss_bytes": 1603223552,
+        "resource_limit_passed": true,
+        "variant": "wk-c1-full-schema-columns"
+      },
+      {
+        "artifact_bytes": 12627934,
+        "artifact_sha256": "64d371c49cee48840b65bb9aa8146c3d2787a0407d207adca85978b70e1d9986",
+        "deterministic_artifact": true,
+        "exact_roundtrip": true,
+        "item_guard_passed": true,
+        "item_id": "enwikibooks-20260701",
+        "passed": true,
+        "peak_rss_bytes": 1603846144,
+        "resource_limit_passed": true,
+        "variant": "wk-c1-structure-only"
+      },
+      {
+        "artifact_bytes": 11574770,
+        "artifact_sha256": "23cfe9a19b3adb6578cd14818165d4787b35998d1668b09201fb95aac96fbca0",
+        "deterministic_artifact": true,
+        "exact_roundtrip": true,
+        "item_guard_passed": true,
+        "item_id": "enwikinews-20260701",
+        "passed": true,
+        "peak_rss_bytes": 1603272704,
+        "resource_limit_passed": true,
+        "variant": "wk-c1-structure-only"
+      }
+    ],
+    "variants": [
+      {
+        "artifact_bytes": 24194892,
+        "complete": true,
+        "gain_vs_kanzi_percent": -0.1577362023461066,
+        "item_guard_passed": true,
+        "resource_limit_passed": true,
+        "variant": "wk-c1-full-schema-columns"
+      },
+      {
+        "artifact_bytes": 24202704,
+        "complete": true,
+        "gain_vs_kanzi_percent": -0.19007493877083326,
+        "item_guard_passed": true,
+        "resource_limit_passed": true,
+        "variant": "wk-c1-structure-only"
+      }
+    ]
+  },
+  "trial_count": 8,
+  "trial_receipts_manifest_sha256": "962d103be6737615d0890266d6e7db8dadd7310009b23899fa7c12cc1f9d7d1d",
+  "variants": [
+    {
+      "columnarize_values": true,
+      "id": "wk-c1-full-schema-columns",
+      "purpose": "Recursive structure plus data-derived (template,param) value columns."
+    },
+    {
+      "columnarize_values": false,
+      "id": "wk-c1-structure-only",
+      "purpose": "Exact recursive structure ablation with parameter values retained in invocation order."
+    }
+  ]
+}

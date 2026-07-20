@@ -54,7 +54,8 @@ on every resume.
 | Multi-language source bundles | none | acquisition verified; baseline census not started | development corpus only |
 | English Wikimedia wikitext | none | acquisition verified; baseline census not started | development corpus only |
 
-The next gate is the complete practical baseline census declared in
-`config/text-source-gates-v1.json`. Missing or unavailable baselines remain
-visible and cannot be counted as wins. Representation work begins only after
-the census identifies each family leader and the ratio/speed frontier.
+The next gate is the [complete practical baseline census](2026-07-17-text-source-baseline-census-protocol.md)
+declared in `config/text-source-gates-v1.json`. Missing or unavailable
+baselines remain visible and cannot be counted as wins. Representation work
+begins only after the census identifies each family leader and the ratio/speed
+frontier.

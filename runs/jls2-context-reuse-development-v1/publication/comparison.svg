@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1240" height="720" viewBox="0 0 1240 720" role="img" aria-labelledby="title desc">
+<title id="title">JLS2 reusable decode-context development comparison</title>
+<desc id="desc">The frozen reusable Zstandard context experiment was rejected. The chart compares cold-process peak resident memory for the baseline and candidate across four development inputs.</desc>
+<style>
+text{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;fill:#24292f}.title{font-size:24px;font-weight:700}.subtitle,.axis,.note{font-size:13px;fill:#57606a}.section{font-size:17px;font-weight:600}.label{font-size:14px}.value{font-size:13px}.baseline{fill:#8c959f}.candidate{fill:#0969da}.pass{fill:#1a7f37}.fail{fill:#cf222e}.grid{stroke:#d0d7de}.gate{stroke:#bf8700;stroke-width:2;stroke-dasharray:6 5}.card{fill:#f6f8fa;stroke:#d0d7de}.divider{stroke:#d0d7de}
+@media(prefers-color-scheme:dark){text{fill:#f0f6fc}.subtitle,.axis,.note{fill:#8c959f}.baseline{fill:#6e7681}.candidate{fill:#58a6ff}.pass{fill:#3fb950}.fail{fill:#f85149}.grid,.divider{stroke:#30363d}.gate{stroke:#d29922}.card{fill:#161b22;stroke:#30363d}}
+</style>
+<text class="title" x="24" y="38">Reusable JLS2 decode contexts: frozen development gate</text>
+<text class="fail" x="1090" y="38" text-anchor="end" font-size="19" font-weight="700">REJECTED</text>
+<text class="subtitle" x="24" y="64">Cold standalone processes · identical complete frames · 8 warmups + 56 measured decodes</text>
+<text class="section" x="24" y="104">Per-input peak RSS (MiB, lower is better)</text>
+<line class="grid" x1="250.0" y1="132" x2="250.0" y2="432"/>
+<text class="axis" x="250.0" y="452" text-anchor="middle">0</text>
+<line class="grid" x1="335.0" y1="132" x2="335.0" y2="432"/>
+<text class="axis" x="335.0" y="452" text-anchor="middle">64</text>
+<line class="grid" x1="420.0" y1="132" x2="420.0" y2="432"/>
+<text class="axis" x="420.0" y="452" text-anchor="middle">128</text>
+<line class="grid" x1="505.0" y1="132" x2="505.0" y2="432"/>
+<text class="axis" x="505.0" y="452" text-anchor="middle">192</text>
+<line class="grid" x1="590.0" y1="132" x2="590.0" y2="432"/>
+<text class="axis" x="590.0" y="452" text-anchor="middle">256</text>
+<line class="grid" x1="675.0" y1="132" x2="675.0" y2="432"/>
+<text class="axis" x="675.0" y="452" text-anchor="middle">320</text>
+<line class="grid" x1="760.0" y1="132" x2="760.0" y2="432"/>
+<text class="axis" x="760.0" y="452" text-anchor="middle">384</text>
+<line class="grid" x1="845.0" y1="132" x2="845.0" y2="432"/>
+<text class="axis" x="845.0" y="452" text-anchor="middle">448</text>
+<line class="grid" x1="930.0" y1="132" x2="930.0" y2="432"/>
+<text class="axis" x="930.0" y="452" text-anchor="middle">512</text>
+<line class="grid" x1="1015.0" y1="132" x2="1015.0" y2="432"/>
+<text class="axis" x="1015.0" y="452" text-anchor="middle">576</text>
+<line class="grid" x1="1100.0" y1="132" x2="1100.0" y2="432"/>
+<text class="axis" x="1100.0" y="452" text-anchor="middle">640</text>
+<line class="gate" x1="845.0" y1="120" x2="845.0" y2="432"/>
+<text class="axis" x="845.0" y="114" text-anchor="middle">448 MiB frozen gate</text>
+<text class="label" x="24" y="165">clue-early-development</text>
+<rect class="baseline" x="250" y="144" width="830.4" height="20" rx="3"/>
+<text class="value" x="1088.4" y="159">625.2</text>
+<rect class="candidate" x="250" y="170" width="830.4" height="20" rx="3"/>
+<text class="value" x="1088.4" y="185">625.2</text>
+<text class="label" x="24" y="237">clue-middle-development</text>
+<rect class="baseline" x="250" y="216" width="830.4" height="20" rx="3"/>
+<text class="value" x="1088.4" y="231">625.2</text>
+<rect class="candidate" x="250" y="242" width="830.4" height="20" rx="3"/>
+<text class="value" x="1088.4" y="257">625.2</text>
+<text class="label" x="24" y="309">clue-late-development</text>
+<rect class="baseline" x="250" y="288" width="830.4" height="20" rx="3"/>
+<text class="value" x="1088.4" y="303">625.2</text>
+<rect class="candidate" x="250" y="314" width="830.4" height="20" rx="3"/>
+<text class="value" x="1088.4" y="329">625.2</text>
+<text class="label" x="24" y="381">jls2-context-stress-256</text>
+<rect class="baseline" x="250" y="360" width="830.4" height="20" rx="3"/>
+<text class="value" x="1088.4" y="375">625.2</text>
+<rect class="candidate" x="250" y="386" width="830.4" height="20" rx="3"/>
+<text class="value" x="1088.4" y="401">625.2</text>
+<rect class="card" x="24" y="492" width="276" height="72" rx="6"/>
+<text class="note" x="38" y="517">Baseline median</text>
+<text class="section" x="38" y="544">537.54 MB/s</text>
+<rect class="card" x="324" y="492" width="276" height="72" rx="6"/>
+<text class="note" x="338" y="517">Candidate median</text>
+<text class="section" x="338" y="544">536.64 MB/s</text>
+<rect class="card" x="624" y="492" width="276" height="72" rx="6"/>
+<text class="note" x="638" y="517">Stress RSS reduction</text>
+<text class="section" x="638" y="544">0.00%</text>
+<rect class="card" x="924" y="492" width="276" height="72" rx="6"/>
+<text class="note" x="938" y="517">Frozen gates</text>
+<text class="section" x="938" y="544">6/8</text>
+<line class="divider" x1="24" y1="598" x2="1216" y2="598"/>
+<text class="section" x="24" y="630">Unchanged ratio context: JLS2 3,523,721 bytes · 57.77x · 18.08% smaller than Brotli-11</text>
+<text class="note" x="24" y="660">Immutable public-validation no-pass remains 621.3 MiB vs 512 MiB; consumed ranges were not used and can never be rerun.</text>
+<text class="note" x="24" y="688">Development-only decoder-memory evidence · not public validation, private holdout, independent reproduction, or state of the art</text>
+</svg>

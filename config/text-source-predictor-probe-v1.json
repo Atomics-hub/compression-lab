@@ -1,0 +1,129 @@
+{
+  "bindings": {
+    "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+    "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+    "structural_successor_decision_sha256": "436521a4ef66c2142058abd2806e86f4c52e208877455dcf9353738849da5a7f",
+    "successor_routing_config_sha256": "aacfcafa25363682e001a11f82e002196589ca6cc8855c79b65d4d512077767b"
+  },
+  "claim_ceiling": "Sampled development entropy-ceiling probe only. Estimated bytes are not a decodable artifact, codec result, baseline win, validation result, or state-of-the-art claim. Public validation and private holdout remain sealed and unaccessed.",
+  "dictionary_policy": {
+    "maximum_entries": 8192,
+    "maximum_serialized_bytes": 524288,
+    "maximum_token_bytes": 64,
+    "minimum_occurrences": 4,
+    "minimum_token_bytes": 3,
+    "ranking": "descending estimated raw-byte savings, then descending occurrence count, then bytewise token order",
+    "serialization": "AXPD1 magic, track byte, 256 canonical unsigned-varint raw-byte prior weights, canonical unsigned-varint entry count, then ranking-order canonical unsigned-varint token length, token bytes, and token prior weight",
+    "training_only": true
+  },
+  "estimator": {
+    "adaptive_reset": "reset all counts at each sampled chunk boundary",
+    "alphabet": "256 raw-byte symbols followed by ranking-order dictionary-token symbols",
+    "class_contexts": {
+      "english_wikimedia_wikitext": [
+        "start",
+        "dictionary_word",
+        "dictionary_markup",
+        "raw_alpha",
+        "raw_digit",
+        "raw_space_or_tab",
+        "raw_newline",
+        "raw_punctuation",
+        "raw_other"
+      ],
+      "source_code_bundles": [
+        "start",
+        "dictionary_identifier",
+        "raw_alpha_or_underscore",
+        "raw_digit",
+        "raw_space_or_tab",
+        "raw_newline",
+        "raw_punctuation",
+        "raw_other"
+      ]
+    },
+    "global_mixture_weight": 0.25,
+    "krichevsky_trofimov_pseudocount": 0.5,
+    "previous_class_mixture_weight": 0.75,
+    "projection_startup_allowance_bytes_per_item": 65536,
+    "trained_prior_weight": "one plus integer square root of the training-sample occurrence count; absent raw bytes receive weight one",
+    "variants": [
+      "p0-adaptive-byte-unigram",
+      "p1-adaptive-byte-previous-class",
+      "p2-adaptive-mixed-token-previous-class"
+    ]
+  },
+  "frozen_before_probe_results": true,
+  "gates": {
+    "final_codec_gate_reminder": {
+      "complete_artifact_accounting_required": true,
+      "exact_roundtrip_required": true,
+      "maximum_item_regression_percent": 0.5,
+      "minimum_aggregate_gain_vs_strongest_complete_baseline_percent": 5.0,
+      "two_byte_identical_measured_artifacts_required": true
+    },
+    "full_codec_build_admission": {
+      "dictionary_gain_over_byte_previous_class_percent": 3.0,
+      "maximum_dictionary_bytes": 524288,
+      "minimum_conservative_aggregate_gain_vs_kanzi_percent": 10.0,
+      "minimum_conservative_item_gain_vs_kanzi_percent": 5.0,
+      "required_variant": "p2-adaptive-mixed-token-previous-class"
+    }
+  },
+  "name": "text-source-predictor-entropy-ceiling-probe-v1",
+  "sampling": {
+    "evaluation_chunk_bytes": 1048576,
+    "evaluation_chunks_per_item": 12,
+    "offset_policy": "For N bytes and C chunks of S bytes, use offset floor(i * (N - S) / (C - 1)) for i in [0,C); use the complete item once when N <= S.",
+    "training_chunk_bytes": 1048576,
+    "training_maximum_chunks_per_item": 32,
+    "upper_bound": "mean sampled bits-per-byte plus two population-standard-error units; single-chunk items use their observed bits-per-byte"
+  },
+  "schema_version": 1,
+  "splits": {
+    "english_wikimedia_wikitext": {
+      "evaluation": [
+        "enwikiversity-20260701"
+      ],
+      "hypothesis_id": "wk-p1-markup-predictor-counted-dictionary",
+      "training": [
+        "enwikibooks-20260701",
+        "enwikinews-20260701"
+      ]
+    },
+    "source_code_bundles": {
+      "evaluation": [
+        "rust-1.97.1-source",
+        "llvm-22.1.8-source"
+      ],
+      "hypothesis_id": "ts-p1-mixed-predictor-counted-dictionary",
+      "training": [
+        "cpython-3.14.6-source",
+        "typescript-6.0.3-source"
+      ]
+    }
+  },
+  "tokenization": {
+    "english_wikimedia_wikitext": {
+      "fixed_markup_tokens": [
+        "{{",
+        "}}",
+        "[[",
+        "]]",
+        "<!--",
+        "-->",
+        "<ref",
+        "</ref>",
+        "<br",
+        "==",
+        "&nbsp;"
+      ],
+      "learned_token_pattern": "ASCII words beginning with a letter and continuing with letters, digits, apostrophe, underscore, or hyphen",
+      "matching": "fixed markup tokens take longest-match precedence; learned tokens match complete scanner words only; every unmatched byte is emitted raw"
+    },
+    "source_code_bundles": {
+      "learned_token_pattern": "ASCII identifiers beginning with a letter or underscore and continuing with letters, digits, or underscore",
+      "matching": "learned tokens match complete scanner identifiers only; every unmatched byte is emitted raw"
+    }
+  }
+}

@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1240" height="760" viewBox="0 0 1240 760" role="img" aria-labelledby="title desc">
+<title id="title">JLS2 A1 versus inline-single-worker A2</title>
+<desc id="desc">The frozen A2 development gate was rejected. Four input peak RSS comparisons are shown.</desc>
+<style>text{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;fill:#24292f}.title{font-size:24px;font-weight:700}.sub,.axis,.note{font-size:13px;fill:#57606a}.section{font-size:17px;font-weight:600}.label{font-size:14px}.old{fill:#8c959f}.new{fill:#0969da}.pass{fill:#1a7f37}.fail{fill:#cf222e}.grid{stroke:#d0d7de}.gate{stroke:#bf8700;stroke-width:2;stroke-dasharray:6 5}.card{fill:#f6f8fa;stroke:#d0d7de}</style>
+<text class="title" x="24" y="38">JLS2 A2: exact A1 versus inline single worker</text>
+<text class="fail" x="1180" y="38" text-anchor="end" font-size="19" font-weight="700">REJECTED</text>
+<text class="sub" x="24" y="64">Cold standalone processes · identical Linux-generated frames · 64 scheduled exact decodes</text>
+<text class="section" x="24" y="108">Per-input peak RSS (MiB, lower is better)</text>
+<line class="grid" x1="260.0" y1="140" x2="260.0" y2="440"/>
+<text class="axis" x="260.0" y="460" text-anchor="middle">0</text>
+<line class="grid" x1="343.0" y1="140" x2="343.0" y2="440"/>
+<text class="axis" x="343.0" y="460" text-anchor="middle">64</text>
+<line class="grid" x1="426.0" y1="140" x2="426.0" y2="440"/>
+<text class="axis" x="426.0" y="460" text-anchor="middle">128</text>
+<line class="grid" x1="509.0" y1="140" x2="509.0" y2="440"/>
+<text class="axis" x="509.0" y="460" text-anchor="middle">192</text>
+<line class="grid" x1="592.0" y1="140" x2="592.0" y2="440"/>
+<text class="axis" x="592.0" y="460" text-anchor="middle">256</text>
+<line class="grid" x1="675.0" y1="140" x2="675.0" y2="440"/>
+<text class="axis" x="675.0" y="460" text-anchor="middle">320</text>
+<line class="grid" x1="758.0" y1="140" x2="758.0" y2="440"/>
+<text class="axis" x="758.0" y="460" text-anchor="middle">384</text>
+<line class="grid" x1="841.0" y1="140" x2="841.0" y2="440"/>
+<text class="axis" x="841.0" y="460" text-anchor="middle">448</text>
+<line class="grid" x1="924.0" y1="140" x2="924.0" y2="440"/>
+<text class="axis" x="924.0" y="460" text-anchor="middle">512</text>
+<line class="grid" x1="1007.0" y1="140" x2="1007.0" y2="440"/>
+<text class="axis" x="1007.0" y="460" text-anchor="middle">576</text>
+<line class="grid" x1="1090.0" y1="140" x2="1090.0" y2="440"/>
+<text class="axis" x="1090.0" y="460" text-anchor="middle">640</text>
+<line class="gate" x1="841.0" y1="128" x2="841.0" y2="440"/>
+<text class="axis" x="841.0" y="122" text-anchor="middle">448 MiB gate</text>
+<text class="label" x="24" y="173">clue-early-development</text>
+<rect class="old" x="260" y="152" width="813.4" height="20" rx="3"/>
+<text class="axis" x="1081.4" y="167">627.2</text>
+<rect class="new" x="260" y="178" width="813.4" height="20" rx="3"/>
+<text class="axis" x="1081.4" y="193">627.2</text>
+<text class="label" x="24" y="245">clue-middle-development</text>
+<rect class="old" x="260" y="224" width="813.4" height="20" rx="3"/>
+<text class="axis" x="1081.4" y="239">627.2</text>
+<rect class="new" x="260" y="250" width="813.4" height="20" rx="3"/>
+<text class="axis" x="1081.4" y="265">627.2</text>
+<text class="label" x="24" y="317">clue-late-development</text>
+<rect class="old" x="260" y="296" width="813.4" height="20" rx="3"/>
+<text class="axis" x="1081.4" y="311">627.2</text>
+<rect class="new" x="260" y="322" width="813.4" height="20" rx="3"/>
+<text class="axis" x="1081.4" y="337">627.2</text>
+<text class="label" x="24" y="389">jls2-context-stress-256</text>
+<rect class="old" x="260" y="368" width="813.4" height="20" rx="3"/>
+<text class="axis" x="1081.4" y="383">627.2</text>
+<rect class="new" x="260" y="394" width="813.4" height="20" rx="3"/>
+<text class="axis" x="1081.4" y="409">627.2</text>
+<rect class="card" x="24" y="500" width="276" height="72" rx="6"/>
+<text class="note" x="38" y="525">Exact A1 median</text>
+<text class="section" x="38" y="552">427.55 MB/s</text>
+<rect class="card" x="324" y="500" width="276" height="72" rx="6"/>
+<text class="note" x="338" y="525">Combined A1+A2 median</text>
+<text class="section" x="338" y="552">439.47 MB/s</text>
+<rect class="card" x="624" y="500" width="276" height="72" rx="6"/>
+<text class="note" x="638" y="525">Stress RSS reduction</text>
+<text class="section" x="638" y="552">0.00%</text>
+<rect class="card" x="924" y="500" width="276" height="72" rx="6"/>
+<text class="note" x="938" y="525">Frozen gates</text>
+<text class="section" x="938" y="552">6/8</text>
+<text class="section" x="24" y="620">Prior boundaries</text>
+<text class="note" x="24" y="648">A1 context reuse: 625.2 MiB development peak vs 448 MiB gate; A1 did not replace the pre-A1 product.</text>
+<text class="note" x="24" y="676">Immutable public validation: 621.3 MiB vs 512 MiB no-pass; consumed ranges cannot be rerun.</text>
+<text class="note" x="24" y="716">Development-only A2 evidence · pass authorizes only a separately frozen fresh validation gate</text>
+</svg>

@@ -1,0 +1,191 @@
+{
+  "accounting": {
+    "complete_bundle_components": [
+      "format_header_and_flags",
+      "solid_payload",
+      "file_manifest_paths_modes_and_sizes",
+      "fallback_map_and_raw_escape_bytes",
+      "all_tables_permutations_and_stream_directory_bytes",
+      "trained_dictionary_if_any",
+      "decoder_source_or_binary",
+      "parser_and_runtime_distribution",
+      "license_and_version_manifest"
+    ],
+    "gate_denominator": "complete_bundle_bytes",
+    "per_file_results": "Diagnostic independently framed artifacts only; never substituted for the solid-archive primary denominator.",
+    "required_identity": "Every component has an exact byte count and SHA-256; their sum equals complete_bundle_bytes.",
+    "tool_rule": "The same self-contained distribution accounting applies to every candidate arm and baseline. Installed-codec payload-only sizes may be shown only as secondary context."
+  },
+  "arms": [
+    {
+      "id": "a0-token-trivia-range",
+      "occurrence_model": "none",
+      "purpose": "Competent token+trivia control using the frozen adaptive integer range coder."
+    },
+    {
+      "id": "a1-flat-identifiers",
+      "occurrence_model": "One first-occurrence spelling lexicon plus a single global identifier MTF list; no scope information.",
+      "purpose": "Isolate identifier spelling deduplication and flat occurrence coding."
+    },
+    {
+      "id": "a2-scope-bindings",
+      "occurrence_model": "The A1 spelling lexicon with only its occurrence stream replaced by deterministic lexical-scope NEW, FREE, and current-scope MTF-rank events.",
+      "purpose": "A2 minus A1 attributes only scope and binding identity."
+    }
+  ],
+  "baselines": [
+    {
+      "id": "kanzi-max",
+      "required": true,
+      "version": "2.5.3"
+    },
+    {
+      "id": "xz-lzma2-9e",
+      "required": true,
+      "version": "5.8.3"
+    },
+    {
+      "dictionary": "Trained only on dictionary_fit, frozen before either measured split, and counted once in every complete bundle.",
+      "id": "zstd-22-trained-dictionary",
+      "required": true,
+      "version": "1.5.7"
+    },
+    {
+      "decoder_asset": "cmix v21 dictionary/english.dic is allowed only at its pinned 411996 bytes and SHA-256 4c8568cca9343b9a6212477880f56f8efd162f8784224a25edd043097d36215a, counted once.",
+      "id": "cmix-v21-text",
+      "required": true,
+      "version": "v21 commit c443679c0773b8ae5b05423827804063d82ae7a8"
+    }
+  ],
+  "bindings": {
+    "existing_baseline_public_evidence_sha256": "b28429e3d12542eda21d03d981b9452cba2d4a329252e4876803b62852f1299f",
+    "existing_corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+    "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+    "result_binding_policy": "Every result repeats and the verifier checks the existing source-manifest, prior-baseline-evidence, and Kanzi-binary identities. G0 additionally binds a new exact-hash dependency lock and derived Python split manifest; G1 must match both G0 identities exactly."
+  },
+  "claim_ceiling": "Frozen Python-only development experiment. Passing G0 or G1 is not validation, a product win, a source-code category win, an Axiom win, independent reproduction, or state-of-the-art evidence.",
+  "coder": {
+    "alphabet": "unsigned integers emitted by canonical stream encoders",
+    "arithmetic": "32-bit low/range integer arithmetic with renormalization below 2^24; no floating point",
+    "byte_streams": "bytes are integers 0..255 under the same adaptive model",
+    "end_condition": "counted symbol totals from the stream directory; no implicit EOF",
+    "frequency_model": "order-0 adaptive counts initialized to one, deterministic rescale at total 16384 using ceil(count/2)",
+    "rule": "The identical coder implementation, initialization, rescale rule, framing, and stream order is used by A0, A1, and A2.",
+    "signed_integers": "zigzag then unsigned",
+    "version": "axiom-int-range-v1"
+  },
+  "corpus": {
+    "allowed_project": "cpython-3.14.6-source",
+    "file_filter": "regular files whose canonical UTF-8 relative path ends in .py; all bytes are preserved exactly",
+    "partition_function": "bucket = first_u64_be(SHA256(UTF8(canonical_relative_path))) mod 10",
+    "partitions": {
+      "development_holdout": [
+        8,
+        9
+      ],
+      "dictionary_fit": [
+        0,
+        1
+      ],
+      "training_screen": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ]
+    },
+    "reserved_not_accessed": [
+      "rust-1.97.1-source",
+      "llvm-22.1.8-source",
+      "typescript-6.0.3-source",
+      "all public-validation inputs",
+      "all private-holdout inputs"
+    ],
+    "solid_order": "lexicographic canonical UTF-8 relative-path bytes",
+    "symlink_and_nonregular_policy": "excluded by the frozen derived-manifest builder; exclusion counts are reported",
+    "unicode_and_invalid_source_policy": "bytes are never normalized; parser failure or undecodable source uses the counted raw fallback"
+  },
+  "dependencies": {
+    "acquisition_lock": "A separate canonical lock must freeze exact wheels/source archives, sizes, SHA-256 values, licenses, build commands, and decoder distribution roster before any corpus bytes or measurements are opened. Missing or changed lock fails closed.",
+    "cst": {
+      "package": "LibCST",
+      "strategy": "Lossless Module.bytes/code identity plus MetadataWrapper ScopeProvider; traversal is lexical source order with explicit conservative raw fallback for any unresolved or unsupported binding case.",
+      "version": "1.8.6"
+    },
+    "parser_identity_bytes": "The exact ASCII parser name, version, dependency-lock SHA-256, grammar flags, and fallback policy are stored in each A1/A2 format header and counted.",
+    "runtime": "CPython 3.12.x patch version frozen in the acquisition lock; interpreter/stdlib files required by the decoder are counted in its distribution component."
+  },
+  "format": {
+    "fallbacks": "Every file has a counted mode flag. Parser error, unsupported syntax, ambiguous scope metadata, limit breach, or noncanonical CST identity routes the complete original file to a raw-byte stream.",
+    "identifier_events": {
+      "a1": "Global MTF rank into the shared first-occurrence spelling lexicon; new spelling insertion is explicit.",
+      "a2_free": "FREE plus lexical ancestor distance and MTF rank in the target ancestor; module-unresolved names use the explicit module-free table.",
+      "a2_mtf": "MTF plus rank in the current lexical scope table.",
+      "a2_new": "NEW plus global spelling-lexicon ID on the first binding definition in the current lexical scope.",
+      "mutation": "NEW/FREE/MTF moves the referenced entry to the front of exactly the table named by the event."
+    },
+    "limits": {
+      "maximum_file_bytes": 134217728,
+      "maximum_identifier_bytes": 1048576,
+      "maximum_identifiers_per_file": 16777216,
+      "maximum_scope_depth": 1024,
+      "maximum_streams": 4096,
+      "maximum_total_input_bytes": 4294967296
+    },
+    "shared_a0_streams": [
+      "token_kind",
+      "token_spelling_or_identifier_occurrence",
+      "exact_intertoken_trivia",
+      "file_and_raw_fallback"
+    ],
+    "tokenization": "Python tokenize semantics are cross-checked against LibCST byte identity; exact byte gaps, encodings, BOMs, line endings, comments, and trailing bytes are explicit streams.",
+    "version": "AXPG1"
+  },
+  "frozen_before_dependency_acquisition_and_measurement": true,
+  "gates": {
+    "common": {
+      "deterministic_repetitions": 2,
+      "exact_roundtrip_required": true,
+      "maximum_peak_rss_bytes": 8589934592,
+      "maximum_seconds_per_operation": 21600,
+      "required_arms": [
+        "a0-token-trivia-range",
+        "a1-flat-identifiers",
+        "a2-scope-bindings"
+      ],
+      "required_baselines": [
+        "kanzi-max",
+        "xz-lzma2-9e",
+        "zstd-22-trained-dictionary",
+        "cmix-v21-text"
+      ]
+    },
+    "g0_training_signal": {
+      "a0_maximum_regression_vs_strongest_baseline_basis_points": 500,
+      "a2_minimum_gain_vs_a1_basis_points": 100,
+      "route_on_fail": "Kill GDB1 without opening development_holdout. Retain the complete training result as negative evidence."
+    },
+    "g1_development_strong": {
+      "a2_minimum_gain_vs_a1_basis_points": 100,
+      "a2_minimum_gain_vs_strongest_baseline_basis_points": 800,
+      "maximum_independent_file_regression_basis_points": 50,
+      "route_on_fail": "Reject validation admission and publish development evidence. Do not tune on development_holdout."
+    },
+    "product_reminder": {
+      "minimum_gain_vs_strongest_unseen_baseline_basis_points": 500,
+      "requirements": "Separately frozen public validation then sealed private holdout, practical speed tier, bounded memory, streaming, corruption resistance, portability, and independent reproduction."
+    }
+  },
+  "measurement": {
+    "development_holdout_access": "Exactly once, only after a verified G0 pass and immutable publication of its result and dependency/corpus bindings.",
+    "jobs": 1,
+    "order_seed": 20260720,
+    "primary_unit": "One solid archive over the complete split, with complete self-contained bundle accounting.",
+    "repetitions": 2,
+    "warmups": 0
+  },
+  "name": "source-python-grammar-binding-gdb1-v1",
+  "schema_version": 1
+}

@@ -1,0 +1,345 @@
+{
+  "axiom_wins": 0,
+  "bindings": {
+    "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+    "config_sha256": "312fa7ce6d72e3d2fdcb287d9be5e5d0e6ee0f7700c940ace5cecca83d589d49",
+    "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+    "repository_commit": "455b827b2f8b7a787dbdf4382f0197099e0609be",
+    "structural_successor_decision_sha256": "436521a4ef66c2142058abd2806e86f4c52e208877455dcf9353738849da5a7f",
+    "successor_routing_config_sha256": "aacfcafa25363682e001a11f82e002196589ca6cc8855c79b65d4d512077767b"
+  },
+  "claim_ceiling": "Sampled development entropy-ceiling probe only. Estimated bytes are not a decodable artifact, codec result, baseline win, validation result, or state-of-the-art claim. Public validation and private holdout remain sealed and unaccessed.",
+  "completed": true,
+  "dictionary_policy": {
+    "maximum_entries": 8192,
+    "maximum_serialized_bytes": 524288,
+    "maximum_token_bytes": 64,
+    "minimum_occurrences": 4,
+    "minimum_token_bytes": 3,
+    "ranking": "descending estimated raw-byte savings, then descending occurrence count, then bytewise token order",
+    "serialization": "AXPD1 magic, track byte, 256 canonical unsigned-varint raw-byte prior weights, canonical unsigned-varint entry count, then ranking-order canonical unsigned-varint token length, token bytes, and token prior weight",
+    "training_only": true
+  },
+  "estimator": {
+    "adaptive_reset": "reset all counts at each sampled chunk boundary",
+    "alphabet": "256 raw-byte symbols followed by ranking-order dictionary-token symbols",
+    "class_contexts": {
+      "english_wikimedia_wikitext": [
+        "start",
+        "dictionary_word",
+        "dictionary_markup",
+        "raw_alpha",
+        "raw_digit",
+        "raw_space_or_tab",
+        "raw_newline",
+        "raw_punctuation",
+        "raw_other"
+      ],
+      "source_code_bundles": [
+        "start",
+        "dictionary_identifier",
+        "raw_alpha_or_underscore",
+        "raw_digit",
+        "raw_space_or_tab",
+        "raw_newline",
+        "raw_punctuation",
+        "raw_other"
+      ]
+    },
+    "global_mixture_weight": 0.25,
+    "krichevsky_trofimov_pseudocount": 0.5,
+    "previous_class_mixture_weight": 0.75,
+    "projection_startup_allowance_bytes_per_item": 65536,
+    "trained_prior_weight": "one plus integer square root of the training-sample occurrence count; absent raw bytes receive weight one",
+    "variants": [
+      "p0-adaptive-byte-unigram",
+      "p1-adaptive-byte-previous-class",
+      "p2-adaptive-mixed-token-previous-class"
+    ]
+  },
+  "full_codec_build_admissions": 0,
+  "gates": {
+    "final_codec_gate_reminder": {
+      "complete_artifact_accounting_required": true,
+      "exact_roundtrip_required": true,
+      "maximum_item_regression_percent": 0.5,
+      "minimum_aggregate_gain_vs_strongest_complete_baseline_percent": 5.0,
+      "two_byte_identical_measured_artifacts_required": true
+    },
+    "full_codec_build_admission": {
+      "dictionary_gain_over_byte_previous_class_percent": 3.0,
+      "maximum_dictionary_bytes": 524288,
+      "minimum_conservative_aggregate_gain_vs_kanzi_percent": 10.0,
+      "minimum_conservative_item_gain_vs_kanzi_percent": 5.0,
+      "required_variant": "p2-adaptive-mixed-token-previous-class"
+    }
+  },
+  "name": "text-source-predictor-entropy-ceiling-result-v1",
+  "private_holdout_status": "sealed and unaccessed",
+  "sampling": {
+    "evaluation_chunk_bytes": 1048576,
+    "evaluation_chunks_per_item": 12,
+    "offset_policy": "For N bytes and C chunks of S bytes, use offset floor(i * (N - S) / (C - 1)) for i in [0,C); use the complete item once when N <= S.",
+    "training_chunk_bytes": 1048576,
+    "training_maximum_chunks_per_item": 32,
+    "upper_bound": "mean sampled bits-per-byte plus two population-standard-error units; single-chunk items use their observed bits-per-byte"
+  },
+  "schema_version": 1,
+  "tracks": [
+    {
+      "aggregates": [
+        {
+          "gain_vs_kanzi_percent": -655.8754923372672,
+          "kanzi_bytes": 39328985,
+          "minimum_item_gain_vs_kanzi_percent": -933.2311291949754,
+          "projected_complete_aggregate_bytes": 297278159,
+          "variant": "p0-adaptive-byte-unigram"
+        },
+        {
+          "gain_vs_kanzi_percent": -591.0142176310932,
+          "kanzi_bytes": 39328985,
+          "minimum_item_gain_vs_kanzi_percent": -831.1853287112065,
+          "projected_complete_aggregate_bytes": 271768878,
+          "variant": "p1-adaptive-byte-previous-class"
+        },
+        {
+          "gain_vs_kanzi_percent": -498.82859677156677,
+          "kanzi_bytes": 39328985,
+          "minimum_item_gain_vs_kanzi_percent": -705.4957580168984,
+          "projected_complete_aggregate_bytes": 235513209,
+          "variant": "p2-adaptive-mixed-token-previous-class"
+        }
+      ],
+      "axiom_win": false,
+      "decision": "reject_predictor_family_below_entropy_headroom_gate",
+      "dictionary": {
+        "bytes": 129838,
+        "entry_count": 8192,
+        "observed_candidate_tokens": 162542,
+        "sha256": "0acb58943e5ab6a98a38890624e329d96e5e18a99d0f4521bd46c2dcde216b5f",
+        "training_sample_bytes": 58720256
+      },
+      "dictionary_gain_over_byte_previous_class_percent": 13.340625779821632,
+      "evaluation_items": [
+        "rust-1.97.1-source",
+        "llvm-22.1.8-source"
+      ],
+      "full_codec_build_admitted": false,
+      "hypothesis_id": "ts-p1-mixed-predictor-counted-dictionary",
+      "items": [
+        {
+          "item_id": "rust-1.97.1-source",
+          "kanzi_bytes": 11798609,
+          "sample_offsets": [
+            0,
+            17261207,
+            34522415,
+            51783622,
+            69044830,
+            86306037,
+            103567245,
+            120828452,
+            138089660,
+            155350867,
+            172612075,
+            189873283
+          ],
+          "sampled_bytes": 12582912,
+          "source_bytes": 190921859,
+          "source_sha256": "655025f34d7887305c90af2bf0936bbacc92ffeaef5d790c5ba566da0cd32659",
+          "variants": [
+            {
+              "conservative_bits_per_byte": 5.10539192176638,
+              "gain_vs_kanzi_percent": -933.2311291949754,
+              "projected_complete_item_bytes": 121906901,
+              "projected_core_bytes": 121906901,
+              "sample_chunk_count": 12,
+              "sample_mean_bits_per_byte": 4.971240899478103,
+              "sample_standard_error_bits_per_byte": 0.06707551114413807,
+              "variant": "p0-adaptive-byte-unigram"
+            },
+            {
+              "conservative_bits_per_byte": 4.600892934179057,
+              "gain_vs_kanzi_percent": -831.1853287112065,
+              "projected_complete_item_bytes": 109866916,
+              "projected_core_bytes": 109866916,
+              "sample_chunk_count": 12,
+              "sample_mean_bits_per_byte": 4.461422822200217,
+              "sample_standard_error_bits_per_byte": 0.06973505598942,
+              "variant": "p1-adaptive-byte-previous-class"
+            },
+            {
+              "conservative_bits_per_byte": 3.9740622924406996,
+              "gain_vs_kanzi_percent": -705.4957580168984,
+              "projected_complete_item_bytes": 95037295,
+              "projected_core_bytes": 94907457,
+              "sample_chunk_count": 12,
+              "sample_mean_bits_per_byte": 3.8833544717699158,
+              "sample_standard_error_bits_per_byte": 0.045353910335391996,
+              "variant": "p2-adaptive-mixed-token-previous-class"
+            }
+          ]
+        },
+        {
+          "item_id": "llvm-22.1.8-source",
+          "kanzi_bytes": 27530376,
+          "sample_offsets": [
+            0,
+            24298145,
+            48596290,
+            72894436,
+            97192581,
+            121490727,
+            145788872,
+            170087018,
+            194385163,
+            218683309,
+            242981454,
+            267279600
+          ],
+          "sampled_bytes": 12582912,
+          "source_bytes": 268328176,
+          "source_sha256": "8a54e60b4c022683a0261ada2a2203f9d56fd3e5e48a7fc36c9de97050c31509",
+          "variants": [
+            {
+              "conservative_bits_per_byte": 5.226606450519409,
+              "gain_vs_kanzi_percent": -537.0100357510555,
+              "projected_complete_item_bytes": 175371258,
+              "projected_core_bytes": 175371258,
+              "sample_chunk_count": 12,
+              "sample_mean_bits_per_byte": 5.0046564749854845,
+              "sample_standard_error_bits_per_byte": 0.11097498776696228,
+              "variant": "p0-adaptive-byte-unigram"
+            },
+            {
+              "conservative_bits_per_byte": 4.825029640204202,
+              "gain_vs_kanzi_percent": -488.084819473588,
+              "projected_complete_item_bytes": 161901962,
+              "projected_core_bytes": 161901962,
+              "sample_chunk_count": 12,
+              "sample_mean_bits_per_byte": 4.57557049477031,
+              "sample_standard_error_bits_per_byte": 0.12472957271694633,
+              "variant": "p1-adaptive-byte-previous-class"
+            },
+            {
+              "conservative_bits_per_byte": 4.186228346881106,
+              "gain_vs_kanzi_percent": -410.72950111542247,
+              "projected_complete_item_bytes": 140605752,
+              "projected_core_bytes": 140475914,
+              "sample_chunk_count": 12,
+              "sample_mean_bits_per_byte": 4.045697479404882,
+              "sample_standard_error_bits_per_byte": 0.07026543373811223,
+              "variant": "p2-adaptive-mixed-token-previous-class"
+            }
+          ]
+        }
+      ],
+      "track": "source_code_bundles",
+      "training_items": [
+        "cpython-3.14.6-source",
+        "typescript-6.0.3-source"
+      ]
+    },
+    {
+      "aggregates": [
+        {
+          "gain_vs_kanzi_percent": -295.7748130447845,
+          "kanzi_bytes": 10924274,
+          "minimum_item_gain_vs_kanzi_percent": -295.7748130447845,
+          "projected_complete_aggregate_bytes": 43235525,
+          "variant": "p0-adaptive-byte-unigram"
+        },
+        {
+          "gain_vs_kanzi_percent": -264.9584860284537,
+          "kanzi_bytes": 10924274,
+          "minimum_item_gain_vs_kanzi_percent": -264.9584860284537,
+          "projected_complete_aggregate_bytes": 39869065,
+          "variant": "p1-adaptive-byte-previous-class"
+        },
+        {
+          "gain_vs_kanzi_percent": -172.2265754227695,
+          "kanzi_bytes": 10924274,
+          "minimum_item_gain_vs_kanzi_percent": -172.2265754227695,
+          "projected_complete_aggregate_bytes": 29738777,
+          "variant": "p2-adaptive-mixed-token-previous-class"
+        }
+      ],
+      "axiom_win": false,
+      "decision": "reject_predictor_family_below_entropy_headroom_gate",
+      "dictionary": {
+        "bytes": 79833,
+        "entry_count": 8192,
+        "observed_candidate_tokens": 319108,
+        "sha256": "4cf5fedbfeac0b424b483219db5100dde19d78a4ece7da1cbc82d77d770a6df7",
+        "training_sample_bytes": 67108864
+      },
+      "dictionary_gain_over_byte_previous_class_percent": 25.408892834582403,
+      "evaluation_items": [
+        "enwikiversity-20260701"
+      ],
+      "full_codec_build_admitted": false,
+      "hypothesis_id": "wk-p1-markup-predictor-counted-dictionary",
+      "items": [
+        {
+          "item_id": "enwikiversity-20260701",
+          "kanzi_bytes": 10924274,
+          "sample_offsets": [
+            0,
+            6004425,
+            12008850,
+            18013275,
+            24017700,
+            30022125,
+            36026550,
+            42030975,
+            48035400,
+            54039825,
+            60044250,
+            66048676
+          ],
+          "sampled_bytes": 12582912,
+          "source_bytes": 67097252,
+          "source_sha256": "35d42b7137f5d85772cb44ea214dcf1f6df9c0bb59f65dde3170df8c0a8dfbe4",
+          "variants": [
+            {
+              "conservative_bits_per_byte": 5.147154292367029,
+              "gain_vs_kanzi_percent": -295.7748130447845,
+              "projected_complete_item_bytes": 43235525,
+              "projected_core_bytes": 43235525,
+              "sample_chunk_count": 12,
+              "sample_mean_bits_per_byte": 5.0583396025347085,
+              "sample_standard_error_bits_per_byte": 0.04440734491616001,
+              "variant": "p0-adaptive-byte-unigram"
+            },
+            {
+              "conservative_bits_per_byte": 4.745771552894153,
+              "gain_vs_kanzi_percent": -264.9584860284537,
+              "projected_complete_item_bytes": 39869065,
+              "projected_core_bytes": 39869065,
+              "sample_chunk_count": 12,
+              "sample_mean_bits_per_byte": 4.678493208550772,
+              "sample_standard_error_bits_per_byte": 0.03363917217169068,
+              "variant": "p1-adaptive-byte-previous-class"
+            },
+            {
+              "conservative_bits_per_byte": 3.528419611907788,
+              "gain_vs_kanzi_percent": -172.2265754227695,
+              "projected_complete_item_bytes": 29738777,
+              "projected_core_bytes": 29658944,
+              "sample_chunk_count": 12,
+              "sample_mean_bits_per_byte": 3.416172089076768,
+              "sample_standard_error_bits_per_byte": 0.05612376141550996,
+              "variant": "p2-adaptive-mixed-token-previous-class"
+            }
+          ]
+        }
+      ],
+      "track": "english_wikimedia_wikitext",
+      "training_items": [
+        "enwikibooks-20260701",
+        "enwikinews-20260701"
+      ]
+    }
+  ],
+  "validation_status": "sealed and unaccessed"
+}

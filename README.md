@@ -56,6 +56,48 @@ frozen product-delivery gate passed with the standalone decoder at
 The delivery A/B did not rerun standard codecs, so its speed numbers are kept
 separate from the immutable same-run standards table below.
 
+A later frozen Linux A/B tested whether reusing one Zstandard decompression
+context per existing stream worker would fix the public-validation memory
+miss. It preserved exact output and essentially all speed (**536.64 MB/s**
+versus **537.54 MB/s**), but peak RSS was unchanged at **625.2 MiB** on every
+development input. The hypothesis is rejected; it does not alter the consumed
+public-validation no-pass or the retained baseline.
+
+![Rejected JLS2 reusable-context memory experiment](runs/jls2-context-reuse-development-v1/publication/comparison.svg)
+
+The [reusable-context publication](runs/jls2-context-reuse-development-v1/publication/README.md)
+binds all 64 exact scheduled decodes to the hosted workflow, binary hashes,
+artifact digest, raw result, runner provenance, frozen gates, and claim ceiling.
+
+A second frozen Linux A/B then removed the remaining single-worker dispatch
+boundary while retaining A1's reusable contexts. It improved paired median
+decode throughput by **2.79%** (**439.47 MB/s** versus **427.55 MB/s**), but
+both variants still peaked at **627.2 MiB** and the stress reduction was
+**0.00%**. A2 is therefore also rejected; neither A1 nor A2 replaces the
+pre-A1 product baseline.
+
+![Rejected JLS2 inline-single-worker memory experiment](runs/jls2-context-reuse-inline-single-worker-a2-development-v1/publication/comparison.svg)
+
+The [A2 publication](runs/jls2-context-reuse-inline-single-worker-a2-development-v1/publication/README.md)
+binds the 64 exact scheduled decodes to hosted run `29676674924`, the exact A1
+and A2 binaries, raw artifact digest, recomputed gates, and development-only
+claim ceiling.
+
+A hosted A3 diagnostic then measured the maximum memory reduction attributable
+to decoded-segment concurrency and allocator release without changing the A2
+product. All decodes were exact and topology repeated identically, but the
+minimum conservative credit was **83,722,100 bytes** and the minimum observed
+phase-correlated RSS reduction was **99,414,016 bytes**, both below the frozen
+**105,202,484-byte** requirement. A3 is rejected and **no product A/B is
+authorized**.
+
+![Rejected JLS2 A3 decoded-concurrency attribution](runs/jls2-declared-size-lifetime-a3-attribution-v1/publication/comparison.svg)
+
+The [A3 publication](runs/jls2-declared-size-lifetime-a3-attribution-v1/publication/README.md)
+binds hosted run `29765080842`, job `88429200694`, artifact `8470661511`, the
+GitHub artifact digest, exact A2 binary and protected sources, raw phase
+telemetry, recomputed gates, and the development-only claim ceiling.
+
 <details>
 <summary><strong>Open the full same-run scorecard</strong></summary>
 
@@ -94,23 +136,131 @@ claim boundary. Its optimization lineage remains independently inspectable:
 [scheduling A/B](runs/clue-jls2-decode-scheduling-v1/README.md), and
 [cold-start A/B](runs/jls2-cold-start-v1/README.md).
 
+## Text and source-code frontier
+
+The frozen development census is complete: **630/630 exact trials** across 15
+single-threaded practical codecs and seven licensed inputs. Kanzi-max is the
+ratio leader on both tracks: **45,550,471 bytes from 529,449,573 source-code
+bytes (8.60%)** and **35,081,062 bytes from 201,311,173 Wikimedia bytes
+(17.43%)**. Those ratio points cost roughly 1.5–1.9 GiB peak RSS and 2.3–3.5
+MB/s, so faster and lower-memory operating points remain visible in the chart.
+
+The first frozen Axiom representation probe is also complete: **33/33 exact,
+deterministic trials**. TS-H1 improved source-code size by only **0.213%** and
+Wikimedia by **0.0068%** versus Kanzi-max, missing its 0.5% hypothesis gate.
+TS-H2 made source-code size **0.383% worse** and included a **0.893% regression**
+on LLVM, missing both its aggregate and per-item gates. Both hypotheses are
+rejected; neither will be promoted into the product.
+
+![Axiom structural variants and every practical text/source standard compared by complete size, speed, memory, exactness, and determinism](runs/text-source-structural-transform-development-v1/publication/comparison.svg)
+
+The next frozen entropy-ceiling probe trained counted dictionaries only on
+CPython, TypeScript, Wikibooks, and Wikinews, then evaluated on separate Rust,
+LLVM, and Wikiversity items. Its mixed token/class model improved on the weak
+byte/class ablation by **13.34%** for source and **25.41%** for Wikimedia, but
+remained **498.83% larger than Kanzi-max** on Rust + LLVM and **172.23% larger**
+on Wikiversity. Both predictor successors are rejected, and neither merits an
+exact codec build.
+
+![Axiom predictor entropy estimates and all 15 practical standards on the identical evaluation subsets](runs/text-source-predictor-entropy-ceiling-publication-v1/comparison.svg)
+
+The next training-only decomposition screen asked a narrower question before
+we spent time on a new codec: does explicit single-reference LZP factorization
+improve the already-strong TPAQX path? Across **24/24 exact, deterministic
+trials**, the answer was no. The best variant, K1, was **1.63% larger than
+Kanzi-max** on CPython + TypeScript and **0.21% larger** on Wikibooks +
+Wikinews; K2 and K3 were worse. The shared long-range direction is rejected,
+so no Axiom prototype was built and no Axiom win exists.
+
+![Exact long-range diagnostics and all 15 practical standards on the identical training subsets](runs/text-source-long-range-screen-v1/publication/comparison.svg)
+
+The next exact Axiom experiment tested a different signal: canonical
+content-similarity ordering across records before the same strongest backend.
+Q1 completed **8/8 exact trials** and produced byte-identical artifacts in both
+repetitions, but every item became larger. It was **1.42% larger than
+Kanzi-max** on CPython + TypeScript and **1.83% larger** on Wikibooks +
+Wikinews; it was also 1.50% and 1.83% larger than the prior exact TS-H1 demux
+control. This exact bounded-minhash record-neighborhood design is rejected.
+
+![Axiom Q1 record-neighborhood candidate, attribution control, and all 15 practical standards on the identical training subsets](runs/text-source-record-neighborhood-screen-v1/publication/comparison.svg)
+
+The next cheap transform decomposition tested four exact BWT pipelines before
+any token-BWT implementation work. All **32/32 trials** were exact and all
+**16/16 item/variant pairs** were deterministic, but the best BWT chain was
+**34.75% larger than Kanzi-max** on CPython + TypeScript and **13.42% larger**
+on Wikibooks + Wikinews. Raw and token BWT are therefore rejected for both
+tracks; no Axiom artifact was built and `axiom_wins` remains zero.
+
+![All four BWT diagnostics compared transparently with Kanzi-max](runs/text-source-bwt-screen-v1/publication/comparison.svg)
+
+The subsequent WK-C1 experiment tested recursive wikitext template parsing,
+schema columns, and a structure-only attribution control as complete decodable
+artifacts. All **8/8 trials** round-tripped exactly and both repetitions were
+byte-identical, but the full candidate was **0.158% larger than Kanzi-max** on
+Wikibooks + Wikinews. It beat its structure-only ablation by only **0.032%**,
+far below the frozen 0.5% attribution and 1% advancement gates. WK-C1 is
+rejected; validation, holdout, and reserved evaluation remain sealed.
+
+![WK-C1 full schema columns, structure-only ablation, and frozen controls compared by complete bytes](runs/text-source-wk-c1-screen-v1/publication/comparison.svg)
+
+This establishes the practical target and records clean negative Axiom
+results; it is **not a category win**. WK-C1 is the latest complete Axiom
+artifact, while the BWT rows are complete competitor
+diagnostics rather than Axiom artifacts, and the predictor rows are conservative
+estimates, not decodable artifacts, and carry no speed, memory, exactness, or
+portability claim. ZPAQ, paq8px, cmix, and NNCP remain in a separate
+research-ceiling tier. The latest [WK-C1 publication
+bundle](runs/text-source-wk-c1-screen-v1/publication/README.md) exposes all eight
+receipts, the complete-byte chart, candidate speed and memory, frozen controls,
+recomputed gates, provenance, and an offline verifier. The earlier [BWT publication
+bundle](runs/text-source-bwt-screen-v1/publication/README.md) exposes every
+complete diagnostic size, same-host speed and memory, exactness, determinism,
+track decision, and the deliberately empty Axiom-win count. The earlier [record-neighborhood publication
+bundle](runs/text-source-record-neighborhood-screen-v1/publication/README.md)
+exposes the complete Axiom artifacts, all eight sanitized receipts, TS-H1
+attribution control, all 15 standards, and an offline verifier. The earlier [long-range publication
+bundle](runs/text-source-long-range-screen-v1/publication/README.md) exposes all
+24 sanitized receipts, all 15 standards, all three exact competitor
+diagnostics, the deliberately empty Axiom row, and an offline verifier. The [predictor publication
+bundle](runs/text-source-predictor-entropy-ceiling-publication-v1/README.md)
+shows every practical standard, all three estimates, and the exact claim
+boundary. The earlier [structural publication
+bundle](runs/text-source-structural-transform-development-v1/publication/README.md)
+contains every practical standard and Axiom row, raw-receipt commitments,
+per-item results, speed, memory, exactness, determinism, and the claim ceiling.
+The earlier [practical census](runs/text-source-development-baseline-census-v1/publication/README.md)
+remains independently reproducible.
+
 ## Measured standings
 
-| Category | Best measured result | Gate status and evidence |
-| --- | --- | --- |
-| JSON and machine logs | JLS2 is 52.97% smaller than the strongest eligible standard on the first frozen public-validation score | Ratio, both families, speed, exactness, integrity, and compression memory passed; overall gate failed only decoder RSS at 621.3 MiB vs 512 MiB ([immutable result](runs/clue-jls2-public-validation-v1/publication/README.md), [import receipt](runs/clue-jls2-public-validation-v1-import.json)) |
-| Source-code bundles | Four-family development corpus acquired and byte-verified; no codec score yet | Untested; run the expanded practical census before choosing a specialist ([receipt](runs/text-source-development-acquisition-v1.json), [status](docs/benchmarks/2026-07-17-text-source-development-acquisition.md)) |
-| English Wikimedia wikitext | Three-family development corpus acquired and byte-verified; no codec score yet | Untested; enwik9 is diagnostic-only, never unseen evidence ([receipt](runs/text-source-development-acquisition-v1.json), [status](docs/benchmarks/2026-07-17-text-source-development-acquisition.md)) |
-| Delimited tables | TBS1 vs 7-Zip-9: 3.48% larger aggregate | Frozen gate failed ([decision](docs/benchmarks/2026-07-17-tbl1-public-validation-decision.md), [Fresh successor corpus protocol](docs/benchmarks/2026-07-17-tabular-successor-corpus-protocol.md)) |
-| Dense matrices | DMS2 vs Brotli-11: 43.55% larger; 33.45 / 313.99 MB/s compression / decompression | Frozen gate failed ([evidence](runs/dms2-public-validation-v1/README.md)) |
-| General files | Exact `.clab` fallback; no strongest-standard lead established | Alpha |
+| Category | Objective completion | Best measured result | Gate status and evidence |
+| --- | ---: | --- | --- |
+| JSON and machine logs | **50%** | JLS2 is 52.97% smaller than the strongest eligible standard on the first frozen public-validation score | Ratio, both families, speed, exactness, integrity, and compression memory passed; overall gate failed only decoder RSS at 621.3 MiB vs 512 MiB ([immutable result](runs/clue-jls2-public-validation-v1/publication/README.md), [import receipt](runs/clue-jls2-public-validation-v1-import.json)) |
+| Source-code bundles | **10%** | Exact Axiom Q1 was 1.42% larger than Kanzi-max; the later non-Axiom BWT ceiling was at least 34.75% larger | Structural, low-order predictor, explicit-LZP, record-neighborhood, and BWT directions all failed frozen gates; next candidate must expose grammar productions and identifier bindings ([latest chart](runs/text-source-bwt-screen-v1/publication/README.md), [protocol](docs/benchmarks/2026-07-18-text-source-bwt-screen-protocol.md)) |
+| English Wikimedia wikitext | **10%** | Exact WK-C1 was 0.158% larger than Kanzi-max and only 0.032% better than its structure-only ablation | Structural, low-order predictor, explicit-LZP, record-neighborhood, BWT, and recursive template-column directions all failed frozen gates; the next candidate must improve prediction or coding rather than only rearrange structure ([latest chart](runs/text-source-wk-c1-screen-v1/publication/README.md), [protocol](docs/benchmarks/2026-07-18-text-source-wk-c1-protocol.md)) |
+| Delimited tables | **50%** | TBS1 vs 7-Zip-9: 3.48% larger aggregate | Frozen gate failed ([decision](docs/benchmarks/2026-07-17-tbl1-public-validation-decision.md), [Fresh successor corpus protocol](docs/benchmarks/2026-07-17-tabular-successor-corpus-protocol.md)) |
+| Dense matrices and time series | **20%** | DMS2 vs Brotli-11: 43.55% larger; 33.45 / 313.99 MB/s compression / decompression | Frozen gate failed ([evidence](runs/dms2-public-validation-v1/README.md)) |
+| General binary/archive | **10%** | Exact `.clab` fallback; no strongest-standard lead established | Alpha |
+| Incompressible/already compressed | **10%** | Exact fallback unit behavior; the honest target is an equally framed store-size tie, not an impossible random-data ratio win | No formal measurement yet; no-expansion, bounded selector, 1/4 GiB streaming, native speed/memory, corruption, and portability gates are frozen ([protocol](docs/benchmarks/2026-07-17-incompressible-precompressed-protocol.md)) |
+
+The [category portfolio scorecard](docs/benchmarks/2026-07-16-category-portfolio-status.md)
+tracks objective completion from 0% to 100% using ten equally weighted binary
+evidence gates per category. Partial or failed validation does not receive
+credit for a complete-validation gate; 100% requires private-holdout success
+and independent reproduction.
 
 Consumed validation families are never reused as fresh evidence. The benchmark
 runner also has a checked-in [manifest-binding gate](runs/benchmark-manifest-binding-v1/README.md).
 
 ## Try it
 
-Python 3.9 or newer is required. Native builds also require Rust stable.
+Python 3.9 or newer is required. Install the published package from PyPI:
+
+```bash
+python -m pip install compression-lab
+```
+
+For a source checkout, native builds also require Rust stable:
 
 ```bash
 git clone https://github.com/Atomics-hub/compression-lab.git

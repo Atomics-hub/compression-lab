@@ -1,0 +1,115 @@
+{
+  "accounting": {
+    "complete_bundle_rule": "Payload/archive bytes plus one exact target decoder distribution, any required dictionary, file/framing manifest, and license/version manifest. Nothing is amortized.",
+    "measurement_target": "linux-x86_64-glibc-2.28",
+    "status": "incomplete_three_linux_distribution_locks_pending",
+    "symmetric_with_candidate": "The Linux CPython candidate runtime is the only candidate distribution eligible for this target. macOS E1 identities are provenance references only and cannot substitute for Linux G0 baseline distributions."
+  },
+  "baselines": [
+    {
+      "id": "kanzi-max",
+      "linux_distribution": null,
+      "reference_e1_macos_executable_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+      "status": "pending_exact_linux_distribution"
+    },
+    {
+      "id": "xz-lzma2-9e",
+      "linux_distribution": null,
+      "reference_e1_macos_executable_sha256": "995c8e2f72446f0d0e3a29f6c3d52286cfecedfc4ffb2b42d25c3ce1ad77034c",
+      "status": "pending_exact_linux_distribution"
+    },
+    {
+      "dictionary": {
+        "bytes": null,
+        "sha256": null,
+        "training_command": [
+          "zstd",
+          "--train",
+          "--maxdict=112640",
+          "--threads=1",
+          "--train-fastcover=k=50,d=8,f=20,steps=4,split=100,accel=1"
+        ],
+        "training_input": "Only dictionary_fit files in frozen manifest order; dictionary bytes freeze before training_screen or development_holdout measurement."
+      },
+      "id": "zstd-22-trained-dictionary",
+      "linux_distribution": null,
+      "reference_e1_macos_executable_sha256": "aff8169fb421bb925fb16c44a7e0143fa2c7a941dc45cce76b15062a2ce54917",
+      "status": "pending_exact_linux_distribution_and_corpus_derived_dictionary"
+    },
+    {
+      "complete_decoder_distribution_bytes": 10338103,
+      "components": [
+        {
+          "bytes": 9890616,
+          "path": "bin/cmix",
+          "sha256": "59a16200f2b00ecd72c7c91217e5a5f7df467dc5952a8fdcaafbcf1457b0a644"
+        },
+        {
+          "bytes": 411996,
+          "path": "dictionary/english.dic",
+          "sha256": "4c8568cca9343b9a6212477880f56f8efd162f8784224a25edd043097d36215a"
+        },
+        {
+          "bytes": 35147,
+          "path": "COPYING",
+          "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903"
+        },
+        {
+          "bytes": 344,
+          "path": "docs/benchmarks/source-python-gdb1-cmix-v21-linux-x86_64-VERSION.txt",
+          "sha256": "ddbeb7d4b48c0fc8083ed069c986239c8fbd1e0fcaeb2ac9c2c420a28179bb76"
+        }
+      ],
+      "id": "cmix-v21-text",
+      "linux_distribution": {
+        "build_command": [
+          "zig",
+          "c++",
+          "-target",
+          "x86_64-linux-gnu.2.28",
+          "-std=c++14",
+          "-Wall",
+          "-O3",
+          "-mavx2",
+          "<upstream-makefile-source-roster>",
+          "-o",
+          "cmix"
+        ],
+        "build_repetitions_identical": 2,
+        "external_system_dependencies": [
+          "ld-linux-x86-64.so.2",
+          "libc.so.6",
+          "libdl.so.2",
+          "libm.so.6",
+          "libpthread.so.0"
+        ],
+        "minimum_cpu": "x86-64 with AVX2",
+        "target": "x86_64-linux-gnu.2.28",
+        "zig": {
+          "archive_bytes": 52238004,
+          "archive_sha256": "b23d70deaa879b5c2d486ed3316f7eaa53e84acf6fc9cc747de152450d401489",
+          "official_url": "https://ziglang.org/download/0.16.0/zig-aarch64-macos-0.16.0.tar.xz",
+          "version": "0.16.0"
+        }
+      },
+      "source": {
+        "archive_bytes": 827233,
+        "archive_sha256": "bbe21d7a16f4265765b4e18299f75fb8849c95574c92078ed628203b75f7edfb",
+        "commit": "c443679c0773b8ae5b05423827804063d82ae7a8",
+        "license_spdx": "GPL-3.0",
+        "official_url": "https://codeload.github.com/byronknoll/cmix/tar.gz/c443679c0773b8ae5b05423827804063d82ae7a8"
+      },
+      "status": "exact_linux_distribution_locked_not_executed"
+    }
+  ],
+  "bindings": {
+    "e1_toolchain_sha256": "eaa6902048f65d27975ef0c81f3835a52e52bf20127f6c7f1aa5fad4b51381ba",
+    "protocol_sha256": "59f635f56738d6c908828735646dd463bffbdf44f1801064cf6317ca8a4b3954",
+    "runtime_distribution_sha256": "c1c3e9ff49603433a72463626bbeccc394c95def1873359fc7ec6341a65c024e"
+  },
+  "claim_ceiling": "One verified Linux cmix decoder distribution and frozen accounting rules only. Three required Linux distributions and the corpus-derived zstd dictionary remain absent, so G0 measurement is forbidden.",
+  "created_before_corpus_access": true,
+  "measurement_authorized": false,
+  "name": "source-python-gdb1-baseline-distributions-v1",
+  "schema_version": 1
+}

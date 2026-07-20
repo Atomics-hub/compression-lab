@@ -1,0 +1,157 @@
+{
+  "schema_version": 1,
+  "name": "frontier-headroom-oracle-routing-census-e1-v1",
+  "declared_at": "2026-07-20",
+  "frozen_before_measurement": true,
+  "objective": "Measure how much category headroom remains between a single practical ratio leader, an exact per-item oracle, an optional bounded-segment oracle, and the strongest presently feasible self-contained research ceiling before choosing another representation hypothesis.",
+  "claim_ceiling": "Licensed training-only frontier and oracle-routing census. It is not an Axiom candidate, category win, validation or holdout result, product selector, independent reproduction, commercial benchmark across unlike hosts, or state-of-the-art evidence.",
+  "manifest_bindings": {
+    "runs/clue-json-log-development-acquisition-v1.json": "4ecfb62d40c3a72ef6a5946c014bf957666935d38fc3bf83912df9a40e1a66ff",
+    "runs/text-source-development-acquisition-v1.json": "5c5c3b5ad9c83847801ca3d330c17350bbc34a17063368b8c5f42fe44f60ab98",
+    "config/tabular-corpus-v1.json": "a72f6faee6b638bfe481d225766c77f3ef6bd54b419d7e676e66f15d8dc5741e",
+    "config/tabular-successor-corpus-v1.json": "f2ede2a954f46413a4d6fd87692523e4d1e93d69ed4248af1da66dc2dd800e24"
+  },
+  "information_boundary": {
+    "allowed": "Only the 17 exact development items listed below may be opened after a clean execution lock binds every executable.",
+    "forbidden": "Never open, stat, hash, sample, list, or derive statistics from any public-validation, consumed-validation, reserved-evaluation, private-holdout, or unlisted path.",
+    "private_holdout_status": "sealed; identities and bytes absent from this plan",
+    "public_validation_status": "sealed or consumed and categorically forbidden to E1",
+    "failure_policy": "Any roster, digest, size, license, executable, command, host, receipt, schedule, exactness, accounting, or seal mismatch stops before the next codec invocation and cannot be converted into a partial result."
+  },
+  "items": [
+    {"id": "clue-early-development", "category": "json_logs", "source": "runs/clue-json-log-development-acquisition-v1.json", "license": "CC-BY-4.0", "bytes": 62267473, "sha256": "4f1571569ebdf98621bbd29da45ba84ab37b4f1f1033aacf822dd5b3f40358fe"},
+    {"id": "clue-middle-development", "category": "json_logs", "source": "runs/clue-json-log-development-acquisition-v1.json", "license": "CC-BY-4.0", "bytes": 69847327, "sha256": "5ee50c36db110b023faf412e05398402e25ed59776ef5ee9323339f8b1aa4fa5"},
+    {"id": "clue-late-development", "category": "json_logs", "source": "runs/clue-json-log-development-acquisition-v1.json", "license": "CC-BY-4.0", "bytes": 71463332, "sha256": "71091e9fa5d8fd20944e1bd5707f1c832470c56d4b662fc6ef3d34e9478eb739"},
+    {"id": "cpython-3.14.6-source", "category": "source_code_bundles", "source": "runs/text-source-development-acquisition-v1.json", "license": "PSF-2.0", "bytes": 44506231, "sha256": "a5148815b1257d5e9f040a6995b09493ceaeecd1f1791c2cb4a858f177cbf1c3"},
+    {"id": "typescript-6.0.3-source", "category": "source_code_bundles", "source": "runs/text-source-development-acquisition-v1.json", "license": "Apache-2.0", "bytes": 25693307, "sha256": "4c35679d66dc77e54cc87ee7b6fe17cf2262bc3242c37eff3fa527e385d64480"},
+    {"id": "enwikibooks-20260701", "category": "english_wikimedia_wikitext", "source": "runs/text-source-development-acquisition-v1.json", "license": "CC-BY-SA-4.0 AND GFDL-1.3-or-later", "bytes": 67107953, "sha256": "d4e99fa76d224995f03512df7fe2d9b0411e283b21157c934be6c10e2059998a"},
+    {"id": "enwikinews-20260701", "category": "english_wikimedia_wikitext", "source": "runs/text-source-development-acquisition-v1.json", "license": "CC-BY-SA-4.0 AND GFDL-1.3-or-later", "bytes": 67105968, "sha256": "ac803f7c66400659801b4dd72576ad88602952db4dbc78e82c1c4c4d39c92b9e"},
+    {"id": "uci-autouniv-au2", "category": "tabular_records", "source": "config/tabular-corpus-v1.json", "license": "CC-BY-4.0", "bytes": 11238737, "sha256": "23e2c45b0066792df7efb7ca7bf5eebcf50a5eb533dc325ccb217131cc89373d"},
+    {"id": "uci-bike-sharing-hour", "category": "tabular_records", "source": "config/tabular-successor-corpus-v1.json", "license": "CC-BY-4.0", "bytes": 1156736, "sha256": "e03de4ee4ef4dc376ac6e04bf829673c6269e8eba5c60fa121640fa2f829504f"},
+    {"id": "uci-appliances-energy", "category": "tabular_records", "source": "config/tabular-successor-corpus-v1.json", "license": "CC-BY-4.0", "bytes": 11979363, "sha256": "2820bf712ad0275cb18b85a05250926100d8e65ebb9f4d2d016ca91ea152a25d"},
+    {"id": "uci-seoul-bike", "category": "tabular_records", "source": "config/tabular-successor-corpus-v1.json", "license": "CC-BY-4.0", "bytes": 604166, "sha256": "373339b71a8935d69e9af0abf26a70744632119862eeb3919efb389a7b749c60"},
+    {"id": "uci-covertype", "category": "numeric_matrices_timeseries", "source": "config/tabular-corpus-v1.json", "license": "CC-BY-4.0", "bytes": 67108763, "sha256": "6b64122ff1c874ff607410378b453bacb5ad0afb9a8d0d2a729983bbb7cec1c1"},
+    {"id": "uci-facebook-comment-volume-v4", "category": "numeric_matrices_timeseries", "source": "config/tabular-corpus-v1.json", "license": "CC-BY-4.0", "bytes": 53242583, "sha256": "7df42ec5f43f5613df0bab8c9bc5b82253dce20cb00dd7105da3cd9b9370c9c5"},
+    {"id": "uci-gas-sensor-raw", "category": "numeric_matrices_timeseries", "source": "config/tabular-corpus-v1.json", "license": "CC-BY-4.0", "bytes": 55731532, "sha256": "9f87f5e2b64b21e7db4a0da712563eddf209dabd9c986ab29ecd45d2d9ee9728"},
+    {"id": "uci-semeion", "category": "numeric_matrices_timeseries", "source": "config/tabular-successor-corpus-v1.json", "license": "CC-BY-4.0", "bytes": 2889702, "sha256": "f43228ae3da5ea6a3c95069d53450b86166770e3b719dcc333182128fe08d4b1"},
+    {"id": "uci-optdigits-train", "category": "numeric_matrices_timeseries", "source": "config/tabular-successor-corpus-v1.json", "license": "CC-BY-4.0", "bytes": 563639, "sha256": "e1b683cc211604fe8fd8c4417e6a69f31380e0c61d4af22e93cc21e9257ffedd"},
+    {"id": "uci-multiple-features-pixels", "category": "numeric_matrices_timeseries", "source": "config/tabular-successor-corpus-v1.json", "license": "CC-BY-4.0", "bytes": 1442000, "sha256": "70a1cd033add46614464a8740ddc23c3693765985bde52ccb6b702bff23b64f1"}
+  ],
+  "excluded_categories": {
+    "general_binary_archive": "No frozen licensed lineage-disjoint training corpus exists yet.",
+    "incompressible_precompressed": "The frozen development corpus is not yet constructed and byte-verified.",
+    "image_audio_video": "Already-compressed media requires a separate licensed corpus and objective; no ratio win is presumed."
+  },
+  "codecs": [
+    {
+      "id": "kanzi-max",
+      "tier": "practical_ratio",
+      "version": "2.5.3",
+      "binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+      "source_commit": "6eea1658897019ab3107df2806d5e534ef0798df",
+      "compress": ["$KANZI", "--compress", "--level=9", "--block=1g", "--jobs=1", "--verbose=0", "--force", "--input=$INPUT", "--output=$ARTIFACT"],
+      "decompress": ["$KANZI", "--decompress", "--jobs=1", "--verbose=0", "--force", "--input=$ARTIFACT", "--output=$RESTORED"]
+    },
+    {
+      "id": "zstd-19-long",
+      "tier": "practical_ratio",
+      "version": "1.5.7",
+      "binary_sha256": "aff8169fb421bb925fb16c44a7e0143fa2c7a941dc45cce76b15062a2ce54917",
+      "compress": ["$ZSTD", "-19", "--long=31", "-T1", "--no-progress", "--force", "-o", "$ARTIFACT", "$INPUT"],
+      "decompress": ["$ZSTD", "--decompress", "--long=31", "-T1", "--no-progress", "--force", "-o", "$RESTORED", "$ARTIFACT"]
+    },
+    {
+      "id": "xz-lzma2-9e",
+      "tier": "practical_ratio",
+      "version": "5.8.3",
+      "binary_sha256": "995c8e2f72446f0d0e3a29f6c3d52286cfecedfc4ffb2b42d25c3ce1ad77034c",
+      "compress": ["$XZ", "--compress", "--format=xz", "--check=crc64", "--lzma2=preset=9e", "--threads=1", "--keep", "--stdout", "$INPUT"],
+      "decompress": ["$XZ", "--decompress", "--threads=1", "--stdout", "$ARTIFACT"]
+    },
+    {
+      "id": "zpaq-5-m510",
+      "tier": "research_ceiling_and_ratio",
+      "version": "7.15",
+      "binary_sha256": "c54e06fca84580951509656c8b938b594727014acd3fddabcff787d021d032e8",
+      "binary_receipt_sha256": "a6a80ee8acf3e2d5a645546da20335d45e4657e133451db9ee8dc2db46b210c6",
+      "source_archive_sha256": "e85ec2529eb0ba22ceaeabd461e55357ef099b80f61c14f377b429ea3d49d418",
+      "staged_input_name": "input.bin",
+      "staged_input_mtime_utc": "2000-01-01T00:00:00Z",
+      "artifact_path_policy": "Each measured repetition uses a fresh nonexistent path ending exactly in .zpaq; retained or preexisting archives are forbidden because add appends.",
+      "compress": ["$ZPAQ", "add", "$ARTIFACT", "input.bin", "-method", "510", "-threads", "1", "-noattributes", "-until", "20000101000000"],
+      "decompress": ["$ZPAQ", "extract", "$ARTIFACT", "input.bin", "-to", "$RESTORED_DIRECTORY", "-force", "-threads", "1", "-noattributes"]
+    }
+  ],
+  "measurement": {
+    "jobs": 1,
+    "warmups_practical": 1,
+    "measured_repetitions_practical": 3,
+    "warmups_zpaq": 0,
+    "measured_repetitions_zpaq": 2,
+    "order_seed": 20260720,
+    "timeout_seconds_per_process": 86400,
+    "process_group_kill_on_timeout": true,
+    "require_posix_wait4_peak_rss": true,
+    "require_exact_roundtrip_every_decode": true,
+    "require_identical_complete_artifact_sha256_all_repetitions": true,
+    "artifact_accounting": "Count the physical self-contained artifact file exactly. No payload-only, estimated-bit, dictionary-excluded, or side-file size is admissible.",
+    "host_comparability": "Ratio comparisons require exact binary and item identities. Speed/RSS comparisons require the same otherwise-idle host, environment, process sampler, and repetition schedule; cross-host speeds are contextual only.",
+    "speed_tier_attainment": "For each category and codec, each measured repetition aggregate compression or decompression throughput is sum(decoded source bytes) / sum(primary process wall nanoseconds) * 1000. The reported category scalar is the minimum repetition aggregate, never a mean or best item; peak RSS is the maximum direct-process wait4 peak across every item and repetition. A tier requires exact deterministic output and all three frozen compression, decompression, and RSS thresholds.",
+    "speed_tier_host_lock": "AC versus battery, low-power mode, and thermal-pressure state are required telemetry. CPU governor, frequency, and turbo state are recorded when exposed and their platform-level absence alone does not refuse a tier. Refuse commercial speed-tier classification if required telemetry is unavailable, AC/battery or thermal state changes, or low-power mode is enabled; ratio evidence may remain admissible."
+  },
+  "sample_ceiling": {
+    "selected_profile": "zpaq-5-m510",
+    "selection_reason": "It is the strongest currently built, pinned, self-contained ceiling executable that fits the declared local 18 GiB RSS cap. paq8px v216 -11L failed its pinned local build; paq8px -12L and cmix v21 require a larger isolated host. E1 may not substitute a later codec after measurement begins; that requires E2.",
+    "maximum_sample_basis_points_per_item": 500,
+    "strata": 5,
+    "construction": "For item size N, budget B=floor(N*500/10000). Split B into five lengths differing by at most one byte. For stratum i in [0,4], offset=floor((N-length_i)*i/4). Reject overlap or out-of-range slices. Serialize AXE1S magic/version, category and item IDs, original size/SHA-256, five offset/length pairs, sampled payload length/SHA-256, then the exact slices in stratum order. The complete AXE1S container is the codec input and every container byte is counted.",
+    "binary_layout": "All integers are unsigned little-endian. A string is u16 byte length plus canonical UTF-8 bytes and is limited to 65535 bytes. A digest is 32 raw SHA-256 bytes. AXE1S is magic[5]=AXE1S, version u8=1, category string, item string, original-size u64, original digest, stratum-count u8=5, then five offset u64 and length u64 pairs, sampled-payload-length u64, sampled-payload digest, then the exact sampled bytes in stratum order.",
+    "advanced_profiles_not_admitted": ["paq8px-v216-12L", "cmix-v21-strong-text"],
+    "claim": "The selected sample row is a feasible local ceiling diagnostic, not an absolute compression ceiling."
+  },
+  "oracle_routing": {
+    "binary_layout": "All integers are unsigned little-endian. A string is u16 byte length plus canonical UTF-8 bytes and is limited to 65535 bytes. A digest is 32 raw SHA-256 bytes. AXE1O is magic[5]=AXE1O, version u8=1, category string, source-manifest digest, item-count u32, then per item: item string, codec string, decoded-size u64, decoded digest, artifact-size u64, artifact digest; complete artifact bytes follow in item-ID order. AXE1G is magic[5]=AXE1G, version u8=1, item string, original-size u64, original digest, segment-size u64, segment-count u32, then per consecutive segment: codec string, decoded-size u64, decoded digest, artifact-size u64, artifact digest; complete artifacts follow in segment order.",
+    "per_item": "For each category, choose the smallest exact complete whole-item artifact independently per item. Add AXE1O header/version, original aggregate size/SHA-256 manifest, item count, and for each item its ID, codec ID, decoded size/SHA-256, artifact size/SHA-256, then concatenate complete artifacts. Compare these total physical bytes with the smallest single-codec category container under identical framing.",
+    "segment_trigger": "Run the bounded-segment oracle only when per-item oracle gain is at least 0.50% or at least two items in the category have different winning codecs.",
+    "segment_bytes": 16777216,
+    "segment_codecs": ["kanzi-max", "zstd-19-long", "xz-lzma2-9e", "zpaq-5-m510"],
+    "segment_container": "AXE1G magic/version, original item size/SHA-256, segment size/count; for each consecutive segment: codec ID, decoded length/SHA-256, payload length/SHA-256; then all complete independent segment artifacts. Count every header, table, digest, codec frame, and payload byte.",
+    "whole_fallback_framing": "The equally framed whole fallback is AXE1G with segment-count u32=1, segment-size equal to the full item size, and one complete whole-item codec artifact, then the same outer AXE1O category framing used by the segmented route.",
+    "safe_upper_bound": "For each item and category report min(equally framed best whole-item route, complete AXE1G segment route). This hindsight oracle is only an upper bound on a future bounded input-derived selector; it is not implementable selector evidence.",
+    "no_expansion_reference": "The equally framed best whole-item route remains an admissible fallback; report any framing delta and refuse a selector gain if its complete bytes exceed that reference."
+  },
+  "commercial_speed_tiers": [
+    {"id": "interactive", "minimum_compression_mbps": 100.0, "minimum_decompression_mbps": 500.0, "maximum_peak_rss_bytes": 536870912},
+    {"id": "balanced", "minimum_compression_mbps": 25.0, "minimum_decompression_mbps": 250.0, "maximum_peak_rss_bytes": 1073741824},
+    {"id": "archival", "minimum_compression_mbps": 2.0, "minimum_decompression_mbps": 100.0, "maximum_peak_rss_bytes": 4294967296}
+  ],
+  "calculations": {
+    "best_single_practical": "Minimum complete category bytes among kanzi-max, zstd-19-long, and xz-lzma2-9e when every item is exact and deterministic.",
+    "best_single_ratio": "Minimum complete category bytes among all four codecs when every item is exact and deterministic.",
+    "per_item_oracle_gain_basis_points": "floor((best_single_ratio_bytes - complete_per_item_oracle_bytes) * 10000 / best_single_ratio_bytes)",
+    "segment_oracle_gain_basis_points": "floor((equally_framed_best_whole_bytes - min(equally_framed_best_whole_bytes, complete_segment_oracle_bytes)) * 10000 / equally_framed_best_whole_bytes); when the optional segment stage is not triggered, its contribution is exactly 0 basis points.",
+    "sample_ceiling_gap_basis_points": "floor((best_practical_sample_bytes - selected_ceiling_sample_bytes) * 10000 / best_practical_sample_bytes)",
+    "headroom": "Report all three integer basis-point values per category; negative raw deltas remain visible even when the safe upper bound clamps selector gain to zero."
+  },
+  "decision_gates": {
+    "advance_item_selector": "Per-item oracle gain >=100 basis points in a category, with at least two winning codecs, all exact/deterministic, and no excluded bytes accessed.",
+    "advance_segment_selector": "Net bounded-segment oracle gain >=200 basis points in a category after all AXE1G overhead, with positive net gain on at least two items and no item more than 50 basis points larger than its equally framed whole fallback.",
+    "advance_representation_research": "Feasible sample ceiling is >=300 basis points smaller than best practical on at least two categories, or >=500 basis points on one category, with exact deterministic decodes and all side state counted.",
+    "reject_routing_lane": "Reject selector-only work for a category when per-item gain <50 basis points and bounded-segment gain <100 basis points; an untriggered optional segment stage contributes exactly 0 basis points.",
+    "declare_practical_frontier_saturated": "Diagnostic only when routing is rejected and feasible sample ceiling gap <100 basis points; this does not prove a global or theoretical frontier.",
+    "product_gate_unchanged": "No E1 outcome is a product or Axiom win. Category candidates still require >=5% unseen complete-byte advantage plus frozen speed, memory, integrity, streaming, portability, holdout, and independent-reproduction gates."
+  },
+  "required_result_sections": [
+    "tool_lock", "host", "item_verification", "whole_item_trials", "sample_manifest", "sample_trials", "optional_segment_trials", "category_summaries", "speed_tiers", "sealed_split_status", "decision", "claim_ceiling"
+  ],
+  "result_schema": {
+    "top_level_keys": ["schema_version", "name", "completed", "config_sha256", "protocol_sha256", "runner_sha256", "verifier_sha256", "repository_commit", "tool_lock", "host", "item_verification", "whole_item_trials", "sample_manifest", "sample_trials", "optional_segment_trials", "category_summaries", "speed_tiers", "sealed_split_status", "decision", "claim_ceiling"],
+    "process_keys": ["codec_id", "phase", "item_id", "repetition", "source_bytes", "artifact_path", "artifact_bytes", "artifact_sha256", "command", "wall_ns", "cpu_user_ns", "cpu_system_ns", "peak_rss_bytes", "exit_status", "timed_out", "restored_bytes", "restored_sha256", "exact", "deterministic"],
+    "whole_item_trial_keys": ["item_id", "category", "codec_id", "source_bytes", "repetitions"],
+    "sample_manifest_item_keys": ["item_id", "category", "source_bytes", "source_sha256", "ranges", "sampled_payload_bytes", "sampled_payload_sha256", "axe1s_bytes", "axe1s_sha256"],
+    "segment_trial_keys": ["item_id", "category", "segment_index", "offset", "decoded_bytes", "decoded_sha256", "codec_id", "artifact_bytes", "artifact_sha256", "repetitions"],
+    "binding_rule": "Every result path must be relative, normalized, unique, non-symlink, inside the immutable result directory, and paired with exact byte length and SHA-256. The verifier rejects missing, extra, duplicate, absolute, parent-traversal, symlink, unbound manifest, receipt, artifact, log, or side-state files.",
+    "summary_rule": "The verifier recomputes every item, category, sample, oracle, overhead, speed, RSS, tier, and decision value exclusively from schema-valid bound raw receipts and rejects any mismatch or unavailable value represented as zero.",
+    "speed_summary_rule": "For each category, codec, and repetition, join exactly one successful compress and one successful decompress process receipt per declared category item by item_id and repetition; require source_bytes to match the frozen item, map compress.wall_ns to encode_wall_ns and decompress.wall_ns to decode_wall_ns, reject missing or extra items and phases, then apply speed_tier_attainment."
+  }
+}

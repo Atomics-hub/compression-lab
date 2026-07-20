@@ -1,0 +1,389 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1250" viewBox="0 0 1500 1250" role="img">
+<style>text{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;fill:#172033}.title{font-size:25px;font-weight:700}.sub{font-size:13px;fill:#526078}.track{font-size:18px;font-weight:700}.head{font-size:11px;font-weight:700;fill:#526078}.row{font-size:11px}.diagnostic{font-size:11px;font-weight:700;fill:#8a4b16}.rejected{font-size:11px;font-weight:700;fill:#a13d2d}.num{font-size:11px;font-variant-numeric:tabular-nums}</style>
+<rect width="100%" height="100%" fill="#fbfcff"/>
+<text class="title" x="28" y="38">Axiom long-range factorization screen — rejected</text>
+<text class="sub" x="28" y="62">24/24 exact trials; all 15 practical standards visible; no Axiom artifact and no Axiom win.</text>
+<text class="track" x="28" y="100">Source-code screen: CPython + TypeScript</text>
+<text class="head" x="28" y="124" text-anchor="start">Codec / diagnostic</text>
+<text class="head" x="650" y="124" text-anchor="end">Bytes</text>
+<text class="head" x="740" y="124" text-anchor="end">Ratio</text>
+<text class="head" x="830" y="124" text-anchor="end">Size %</text>
+<text class="head" x="940" y="124" text-anchor="end">C MB/s</text>
+<text class="head" x="1050" y="124" text-anchor="end">D MB/s</text>
+<text class="head" x="1170" y="124" text-anchor="end">RSS C/D</text>
+<text class="head" x="1290" y="124" text-anchor="middle">Exact/Det</text>
+<text class="head" x="1410" y="124" text-anchor="middle">Status</text>
+<rect x="20" y="127" width="1455" height="25" rx="3" fill="#f0f4fa"/>
+<text class="row" x="28" y="145" text-anchor="start">Store</text>
+<text class="num" x="650" y="145" text-anchor="end">70,199,538</text>
+<text class="num" x="740" y="145" text-anchor="end">1.00x</text>
+<text class="num" x="830" y="145" text-anchor="end">100.00%</text>
+<text class="num" x="940" y="145" text-anchor="end">393.03</text>
+<text class="num" x="1050" y="145" text-anchor="end">551.60</text>
+<text class="num" x="1170" y="145" text-anchor="end">2.14/2.14</text>
+<text class="num" x="1290" y="145" text-anchor="middle">yes/yes</text>
+<text class="num" x="1410" y="145" text-anchor="middle">no Axiom artifact</text>
+<text class="row" x="28" y="170" text-anchor="start">LZ4-1</text>
+<text class="num" x="650" y="170" text-anchor="end">21,727,947</text>
+<text class="num" x="740" y="170" text-anchor="end">3.23x</text>
+<text class="num" x="830" y="170" text-anchor="end">30.95%</text>
+<text class="num" x="940" y="170" text-anchor="end">390.67</text>
+<text class="num" x="1050" y="170" text-anchor="end">394.08</text>
+<text class="num" x="1170" y="170" text-anchor="end">42.62/29.42</text>
+<text class="num" x="1290" y="170" text-anchor="middle">yes/yes</text>
+<text class="num" x="1410" y="170" text-anchor="middle">no Axiom artifact</text>
+<rect x="20" y="177" width="1455" height="25" rx="3" fill="#f0f4fa"/>
+<text class="row" x="28" y="195" text-anchor="start">gzip-9</text>
+<text class="num" x="650" y="195" text-anchor="end">13,116,118</text>
+<text class="num" x="740" y="195" text-anchor="end">5.35x</text>
+<text class="num" x="830" y="195" text-anchor="end">18.68%</text>
+<text class="num" x="940" y="195" text-anchor="end">9.43</text>
+<text class="num" x="1050" y="195" text-anchor="end">380.73</text>
+<text class="num" x="1170" y="195" text-anchor="end">1.59/1.38</text>
+<text class="num" x="1290" y="195" text-anchor="middle">yes/yes</text>
+<text class="num" x="1410" y="195" text-anchor="middle">no Axiom artifact</text>
+<text class="row" x="28" y="220" text-anchor="start">bzip2-9</text>
+<text class="num" x="650" y="220" text-anchor="end">10,300,995</text>
+<text class="num" x="740" y="220" text-anchor="end">6.81x</text>
+<text class="num" x="830" y="220" text-anchor="end">14.67%</text>
+<text class="num" x="940" y="220" text-anchor="end">9.32</text>
+<text class="num" x="1050" y="220" text-anchor="end">35.57</text>
+<text class="num" x="1170" y="220" text-anchor="end">8.47/4.72</text>
+<text class="num" x="1290" y="220" text-anchor="middle">yes/yes</text>
+<text class="num" x="1410" y="220" text-anchor="middle">no Axiom artifact</text>
+<rect x="20" y="227" width="1455" height="25" rx="3" fill="#f0f4fa"/>
+<text class="row" x="28" y="245" text-anchor="start">bzip3-max</text>
+<text class="num" x="650" y="245" text-anchor="end">8,126,940</text>
+<text class="num" x="740" y="245" text-anchor="end">8.64x</text>
+<text class="num" x="830" y="245" text-anchor="end">11.58%</text>
+<text class="num" x="940" y="245" text-anchor="end">7.10</text>
+<text class="num" x="1050" y="245" text-anchor="end">10.47</text>
+<text class="num" x="1170" y="245" text-anchor="end">2170.34/2170.81</text>
+<text class="num" x="1290" y="245" text-anchor="middle">yes/yes</text>
+<text class="num" x="1410" y="245" text-anchor="middle">no Axiom artifact</text>
+<text class="row" x="28" y="270" text-anchor="start">zstd-3</text>
+<text class="num" x="650" y="270" text-anchor="end">13,219,757</text>
+<text class="num" x="740" y="270" text-anchor="end">5.31x</text>
+<text class="num" x="830" y="270" text-anchor="end">18.83%</text>
+<text class="num" x="940" y="270" text-anchor="end">193.17</text>
+<text class="num" x="1050" y="270" text-anchor="end">383.70</text>
+<text class="num" x="1170" y="270" text-anchor="end">39.45/7.81</text>
+<text class="num" x="1290" y="270" text-anchor="middle">yes/yes</text>
+<text class="num" x="1410" y="270" text-anchor="middle">no Axiom artifact</text>
+<rect x="20" y="277" width="1455" height="25" rx="3" fill="#f0f4fa"/>
+<text class="row" x="28" y="295" text-anchor="start">zstd-9</text>
+<text class="num" x="650" y="295" text-anchor="end">10,995,786</text>
+<text class="num" x="740" y="295" text-anchor="end">6.38x</text>
+<text class="num" x="830" y="295" text-anchor="end">15.66%</text>
+<text class="num" x="940" y="295" text-anchor="end">50.85</text>
+<text class="num" x="1050" y="295" text-anchor="end">295.06</text>
+<text class="num" x="1170" y="295" text-anchor="end">60.20/9.78</text>
+<text class="num" x="1290" y="295" text-anchor="middle">yes/yes</text>
+<text class="num" x="1410" y="295" text-anchor="middle">no Axiom artifact</text>
+<text class="row" x="28" y="320" text-anchor="start">zstd-19</text>
+<text class="num" x="650" y="320" text-anchor="end">9,279,147</text>
+<text class="num" x="740" y="320" text-anchor="end">7.57x</text>
+<text class="num" x="830" y="320" text-anchor="end">13.22%</text>
+<text class="num" x="940" y="320" text-anchor="end">1.92</text>
+<text class="num" x="1050" y="320" text-anchor="end">391.96</text>
+<text class="num" x="1170" y="320" text-anchor="end">132.66/13.77</text>
+<text class="num" x="1290" y="320" text-anchor="middle">yes/yes</text>
+<text class="num" x="1410" y="320" text-anchor="middle">no Axiom artifact</text>
+<rect x="20" y="327" width="1455" height="25" rx="3" fill="#f0f4fa"/>
+<text class="row" x="28" y="345" text-anchor="start">zstd-22 ultra</text>
+<text class="num" x="650" y="345" text-anchor="end">8,777,012</text>
+<text class="num" x="740" y="345" text-anchor="end">8.00x</text>
+<text class="num" x="830" y="345" text-anchor="end">12.50%</text>
+<text class="num" x="940" y="345" text-anchor="end">1.60</text>
+<text class="num" x="1050" y="345" text-anchor="end">380.53</text>
+<text class="num" x="1170" y="345" text-anchor="end">693.81/47.95</text>
+<text class="num" x="1290" y="345" text-anchor="middle">yes/yes</text>
+<text class="num" x="1410" y="345" text-anchor="middle">no Axiom artifact</text>
+<text class="row" x="28" y="370" text-anchor="start">Brotli-11</text>
+<text class="num" x="650" y="370" text-anchor="end">8,659,166</text>
+<text class="num" x="740" y="370" text-anchor="end">8.11x</text>
+<text class="num" x="830" y="370" text-anchor="end">12.34%</text>
+<text class="num" x="940" y="370" text-anchor="end">0.41</text>
+<text class="num" x="1050" y="370" text-anchor="end">278.91</text>
+<text class="num" x="1170" y="370" text-anchor="end">291.98/19.83</text>
+<text class="num" x="1290" y="370" text-anchor="middle">yes/yes</text>
+<text class="num" x="1410" y="370" text-anchor="middle">no Axiom artifact</text>
+<rect x="20" y="377" width="1455" height="25" rx="3" fill="#f0f4fa"/>
+<text class="row" x="28" y="395" text-anchor="start">XZ LZMA2-9e</text>
+<text class="num" x="650" y="395" text-anchor="end">8,546,816</text>
+<text class="num" x="740" y="395" text-anchor="end">8.21x</text>
+<text class="num" x="830" y="395" text-anchor="end">12.18%</text>
+<text class="num" x="940" y="395" text-anchor="end">1.62</text>
+<text class="num" x="1050" y="395" text-anchor="end">93.54</text>
+<text class="num" x="1170" y="395" text-anchor="end">448.23/44.06</text>
+<text class="num" x="1290" y="395" text-anchor="middle">yes/yes</text>
+<text class="num" x="1410" y="395" text-anchor="middle">no Axiom artifact</text>
+<text class="row" x="28" y="420" text-anchor="start">7-Zip LZMA2-9</text>
+<text class="num" x="650" y="420" text-anchor="end">8,638,516</text>
+<text class="num" x="740" y="420" text-anchor="end">8.13x</text>
+<text class="num" x="830" y="420" text-anchor="end">12.31%</text>
+<text class="num" x="940" y="420" text-anchor="end">1.60</text>
+<text class="num" x="1050" y="420" text-anchor="end">124.92</text>
+<text class="num" x="1170" y="420" text-anchor="end">449.62/51.80</text>
+<text class="num" x="1290" y="420" text-anchor="middle">yes/yes</text>
+<text class="num" x="1410" y="420" text-anchor="middle">no Axiom artifact</text>
+<rect x="20" y="427" width="1455" height="25" rx="3" fill="#f0f4fa"/>
+<text class="row" x="28" y="445" text-anchor="start">7-Zip PPMd-9</text>
+<text class="num" x="650" y="445" text-anchor="end">8,224,267</text>
+<text class="num" x="740" y="445" text-anchor="end">8.54x</text>
+<text class="num" x="830" y="445" text-anchor="end">11.72%</text>
+<text class="num" x="940" y="445" text-anchor="end">6.33</text>
+<text class="num" x="1050" y="445" text-anchor="end">6.47</text>
+<text class="num" x="1170" y="445" text-anchor="end">261.06/261.14</text>
+<text class="num" x="1290" y="445" text-anchor="middle">yes/yes</text>
+<text class="num" x="1410" y="445" text-anchor="middle">no Axiom artifact</text>
+<text class="row" x="28" y="470" text-anchor="start">Kanzi-max</text>
+<text class="num" x="650" y="470" text-anchor="end">6,221,486</text>
+<text class="num" x="740" y="470" text-anchor="end">11.28x</text>
+<text class="num" x="830" y="470" text-anchor="end">8.86%</text>
+<text class="num" x="940" y="470" text-anchor="end">3.71</text>
+<text class="num" x="1050" y="470" text-anchor="end">3.29</text>
+<text class="num" x="1170" y="470" text-anchor="end">1465.14/1465.45</text>
+<text class="num" x="1290" y="470" text-anchor="middle">yes/yes</text>
+<text class="num" x="1410" y="470" text-anchor="middle">no Axiom artifact</text>
+<rect x="20" y="477" width="1455" height="25" rx="3" fill="#f0f4fa"/>
+<text class="row" x="28" y="495" text-anchor="start">libbsc-max</text>
+<text class="num" x="650" y="495" text-anchor="end">8,161,150</text>
+<text class="num" x="740" y="495" text-anchor="end">8.60x</text>
+<text class="num" x="830" y="495" text-anchor="end">11.63%</text>
+<text class="num" x="940" y="495" text-anchor="end">22.86</text>
+<text class="num" x="1050" y="495" text-anchor="end">19.13</text>
+<text class="num" x="1170" y="495" text-anchor="end">231.77/232.81</text>
+<text class="num" x="1290" y="495" text-anchor="middle">yes/yes</text>
+<text class="num" x="1410" y="495" text-anchor="middle">no Axiom artifact</text>
+<text class="diagnostic" x="28" y="520" text-anchor="start">K1 custom Kanzi: LZP + level-9 transforms + TPAQX</text>
+<text class="num" x="650" y="520" text-anchor="end">6,322,746</text>
+<text class="num" x="740" y="520" text-anchor="end">11.10x</text>
+<text class="num" x="830" y="520" text-anchor="end">9.01%</text>
+<text class="num" x="940" y="520" text-anchor="end">3.41</text>
+<text class="num" x="1050" y="520" text-anchor="end">2.89</text>
+<text class="num" x="1170" y="520" text-anchor="end">1459.44/1457.23</text>
+<text class="num" x="1290" y="520" text-anchor="middle">yes/yes</text>
+<text class="num" x="1410" y="520" text-anchor="middle">diagnostic</text>
+<rect x="20" y="527" width="1455" height="25" rx="3" fill="#f0f4fa"/>
+<text class="diagnostic" x="28" y="545" text-anchor="start">K2 custom Kanzi: LZP + TEXT + UTF + TPAQX</text>
+<text class="num" x="650" y="545" text-anchor="end">6,512,148</text>
+<text class="num" x="740" y="545" text-anchor="end">10.78x</text>
+<text class="num" x="830" y="545" text-anchor="end">9.28%</text>
+<text class="num" x="940" y="545" text-anchor="end">3.02</text>
+<text class="num" x="1050" y="545" text-anchor="end">2.71</text>
+<text class="num" x="1170" y="545" text-anchor="end">1461.64/1465.88</text>
+<text class="num" x="1290" y="545" text-anchor="middle">yes/yes</text>
+<text class="num" x="1410" y="545" text-anchor="middle">diagnostic</text>
+<text class="diagnostic" x="28" y="570" text-anchor="start">K3 custom Kanzi: LZP + TPAQX</text>
+<text class="num" x="650" y="570" text-anchor="end">6,630,029</text>
+<text class="num" x="740" y="570" text-anchor="end">10.59x</text>
+<text class="num" x="830" y="570" text-anchor="end">9.44%</text>
+<text class="num" x="940" y="570" text-anchor="end">2.66</text>
+<text class="num" x="1050" y="570" text-anchor="end">2.36</text>
+<text class="num" x="1170" y="570" text-anchor="end">1466.94/1466.81</text>
+<text class="num" x="1290" y="570" text-anchor="middle">yes/yes</text>
+<text class="num" x="1410" y="570" text-anchor="middle">diagnostic</text>
+<rect x="20" y="577" width="1455" height="25" rx="3" fill="#f0f4fa"/>
+<text class="rejected" x="28" y="595" text-anchor="start">Axiom long-range prototype (not built)</text>
+<text class="num" x="650" y="595" text-anchor="end">—</text>
+<text class="num" x="740" y="595" text-anchor="end">—</text>
+<text class="num" x="830" y="595" text-anchor="end">—</text>
+<text class="num" x="940" y="595" text-anchor="end">—</text>
+<text class="num" x="1050" y="595" text-anchor="end">—</text>
+<text class="num" x="1170" y="595" text-anchor="end">—/—</text>
+<text class="num" x="1290" y="595" text-anchor="middle">—/—</text>
+<text class="num" x="1410" y="595" text-anchor="middle">no artifact; no win</text>
+<text class="track" x="28" y="652">Wikimedia screen: English Wikibooks + Wikinews</text>
+<text class="head" x="28" y="676" text-anchor="start">Codec / diagnostic</text>
+<text class="head" x="650" y="676" text-anchor="end">Bytes</text>
+<text class="head" x="740" y="676" text-anchor="end">Ratio</text>
+<text class="head" x="830" y="676" text-anchor="end">Size %</text>
+<text class="head" x="940" y="676" text-anchor="end">C MB/s</text>
+<text class="head" x="1050" y="676" text-anchor="end">D MB/s</text>
+<text class="head" x="1170" y="676" text-anchor="end">RSS C/D</text>
+<text class="head" x="1290" y="676" text-anchor="middle">Exact/Det</text>
+<text class="head" x="1410" y="676" text-anchor="middle">Status</text>
+<rect x="20" y="679" width="1455" height="25" rx="3" fill="#f0f4fa"/>
+<text class="row" x="28" y="697" text-anchor="start">Store</text>
+<text class="num" x="650" y="697" text-anchor="end">134,213,921</text>
+<text class="num" x="740" y="697" text-anchor="end">1.00x</text>
+<text class="num" x="830" y="697" text-anchor="end">100.00%</text>
+<text class="num" x="940" y="697" text-anchor="end">381.41</text>
+<text class="num" x="1050" y="697" text-anchor="end">1093.71</text>
+<text class="num" x="1170" y="697" text-anchor="end">2.16/2.14</text>
+<text class="num" x="1290" y="697" text-anchor="middle">yes/yes</text>
+<text class="num" x="1410" y="697" text-anchor="middle">no Axiom artifact</text>
+<text class="row" x="28" y="722" text-anchor="start">LZ4-1</text>
+<text class="num" x="650" y="722" text-anchor="end">71,853,822</text>
+<text class="num" x="740" y="722" text-anchor="end">1.87x</text>
+<text class="num" x="830" y="722" text-anchor="end">53.54%</text>
+<text class="num" x="940" y="722" text-anchor="end">563.32</text>
+<text class="num" x="1050" y="722" text-anchor="end">326.22</text>
+<text class="num" x="1170" y="722" text-anchor="end">67.42/31.98</text>
+<text class="num" x="1290" y="722" text-anchor="middle">yes/yes</text>
+<text class="num" x="1410" y="722" text-anchor="middle">no Axiom artifact</text>
+<rect x="20" y="729" width="1455" height="25" rx="3" fill="#f0f4fa"/>
+<text class="row" x="28" y="747" text-anchor="start">gzip-9</text>
+<text class="num" x="650" y="747" text-anchor="end">45,874,934</text>
+<text class="num" x="740" y="747" text-anchor="end">2.93x</text>
+<text class="num" x="830" y="747" text-anchor="end">34.18%</text>
+<text class="num" x="940" y="747" text-anchor="end">12.34</text>
+<text class="num" x="1050" y="747" text-anchor="end">234.54</text>
+<text class="num" x="1170" y="747" text-anchor="end">1.59/1.38</text>
+<text class="num" x="1290" y="747" text-anchor="middle">yes/yes</text>
+<text class="num" x="1410" y="747" text-anchor="middle">no Axiom artifact</text>
+<text class="row" x="28" y="772" text-anchor="start">bzip2-9</text>
+<text class="num" x="650" y="772" text-anchor="end">36,382,414</text>
+<text class="num" x="740" y="772" text-anchor="end">3.69x</text>
+<text class="num" x="830" y="772" text-anchor="end">27.11%</text>
+<text class="num" x="940" y="772" text-anchor="end">9.65</text>
+<text class="num" x="1050" y="772" text-anchor="end">27.14</text>
+<text class="num" x="1170" y="772" text-anchor="end">7.59/4.72</text>
+<text class="num" x="1290" y="772" text-anchor="middle">yes/yes</text>
+<text class="num" x="1410" y="772" text-anchor="middle">no Axiom artifact</text>
+<rect x="20" y="779" width="1455" height="25" rx="3" fill="#f0f4fa"/>
+<text class="row" x="28" y="797" text-anchor="start">bzip3-max</text>
+<text class="num" x="650" y="797" text-anchor="end">26,785,430</text>
+<text class="num" x="740" y="797" text-anchor="end">5.01x</text>
+<text class="num" x="830" y="797" text-anchor="end">19.96%</text>
+<text class="num" x="940" y="797" text-anchor="end">4.29</text>
+<text class="num" x="1050" y="797" text-anchor="end">5.91</text>
+<text class="num" x="1170" y="797" text-anchor="end">2215.39/2215.89</text>
+<text class="num" x="1290" y="797" text-anchor="middle">yes/yes</text>
+<text class="num" x="1410" y="797" text-anchor="middle">no Axiom artifact</text>
+<text class="row" x="28" y="822" text-anchor="start">zstd-3</text>
+<text class="num" x="650" y="822" text-anchor="end">43,915,339</text>
+<text class="num" x="740" y="822" text-anchor="end">3.06x</text>
+<text class="num" x="830" y="822" text-anchor="end">32.72%</text>
+<text class="num" x="940" y="822" text-anchor="end">82.58</text>
+<text class="num" x="1050" y="822" text-anchor="end">260.10</text>
+<text class="num" x="1170" y="822" text-anchor="end">43.36/7.80</text>
+<text class="num" x="1290" y="822" text-anchor="middle">yes/yes</text>
+<text class="num" x="1410" y="822" text-anchor="middle">no Axiom artifact</text>
+<rect x="20" y="829" width="1455" height="25" rx="3" fill="#f0f4fa"/>
+<text class="row" x="28" y="847" text-anchor="start">zstd-9</text>
+<text class="num" x="650" y="847" text-anchor="end">38,388,753</text>
+<text class="num" x="740" y="847" text-anchor="end">3.50x</text>
+<text class="num" x="830" y="847" text-anchor="end">28.60%</text>
+<text class="num" x="940" y="847" text-anchor="end">31.67</text>
+<text class="num" x="1050" y="847" text-anchor="end">364.51</text>
+<text class="num" x="1170" y="847" text-anchor="end">87.86/9.80</text>
+<text class="num" x="1290" y="847" text-anchor="middle">yes/yes</text>
+<text class="num" x="1410" y="847" text-anchor="middle">no Axiom artifact</text>
+<text class="row" x="28" y="872" text-anchor="start">zstd-19</text>
+<text class="num" x="650" y="872" text-anchor="end">33,217,736</text>
+<text class="num" x="740" y="872" text-anchor="end">4.04x</text>
+<text class="num" x="830" y="872" text-anchor="end">24.75%</text>
+<text class="num" x="940" y="872" text-anchor="end">0.88</text>
+<text class="num" x="1050" y="872" text-anchor="end">259.29</text>
+<text class="num" x="1170" y="872" text-anchor="end">165.77/13.92</text>
+<text class="num" x="1290" y="872" text-anchor="middle">yes/yes</text>
+<text class="num" x="1410" y="872" text-anchor="middle">no Axiom artifact</text>
+<rect x="20" y="879" width="1455" height="25" rx="3" fill="#f0f4fa"/>
+<text class="row" x="28" y="897" text-anchor="start">zstd-22 ultra</text>
+<text class="num" x="650" y="897" text-anchor="end">31,933,325</text>
+<text class="num" x="740" y="897" text-anchor="end">4.20x</text>
+<text class="num" x="830" y="897" text-anchor="end">23.79%</text>
+<text class="num" x="940" y="897" text-anchor="end">0.80</text>
+<text class="num" x="1050" y="897" text-anchor="end">381.04</text>
+<text class="num" x="1170" y="897" text-anchor="end">725.19/69.52</text>
+<text class="num" x="1290" y="897" text-anchor="middle">yes/yes</text>
+<text class="num" x="1410" y="897" text-anchor="middle">no Axiom artifact</text>
+<text class="row" x="28" y="922" text-anchor="start">Brotli-11</text>
+<text class="num" x="650" y="922" text-anchor="end">31,960,330</text>
+<text class="num" x="740" y="922" text-anchor="end">4.20x</text>
+<text class="num" x="830" y="922" text-anchor="end">23.81%</text>
+<text class="num" x="940" y="922" text-anchor="end">0.30</text>
+<text class="num" x="1050" y="922" text-anchor="end">196.08</text>
+<text class="num" x="1170" y="922" text-anchor="end">348.11/19.88</text>
+<text class="num" x="1290" y="922" text-anchor="middle">yes/yes</text>
+<text class="num" x="1410" y="922" text-anchor="middle">no Axiom artifact</text>
+<rect x="20" y="929" width="1455" height="25" rx="3" fill="#f0f4fa"/>
+<text class="row" x="28" y="947" text-anchor="start">XZ LZMA2-9e</text>
+<text class="num" x="650" y="947" text-anchor="end">31,282,084</text>
+<text class="num" x="740" y="947" text-anchor="end">4.29x</text>
+<text class="num" x="830" y="947" text-anchor="end">23.31%</text>
+<text class="num" x="940" y="947" text-anchor="end">0.84</text>
+<text class="num" x="1050" y="947" text-anchor="end">58.93</text>
+<text class="num" x="1170" y="947" text-anchor="end">642.23/65.61</text>
+<text class="num" x="1290" y="947" text-anchor="middle">yes/yes</text>
+<text class="num" x="1410" y="947" text-anchor="middle">no Axiom artifact</text>
+<text class="row" x="28" y="972" text-anchor="start">7-Zip LZMA2-9</text>
+<text class="num" x="650" y="972" text-anchor="end">31,347,798</text>
+<text class="num" x="740" y="972" text-anchor="end">4.28x</text>
+<text class="num" x="830" y="972" text-anchor="end">23.36%</text>
+<text class="num" x="940" y="972" text-anchor="end">0.85</text>
+<text class="num" x="1050" y="972" text-anchor="end">86.89</text>
+<text class="num" x="1170" y="972" text-anchor="end">643.61/83.53</text>
+<text class="num" x="1290" y="972" text-anchor="middle">yes/yes</text>
+<text class="num" x="1410" y="972" text-anchor="middle">no Axiom artifact</text>
+<rect x="20" y="979" width="1455" height="25" rx="3" fill="#f0f4fa"/>
+<text class="row" x="28" y="997" text-anchor="start">7-Zip PPMd-9</text>
+<text class="num" x="650" y="997" text-anchor="end">28,649,879</text>
+<text class="num" x="740" y="997" text-anchor="end">4.68x</text>
+<text class="num" x="830" y="997" text-anchor="end">21.35%</text>
+<text class="num" x="940" y="997" text-anchor="end">3.57</text>
+<text class="num" x="1050" y="997" text-anchor="end">3.50</text>
+<text class="num" x="1170" y="997" text-anchor="end">261.05/260.09</text>
+<text class="num" x="1290" y="997" text-anchor="middle">yes/yes</text>
+<text class="num" x="1410" y="997" text-anchor="middle">no Axiom artifact</text>
+<text class="row" x="28" y="1022" text-anchor="start">Kanzi-max</text>
+<text class="num" x="650" y="1022" text-anchor="end">24,156,788</text>
+<text class="num" x="740" y="1022" text-anchor="end">5.56x</text>
+<text class="num" x="830" y="1022" text-anchor="end">18.00%</text>
+<text class="num" x="940" y="1022" text-anchor="end">2.38</text>
+<text class="num" x="1050" y="1022" text-anchor="end">2.15</text>
+<text class="num" x="1170" y="1022" text-anchor="end">1529.48/1525.77</text>
+<text class="num" x="1290" y="1022" text-anchor="middle">yes/yes</text>
+<text class="num" x="1410" y="1022" text-anchor="middle">no Axiom artifact</text>
+<rect x="20" y="1029" width="1455" height="25" rx="3" fill="#f0f4fa"/>
+<text class="row" x="28" y="1047" text-anchor="start">libbsc-max</text>
+<text class="num" x="650" y="1047" text-anchor="end">26,890,194</text>
+<text class="num" x="740" y="1047" text-anchor="end">4.99x</text>
+<text class="num" x="830" y="1047" text-anchor="end">20.04%</text>
+<text class="num" x="940" y="1047" text-anchor="end">13.30</text>
+<text class="num" x="1050" y="1047" text-anchor="end">15.27</text>
+<text class="num" x="1170" y="1047" text-anchor="end">394.36/396.44</text>
+<text class="num" x="1290" y="1047" text-anchor="middle">yes/yes</text>
+<text class="num" x="1410" y="1047" text-anchor="middle">no Axiom artifact</text>
+<text class="diagnostic" x="28" y="1072" text-anchor="start">K1 custom Kanzi: LZP + level-9 transforms + TPAQX</text>
+<text class="num" x="650" y="1072" text-anchor="end">24,207,040</text>
+<text class="num" x="740" y="1072" text-anchor="end">5.54x</text>
+<text class="num" x="830" y="1072" text-anchor="end">18.04%</text>
+<text class="num" x="940" y="1072" text-anchor="end">2.95</text>
+<text class="num" x="1050" y="1072" text-anchor="end">2.37</text>
+<text class="num" x="1170" y="1072" text-anchor="end">1527.38/1523.14</text>
+<text class="num" x="1290" y="1072" text-anchor="middle">yes/yes</text>
+<text class="num" x="1410" y="1072" text-anchor="middle">diagnostic</text>
+<rect x="20" y="1079" width="1455" height="25" rx="3" fill="#f0f4fa"/>
+<text class="diagnostic" x="28" y="1097" text-anchor="start">K2 custom Kanzi: LZP + TEXT + UTF + TPAQX</text>
+<text class="num" x="650" y="1097" text-anchor="end">24,219,706</text>
+<text class="num" x="740" y="1097" text-anchor="end">5.54x</text>
+<text class="num" x="830" y="1097" text-anchor="end">18.05%</text>
+<text class="num" x="940" y="1097" text-anchor="end">2.22</text>
+<text class="num" x="1050" y="1097" text-anchor="end">1.96</text>
+<text class="num" x="1170" y="1097" text-anchor="end">1527.41/1526.00</text>
+<text class="num" x="1290" y="1097" text-anchor="middle">yes/yes</text>
+<text class="num" x="1410" y="1097" text-anchor="middle">diagnostic</text>
+<text class="diagnostic" x="28" y="1122" text-anchor="start">K3 custom Kanzi: LZP + TPAQX</text>
+<text class="num" x="650" y="1122" text-anchor="end">24,928,938</text>
+<text class="num" x="740" y="1122" text-anchor="end">5.38x</text>
+<text class="num" x="830" y="1122" text-anchor="end">18.57%</text>
+<text class="num" x="940" y="1122" text-anchor="end">1.79</text>
+<text class="num" x="1050" y="1122" text-anchor="end">1.61</text>
+<text class="num" x="1170" y="1122" text-anchor="end">1523.48/1523.42</text>
+<text class="num" x="1290" y="1122" text-anchor="middle">yes/yes</text>
+<text class="num" x="1410" y="1122" text-anchor="middle">diagnostic</text>
+<rect x="20" y="1129" width="1455" height="25" rx="3" fill="#f0f4fa"/>
+<text class="rejected" x="28" y="1147" text-anchor="start">Axiom long-range prototype (not built)</text>
+<text class="num" x="650" y="1147" text-anchor="end">—</text>
+<text class="num" x="740" y="1147" text-anchor="end">—</text>
+<text class="num" x="830" y="1147" text-anchor="end">—</text>
+<text class="num" x="940" y="1147" text-anchor="end">—</text>
+<text class="num" x="1050" y="1147" text-anchor="end">—</text>
+<text class="num" x="1170" y="1147" text-anchor="end">—/—</text>
+<text class="num" x="1290" y="1147" text-anchor="middle">—/—</text>
+<text class="num" x="1410" y="1147" text-anchor="middle">no artifact; no win</text>
+<text class="sub" x="28" y="1225">Training-split Kanzi pipeline decomposition only. These custom Kanzi archives are exact competitor diagnostics, not Axiom artifacts, Axiom wins, validation results, private-holdout results, novel-algorithm results, or state-of-the-art evidence.</text>
+</svg>

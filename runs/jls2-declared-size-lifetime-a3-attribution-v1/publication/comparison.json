@@ -1,0 +1,69 @@
+{
+  "claim_ceiling": "Development-only attribution; no product A/B, validation, holdout, market-leading, world-best, or state-of-the-art claim.",
+  "claim_scope": "development-only decoder-memory attribution",
+  "decision": "rejected",
+  "evidence_level": "development-only hosted attribution",
+  "fixture_rows": [
+    {
+      "fixture_id": "clue-early-development",
+      "minimum_credited_bytes": 95558133,
+      "minimum_potential_bytes": 95558133,
+      "minimum_rss_reduction_bytes": 107311104
+    },
+    {
+      "fixture_id": "clue-middle-development",
+      "minimum_credited_bytes": 105002545,
+      "minimum_potential_bytes": 105002545,
+      "minimum_rss_reduction_bytes": 110981120
+    },
+    {
+      "fixture_id": "clue-late-development",
+      "minimum_credited_bytes": 99414016,
+      "minimum_potential_bytes": 104950948,
+      "minimum_rss_reduction_bytes": 99414016
+    },
+    {
+      "fixture_id": "jls2-context-stress-256",
+      "minimum_credited_bytes": 83722100,
+      "minimum_potential_bytes": 83722100,
+      "minimum_rss_reduction_bytes": 108015616
+    }
+  ],
+  "integrity": {
+    "all_decodes_exact": true,
+    "encoded_lifetime_credit_bytes": 0,
+    "format_encoder_selector_changed": false,
+    "two_generation_topology_identical": true
+  },
+  "metric_rows": [
+    {
+      "gate_passed": false,
+      "metric": "decoded_concurrency_potential",
+      "observed_bytes": 83722100,
+      "percent_of_threshold": 79.58186614681075,
+      "shortfall_bytes": 21480384,
+      "threshold_bytes": 105202484
+    },
+    {
+      "gate_passed": false,
+      "metric": "phase_correlated_rss_reduction",
+      "observed_bytes": 99414016,
+      "percent_of_threshold": 94.49778391164224,
+      "shortfall_bytes": 5788468,
+      "threshold_bytes": 105202484
+    },
+    {
+      "gate_passed": false,
+      "metric": "credited_attribution",
+      "observed_bytes": 83722100,
+      "percent_of_threshold": 79.58186614681075,
+      "shortfall_bytes": 21480384,
+      "threshold_bytes": 105202484
+    }
+  ],
+  "name": "jls2-a3-attribution-rejection-comparison-v1",
+  "product_ab_authorized": false,
+  "runner_comparability": "Exact A2 Ubuntu 22.04 runner-image, four logical CPUs, glibc 2.35, Rust 1.97.0, and A2 product binary identity.",
+  "schema_version": 1,
+  "threshold_bytes": 105202484
+}

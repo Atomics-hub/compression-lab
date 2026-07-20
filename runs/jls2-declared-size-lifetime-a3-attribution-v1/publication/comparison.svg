@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="310" viewBox="0 0 920 310">
+<rect width="100%" height="100%" fill="#0b1020"/>
+<text x="32" y="38" fill="#f8fafc" font-family="system-ui,sans-serif" font-size="22" font-weight="700">JLS2 A3 attribution gate — rejected</text>
+<text x="32" y="64" fill="#94a3b8" font-family="system-ui,sans-serif" font-size="13">Development-only; bars must reach the 105,202,484-byte threshold.</text>
+<text x="32" y="121" fill="#e2e8f0" font-family="system-ui,sans-serif" font-size="13">decoded concurrency potential</text>
+<rect x="290" y="102" width="560" height="24" rx="4" fill="#273449"/>
+<rect x="290" y="102" width="445.66" height="24" rx="4" fill="#ef4444"/>
+<line x1="850" y1="98" x2="850" y2="130" stroke="#f8fafc" stroke-width="2"/>
+<text x="298" y="119" fill="#fff" font-family="ui-monospace,monospace" font-size="12">79.84 / 100.33 MiB</text>
+<text x="32" y="183" fill="#e2e8f0" font-family="system-ui,sans-serif" font-size="13">phase correlated rss reduction</text>
+<rect x="290" y="164" width="560" height="24" rx="4" fill="#273449"/>
+<rect x="290" y="164" width="529.19" height="24" rx="4" fill="#ef4444"/>
+<line x1="850" y1="160" x2="850" y2="192" stroke="#f8fafc" stroke-width="2"/>
+<text x="298" y="181" fill="#fff" font-family="ui-monospace,monospace" font-size="12">94.81 / 100.33 MiB</text>
+<text x="32" y="245" fill="#e2e8f0" font-family="system-ui,sans-serif" font-size="13">credited attribution</text>
+<rect x="290" y="226" width="560" height="24" rx="4" fill="#273449"/>
+<rect x="290" y="226" width="445.66" height="24" rx="4" fill="#ef4444"/>
+<line x1="850" y1="222" x2="850" y2="254" stroke="#f8fafc" stroke-width="2"/>
+<text x="298" y="243" fill="#fff" font-family="ui-monospace,monospace" font-size="12">79.84 / 100.33 MiB</text>
+<text x="32" y="294" fill="#fca5a5" font-family="system-ui,sans-serif" font-size="13" font-weight="600">No A3 product candidate or product A/B is authorized.</text>
+</svg>

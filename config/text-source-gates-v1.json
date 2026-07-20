@@ -97,25 +97,289 @@
         "codec_id": "zpaq-5",
         "version": "7.15",
         "official_source": "https://mattmahoney.net/dc/zpaq.html",
-        "resource_policy": "Run if exact single-input mode and complete archive accounting are reproducible within the research budget."
+        "source_archive_url": "https://mattmahoney.net/dc/zpaq715.zip",
+        "source_archive_bytes": 1000646,
+        "source_archive_sha256": "e85ec2529eb0ba22ceaeabd461e55357ef099b80f61c14f377b429ea3d49d418",
+        "license": "Public-Domain",
+        "identity_status": "archive_identity_frozen_build_pending",
+        "build_policy": {
+          "commands": [
+            [
+              "make",
+              "zpaq",
+              "CXX=$CXX",
+              "CXXFLAGS=-O3"
+            ]
+          ],
+          "reason": "Use the upstream zpaq target but override its -march=native default so the research binary is not host-instruction-specific."
+        },
+        "deterministic_command_policy": {
+          "staged_input_name": "input.bin",
+          "staged_input_mtime_utc": "2000-01-01T00:00:00Z",
+          "compression_arguments": [
+            "add",
+            "$ARTIFACT",
+            "input.bin",
+            "-method",
+            "510",
+            "-threads",
+            "1",
+            "-noattributes",
+            "-until",
+            "20000101000000"
+          ],
+          "decompression_arguments": [
+            "extract",
+            "$ARTIFACT",
+            "input.bin",
+            "-to",
+            "$RESTORED",
+            "-force",
+            "-threads",
+            "1",
+            "-noattributes"
+          ],
+          "admission_rule": "Count the complete journaling archive and require two measured complete artifact SHA-256 values to match before labeling ZPAQ deterministic."
+        },
+        "resource_policy": "Run official method 5 in exact single-input mode with complete archive accounting; start at -m510 only after the practical census and enforce the 18 GiB local peak-RSS cap."
       },
       {
         "codec_id": "paq8px-forcetext",
         "version": "v216",
         "official_source": "https://github.com/hxim/paq8px/releases/tag/v216",
-        "resource_policy": "Use the strongest level completing within the research budget. Any pretraining dictionaries or expression files required to decode count in full."
+        "tag_commit": "bf7b658fdcfc045a892920d01e830e6c6a790c21",
+        "license": "GPL-2.0-or-later",
+        "identity_status": "commit_identity_frozen_build_pending",
+        "build_policy": {
+          "commands": [
+            [
+              "cmake",
+              "-S",
+              ".",
+              "-B",
+              "build",
+              "-DCMAKE_BUILD_TYPE=Release",
+              "-DNATIVECPU=OFF",
+              "-DDISABLE_ZLIB=OFF",
+              "-DCMAKE_CXX_COMPILER=$CXX",
+              "-DCMAKE_C_COMPILER=$CC"
+            ],
+            [
+              "cmake",
+              "--build",
+              "build",
+              "--target",
+              "paq8px",
+              "--parallel",
+              "1"
+            ]
+          ],
+          "reason": "Use upstream CMake with its C++17, safe floating-point, generic CPU, bundled-zlib, and single-build-job settings."
+        },
+        "absolute_ceiling_commands": {
+          "compress": [
+            "paq8px",
+            "-12L",
+            "-forcetext",
+            "$INPUT",
+            "$PAYLOAD"
+          ],
+          "decompress": [
+            "paq8px",
+            "-d",
+            "$PAYLOAD",
+            "$RESTORED"
+          ],
+          "host_requirement": "Larger isolated host with safe headroom beyond the upstream 32 GB+ warning."
+        },
+        "local_resource_screen_commands": {
+          "compress": [
+            "paq8px",
+            "-11L",
+            "-forcetext",
+            "$INPUT",
+            "$PAYLOAD"
+          ],
+          "decompress": [
+            "paq8px",
+            "-d",
+            "$PAYLOAD",
+            "$RESTORED"
+          ],
+          "claim_label": "Local resource-bounded paq8px evidence only; never absolute paq8px ceiling."
+        },
+        "external_asset_policy": {
+          "allowed": [],
+          "prohibited_flags": [
+            "T",
+            "E",
+            "R",
+            "-loadlstm:text",
+            "-savelstm:text"
+          ],
+          "prohibited_repository_assets": [
+            "build/english.dic",
+            "build/english.emb",
+            "build/english.exp"
+          ],
+          "reason": "Upstream identifies plain -12L as the fair fully self-contained maximum. Pretraining dictionaries, embeddings, expressions, executable-specific state, and saved LSTM weights are not stored in the archive and would be required again by the decoder."
+        },
+        "archive_accounting": "Use single-file mode with an explicit output. Upstream states that this mode stores contents only and no paths, names, timestamps, attributes, permissions, or other metadata; count every output byte and require two measured hashes to match.",
+        "resource_policy": "The absolute upstream ceiling is -12L with no external pretraining files. A local -11L run is resource-bounded evidence only and cannot stand in for -12L; -12L requires a larger isolated host."
       },
       {
         "codec_id": "cmix",
         "version": "v21",
         "official_source": "https://github.com/byronknoll/cmix/releases/tag/v21",
-        "resource_policy": "Run only on a declared host with at least 32 GiB RAM and within the research time budget."
+        "tag_commit": "c443679c0773b8ae5b05423827804063d82ae7a8",
+        "license": "GPL-3.0",
+        "identity_status": "commit_identity_frozen_external_build_pending",
+        "build_policy": {
+          "commands": [
+            [
+              "make",
+              "cmix",
+              "CC=$CXX",
+              "LFLAGS=-std=c++14 -Wall -O3"
+            ]
+          ],
+          "reason": "Use the upstream cmix target with the upstream documented -O3 compatibility mode instead of -Ofast -march=native."
+        },
+        "portable_build_policy": "Use -O3. Do not use -Ofast -march=native because the upstream README warns that floating-point precision differences can make archives incompatible across computers.",
+        "strong_text_commands": {
+          "compress": [
+            "cmix",
+            "-t",
+            "$ENGLISH_DICTIONARY",
+            "$INPUT",
+            "$PAYLOAD"
+          ],
+          "decompress": [
+            "cmix",
+            "-d",
+            "$ENGLISH_DICTIONARY",
+            "$PAYLOAD",
+            "$RESTORED"
+          ]
+        },
+        "required_decoder_assets": [
+          {
+            "path": "dictionary/english.dic",
+            "bytes": 411996,
+            "sha256": "4c8568cca9343b9a6212477880f56f8efd162f8784224a25edd043097d36215a",
+            "accounting": "Report payload-only installed-codec context separately, but add these dictionary bytes once to the primary self-contained ceiling artifact."
+          }
+        ],
+        "prohibited_assets": [
+          {
+            "path": "dictionary/new_article_order",
+            "reason": "Upstream documents this as enwik9-specific preprocessing state; enwik9 is diagnostic-only and the asset is inapplicable to the frozen source/Wikimedia items."
+          },
+          {
+            "path": "external precomp-cpp output",
+            "reason": "Optional external preprocessing is not admitted unless separately pinned, reversible, completely accounted, and predeclared before any run."
+          }
+        ],
+        "resource_policy": "Run the strongest source-audited text mode only on a larger isolated host with safe headroom beyond the upstream 32 GiB recommendation. Count or reject every external dictionary or model dependency."
       },
       {
         "codec_id": "nncp",
-        "version": "3.2",
+        "version": "3.3",
         "official_source": "https://bellard.org/nncp/",
-        "resource_policy": "Run only when the official implementation, model assets, and decoder can be pinned and completely accounted within the research budget."
+        "source_archive_url": "https://bellard.org/nncp/nncp-2024-06-05.tar.gz",
+        "source_archive_bytes": 1180969,
+        "source_archive_sha256": "7b4be2a5871186b82cd5f1c6137a8f6fed0d0c6b2bb281793db1f0be65831119",
+        "license": "MIT-source-with-redistributed-LibNC-binary",
+        "identity_status": "archive_identity_frozen_external_build_pending",
+        "build_policy": {
+          "commands": [
+            [
+              "make",
+              "nncp",
+              "CC=$CC"
+            ]
+          ],
+          "reason": "Use the exact upstream Linux target and its shipped flags while linking the pinned redistributed LibNC runtime from the same archive."
+        },
+        "bundled_runtime_identity": {
+          "cpu_library": {
+            "path": "nncp-2024-06-05/libnc.so",
+            "bytes": 565336,
+            "sha256": "1836cdfde987885e542cb88847cc58c9abefb0ef59a511ea9540dcbe46ac6d3e"
+          },
+          "cuda_library": {
+            "path": "nncp-2024-06-05/libnc_cuda.so",
+            "bytes": 3979504,
+            "sha256": "ea9ee53d217a673e8547dddbfe8253b9c9ea4ec18ad86c7bd939ac2572f7999e"
+          },
+          "accounting": "Treat the executable and pinned LibNC library as disclosed installed-codec dependencies, exactly as codec executables are treated for every baseline. They are not per-artifact bytes, but a result is ineligible for portability claims until the same artifact decodes exactly on a second declared compatible host."
+        },
+        "absolute_ceiling_commands": {
+          "wikimedia": {
+            "compress": [
+              "nncp",
+              "--cuda",
+              "-T",
+              "1",
+              "--profile",
+              "enwik9",
+              "--seed",
+              "123",
+              "--preprocess",
+              "16384,512",
+              "c",
+              "$INPUT",
+              "$PAYLOAD"
+            ],
+            "decompress": [
+              "nncp",
+              "--cuda",
+              "-T",
+              "1",
+              "d",
+              "$PAYLOAD",
+              "$RESTORED"
+            ]
+          },
+          "source": {
+            "compress": [
+              "nncp",
+              "--cuda",
+              "-T",
+              "1",
+              "--profile",
+              "enwik9",
+              "--seed",
+              "123",
+              "c",
+              "$INPUT",
+              "$PAYLOAD"
+            ],
+            "decompress": [
+              "nncp",
+              "--cuda",
+              "-T",
+              "1",
+              "d",
+              "$PAYLOAD",
+              "$RESTORED"
+            ]
+          },
+          "admission_rule": "The enwik9 name denotes the strongest shipped 20-layer transformer parameter profile, not external weights or a published-score shortcut. Its parameters and seed are written into the artifact. Use the upstream text preprocessor only for the Wikimedia track where its exact 16384,512 recipe is documented; keep source bundles raw rather than inventing an unvalidated tokenizer setting."
+        },
+        "self_contained_archive_policy": {
+          "counted_bytes": "Count the complete NNCP output. The file header stores the model parameters and seed; when preprocessing is enabled, NNCP generates the vocabulary from the input and zlib-compresses that vocabulary into the same output.",
+          "external_weights": "None admitted. Encoder and decoder initialize the same model from seed 123 and train it online from the coded symbols.",
+          "prohibited_options": [
+            "--dict",
+            "--load_coefs",
+            "--encode_only",
+            "--max_size"
+          ],
+          "reason": "External preprocessed inputs or coefficients break self-contained framing, encode-only output is documented as undecodable, and max_size truncates the declared input."
+        },
+        "determinism_and_portability_gate": "Require two complete artifact SHA-256 values to match on the pinned CUDA host, exact restoration for every run, the precise GPU/CUDA/LibNC/build identity, and a second-host exact decode before any portability claim. If GPU arithmetic is not cross-host reproducible, retain NNCP only as same-host research context and label that limitation.",
+        "resource_policy": "Run only on a separately authorized Linux/CUDA host. Upstream reports 1 GB CPU plus 6.6 GB GPU memory and 2.8 days for its enwik9 example on an RTX 4090; enforce the research wall-time gate and report timeout or unavailability rather than treating either as an Axiom win."
       }
     ]
   },
@@ -144,9 +408,15 @@
   },
   "research_budget": {
     "maximum_wall_hours_per_family_per_codec": 12.0,
-    "maximum_peak_rss_gib": 32.0,
+    "maximum_local_peak_rss_gib": 18.0,
+    "installed_local_memory_gib": 32.0,
+    "full_ceiling_external_host_required_for": [
+      "paq8px -12L",
+      "cmix v21 strongest text mode",
+      "NNCP v3.3 transformer profile"
+    ],
     "minimum_repetitions": 1,
-    "reason": "Research-ceiling runs are ratio context, not a practical speed tier. Wall time and memory remain bounded and visible."
+    "reason": "Research-ceiling runs are ratio context, not a practical speed tier. This Mac has exactly 32 GiB installed, so the local 18 GiB cap preserves defensible OS and harness headroom; unrestricted ceiling runs retain explicit larger-host requirements."
   },
   "streaming_requirements": {
     "target_segment_bytes": 16777216,

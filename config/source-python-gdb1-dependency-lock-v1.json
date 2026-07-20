@@ -1,0 +1,218 @@
+{
+  "acquisition": {
+    "allowed_artifact_host": "files.pythonhosted.org",
+    "allowed_metadata_host": "pypi.org",
+    "artifact_policy": "Download only the exact locked wheel filenames from their exact official PyPI file URLs; reject redirects outside files.pythonhosted.org, substitutions, sdists, extras, symlinks, partial files, and unlisted files.",
+    "metadata_policy": "Resolve only the exact version JSON endpoints and require filename, URL, byte size, SHA-256, and upload timestamp to match this lock before downloading.",
+    "official_index": "https://pypi.org/"
+  },
+  "claim_ceiling": "Public dependency identity only. This lock contains no corpus evidence, measurements, candidate result, validation access, product result, or compression claim.",
+  "created_before_corpus_access": true,
+  "name": "source-python-gdb1-dependency-lock-v1",
+  "packages": [
+    {
+      "artifacts": [
+        {
+          "filename": "libcst-1.8.6-cp312-cp312-macosx_11_0_arm64.whl",
+          "internal": {
+            "license": {
+              "bytes": 4700,
+              "member": "libcst-1.8.6.dist-info/licenses/LICENSE",
+              "sha256": "e09b2c94517c6a191153fe0407c0a546c4d24a7295ae3bb26d59b544c74162dc"
+            },
+            "metadata": {
+              "bytes": 15513,
+              "member": "libcst-1.8.6.dist-info/METADATA",
+              "sha256": "be37335c7a37a051a24badd91414c181be4d17dc47f1dd32341447d5ba0e10dc"
+            },
+            "record": {
+              "bytes": 29128,
+              "member": "libcst-1.8.6.dist-info/RECORD",
+              "sha256": "60e00c989f8f385440b78698c95b408463fa054440818388eb80a6b01a2e5e8c"
+            },
+            "wheel": {
+              "bytes": 136,
+              "member": "libcst-1.8.6.dist-info/WHEEL",
+              "sha256": "57596843a4e9c4006ed403d48343284d104ecd2293e7155cdec922cd7fa8bc25"
+            }
+          },
+          "sha256": "f1472eeafd67cdb22544e59cf3bfc25d23dc94058a68cf41f6654ff4fcb92e09",
+          "size_bytes": 2083726,
+          "target_id": "cpython-3.12.12-macos-arm64",
+          "upload_time_iso_8601": "2025-11-03T22:32:17.312895Z",
+          "url": "https://files.pythonhosted.org/packages/1d/cb/7530940e6ac50c6dd6022349721074e19309eb6aa296e942ede2213c1a19/libcst-1.8.6-cp312-cp312-macosx_11_0_arm64.whl",
+          "wheel_tags": [
+            "cp312-cp312-macosx_11_0_arm64"
+          ]
+        },
+        {
+          "filename": "libcst-1.8.6-cp312-cp312-manylinux_2_28_x86_64.whl",
+          "internal": {
+            "license": {
+              "bytes": 4700,
+              "member": "libcst-1.8.6.dist-info/licenses/LICENSE",
+              "sha256": "e09b2c94517c6a191153fe0407c0a546c4d24a7295ae3bb26d59b544c74162dc"
+            },
+            "metadata": {
+              "bytes": 15513,
+              "member": "libcst-1.8.6.dist-info/METADATA",
+              "sha256": "be37335c7a37a051a24badd91414c181be4d17dc47f1dd32341447d5ba0e10dc"
+            },
+            "record": {
+              "bytes": 29138,
+              "member": "libcst-1.8.6.dist-info/RECORD",
+              "sha256": "204fc6a341897301d1c63cf52fd8998775155cdcda76033363436279a4f03343"
+            },
+            "wheel": {
+              "bytes": 113,
+              "member": "libcst-1.8.6.dist-info/WHEEL",
+              "sha256": "557bcd2a7ea715e08ce3918452b34b24e3bf27f7be70d269846b7dad6171c84d"
+            }
+          },
+          "sha256": "c9d7aeafb1b07d25a964b148c0dda9451efb47bbbf67756e16eeae65004b0eb5",
+          "size_bytes": 2301473,
+          "target_id": "cpython-3.12.12-linux-x86_64",
+          "upload_time_iso_8601": "2025-11-03T22:32:20.499942Z",
+          "url": "https://files.pythonhosted.org/packages/55/54/570ec2b0e9a3de0af9922e3bb1b69a5429beefbc753a7ea770a27ad308bd/libcst-1.8.6-cp312-cp312-manylinux_2_28_x86_64.whl",
+          "wheel_tags": [
+            "cp312-cp312-manylinux_2_28_x86_64"
+          ]
+        }
+      ],
+      "license_files": [
+        "LICENSE"
+      ],
+      "license_spdx_expression": "MIT AND PSF-2.0 AND Apache-2.0",
+      "name": "libcst",
+      "normalized_name": "libcst",
+      "pypi_json_url": "https://pypi.org/pypi/libcst/1.8.6/json",
+      "requires_dist": [
+        "pyyaml>=5.2; python_version < \"3.13\"",
+        "pyyaml-ft>=8.0.0; python_version == \"3.13\"",
+        "pyyaml>=6.0.3; python_version >= \"3.14\"",
+        "typing-extensions; python_version < \"3.10\""
+      ],
+      "requires_python": ">=3.9",
+      "role": "lossless CST and ScopeProvider",
+      "source_url": "https://github.com/Instagram/LibCST",
+      "version": "1.8.6"
+    },
+    {
+      "artifacts": [
+        {
+          "filename": "pyyaml-6.0.3-cp312-cp312-macosx_11_0_arm64.whl",
+          "internal": {
+            "license": {
+              "bytes": 1101,
+              "member": "pyyaml-6.0.3.dist-info/licenses/LICENSE",
+              "sha256": "8d3928f9dc4490fd635707cb88eb26bd764102a7282954307d3e5167a577e8a4"
+            },
+            "metadata": {
+              "bytes": 2351,
+              "member": "pyyaml-6.0.3.dist-info/METADATA",
+              "sha256": "03c3b415ed38d09faedc49360e930769b40c58f68585e6de00e2e4916a858d34"
+            },
+            "record": {
+              "bytes": 1812,
+              "member": "pyyaml-6.0.3.dist-info/RECORD",
+              "sha256": "715146d21711444bc73c3137d18cffb6e38ace40e8998c5a9dfa69bd7dc46e3e"
+            },
+            "wheel": {
+              "bytes": 136,
+              "member": "pyyaml-6.0.3.dist-info/WHEEL",
+              "sha256": "57596843a4e9c4006ed403d48343284d104ecd2293e7155cdec922cd7fa8bc25"
+            }
+          },
+          "sha256": "fc09d0aa354569bc501d4e787133afc08552722d3ab34836a80547331bb5d4a0",
+          "size_bytes": 173973,
+          "target_id": "cpython-3.12.12-macos-arm64",
+          "upload_time_iso_8601": "2025-09-25T21:32:12.492377Z",
+          "url": "https://files.pythonhosted.org/packages/89/a0/6cf41a19a1f2f3feab0e9c0b74134aa2ce6849093d5517a0c550fe37a648/pyyaml-6.0.3-cp312-cp312-macosx_11_0_arm64.whl",
+          "wheel_tags": [
+            "cp312-cp312-macosx_11_0_arm64"
+          ]
+        },
+        {
+          "filename": "pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+          "internal": {
+            "license": {
+              "bytes": 1101,
+              "member": "pyyaml-6.0.3.dist-info/licenses/LICENSE",
+              "sha256": "8d3928f9dc4490fd635707cb88eb26bd764102a7282954307d3e5167a577e8a4"
+            },
+            "metadata": {
+              "bytes": 2351,
+              "member": "pyyaml-6.0.3.dist-info/METADATA",
+              "sha256": "03c3b415ed38d09faedc49360e930769b40c58f68585e6de00e2e4916a858d34"
+            },
+            "record": {
+              "bytes": 1823,
+              "member": "pyyaml-6.0.3.dist-info/RECORD",
+              "sha256": "5c15ea34cb27e31de590b1fa63a54192a9b5955933419c608c7a4ce0c86a8de5"
+            },
+            "wheel": {
+              "bytes": 190,
+              "member": "pyyaml-6.0.3.dist-info/WHEEL",
+              "sha256": "0f1467590cfe2a9f7ee1ae217431ec4afd0a502dc7eec37d35b79fdfef118d75"
+            }
+          },
+          "sha256": "ba1cc08a7ccde2d2ec775841541641e4548226580ab850948cbfda66a1befcdc",
+          "size_bytes": 807870,
+          "target_id": "cpython-3.12.12-linux-x86_64",
+          "upload_time_iso_8601": "2025-09-25T21:32:16.431392Z",
+          "url": "https://files.pythonhosted.org/packages/8b/9d/b3589d3877982d4f2329302ef98a8026e7f4443c765c46cfecc8858c6b4b/pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+          "wheel_tags": [
+            "cp312-cp312-manylinux2014_x86_64",
+            "cp312-cp312-manylinux_2_17_x86_64",
+            "cp312-cp312-manylinux_2_28_x86_64"
+          ]
+        }
+      ],
+      "license_files": [
+        "LICENSE"
+      ],
+      "license_spdx_expression": "MIT",
+      "name": "PyYAML",
+      "normalized_name": "pyyaml",
+      "pypi_json_url": "https://pypi.org/pypi/pyyaml/6.0.3/json",
+      "requires_dist": [],
+      "requires_python": ">=3.8",
+      "role": "Only active LibCST dependency under Python 3.12",
+      "source_url": "https://github.com/yaml/pyyaml",
+      "version": "6.0.3"
+    }
+  ],
+  "protocol_config_sha256": "59f635f56738d6c908828735646dd463bffbdf44f1801064cf6317ca8a4b3954",
+  "resolution": {
+    "active_requirement": "pyyaml>=5.2; python_version < \"3.13\"",
+    "excluded_by_python_3_12_markers": [
+      "pyyaml-ft>=8.0.0; python_version == \"3.13\"",
+      "pyyaml>=6.0.3; python_version >= \"3.14\"",
+      "typing-extensions; python_version < \"3.10\""
+    ],
+    "package_set_complete": true,
+    "resolver_rule": "Exact direct dependency closure for LibCST 1.8.6 under CPython 3.12.12; no extras and binary wheels only. PyYAML 6.0.3 has no Requires-Dist entries.",
+    "runtime_distribution_boundary": "CPython executable and standard-library files are installed-codec distribution bytes, not PyPI dependencies. Before measurement, the complete decoder-distribution inventory must count and hash them under the GDB1 complete-bundle rule; this package lock alone never authorizes measurement."
+  },
+  "schema_version": 1,
+  "targets": [
+    {
+      "abi": "cp312",
+      "architecture": "arm64",
+      "id": "cpython-3.12.12-macos-arm64",
+      "implementation": "CPython",
+      "platform": "macosx_11_0_arm64",
+      "python_version": "3.12.12",
+      "role": "local development and exactness"
+    },
+    {
+      "abi": "cp312",
+      "architecture": "x86_64",
+      "id": "cpython-3.12.12-linux-x86_64",
+      "implementation": "CPython",
+      "platform": "manylinux_2_28_x86_64",
+      "python_version": "3.12.12",
+      "role": "hosted development measurement"
+    }
+  ]
+}

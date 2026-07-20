@@ -170,10 +170,19 @@ class TextSourceProtocolTests(unittest.TestCase):
         self.assertNotIn("plain_text_source", categories)
         self.assertIn("source_code_bundles", categories)
         self.assertIn("english_wikimedia_wikitext", categories)
+        practical_codecs = [
+            row["codec_id"]
+            for row in self.gates["baseline_tiers"]["practical_required"]
+        ]
         for category_id in ("source_code_bundles", "english_wikimedia_wikitext"):
             self.assertEqual(categories[category_id]["status"], "untested")
-            self.assertEqual(categories[category_id]["tested_standards"], [])
-            self.assertIn("protocol", categories[category_id]["current_result"].lower())
+            self.assertEqual(
+                categories[category_id]["tested_standards"], practical_codecs
+            )
+            result = categories[category_id]["current_result"].lower()
+            self.assertIn("census completed", result)
+            self.assertIn("axiom q1 record-neighborhood candidate", result)
+            self.assertIn("no category win", result)
 
 
 if __name__ == "__main__":

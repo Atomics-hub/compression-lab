@@ -1,0 +1,47 @@
+{
+  "arms": {
+    "a0-token-trivia-range": "Token kinds, every exact token spelling, and every exact intertoken trivia gap use shared adaptive range-coded streams.",
+    "a1-flat-identifiers": "A0 with identifier spellings moved to a first-occurrence lexicon and occurrence events encoded by one global MTF list.",
+    "a2-scope-bindings": "A1 with only identifier occurrences replaced by scope-local NEW, lexical-ancestor or module-table FREE, and current-scope MTF events. The checkpoint accepts explicit synthetic scope plans only."
+  },
+  "bindings": {
+    "dependency_lock_sha256": "d31eda5ed923263a7a76f5a3d85cbf35a9e26b78bd3f8cdd7f627863e9f65108",
+    "protocol_sha256": "59f635f56738d6c908828735646dd463bffbdf44f1801064cf6317ca8a4b3954",
+    "runtime_distribution_sha256": "c1c3e9ff49603433a72463626bbeccc394c95def1873359fc7ec6341a65c024e"
+  },
+  "claim_ceiling": "Corpus-disabled synthetic reference decoder and bitstream identity only. It is not the LibCST production encoder, a G0 result, a compression measurement, or a compression win.",
+  "coder": {
+    "alphabet": "Bytes produced by canonical uint64 varints and length-delimited byte strings.",
+    "frequency_model": "256 symbols initialized to one, increment after each symbol, rescale at total 16384 by ceil(count/2).",
+    "implementation": "32-bit range with 64-bit carry accumulator and canonical ShiftLow byte emission; renormalize while range is below 2^24; five final ShiftLow operations.",
+    "name": "axiom-int-range-v1"
+  },
+  "decoder": {
+    "bytes": 29810,
+    "path": "scripts/source-python-gdb1-synthetic-codec.py",
+    "sha256": "783f1abdf2ecfb71f51c2dec06f3d8436c5efee2081a1590132841838033b094"
+  },
+  "format": {
+    "header": "AXPG1 NUL magic, one arm byte, big-endian uint32 canonical-JSON header length, canonical JSON, then six directory-ordered range-coded streams.",
+    "limits": {
+      "maximum_file_bytes": 134217728,
+      "maximum_files": 1000000,
+      "maximum_header_bytes": 16777216,
+      "maximum_stream_bytes": 4294967296
+    },
+    "stream_order": [
+      "token_kinds",
+      "spellings",
+      "trivia",
+      "identifier_lexicon",
+      "identifier_occurrences",
+      "raw_fallback"
+    ],
+    "version": "AXPG1"
+  },
+  "measurement_authorized": false,
+  "name": "source-python-gdb1-codec-format-v1",
+  "production_encoder_status": "pending_libcst_scopeprovider_integration",
+  "schema_version": 1,
+  "synthetic_only": true
+}

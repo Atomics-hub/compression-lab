@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1540" height="650" viewBox="0 0 1540 650" role="img">
+<style>text{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;fill:#172033}.title{font-size:26px;font-weight:700}.sub{font-size:13px;fill:#526078}.track{font-size:18px;font-weight:700}.head{font-size:11px;font-weight:700;fill:#526078}.row{font-size:11px}.base{font-size:11px;font-weight:700;fill:#315b8a}.bad{font-size:11px;font-weight:700;fill:#a13d2d}.num{font-size:11px;font-variant-numeric:tabular-nums}</style>
+<text class="title" x="28" y="38">BWT decomposition screen — rejected on both tracks</text>
+<text class="sub" x="28" y="64">32/32 exact trials; four deterministic BWT diagnostics versus complete Kanzi-max archives; no Axiom artifact or win.</text>
+<text class="track" x="28" y="108">Source code: CPython + TypeScript</text>
+<text class="bad" x="1510" y="108" text-anchor="end">reject_raw_bwt_direction_for_track</text>
+<text class="head" x="28" y="136" text-anchor="start">Baseline / diagnostic</text>
+<text class="head" x="690" y="136" text-anchor="end">Complete bytes</text>
+<text class="head" x="810" y="136" text-anchor="end">Gain vs K-max</text>
+<text class="head" x="900" y="136" text-anchor="end">Ratio</text>
+<text class="head" x="1010" y="136" text-anchor="end">C MB/s</text>
+<text class="head" x="1120" y="136" text-anchor="end">D MB/s</text>
+<text class="head" x="1250" y="136" text-anchor="end">RSS C/D MiB</text>
+<text class="head" x="1375" y="136" text-anchor="middle">Exact/Det</text>
+<text class="head" x="1510" y="136" text-anchor="end">Decision</text>
+<rect x="20" y="139" width="1500" height="30" rx="3" fill="#eaf0f7" fill-opacity="0.62"/>
+<text class="base" x="28" y="160" text-anchor="start">Kanzi max (level 9)</text>
+<text class="num" x="690" y="160" text-anchor="end">6,221,486</text>
+<text class="num" x="810" y="160" text-anchor="end">0.00%</text>
+<text class="num" x="900" y="160" text-anchor="end">11.28x</text>
+<text class="num" x="1010" y="160" text-anchor="end">—</text>
+<text class="num" x="1120" y="160" text-anchor="end">—</text>
+<text class="num" x="1250" y="160" text-anchor="end">—/—</text>
+<text class="num" x="1375" y="160" text-anchor="middle">yes/yes</text>
+<text class="base" x="1510" y="160" text-anchor="end">baseline</text>
+<text class="bad" x="28" y="190" text-anchor="start">TB1 TEXT + UTF + BWT / TPAQX</text>
+<text class="num" x="690" y="190" text-anchor="end">8,608,181</text>
+<text class="num" x="810" y="190" text-anchor="end">-38.36%</text>
+<text class="num" x="900" y="190" text-anchor="end">8.15x</text>
+<text class="num" x="1010" y="190" text-anchor="end">2.43</text>
+<text class="num" x="1120" y="190" text-anchor="end">2.30</text>
+<text class="num" x="1250" y="190" text-anchor="end">1599.22/1477.31</text>
+<text class="num" x="1375" y="190" text-anchor="middle">yes/yes</text>
+<text class="bad" x="1510" y="190" text-anchor="end">rejected</text>
+<rect x="20" y="199" width="1500" height="30" rx="3" fill="#eaf0f7" fill-opacity="0.62"/>
+<text class="bad" x="28" y="220" text-anchor="start">TB2 TEXT + UTF + BWT + SRT + ZRLT / TPAQX</text>
+<text class="num" x="690" y="220" text-anchor="end">8,383,238</text>
+<text class="num" x="810" y="220" text-anchor="end">-34.75%</text>
+<text class="num" x="900" y="220" text-anchor="end">8.37x</text>
+<text class="num" x="1010" y="220" text-anchor="end">5.23</text>
+<text class="num" x="1120" y="220" text-anchor="end">5.25</text>
+<text class="num" x="1250" y="220" text-anchor="end">1584.83/1462.89</text>
+<text class="num" x="1375" y="220" text-anchor="middle">yes/yes</text>
+<text class="bad" x="1510" y="220" text-anchor="end">rejected</text>
+<text class="bad" x="28" y="250" text-anchor="start">TB3 level-6 control / FPAQ</text>
+<text class="num" x="690" y="250" text-anchor="end">8,457,517</text>
+<text class="num" x="810" y="250" text-anchor="end">-35.94%</text>
+<text class="num" x="900" y="250" text-anchor="end">8.30x</text>
+<text class="num" x="1010" y="250" text-anchor="end">15.84</text>
+<text class="num" x="1120" y="250" text-anchor="end">24.86</text>
+<text class="num" x="1250" y="250" text-anchor="end">726.52/736.16</text>
+<text class="num" x="1375" y="250" text-anchor="middle">yes/yes</text>
+<text class="bad" x="1510" y="250" text-anchor="end">rejected</text>
+<rect x="20" y="259" width="1500" height="30" rx="3" fill="#eaf0f7" fill-opacity="0.62"/>
+<text class="bad" x="28" y="280" text-anchor="start">TB4 raw BWT + SRT + ZRLT / TPAQX</text>
+<text class="num" x="690" y="280" text-anchor="end">8,383,704</text>
+<text class="num" x="810" y="280" text-anchor="end">-34.75%</text>
+<text class="num" x="900" y="280" text-anchor="end">8.37x</text>
+<text class="num" x="1010" y="280" text-anchor="end">2.93</text>
+<text class="num" x="1120" y="280" text-anchor="end">3.68</text>
+<text class="num" x="1250" y="280" text-anchor="end">1632.14/1519.05</text>
+<text class="num" x="1375" y="280" text-anchor="middle">yes/yes</text>
+<text class="bad" x="1510" y="280" text-anchor="end">rejected</text>
+<text class="track" x="28" y="348">English Wikimedia: Wikibooks + Wikinews</text>
+<text class="bad" x="1510" y="348" text-anchor="end">reject_raw_bwt_direction_for_track</text>
+<text class="head" x="28" y="376" text-anchor="start">Baseline / diagnostic</text>
+<text class="head" x="690" y="376" text-anchor="end">Complete bytes</text>
+<text class="head" x="810" y="376" text-anchor="end">Gain vs K-max</text>
+<text class="head" x="900" y="376" text-anchor="end">Ratio</text>
+<text class="head" x="1010" y="376" text-anchor="end">C MB/s</text>
+<text class="head" x="1120" y="376" text-anchor="end">D MB/s</text>
+<text class="head" x="1250" y="376" text-anchor="end">RSS C/D MiB</text>
+<text class="head" x="1375" y="376" text-anchor="middle">Exact/Det</text>
+<text class="head" x="1510" y="376" text-anchor="end">Decision</text>
+<rect x="20" y="379" width="1500" height="30" rx="3" fill="#eaf0f7" fill-opacity="0.62"/>
+<text class="base" x="28" y="400" text-anchor="start">Kanzi max (level 9)</text>
+<text class="num" x="690" y="400" text-anchor="end">24,156,788</text>
+<text class="num" x="810" y="400" text-anchor="end">0.00%</text>
+<text class="num" x="900" y="400" text-anchor="end">5.56x</text>
+<text class="num" x="1010" y="400" text-anchor="end">—</text>
+<text class="num" x="1120" y="400" text-anchor="end">—</text>
+<text class="num" x="1250" y="400" text-anchor="end">—/—</text>
+<text class="num" x="1375" y="400" text-anchor="middle">yes/yes</text>
+<text class="base" x="1510" y="400" text-anchor="end">baseline</text>
+<text class="bad" x="28" y="430" text-anchor="start">TB1 TEXT + UTF + BWT / TPAQX</text>
+<text class="num" x="690" y="430" text-anchor="end">28,362,606</text>
+<text class="num" x="810" y="430" text-anchor="end">-17.41%</text>
+<text class="num" x="900" y="430" text-anchor="end">4.73x</text>
+<text class="num" x="1010" y="430" text-anchor="end">2.87</text>
+<text class="num" x="1120" y="430" text-anchor="end">3.14</text>
+<text class="num" x="1250" y="430" text-anchor="end">1662.50/1529.03</text>
+<text class="num" x="1375" y="430" text-anchor="middle">yes/yes</text>
+<text class="bad" x="1510" y="430" text-anchor="end">rejected</text>
+<rect x="20" y="439" width="1500" height="30" rx="3" fill="#eaf0f7" fill-opacity="0.62"/>
+<text class="bad" x="28" y="460" text-anchor="start">TB2 TEXT + UTF + BWT + SRT + ZRLT / TPAQX</text>
+<text class="num" x="690" y="460" text-anchor="end">27,399,632</text>
+<text class="num" x="810" y="460" text-anchor="end">-13.42%</text>
+<text class="num" x="900" y="460" text-anchor="end">4.90x</text>
+<text class="num" x="1010" y="460" text-anchor="end">3.71</text>
+<text class="num" x="1120" y="460" text-anchor="end">3.53</text>
+<text class="num" x="1250" y="460" text-anchor="end">1652.52/1519.03</text>
+<text class="num" x="1375" y="460" text-anchor="middle">yes/yes</text>
+<text class="bad" x="1510" y="460" text-anchor="end">rejected</text>
+<text class="bad" x="28" y="490" text-anchor="start">TB3 level-6 control / FPAQ</text>
+<text class="num" x="690" y="490" text-anchor="end">27,565,891</text>
+<text class="num" x="810" y="490" text-anchor="end">-14.11%</text>
+<text class="num" x="900" y="490" text-anchor="end">4.87x</text>
+<text class="num" x="1010" y="490" text-anchor="end">9.36</text>
+<text class="num" x="1120" y="490" text-anchor="end">19.07</text>
+<text class="num" x="1250" y="490" text-anchor="end">781.17/805.88</text>
+<text class="num" x="1375" y="490" text-anchor="middle">yes/yes</text>
+<text class="bad" x="1510" y="490" text-anchor="end">rejected</text>
+<rect x="20" y="499" width="1500" height="30" rx="3" fill="#eaf0f7" fill-opacity="0.62"/>
+<text class="bad" x="28" y="520" text-anchor="start">TB4 raw BWT + SRT + ZRLT / TPAQX</text>
+<text class="num" x="690" y="520" text-anchor="end">27,470,474</text>
+<text class="num" x="810" y="520" text-anchor="end">-13.72%</text>
+<text class="num" x="900" y="520" text-anchor="end">4.89x</text>
+<text class="num" x="1010" y="520" text-anchor="end">2.14</text>
+<text class="num" x="1120" y="520" text-anchor="end">2.35</text>
+<text class="num" x="1250" y="520" text-anchor="end">1528.12/1528.61</text>
+<text class="num" x="1375" y="520" text-anchor="middle">yes/yes</text>
+<text class="bad" x="1510" y="520" text-anchor="end">rejected</text>
+<text class="sub" x="28" y="626">Training-split custom Kanzi pipeline decomposition only. Complete archives are exact competitor diagnostics, not Axiom artifacts, Axiom wins, validation results, private-holdout results, independent reproduction, novel-algorithm results, or state-of-the-art evidence.</text>
+</svg>

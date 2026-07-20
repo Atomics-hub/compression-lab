@@ -1,0 +1,416 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1620" height="1278" viewBox="0 0 1620 1278" role="img" aria-labelledby="title desc">
+<title id="title">Axiom text and source structural development comparison</title>
+<desc id="desc">Every practical standard and both applicable Axiom structural variants are compared by complete size, speed, memory, exactness, determinism, and development decision.</desc>
+<style>
+text{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;fill:#172033}
+.title{font-size:27px;font-weight:700}.sub{font-size:14px;fill:#526078}.track{font-size:20px;font-weight:700}.head{font-size:12px;font-weight:700;fill:#526078}.label{font-size:12px}.num{font-size:11px;font-variant-numeric:tabular-nums}.candidate{font-weight:700;fill:#0b6b57}.reject{fill:#a13d2d}
+</style>
+<rect width="100%" height="100%" fill="#fbfcff"/>
+<text class="title" x="32" y="42">Axiom text/source structural development probe</text>
+<text class="sub" x="32" y="68">All 15 practical standards remain visible; failed and rejected Axiom evidence remains visible.</text>
+<text class="track" x="32" y="112">Source-code bundles</text>
+<text class="head" x="32" y="139" text-anchor="start">Codec / candidate</text>
+<text class="head" x="540" y="139" text-anchor="end">Bytes</text>
+<text class="head" x="635" y="139" text-anchor="end">Ratio</text>
+<text class="head" x="725" y="139" text-anchor="end">Size %</text>
+<text class="head" x="830" y="139" text-anchor="end">C MB/s</text>
+<text class="head" x="940" y="139" text-anchor="end">D MB/s</text>
+<text class="head" x="1035" y="139" text-anchor="end">RSS C/D MiB</text>
+<text class="head" x="1135" y="139" text-anchor="middle">Exact/Det</text>
+<text class="head" x="1270" y="139" text-anchor="middle">Portability</text>
+<text class="head" x="1385" y="139" text-anchor="middle">Axiom beat?</text>
+<text class="head" x="1590" y="139" text-anchor="end">Decision</text>
+<rect x="24" y="142" width="1572" height="27" rx="4" fill="#f0f4fa"/>
+<text class="label" x="32" y="160" text-anchor="start">Store</text>
+<text class="num" x="540" y="160" text-anchor="end">529,449,573</text>
+<text class="num" x="635" y="160" text-anchor="end">1.00x</text>
+<text class="num" x="725" y="160" text-anchor="end">100.00%</text>
+<text class="num" x="830" y="160" text-anchor="end">598.62</text>
+<text class="num" x="940" y="160" text-anchor="end">936.29</text>
+<text class="num" x="1035" y="160" text-anchor="end">2.14/2.16</text>
+<text class="num" x="1135" y="160" text-anchor="middle">yes/yes</text>
+<text class="num" x="1270" y="160" text-anchor="middle">same-host evidence only</text>
+<text class="num" x="1385" y="160" text-anchor="middle">no</text>
+<text class="num" x="1590" y="160" text-anchor="end">tested practical baseline</text>
+<text class="label" x="32" y="187" text-anchor="start">LZ4-1</text>
+<text class="num" x="540" y="187" text-anchor="end">165,015,213</text>
+<text class="num" x="635" y="187" text-anchor="end">3.21x</text>
+<text class="num" x="725" y="187" text-anchor="end">31.17%</text>
+<text class="num" x="830" y="187" text-anchor="end">782.35</text>
+<text class="num" x="940" y="187" text-anchor="end">524.13</text>
+<text class="num" x="1035" y="187" text-anchor="end">62.25/33.06</text>
+<text class="num" x="1135" y="187" text-anchor="middle">yes/yes</text>
+<text class="num" x="1270" y="187" text-anchor="middle">same-host evidence only</text>
+<text class="num" x="1385" y="187" text-anchor="middle">no</text>
+<text class="num" x="1590" y="187" text-anchor="end">tested practical baseline</text>
+<rect x="24" y="196" width="1572" height="27" rx="4" fill="#f0f4fa"/>
+<text class="label" x="32" y="214" text-anchor="start">gzip-9</text>
+<text class="num" x="540" y="214" text-anchor="end">98,332,593</text>
+<text class="num" x="635" y="214" text-anchor="end">5.38x</text>
+<text class="num" x="725" y="214" text-anchor="end">18.57%</text>
+<text class="num" x="830" y="214" text-anchor="end">11.76</text>
+<text class="num" x="940" y="214" text-anchor="end">386.81</text>
+<text class="num" x="1035" y="214" text-anchor="end">1.61/1.38</text>
+<text class="num" x="1135" y="214" text-anchor="middle">yes/yes</text>
+<text class="num" x="1270" y="214" text-anchor="middle">same-host evidence only</text>
+<text class="num" x="1385" y="214" text-anchor="middle">no</text>
+<text class="num" x="1590" y="214" text-anchor="end">tested practical baseline</text>
+<text class="label" x="32" y="241" text-anchor="start">bzip2-9</text>
+<text class="num" x="540" y="241" text-anchor="end">75,279,437</text>
+<text class="num" x="635" y="241" text-anchor="end">7.03x</text>
+<text class="num" x="725" y="241" text-anchor="end">14.22%</text>
+<text class="num" x="830" y="241" text-anchor="end">11.39</text>
+<text class="num" x="940" y="241" text-anchor="end">41.83</text>
+<text class="num" x="1035" y="241" text-anchor="end">8.47/4.72</text>
+<text class="num" x="1135" y="241" text-anchor="middle">yes/yes</text>
+<text class="num" x="1270" y="241" text-anchor="middle">same-host evidence only</text>
+<text class="num" x="1385" y="241" text-anchor="middle">no</text>
+<text class="num" x="1590" y="241" text-anchor="end">tested practical baseline</text>
+<rect x="24" y="250" width="1572" height="27" rx="4" fill="#f0f4fa"/>
+<text class="label" x="32" y="268" text-anchor="start">bzip3-max</text>
+<text class="num" x="540" y="268" text-anchor="end">59,840,101</text>
+<text class="num" x="635" y="268" text-anchor="end">8.85x</text>
+<text class="num" x="725" y="268" text-anchor="end">11.30%</text>
+<text class="num" x="830" y="268" text-anchor="end">7.65</text>
+<text class="num" x="940" y="268" text-anchor="end">11.16</text>
+<text class="num" x="1035" y="268" text-anchor="end">2595.77/2596.20</text>
+<text class="num" x="1135" y="268" text-anchor="middle">yes/yes</text>
+<text class="num" x="1270" y="268" text-anchor="middle">same-host evidence only</text>
+<text class="num" x="1385" y="268" text-anchor="middle">no</text>
+<text class="num" x="1590" y="268" text-anchor="end">tested practical baseline</text>
+<text class="label" x="32" y="295" text-anchor="start">zstd-3</text>
+<text class="num" x="540" y="295" text-anchor="end">95,618,572</text>
+<text class="num" x="635" y="295" text-anchor="end">5.54x</text>
+<text class="num" x="725" y="295" text-anchor="end">18.06%</text>
+<text class="num" x="830" y="295" text-anchor="end">119.38</text>
+<text class="num" x="940" y="295" text-anchor="end">370.16</text>
+<text class="num" x="1035" y="295" text-anchor="end">41.62/7.81</text>
+<text class="num" x="1135" y="295" text-anchor="middle">yes/yes</text>
+<text class="num" x="1270" y="295" text-anchor="middle">same-host evidence only</text>
+<text class="num" x="1385" y="295" text-anchor="middle">no</text>
+<text class="num" x="1590" y="295" text-anchor="end">tested practical baseline</text>
+<rect x="24" y="304" width="1572" height="27" rx="4" fill="#f0f4fa"/>
+<text class="label" x="32" y="322" text-anchor="start">zstd-9</text>
+<text class="num" x="540" y="322" text-anchor="end">79,715,660</text>
+<text class="num" x="635" y="322" text-anchor="end">6.64x</text>
+<text class="num" x="725" y="322" text-anchor="end">15.06%</text>
+<text class="num" x="830" y="322" text-anchor="end">34.77</text>
+<text class="num" x="940" y="322" text-anchor="end">355.19</text>
+<text class="num" x="1035" y="322" text-anchor="end">82.97/9.83</text>
+<text class="num" x="1135" y="322" text-anchor="middle">yes/yes</text>
+<text class="num" x="1270" y="322" text-anchor="middle">same-host evidence only</text>
+<text class="num" x="1385" y="322" text-anchor="middle">no</text>
+<text class="num" x="1590" y="322" text-anchor="end">tested practical baseline</text>
+<text class="label" x="32" y="349" text-anchor="start">zstd-19</text>
+<text class="num" x="540" y="349" text-anchor="end">66,615,701</text>
+<text class="num" x="635" y="349" text-anchor="end">7.95x</text>
+<text class="num" x="725" y="349" text-anchor="end">12.58%</text>
+<text class="num" x="830" y="349" text-anchor="end">1.63</text>
+<text class="num" x="940" y="349" text-anchor="end">479.46</text>
+<text class="num" x="1035" y="349" text-anchor="end">219.28/13.81</text>
+<text class="num" x="1135" y="349" text-anchor="middle">yes/yes</text>
+<text class="num" x="1270" y="349" text-anchor="middle">same-host evidence only</text>
+<text class="num" x="1385" y="349" text-anchor="middle">no</text>
+<text class="num" x="1590" y="349" text-anchor="end">tested practical baseline</text>
+<rect x="24" y="358" width="1572" height="27" rx="4" fill="#f0f4fa"/>
+<text class="label" x="32" y="376" text-anchor="start">zstd-22 ultra</text>
+<text class="num" x="540" y="376" text-anchor="end">63,584,273</text>
+<text class="num" x="635" y="376" text-anchor="end">8.33x</text>
+<text class="num" x="725" y="376" text-anchor="end">12.01%</text>
+<text class="num" x="830" y="376" text-anchor="end">1.35</text>
+<text class="num" x="940" y="376" text-anchor="end">415.26</text>
+<text class="num" x="1035" y="376" text-anchor="end">1017.45/133.81</text>
+<text class="num" x="1135" y="376" text-anchor="middle">yes/yes</text>
+<text class="num" x="1270" y="376" text-anchor="middle">same-host evidence only</text>
+<text class="num" x="1385" y="376" text-anchor="middle">no</text>
+<text class="num" x="1590" y="376" text-anchor="end">tested practical baseline</text>
+<text class="label" x="32" y="403" text-anchor="start">Brotli-11</text>
+<text class="num" x="540" y="403" text-anchor="end">63,728,402</text>
+<text class="num" x="635" y="403" text-anchor="end">8.31x</text>
+<text class="num" x="725" y="403" text-anchor="end">12.04%</text>
+<text class="num" x="830" y="403" text-anchor="end">0.48</text>
+<text class="num" x="940" y="403" text-anchor="end">269.85</text>
+<text class="num" x="1035" y="403" text-anchor="end">291.98/20.77</text>
+<text class="num" x="1135" y="403" text-anchor="middle">yes/yes</text>
+<text class="num" x="1270" y="403" text-anchor="middle">same-host evidence only</text>
+<text class="num" x="1385" y="403" text-anchor="middle">no</text>
+<text class="num" x="1590" y="403" text-anchor="end">tested practical baseline</text>
+<rect x="24" y="412" width="1572" height="27" rx="4" fill="#f0f4fa"/>
+<text class="label" x="32" y="430" text-anchor="start">XZ LZMA2-9e</text>
+<text class="num" x="540" y="430" text-anchor="end">62,145,332</text>
+<text class="num" x="635" y="430" text-anchor="end">8.52x</text>
+<text class="num" x="725" y="430" text-anchor="end">11.74%</text>
+<text class="num" x="830" y="430" text-anchor="end">1.16</text>
+<text class="num" x="940" y="430" text-anchor="end">89.34</text>
+<text class="num" x="1035" y="430" text-anchor="end">674.75/65.62</text>
+<text class="num" x="1135" y="430" text-anchor="middle">yes/yes</text>
+<text class="num" x="1270" y="430" text-anchor="middle">same-host evidence only</text>
+<text class="num" x="1385" y="430" text-anchor="middle">no</text>
+<text class="num" x="1590" y="430" text-anchor="end">tested practical baseline</text>
+<text class="label" x="32" y="457" text-anchor="start">7-Zip LZMA2-9</text>
+<text class="num" x="540" y="457" text-anchor="end">62,545,755</text>
+<text class="num" x="635" y="457" text-anchor="end">8.46x</text>
+<text class="num" x="725" y="457" text-anchor="end">11.81%</text>
+<text class="num" x="830" y="457" text-anchor="end">1.24</text>
+<text class="num" x="940" y="457" text-anchor="end">133.48</text>
+<text class="num" x="1035" y="457" text-anchor="end">2562.62/297.02</text>
+<text class="num" x="1135" y="457" text-anchor="middle">yes/yes</text>
+<text class="num" x="1270" y="457" text-anchor="middle">same-host evidence only</text>
+<text class="num" x="1385" y="457" text-anchor="middle">no</text>
+<text class="num" x="1590" y="457" text-anchor="end">tested practical baseline</text>
+<rect x="24" y="466" width="1572" height="27" rx="4" fill="#f0f4fa"/>
+<text class="label" x="32" y="484" text-anchor="start">7-Zip PPMd-9</text>
+<text class="num" x="540" y="484" text-anchor="end">59,457,949</text>
+<text class="num" x="635" y="484" text-anchor="end">8.90x</text>
+<text class="num" x="725" y="484" text-anchor="end">11.23%</text>
+<text class="num" x="830" y="484" text-anchor="end">5.68</text>
+<text class="num" x="940" y="484" text-anchor="end">4.91</text>
+<text class="num" x="1035" y="484" text-anchor="end">261.06/261.14</text>
+<text class="num" x="1135" y="484" text-anchor="middle">yes/yes</text>
+<text class="num" x="1270" y="484" text-anchor="middle">same-host evidence only</text>
+<text class="num" x="1385" y="484" text-anchor="middle">no</text>
+<text class="num" x="1590" y="484" text-anchor="end">tested practical baseline</text>
+<text class="label" x="32" y="511" text-anchor="start">Kanzi-max</text>
+<text class="num" x="540" y="511" text-anchor="end">45,550,471</text>
+<text class="num" x="635" y="511" text-anchor="end">11.62x</text>
+<text class="num" x="725" y="511" text-anchor="end">8.60%</text>
+<text class="num" x="830" y="511" text-anchor="end">3.47</text>
+<text class="num" x="940" y="511" text-anchor="end">2.95</text>
+<text class="num" x="1035" y="511" text-anchor="end">1890.55/1909.70</text>
+<text class="num" x="1135" y="511" text-anchor="middle">yes/yes</text>
+<text class="num" x="1270" y="511" text-anchor="middle">same-host evidence only</text>
+<text class="num" x="1385" y="511" text-anchor="middle">no</text>
+<text class="num" x="1590" y="511" text-anchor="end">tested practical baseline</text>
+<rect x="24" y="520" width="1572" height="27" rx="4" fill="#f0f4fa"/>
+<text class="label" x="32" y="538" text-anchor="start">libbsc-max</text>
+<text class="num" x="540" y="538" text-anchor="end">59,077,676</text>
+<text class="num" x="635" y="538" text-anchor="end">8.96x</text>
+<text class="num" x="725" y="538" text-anchor="end">11.16%</text>
+<text class="num" x="830" y="538" text-anchor="end">20.31</text>
+<text class="num" x="940" y="538" text-anchor="end">21.27</text>
+<text class="num" x="1035" y="538" text-anchor="end">1377.30/1399.02</text>
+<text class="num" x="1135" y="538" text-anchor="middle">yes/yes</text>
+<text class="num" x="1270" y="538" text-anchor="middle">same-host evidence only</text>
+<text class="num" x="1385" y="538" text-anchor="middle">no</text>
+<text class="num" x="1590" y="538" text-anchor="end">tested practical baseline</text>
+<text class="candidate reject" x="32" y="565" text-anchor="start">Axiom TS-H1 demux</text>
+<text class="num" x="540" y="565" text-anchor="end">45,453,564</text>
+<text class="num" x="635" y="565" text-anchor="end">11.65x</text>
+<text class="num" x="725" y="565" text-anchor="end">8.59%</text>
+<text class="num" x="830" y="565" text-anchor="end">3.09</text>
+<text class="num" x="940" y="565" text-anchor="end">2.20</text>
+<text class="num" x="1035" y="565" text-anchor="end">1889.00/1908.05</text>
+<text class="num" x="1135" y="565" text-anchor="middle">yes/yes</text>
+<text class="num" x="1270" y="565" text-anchor="middle">untested</text>
+<text class="num" x="1385" y="565" text-anchor="middle">candidate</text>
+<text class="num" x="1590" y="565" text-anchor="end">development hypothesis rejected</text>
+<rect x="24" y="574" width="1572" height="27" rx="4" fill="#f0f4fa"/>
+<text class="candidate reject" x="32" y="592" text-anchor="start">Axiom TS-H2 extension lanes</text>
+<text class="num" x="540" y="592" text-anchor="end">45,725,000</text>
+<text class="num" x="635" y="592" text-anchor="end">11.58x</text>
+<text class="num" x="725" y="592" text-anchor="end">8.64%</text>
+<text class="num" x="830" y="592" text-anchor="end">1.72</text>
+<text class="num" x="940" y="592" text-anchor="end">1.91</text>
+<text class="num" x="1035" y="592" text-anchor="end">1888.56/1907.45</text>
+<text class="num" x="1135" y="592" text-anchor="middle">yes/yes</text>
+<text class="num" x="1270" y="592" text-anchor="middle">untested</text>
+<text class="num" x="1385" y="592" text-anchor="middle">candidate</text>
+<text class="num" x="1590" y="592" text-anchor="end">development hypothesis rejected</text>
+<text class="track" x="32" y="647">English Wikimedia wikitext</text>
+<text class="head" x="32" y="674" text-anchor="start">Codec / candidate</text>
+<text class="head" x="540" y="674" text-anchor="end">Bytes</text>
+<text class="head" x="635" y="674" text-anchor="end">Ratio</text>
+<text class="head" x="725" y="674" text-anchor="end">Size %</text>
+<text class="head" x="830" y="674" text-anchor="end">C MB/s</text>
+<text class="head" x="940" y="674" text-anchor="end">D MB/s</text>
+<text class="head" x="1035" y="674" text-anchor="end">RSS C/D MiB</text>
+<text class="head" x="1135" y="674" text-anchor="middle">Exact/Det</text>
+<text class="head" x="1270" y="674" text-anchor="middle">Portability</text>
+<text class="head" x="1385" y="674" text-anchor="middle">Axiom beat?</text>
+<text class="head" x="1590" y="674" text-anchor="end">Decision</text>
+<rect x="24" y="677" width="1572" height="27" rx="4" fill="#f0f4fa"/>
+<text class="label" x="32" y="695" text-anchor="start">Store</text>
+<text class="num" x="540" y="695" text-anchor="end">201,311,173</text>
+<text class="num" x="635" y="695" text-anchor="end">1.00x</text>
+<text class="num" x="725" y="695" text-anchor="end">100.00%</text>
+<text class="num" x="830" y="695" text-anchor="end">399.61</text>
+<text class="num" x="940" y="695" text-anchor="end">1139.30</text>
+<text class="num" x="1035" y="695" text-anchor="end">2.16/2.14</text>
+<text class="num" x="1135" y="695" text-anchor="middle">yes/yes</text>
+<text class="num" x="1270" y="695" text-anchor="middle">same-host evidence only</text>
+<text class="num" x="1385" y="695" text-anchor="middle">no</text>
+<text class="num" x="1590" y="695" text-anchor="end">tested practical baseline</text>
+<text class="label" x="32" y="722" text-anchor="start">LZ4-1</text>
+<text class="num" x="540" y="722" text-anchor="end">103,846,482</text>
+<text class="num" x="635" y="722" text-anchor="end">1.94x</text>
+<text class="num" x="725" y="722" text-anchor="end">51.59%</text>
+<text class="num" x="830" y="722" text-anchor="end">587.85</text>
+<text class="num" x="940" y="722" text-anchor="end">360.58</text>
+<text class="num" x="1035" y="722" text-anchor="end">67.42/31.98</text>
+<text class="num" x="1135" y="722" text-anchor="middle">yes/yes</text>
+<text class="num" x="1270" y="722" text-anchor="middle">same-host evidence only</text>
+<text class="num" x="1385" y="722" text-anchor="middle">no</text>
+<text class="num" x="1590" y="722" text-anchor="end">tested practical baseline</text>
+<rect x="24" y="731" width="1572" height="27" rx="4" fill="#f0f4fa"/>
+<text class="label" x="32" y="749" text-anchor="start">gzip-9</text>
+<text class="num" x="540" y="749" text-anchor="end">66,397,616</text>
+<text class="num" x="635" y="749" text-anchor="end">3.03x</text>
+<text class="num" x="725" y="749" text-anchor="end">32.98%</text>
+<text class="num" x="830" y="749" text-anchor="end">14.49</text>
+<text class="num" x="940" y="749" text-anchor="end">283.19</text>
+<text class="num" x="1035" y="749" text-anchor="end">1.59/1.38</text>
+<text class="num" x="1135" y="749" text-anchor="middle">yes/yes</text>
+<text class="num" x="1270" y="749" text-anchor="middle">same-host evidence only</text>
+<text class="num" x="1385" y="749" text-anchor="middle">no</text>
+<text class="num" x="1590" y="749" text-anchor="end">tested practical baseline</text>
+<text class="label" x="32" y="776" text-anchor="start">bzip2-9</text>
+<text class="num" x="540" y="776" text-anchor="end">52,961,853</text>
+<text class="num" x="635" y="776" text-anchor="end">3.80x</text>
+<text class="num" x="725" y="776" text-anchor="end">26.31%</text>
+<text class="num" x="830" y="776" text-anchor="end">10.23</text>
+<text class="num" x="940" y="776" text-anchor="end">26.56</text>
+<text class="num" x="1035" y="776" text-anchor="end">7.59/4.72</text>
+<text class="num" x="1135" y="776" text-anchor="middle">yes/yes</text>
+<text class="num" x="1270" y="776" text-anchor="middle">same-host evidence only</text>
+<text class="num" x="1385" y="776" text-anchor="middle">no</text>
+<text class="num" x="1590" y="776" text-anchor="end">tested practical baseline</text>
+<rect x="24" y="785" width="1572" height="27" rx="4" fill="#f0f4fa"/>
+<text class="label" x="32" y="803" text-anchor="start">bzip3-max</text>
+<text class="num" x="540" y="803" text-anchor="end">39,246,217</text>
+<text class="num" x="635" y="803" text-anchor="end">5.13x</text>
+<text class="num" x="725" y="803" text-anchor="end">19.50%</text>
+<text class="num" x="830" y="803" text-anchor="end">5.09</text>
+<text class="num" x="940" y="803" text-anchor="end">6.79</text>
+<text class="num" x="1035" y="803" text-anchor="end">2215.39/2215.89</text>
+<text class="num" x="1135" y="803" text-anchor="middle">yes/yes</text>
+<text class="num" x="1270" y="803" text-anchor="middle">same-host evidence only</text>
+<text class="num" x="1385" y="803" text-anchor="middle">no</text>
+<text class="num" x="1590" y="803" text-anchor="end">tested practical baseline</text>
+<text class="label" x="32" y="830" text-anchor="start">zstd-3</text>
+<text class="num" x="540" y="830" text-anchor="end">63,392,884</text>
+<text class="num" x="635" y="830" text-anchor="end">3.18x</text>
+<text class="num" x="725" y="830" text-anchor="end">31.49%</text>
+<text class="num" x="830" y="830" text-anchor="end">91.31</text>
+<text class="num" x="940" y="830" text-anchor="end">305.06</text>
+<text class="num" x="1035" y="830" text-anchor="end">43.36/7.81</text>
+<text class="num" x="1135" y="830" text-anchor="middle">yes/yes</text>
+<text class="num" x="1270" y="830" text-anchor="middle">same-host evidence only</text>
+<text class="num" x="1385" y="830" text-anchor="middle">no</text>
+<text class="num" x="1590" y="830" text-anchor="end">tested practical baseline</text>
+<rect x="24" y="839" width="1572" height="27" rx="4" fill="#f0f4fa"/>
+<text class="label" x="32" y="857" text-anchor="start">zstd-9</text>
+<text class="num" x="540" y="857" text-anchor="end">55,470,795</text>
+<text class="num" x="635" y="857" text-anchor="end">3.63x</text>
+<text class="num" x="725" y="857" text-anchor="end">27.55%</text>
+<text class="num" x="830" y="857" text-anchor="end">30.46</text>
+<text class="num" x="940" y="857" text-anchor="end">390.69</text>
+<text class="num" x="1035" y="857" text-anchor="end">87.86/9.80</text>
+<text class="num" x="1135" y="857" text-anchor="middle">yes/yes</text>
+<text class="num" x="1270" y="857" text-anchor="middle">same-host evidence only</text>
+<text class="num" x="1385" y="857" text-anchor="middle">no</text>
+<text class="num" x="1590" y="857" text-anchor="end">tested practical baseline</text>
+<text class="label" x="32" y="884" text-anchor="start">zstd-19</text>
+<text class="num" x="540" y="884" text-anchor="end">48,105,758</text>
+<text class="num" x="635" y="884" text-anchor="end">4.18x</text>
+<text class="num" x="725" y="884" text-anchor="end">23.90%</text>
+<text class="num" x="830" y="884" text-anchor="end">0.97</text>
+<text class="num" x="940" y="884" text-anchor="end">304.51</text>
+<text class="num" x="1035" y="884" text-anchor="end">165.77/13.92</text>
+<text class="num" x="1135" y="884" text-anchor="middle">yes/yes</text>
+<text class="num" x="1270" y="884" text-anchor="middle">same-host evidence only</text>
+<text class="num" x="1385" y="884" text-anchor="middle">no</text>
+<text class="num" x="1590" y="884" text-anchor="end">tested practical baseline</text>
+<rect x="24" y="893" width="1572" height="27" rx="4" fill="#f0f4fa"/>
+<text class="label" x="32" y="911" text-anchor="start">zstd-22 ultra</text>
+<text class="num" x="540" y="911" text-anchor="end">46,240,875</text>
+<text class="num" x="635" y="911" text-anchor="end">4.35x</text>
+<text class="num" x="725" y="911" text-anchor="end">22.97%</text>
+<text class="num" x="830" y="911" text-anchor="end">0.90</text>
+<text class="num" x="940" y="911" text-anchor="end">399.75</text>
+<text class="num" x="1035" y="911" text-anchor="end">725.19/69.52</text>
+<text class="num" x="1135" y="911" text-anchor="middle">yes/yes</text>
+<text class="num" x="1270" y="911" text-anchor="middle">same-host evidence only</text>
+<text class="num" x="1385" y="911" text-anchor="middle">no</text>
+<text class="num" x="1590" y="911" text-anchor="end">tested practical baseline</text>
+<text class="label" x="32" y="938" text-anchor="start">Brotli-11</text>
+<text class="num" x="540" y="938" text-anchor="end">46,260,763</text>
+<text class="num" x="635" y="938" text-anchor="end">4.35x</text>
+<text class="num" x="725" y="938" text-anchor="end">22.98%</text>
+<text class="num" x="830" y="938" text-anchor="end">0.33</text>
+<text class="num" x="940" y="938" text-anchor="end">216.51</text>
+<text class="num" x="1035" y="938" text-anchor="end">348.11/19.94</text>
+<text class="num" x="1135" y="938" text-anchor="middle">yes/yes</text>
+<text class="num" x="1270" y="938" text-anchor="middle">same-host evidence only</text>
+<text class="num" x="1385" y="938" text-anchor="middle">no</text>
+<text class="num" x="1590" y="938" text-anchor="end">tested practical baseline</text>
+<rect x="24" y="947" width="1572" height="27" rx="4" fill="#f0f4fa"/>
+<text class="label" x="32" y="965" text-anchor="start">XZ LZMA2-9e</text>
+<text class="num" x="540" y="965" text-anchor="end">45,264,200</text>
+<text class="num" x="635" y="965" text-anchor="end">4.45x</text>
+<text class="num" x="725" y="965" text-anchor="end">22.48%</text>
+<text class="num" x="830" y="965" text-anchor="end">0.93</text>
+<text class="num" x="940" y="965" text-anchor="end">63.72</text>
+<text class="num" x="1035" y="965" text-anchor="end">642.23/65.61</text>
+<text class="num" x="1135" y="965" text-anchor="middle">yes/yes</text>
+<text class="num" x="1270" y="965" text-anchor="middle">same-host evidence only</text>
+<text class="num" x="1385" y="965" text-anchor="middle">no</text>
+<text class="num" x="1590" y="965" text-anchor="end">tested practical baseline</text>
+<text class="label" x="32" y="992" text-anchor="start">7-Zip LZMA2-9</text>
+<text class="num" x="540" y="992" text-anchor="end">45,368,850</text>
+<text class="num" x="635" y="992" text-anchor="end">4.44x</text>
+<text class="num" x="725" y="992" text-anchor="end">22.54%</text>
+<text class="num" x="830" y="992" text-anchor="end">0.94</text>
+<text class="num" x="940" y="992" text-anchor="end">94.58</text>
+<text class="num" x="1035" y="992" text-anchor="end">643.61/83.53</text>
+<text class="num" x="1135" y="992" text-anchor="middle">yes/yes</text>
+<text class="num" x="1270" y="992" text-anchor="middle">same-host evidence only</text>
+<text class="num" x="1385" y="992" text-anchor="middle">no</text>
+<text class="num" x="1590" y="992" text-anchor="end">tested practical baseline</text>
+<rect x="24" y="1001" width="1572" height="27" rx="4" fill="#f0f4fa"/>
+<text class="label" x="32" y="1019" text-anchor="start">7-Zip PPMd-9</text>
+<text class="num" x="540" y="1019" text-anchor="end">41,682,047</text>
+<text class="num" x="635" y="1019" text-anchor="end">4.83x</text>
+<text class="num" x="725" y="1019" text-anchor="end">20.71%</text>
+<text class="num" x="830" y="1019" text-anchor="end">3.54</text>
+<text class="num" x="940" y="1019" text-anchor="end">3.46</text>
+<text class="num" x="1035" y="1019" text-anchor="end">261.05/260.12</text>
+<text class="num" x="1135" y="1019" text-anchor="middle">yes/yes</text>
+<text class="num" x="1270" y="1019" text-anchor="middle">same-host evidence only</text>
+<text class="num" x="1385" y="1019" text-anchor="middle">no</text>
+<text class="num" x="1590" y="1019" text-anchor="end">tested practical baseline</text>
+<text class="label" x="32" y="1046" text-anchor="start">Kanzi-max</text>
+<text class="num" x="540" y="1046" text-anchor="end">35,081,062</text>
+<text class="num" x="635" y="1046" text-anchor="end">5.74x</text>
+<text class="num" x="725" y="1046" text-anchor="end">17.43%</text>
+<text class="num" x="830" y="1046" text-anchor="end">2.37</text>
+<text class="num" x="940" y="1046" text-anchor="end">2.30</text>
+<text class="num" x="1035" y="1046" text-anchor="end">1529.48/1525.77</text>
+<text class="num" x="1135" y="1046" text-anchor="middle">yes/yes</text>
+<text class="num" x="1270" y="1046" text-anchor="middle">same-host evidence only</text>
+<text class="num" x="1385" y="1046" text-anchor="middle">no</text>
+<text class="num" x="1590" y="1046" text-anchor="end">tested practical baseline</text>
+<rect x="24" y="1055" width="1572" height="27" rx="4" fill="#f0f4fa"/>
+<text class="label" x="32" y="1073" text-anchor="start">libbsc-max</text>
+<text class="num" x="540" y="1073" text-anchor="end">39,476,840</text>
+<text class="num" x="635" y="1073" text-anchor="end">5.10x</text>
+<text class="num" x="725" y="1073" text-anchor="end">19.61%</text>
+<text class="num" x="830" y="1073" text-anchor="end">13.71</text>
+<text class="num" x="940" y="1073" text-anchor="end">16.61</text>
+<text class="num" x="1035" y="1073" text-anchor="end">394.36/396.44</text>
+<text class="num" x="1135" y="1073" text-anchor="middle">yes/yes</text>
+<text class="num" x="1270" y="1073" text-anchor="middle">same-host evidence only</text>
+<text class="num" x="1385" y="1073" text-anchor="middle">no</text>
+<text class="num" x="1590" y="1073" text-anchor="end">tested practical baseline</text>
+<text class="candidate reject" x="32" y="1100" text-anchor="start">Axiom TS-H1 demux</text>
+<text class="num" x="540" y="1100" text-anchor="end">35,078,683</text>
+<text class="num" x="635" y="1100" text-anchor="end">5.74x</text>
+<text class="num" x="725" y="1100" text-anchor="end">17.43%</text>
+<text class="num" x="830" y="1100" text-anchor="end">1.83</text>
+<text class="num" x="940" y="1100" text-anchor="end">1.65</text>
+<text class="num" x="1035" y="1100" text-anchor="end">1529.00/1525.12</text>
+<text class="num" x="1135" y="1100" text-anchor="middle">yes/yes</text>
+<text class="num" x="1270" y="1100" text-anchor="middle">untested</text>
+<text class="num" x="1385" y="1100" text-anchor="middle">candidate</text>
+<text class="num" x="1590" y="1100" text-anchor="end">development hypothesis rejected</text>
+<text class="sub" x="32" y="1244">Development structural-representation evidence only. Public validation and private holdout remain sealed, research-ceiling codecs remain pending, and this result cannot support a category-win, market-leading, world-best, or state-of-the-art claim.</text>
+</svg>

@@ -1,0 +1,92 @@
+{
+  "bindings": {
+    "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+    "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+    "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+    "long_range_result_sha256": "faad7b7736685a30e451cd7fc94f4fde9898b16afa102a0291e418f86a544d12",
+    "structural_public_evidence_sha256": "e7b25f117866983214192183d076ed1cbac74490569653e302308c87ddeb3e97",
+    "structural_results_sha256": "92a29a1e184a04293ce04bfdd05f5e7ba7dd0d7f12873edce3d2926c1628db93",
+    "transform_script_sha256": "f79d48d1daccb62f00f8fd63904dfb543a618e8f243832623a6bde3472b0a6d5"
+  },
+  "claim_ceiling": "Training-split record-neighborhood representation experiment only. A passing result admits an Axiom prototype but is not validation, private-holdout, independent-reproduction, category-win, market-leading, world-best, or state-of-the-art evidence.",
+  "decision": {
+    "axiom_prototype_admission": {
+      "maximum_item_regression_percent": 0.5,
+      "minimum_aggregate_gain_percent_each_track_vs_kanzi_max": 2.0,
+      "minimum_aggregate_gain_percent_each_track_vs_structural_control": 1.0,
+      "required_exact_roundtrip": true,
+      "required_identical_artifacts": 2,
+      "required_same_variant_across_tracks": true,
+      "selected_successor_if_passed": "ts-wk-q1-bounded-record-neighborhood-specialist"
+    },
+    "final_axiom_codec_gate_reminder": {
+      "complete_artifact_accounting_required": true,
+      "exact_roundtrip_required": true,
+      "maximum_item_regression_percent": 0.5,
+      "minimum_aggregate_gain_vs_strongest_complete_baseline_percent": 5.0,
+      "two_byte_identical_measured_artifacts_required": true
+    },
+    "rejection": "If Q1 fails either track, reject this exact bounded-minhash record-neighborhood representation as the shared successor. Do not tune it on reserved evaluation bytes; any materially different successor requires a new predeclared screen."
+  },
+  "frozen_before_screen_results": true,
+  "measurement": {
+    "backend": "kanzi-max",
+    "backend_arguments": [
+      "--level=9",
+      "--block=1g",
+      "--jobs=1",
+      "--verbose=0",
+      "--force"
+    ],
+    "baseline_source": "Reuse exact per-item kanzi-max complete bytes and TS-H1 complete candidate bytes from their immutable verified evidence; do not rerun or replace either control.",
+    "measured_repetitions": 2,
+    "order_seed": 20260718,
+    "timeout_seconds_per_process": 7200,
+    "warmups": 0
+  },
+  "name": "text-source-record-neighborhood-screen-v1",
+  "research_basis": [
+    {
+      "finding": "Relative Lempel-Ziv methods exploit similarity across related document collections, motivating deterministic cross-record neighborhood formation rather than another local token model.",
+      "source": "https://arxiv.org/abs/1106.2587"
+    },
+    {
+      "finding": "LZ77 is especially effective on repetitive software repositories and versioned document collections, but record order can determine which repetitions become nearby to a bounded backend.",
+      "source": "https://arxiv.org/abs/1101.4065"
+    },
+    {
+      "finding": "The preceding exact LZP-before-TPAQX decomposition screen failed, so this successor tests cross-record ordering rather than repeating explicit left-only factorization.",
+      "source": "runs/text-source-long-range-screen-v1/results.json"
+    }
+  ],
+  "schema_version": 1,
+  "splits": {
+    "english_wikimedia_wikitext": {
+      "reserved_evaluation_not_accessed_by_screen": [
+        "enwikiversity-20260701"
+      ],
+      "screen_items": [
+        "enwikibooks-20260701",
+        "enwikinews-20260701"
+      ]
+    },
+    "source_code_bundles": {
+      "reserved_evaluation_not_accessed_by_screen": [
+        "rust-1.97.1-source",
+        "llvm-22.1.8-source"
+      ],
+      "screen_items": [
+        "cpython-3.14.6-source",
+        "typescript-6.0.3-source"
+      ]
+    }
+  },
+  "variants": [
+    {
+      "backend": "kanzi-max",
+      "id": "q1-bounded-minhash-record-neighborhood",
+      "purpose": "Test whether exact bounded content-similarity ordering creates backend-visible neighborhoods beyond the prior demux representation.",
+      "representation": "AXRN1 canonical metadata plus class-scoped four-seed bounded sampled-window minhash ordering"
+    }
+  ]
+}

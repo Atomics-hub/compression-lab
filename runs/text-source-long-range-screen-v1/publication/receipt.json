@@ -1,0 +1,24 @@
+{
+  "artifacts": {
+    "README.md": "8c74a4ebe86f173420f30eb28e2465d278f94782bd0a9a575c99c250df514f48",
+    "comparison.json": "b3ad441bb39068dd9b23688d4664c81bb92718e8809ac72e67282e85df6d5ee2",
+    "comparison.svg": "61c4b39b2770ee37ed145c5de3b6313e6e70b5c587d6e2414df9ab450d87ab15",
+    "evidence.json": "b4ecb32cc7bd241ca2c7f415a58ef151838eb179ac5f6bb9db9bc0bce0ff7e87"
+  },
+  "baseline_public_evidence_sha256": "b28429e3d12542eda21d03d981b9452cba2d4a329252e4876803b62852f1299f",
+  "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+  "bindings": {
+    "baseline_results_sha256": "08b66858cc5b7438c3aa134545642a54c8ea434b9c16d86db3ce8cc46122a5bc",
+    "config_sha256": "ad673edaa60cde8746ce7fc938432440151de5e96a350bd3339b97c37d9accff",
+    "corpus_manifest_sha256": "745ade4b15b1c78439d8f9cc89d8a55065f538f5aac2fc01a9c7fe698487a409",
+    "kanzi_binary_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+    "predictor_result_sha256": "300a9cd657b0949b9b4af165d6e080ff3962afb1281a764bb5c894b508d2fa68",
+    "repository_commit": "b8eda6863e40a836fe0108a2221cb7a39d3cf9aa"
+  },
+  "claim_ceiling": "Training-split Kanzi pipeline decomposition only. These custom Kanzi archives are exact competitor diagnostics, not Axiom artifacts, Axiom wins, validation results, private-holdout results, novel-algorithm results, or state-of-the-art evidence.",
+  "name": "text-source-long-range-kanzi-decomposition-publication-receipt-v1",
+  "public_evidence_sha256": "b4ecb32cc7bd241ca2c7f415a58ef151838eb179ac5f6bb9db9bc0bce0ff7e87",
+  "result_sha256": "faad7b7736685a30e451cd7fc94f4fde9898b16afa102a0291e418f86a544d12",
+  "schema_version": 1,
+  "trial_receipts_manifest_sha256": "4129c6d96b0e7fbfd51221bfa983265c42de6cecd5ff0a9f83e9c28bb7b5afa9"
+}

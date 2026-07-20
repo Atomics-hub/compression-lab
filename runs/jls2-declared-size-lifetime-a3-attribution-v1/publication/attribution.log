@@ -1,0 +1,18 @@
+{
+  "gates": {
+    "all_decodes_exact": true,
+    "credited_attribution_at_least_threshold": false,
+    "decoded_concurrency_potential_at_least_threshold": false,
+    "encoded_lifetime_credit_is_zero": true,
+    "exact_a2_commit": true,
+    "exact_host_and_toolchain": true,
+    "four_logical_cpus": true,
+    "phase_correlated_rss_reduction_at_least_threshold": false,
+    "two_generation_topology_identical": true
+  },
+  "minimum_credited_bytes": 83722100,
+  "minimum_decoded_concurrency_potential_bytes": 83722100,
+  "minimum_phase_correlated_rss_reduction_bytes": 99414016,
+  "passed": false,
+  "product_ab_authorized": false
+}
