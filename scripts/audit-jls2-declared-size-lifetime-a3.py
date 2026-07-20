@@ -37,6 +37,12 @@ EXPECTED_CARGO_LOCK_SHA256 = (
 )
 EXPECTED_GLIBC = "2.35"
 EXPECTED_ALLOCATOR = "glibc-ptmalloc-mallinfo2"
+EXPECTED_ZSTD = {
+    "zstd": "0.13.3",
+    "zstd-safe": "7.2.4",
+    "zstd-sys": "2.0.16+zstd.1.5.7",
+    "bundled-libzstd": "1.5.7",
+}
 EXPECTED_FRAMES = {
     "clue-early-development": {
         "source_bytes": 62_267_473,
@@ -198,6 +204,7 @@ def frozen_host() -> dict[str, Any]:
         "cargo": command_output(["cargo", "--version"]),
         "glibc": command_output(["getconf", "GNU_LIBC_VERSION"]).split()[-1],
         "allocator": EXPECTED_ALLOCATOR,
+        "zstandard": EXPECTED_ZSTD,
     }
     expected = {
         "platform": EXPECTED_PLATFORM,
@@ -207,6 +214,7 @@ def frozen_host() -> dict[str, Any]:
         "cargo": EXPECTED_CARGO,
         "glibc": EXPECTED_GLIBC,
         "allocator": EXPECTED_ALLOCATOR,
+        "zstandard": EXPECTED_ZSTD,
     }
     if host != expected:
         raise ValueError(f"host identity mismatch: expected {expected}, observed {host}")
@@ -239,9 +247,14 @@ def main() -> int:
     parser.add_argument("--corpus", type=Path, required=True)
     parser.add_argument("--audit-binary", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--run-id", required=True)
+    parser.add_argument("--job-id", required=True)
+    parser.add_argument("--run-attempt", type=int, required=True)
     args = parser.parse_args()
     if not args.audit_binary.is_file():
         parser.error(f"audit binary is missing: {args.audit_binary}")
+    if not args.run_id.isdigit() or not args.job_id.isdigit() or args.run_attempt < 1:
+        parser.error("hosted run/job/attempt identity is invalid")
     if sha256_file(ROOT / "native" / "Cargo.lock") != EXPECTED_CARGO_LOCK_SHA256:
         raise ValueError("Cargo.lock identity mismatch")
     host = frozen_host()
@@ -337,6 +350,22 @@ def main() -> int:
             "commit": A2_COMMIT,
             "binary_sha256": A2_BINARY_SHA256,
             "baseline_peak_rss_bytes": A2_BASELINE_RSS_BYTES,
+        },
+        "hosted_identity": {
+            "run_id": args.run_id,
+            "job_id": args.job_id,
+            "run_attempt": args.run_attempt,
+            "a2_commit": command_output(["git", "rev-parse", "HEAD"]),
+            "workflow_source_commit": os.environ.get("GITHUB_SHA", ""),
+            "workflow_sha256": sha256_file(
+                ROOT
+                / ".github"
+                / "workflows"
+                / "jls2-declared-size-lifetime-a3-attribution.yml"
+            ),
+            "runner_sha256": sha256_file(Path(__file__).resolve()),
+            "diagnostic_binary_sha256": sha256_file(args.audit_binary.resolve()),
+            "artifact_name": f"jls2-declared-size-lifetime-a3-attribution-{args.run_id}",
         },
         "host": host,
         "settings": {

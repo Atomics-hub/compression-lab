@@ -91,6 +91,7 @@ class JLS2DeclaredSizeLifetimeA3AttributionTests(unittest.TestCase):
         self.assertEqual(module.ATTRIBUTION_THRESHOLD_BYTES, 105_202_484)
         self.assertEqual(module.PROPOSED_BATCH_BUDGET_BYTES, 32 * 1024 * 1024)
         self.assertEqual(module.EXPECTED_LOGICAL_CPUS, 4)
+        self.assertEqual(module.EXPECTED_ZSTD["bundled-libzstd"], "1.5.7")
 
     def test_report_schema_accepts_exact_complete_diagnostic(self) -> None:
         module = load_module()

@@ -5,6 +5,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: jls2-declared-size-lifetime-a3-attribution-${{ github.ref }}
@@ -86,13 +87,23 @@ jobs:
         id: attribution
         shell: bash
         working-directory: ${{ runner.temp }}/a2-audit
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           mkdir -p "$RUNNER_TEMP/$EVIDENCE_DIR"
+          job_id="$(
+            gh api "/repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/attempts/$GITHUB_RUN_ATTEMPT/jobs" \
+              --jq '.jobs[] | select(.name == "Frozen Linux A3 diagnostic-only preflight") | .id'
+          )"
+          test -n "$job_id"
           set +e
           python "$GITHUB_WORKSPACE/scripts/audit-jls2-declared-size-lifetime-a3.py" \
             --corpus "$RUNNER_TEMP/clue-development" \
             --audit-binary native/target/release/clab-jls2-a3-audit \
             --output "$RUNNER_TEMP/$EVIDENCE_DIR/results.json" \
+            --run-id "$GITHUB_RUN_ID" \
+            --job-id "$job_id" \
+            --run-attempt "$GITHUB_RUN_ATTEMPT" \
             2>&1 | tee "$RUNNER_TEMP/$EVIDENCE_DIR/attribution.log"
           status=${PIPESTATUS[0]}
           echo "exit_code=$status" >> "$GITHUB_OUTPUT"
