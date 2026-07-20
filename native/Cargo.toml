@@ -11,6 +11,10 @@ crate-type = ["cdylib"]
 name = "clab-jls2"
 path = "src/bin/clab-jls2.rs"
 
+[[bin]]
+name = "clab-jls2-a3-audit"
+path = "src/bin/clab-jls2-a3-audit.rs"
+
 [dependencies]
 sha2 = "0.11.0"
 zstd = "0.13.3"
