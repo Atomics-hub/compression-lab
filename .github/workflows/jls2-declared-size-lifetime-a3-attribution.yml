@@ -32,7 +32,7 @@ jobs:
       PYTHONPATH: src
       A2_COMMIT: 0f3377dff647e8a6d99b65d8f8a269687faa8ec6
       AUTHORIZED_PROTOCOL_COMMIT: fc3f44e2bc595afeafb2f0848122ccaa9ddc9905
-      AUDIT_CARGO_TOML_SHA256: bc13f19097d2db6d00172e72c29075a609dbd0fa0422a0bdb2581da37317fc8b
+      AUDIT_CARGO_TOML_SHA256: 984a69ab00314eaef3659fbc7642c0ea738f7d19d3895cf6530738278691c707
       EVIDENCE_DIR: jls2-declared-size-lifetime-a3-attribution
 
     steps:
@@ -73,8 +73,8 @@ jobs:
       - name: Verify frozen runner and diagnostic build
         run: |
           cargo fmt --manifest-path native/Cargo.toml --all -- --check
-          cargo clippy --manifest-path native/Cargo.toml --all-targets --locked -- -D warnings
-          cargo test --manifest-path native/Cargo.toml --release --locked
+          cargo clippy --manifest-path native/Cargo.toml --all-targets --features jls2-a3-audit --locked -- -D warnings
+          cargo test --manifest-path native/Cargo.toml --release --features jls2-a3-audit --locked
           python -m unittest \
             tests.test_jls2_declared_size_lifetime_a3_attribution \
             tests.test_jls2_native_decoder \
@@ -105,9 +105,13 @@ jobs:
           cp native/Cargo.toml "$RUNNER_TEMP/a2-audit/native/Cargo.toml"
           cargo build --release --locked \
             --manifest-path "$RUNNER_TEMP/a2-audit/native/Cargo.toml" \
-            --bin clab-jls2 --bin clab-jls2-a3-audit
+            --bin clab-jls2
           test "$(sha256sum "$RUNNER_TEMP/a2-audit/native/target/release/clab-jls2" | cut -d' ' -f1)" = \
             "c67e9c9b1902414c2b2e67991631d4cd065041242e6dd39392d673da2ca752fd"
+          cargo build --release --locked \
+            --manifest-path "$RUNNER_TEMP/a2-audit/native/Cargo.toml" \
+            --features jls2-a3-audit \
+            --bin clab-jls2-a3-audit
 
       - name: Run frozen hosted attribution preflight
         id: attribution

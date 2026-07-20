@@ -256,6 +256,12 @@ class JLS2DeclaredSizeLifetimeA3AttributionTests(unittest.TestCase):
         self.assertIn('git cat-file -e "$A2_COMMIT^{commit}"', workflow)
         self.assertIn('git worktree add --detach "$RUNNER_TEMP/a2-audit"', workflow)
         self.assertIn("intentionally not assumed to be an ancestor", workflow)
+        cargo_manifest = (ROOT / "native" / "Cargo.toml").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn('required-features = ["jls2-a3-audit"]', cargo_manifest)
+        self.assertIn('jls2-a3-audit = []', cargo_manifest)
+        self.assertIn("--features jls2-a3-audit", workflow)
 
     def test_unrelated_lineage_cannot_weaken_protected_file_identity(self) -> None:
         module = load_module()
