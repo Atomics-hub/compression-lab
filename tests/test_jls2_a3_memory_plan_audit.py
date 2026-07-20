@@ -8,6 +8,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts" / "audit-jls2-a3-memory-plan.py"
+NATIVE_JLS2 = ROOT / "native" / "src" / "jls2.rs"
 PROTOCOL = (
     ROOT
     / "docs"
@@ -108,9 +109,14 @@ class JLS2A3MemoryPlanAuditTests(unittest.TestCase):
             report["upper_bounds_not_observed"]["decoded_live_reduction_bytes"],
             160 * mib,
         )
-        self.assertTrue(report["kill_gate"]["upper_bound_reaches_threshold"])
-        self.assertEqual(report["kill_gate"]["status"], "measurement_required")
+        self.assertTrue(
+            report["kill_gate"]["decoded_upper_bound_reaches_threshold"]
+        )
+        self.assertEqual(
+            report["kill_gate"]["status"], "hosted_attribution_required"
+        )
         self.assertFalse(report["kill_gate"]["passed"])
+        self.assertFalse(report["authorization"]["product_ab_authorized"])
         self.assertIsNone(
             report["allocator_retained_pages"]["observed_bytes"]
         )
@@ -125,12 +131,98 @@ class JLS2A3MemoryPlanAuditTests(unittest.TestCase):
             report["upper_bounds_not_observed"]["decoded_live_reduction_bytes"],
             0,
         )
-        self.assertFalse(report["kill_gate"]["upper_bound_reaches_threshold"])
-        self.assertEqual(report["kill_gate"]["status"], "measurement_required")
+        self.assertFalse(
+            report["kill_gate"]["decoded_upper_bound_reaches_threshold"]
+        )
+        self.assertEqual(
+            report["kill_gate"]["status"], "hosted_attribution_required"
+        )
         self.assertEqual(
             report["kill_gate"]["preliminary_finding"],
-            "allocator_attribution_required",
+            "decoded_concurrency_attribution_insufficient",
         )
+
+    def test_encoded_lifetime_is_report_only_and_cannot_authorize(self) -> None:
+        mib = 1024 * 1024
+        encoded = stream(
+            [
+                (30 * mib, direct_frame(30 * mib, 40 * mib)),
+                (30 * mib, direct_frame(30 * mib, 40 * mib)),
+                (30 * mib, direct_frame(30 * mib, 40 * mib)),
+                (30 * mib, direct_frame(30 * mib, 40 * mib)),
+            ]
+        )
+
+        report = AUDIT.audit(encoded, logical_cpus=4)
+
+        self.assertGreater(
+            report["upper_bounds_not_observed"]["encoded_lifetime_reduction_bytes"],
+            report["kill_gate"]["required_attributed_bytes"],
+        )
+        self.assertFalse(
+            report["kill_gate"]["decoded_upper_bound_reaches_threshold"]
+        )
+        self.assertEqual(
+            report["kill_gate"]["encoded_lifetime_authorization_credit_bytes"], 0
+        )
+        self.assertFalse(
+            report["authorization"]["lifetime_only_release_can_authorize"]
+        )
+
+    def test_frozen_host_and_rss_inputs_reject_drift(self) -> None:
+        encoded = stream([(1, direct_frame(1))])
+        with self.assertRaisesRegex(ValueError, "logical CPU count drifted"):
+            AUDIT.audit(encoded, logical_cpus=8)
+        with self.assertRaisesRegex(ValueError, "baseline peak RSS drifted"):
+            AUDIT.audit(
+                encoded,
+                logical_cpus=4,
+                baseline_peak_rss_bytes=AUDIT.BASELINE_PEAK_RSS_BYTES - 1,
+            )
+        with self.assertRaisesRegex(ValueError, "development limit drifted"):
+            AUDIT.audit(
+                encoded,
+                logical_cpus=4,
+                development_limit_bytes=AUDIT.DEVELOPMENT_LIMIT_BYTES - 1,
+            )
+        with self.assertRaisesRegex(ValueError, "batch budget drifted"):
+            AUDIT.audit(
+                encoded,
+                logical_cpus=4,
+                batch_budget_bytes=AUDIT.BATCH_BUDGET_BYTES - 1,
+            )
+
+    def test_exact_a2_evidence_and_toolchain_are_locked(self) -> None:
+        self.assertEqual(AUDIT.EXPECTED_A2_RUN_ID, 29_676_674_924)
+        self.assertEqual(AUDIT.EXPECTED_A2_JOB_ID, 88_165_232_780)
+        self.assertEqual(AUDIT.BASELINE_PEAK_RSS_BYTES, 657_682_432)
+        self.assertEqual(AUDIT.EXPECTED_A2_LOGICAL_CPUS, 4)
+        self.assertEqual(
+            AUDIT.EXPECTED_A2_CANDIDATE_COMMIT,
+            "0f3377dff647e8a6d99b65d8f8a269687faa8ec6",
+        )
+        self.assertEqual(AUDIT.EXPECTED_A2_ZSTD["libzstd"], "1.5.7")
+        self.assertEqual(
+            {item: row["segment_count"] for item, row in AUDIT.EXPECTED_A2_FIXTURES.items()},
+            {
+                "clue-early-development": 4,
+                "clue-middle-development": 5,
+                "clue-late-development": 5,
+                "jls2-context-stress-256": 3,
+            },
+        )
+
+    def test_rust_outer_concurrency_contract_is_locked(self) -> None:
+        source = NATIVE_JLS2.read_text(encoding="utf-8")
+        self.assertIn("const MAX_SEGMENT_WORKERS: usize = 8;", source)
+        self.assertIn(
+            "segments.len().min(available).clamp(1, MAX_SEGMENT_WORKERS)",
+            source,
+        )
+        self.assertIn("segments.chunks(segment_workers)", source)
+        self.assertIn("if segments.len() == 1", source)
+        self.assertIn("MAX_ZSTD_WORKERS", source)
+        self.assertIn("} else {\n        1\n    };", source)
 
     def test_proposed_batches_are_consecutive_and_budgeted(self) -> None:
         mib = 1024 * 1024
@@ -159,6 +251,13 @@ class JLS2A3MemoryPlanAuditTests(unittest.TestCase):
         self.assertIn("Neither experimental change replaces", protocol)
         self.assertIn("can never be acquired", protocol)
         self.assertIn("private holdout remains sealed", protocol)
+        self.assertIn("hosted_attribution_required", protocol)
+        self.assertIn("zero authorization credit", protocol)
+        self.assertIn("657,682,432", protocol)
+        self.assertIn("29676674924", protocol)
+        self.assertIn("88165232780", protocol)
+        self.assertIn("zstd-sys", protocol)
+        self.assertIn("mallinfo2", protocol)
 
 
 if __name__ == "__main__":

@@ -28,8 +28,9 @@ The current A2 count-based batch holds all three direct segment outputs, for a
 declared live working upper bound of 50,270,800 bytes. The proposed A3 plan
 holds two segments in its largest batch, for 33,552,300 bytes. The declared
 decoded-live reduction upper bound is therefore 16,718,500 bytes. Shortening
-encoded-frame lifetime contributes at most another 3,163 bytes on this local
-fixture, for a combined unobserved upper bound of 16,721,663 bytes.
+encoded-frame lifetime contributes at most another 3,163 report-only bytes on
+this local fixture. Those bytes receive zero authorization credit and are not
+added to the decoded-concurrency gate.
 
 The A3 audit kill threshold is 105,202,484 attributed bytes. Declared buffers
 and encoded lifetime alone do not reach it. This does not yet kill the broader
@@ -43,9 +44,10 @@ Run a Linux diagnostic child on this generated stress contract with the frozen
 phase checkpoints from the A3 protocol. It must report RSS plus allocator
 in-use/free-arena/mmap state before the batch, at maximum live batch, after raw
 and restored buffers drop, and after audit-only `malloc_trim(0)`. Only
-phase-correlated released bytes may close the 88,480,821-byte gap between the
-declared/encoded upper bound and the frozen attribution threshold.
+phase-correlated decoded-concurrency releases may close the 88,483,984-byte gap
+between the declared decoded upper bound and the frozen attribution threshold.
 
 Until that evidence exists, the A3 kill gate status is
-`measurement_required`, `passed` is false, no candidate is authorized, and the
-pre-A1 product baseline remains retained.
+`hosted_attribution_required`, `passed` is false, product A/B authorization is
+false, and the pre-A1 product baseline remains retained. A lifetime-only
+release cannot change that status.

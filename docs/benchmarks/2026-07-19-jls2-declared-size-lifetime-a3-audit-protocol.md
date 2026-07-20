@@ -30,6 +30,31 @@ the same complete frames. Both variants peaked at **657,682,432 bytes**. A2
 therefore produced zero measured stress-RSS reduction and failed the 448 MiB
 A2 ceiling.
 
+The A3 audit binds that fact exactly. The baseline RSS is not a CLI parameter
+and **657,682,432** is the only accepted value. The retained evidence binds:
+
+- baseline commit `131547f35747cc0ff9dedbdef66d8a9516a7464f` and binary
+  `31db3a25eb0d935f43dc2411ada64e811ddd53b967a87c6d4aab113f3424a7e9`;
+- candidate commit `0f3377dff647e8a6d99b65d8f8a269687faa8ec6` and binary
+  `c67e9c9b1902414c2b2e67991631d4cd065041242e6dd39392d673da2ca752fd`;
+- run attempt 1, artifact ID `8439147016`, artifact digest
+  `sha256:b6930b7b9739a2e8768733096ba534406e1b87afa49a40b950e79bb6d72ec83d`,
+  runner SHA-256
+  `e5c538910b48afad74d930ce557fa6269f68e8e390c9bd6d02502c0f227ab6b4`,
+  and workflow SHA-256
+  `aa9c1cb696750a6fd546da7c5767f97fc1726d721b42eedefb298f3f83884f27`;
+- Ubuntu 22.04 platform string
+  `Linux-6.8.0-1062-azure-x86_64-with-glibc2.35`, four logical CPUs,
+  Python 3.12.13,
+  `rustc 1.97.0 (2d8144b78 2026-07-07)`, and
+  `cargo 1.97.0 (c980f4866 2026-06-30)`;
+- Cargo.lock SHA-256
+  `a905547d069da6d55bf6739307ffe9c75202cc15e87a6ae399e10b8890544783`,
+  `zstd` 0.13.3, `zstd-safe` 7.2.4, `zstd-sys`
+  2.0.16+zstd.1.5.7, and bundled libzstd 1.5.7; and
+- glibc 2.35 ptmalloc. A2 did not record allocator phase counters, so no
+  allocator attribution may be inferred from A2's peak alone.
+
 A3 freezes a development ceiling of **460 MiB** (482,344,960 bytes), leaving
 52 MiB of headroom below the 512 MiB product boundary. The observed overage is
 175,337,472 bytes. Before candidate work, the audit must attribute at least 60%
@@ -38,8 +63,51 @@ occupancy the exact A3 treatment can eliminate. If it cannot, A3 is killed.
 
 The A2 trial metadata records complete encoded inputs of 50,070 to 1,589,812
 bytes. Even eliminating the largest encoded input allocation would explain
-less than 1% of the 460 MiB overage. Encoded lifetime is still measured and may
-be shortened, but it cannot satisfy the kill gate by itself.
+less than 1% of the 460 MiB overage. Encoded lifetime is report-only: it gets
+**zero authorization credit**, cannot contribute to the 105,202,484-byte
+threshold, and a lifetime-only release can never authorize candidate work or
+an A/B.
+
+## Exact A2 topology boundary and required hosted preflight
+
+The retained A2 JSON and provenance bind the runner to four logical CPUs and
+bind the fixture-level topology available without reopening bytes:
+
+| item | source bytes | encoded bytes | encoded SHA-256 | segments |
+|---|---:|---:|---|---:|
+| clue-early-development | 62,267,473 | 1,589,812 | `46d38bedd6c2b2d9c0187b25bfb4417890ac49265703376f124b43088ec75043` | 4 |
+| clue-middle-development | 69,847,327 | 840,515 | `9a5c53d076dfcd8310451752e11563978ae9b76dbca59fddd943a2a9dcc63417` | 5 |
+| clue-late-development | 71,463,332 | 1,545,500 | `9a42acbbe659f5507e007d2b46326ac6a510b5247715f874082a6dbc8bf065ec` | 5 |
+| jls2-context-stress-256 | 50,270,800 | 50,070 | `2fd97c117fab3e9410c5f266ef15e42790d06d1971f0849e0b4a295fd000319f` | 3 |
+
+Exact per-segment decoded sizes, modes, raw-channel totals, and actual
+concurrent decoded occupancy were not retained. Local synthetic topology must
+not be substituted. Until the following preflight completes, the audit status
+is exactly `hosted_attribution_required`, `passed` is false, and product A/B
+authorization is false.
+
+The preflight is development-only and must run on `ubuntu-22.04` at the exact
+A2 candidate commit and toolchain above. It must regenerate each authorized A2
+development fixture twice, require the exact whole-frame byte count and
+SHA-256 in the table, and parse metadata without publishing corpus or decoded
+bytes. Its signed JSON artifact must bind run ID, job ID, attempt, commit,
+workflow and runner SHA-256, binary SHA-256, Cargo.lock SHA-256, platform,
+four logical CPUs, Rust/Cargo/Zstandard versions, glibc version, and allocator
+family. For every fixture and repetition it must report each segment's index,
+mode, encoded bytes, declared output bytes, declared skeleton/channel raw
+bytes, A2 batch index, and summed A2 peak concurrent declared decoded bytes.
+The two topology reports must be identical.
+
+In a diagnostic child using exact A2 scheduling, the same artifact must report
+RSS from `/proc/self/smaps_rollup` and `mallinfo2` in-use, free-arena, and mmap
+values at every frozen phase below. A declared bound is never observed
+allocation. The preflight clears attribution only when phase-correlated RSS
+reduction and phase-correlated decoded/Zstandard/allocator occupancy removed
+are each at least **105,202,484 bytes**; credited bytes are their smaller
+value. Encoded input/frame lifetime is listed separately and excluded from
+both operands. Any missing field, identity mismatch, topology mismatch,
+allocator API absence, repeated-generation mismatch, or smaller reduction is
+a hard no-authorization result.
 
 ## Frozen audit instrumentation
 
@@ -77,10 +145,12 @@ The attribution report must separate:
 
 The report may not label an upper bound as observed allocation. Credited A3
 attribution is limited to the smaller of (a) the RSS reduction observed at the
-corresponding phase and (b) declared decoded/encoded occupancy removed plus
-phase-correlated Zstandard or allocator bytes released by that same lifetime
-change. Unclassified memory and allocator changes without phase correlation
-are not credited.
+corresponding phase and (b) declared decoded occupancy removed plus
+phase-correlated Zstandard or allocator bytes released by that decoded
+concurrency change. Encoded input and encoded-frame lifetime remain visible in
+the report but are excluded from authorization credit. Unclassified memory,
+lifetime-only releases, and allocator changes without phase correlation are
+not credited.
 
 ## Frozen audit inputs
 
@@ -94,15 +164,20 @@ fixtures:
 - malformed declarations that exercise overflow, truncation, channel-count,
   raw-size, and output-size guards.
 
-No CLUE source is fetched during the audit phase. If and only if the synthetic
-audit clears the 60% kill threshold, the later frozen A/B may use the same
-three licensed development ranges and generated stress fixture used by A2.
-Those complete Linux-generated frames must be generated twice for determinism
-and supplied byte-identically to exact A2 and A3.
+No CLUE source is fetched during the local audit phase. Synthetic evidence
+cannot clear the gate. The strict hosted preflight may access only the same
+three licensed development ranges and generated stress fixture used by A2,
+solely to establish the bound topology and phase attribution above. Only if
+that preflight clears the 60% decoded-concurrency threshold may a separately
+frozen later A/B use those same frames. The complete Linux-generated frames
+must be generated twice for determinism and supplied byte-identically to exact
+A2 and A3.
 
 ## Conditional A3 candidate
 
-Candidate implementation is prohibited until the audit clears the kill gate.
+Candidate implementation is prohibited until the strict hosted attribution
+preflight clears the kill gate. A synthetic upper bound, an encoded-lifetime
+reduction, or a local-host measurement cannot clear it.
 If it clears, the candidate is frozen as follows:
 
 - parent: exact A2 commit

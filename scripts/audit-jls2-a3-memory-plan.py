@@ -31,6 +31,74 @@ BASELINE_PEAK_RSS_BYTES = 657_682_432
 BATCH_BUDGET_BYTES = 32 * 1024 * 1024
 ATTRIBUTION_PERCENT = 60
 NAME = "jls2-a3-declared-size-lifetime-audit-v1"
+EXPECTED_A2_RUN_ID = 29_676_674_924
+EXPECTED_A2_JOB_ID = 88_165_232_780
+EXPECTED_A2_RUN_ATTEMPT = 1
+EXPECTED_A2_ARTIFACT_ID = 8_439_147_016
+EXPECTED_A2_ARTIFACT_DIGEST = (
+    "sha256:b6930b7b9739a2e8768733096ba534406e1b87afa49a40b950e79bb6d72ec83d"
+)
+EXPECTED_A2_BASELINE_COMMIT = "131547f35747cc0ff9dedbdef66d8a9516a7464f"
+EXPECTED_A2_CANDIDATE_COMMIT = "0f3377dff647e8a6d99b65d8f8a269687faa8ec6"
+EXPECTED_A2_LOGICAL_CPUS = 4
+EXPECTED_A2_PLATFORM = "Linux-6.8.0-1062-azure-x86_64-with-glibc2.35"
+EXPECTED_A2_PYTHON = "3.12.13"
+EXPECTED_A2_RUSTC = "rustc 1.97.0 (2d8144b78 2026-07-07)"
+EXPECTED_A2_CARGO = "cargo 1.97.0 (c980f4866 2026-06-30)"
+EXPECTED_A2_RUNNER_SHA256 = (
+    "e5c538910b48afad74d930ce557fa6269f68e8e390c9bd6d02502c0f227ab6b4"
+)
+EXPECTED_A2_WORKFLOW_SHA256 = (
+    "aa9c1cb696750a6fd546da7c5767f97fc1726d721b42eedefb298f3f83884f27"
+)
+EXPECTED_A2_BASELINE_BINARY_SHA256 = (
+    "31db3a25eb0d935f43dc2411ada64e811ddd53b967a87c6d4aab113f3424a7e9"
+)
+EXPECTED_A2_CANDIDATE_BINARY_SHA256 = (
+    "c67e9c9b1902414c2b2e67991631d4cd065041242e6dd39392d673da2ca752fd"
+)
+EXPECTED_A2_CARGO_LOCK_SHA256 = (
+    "a905547d069da6d55bf6739307ffe9c75202cc15e87a6ae399e10b8890544783"
+)
+EXPECTED_A2_JLS2_RS_SHA256 = (
+    "e39441d60ab40d4ffe403cf0c84a30dda012997783f8ce3312d97d9580bc0c86"
+)
+EXPECTED_A2_ZSTD = {
+    "zstd": "0.13.3",
+    "zstd-safe": "7.2.4",
+    "zstd-sys": "2.0.16+zstd.1.5.7",
+    "libzstd": "1.5.7",
+}
+EXPECTED_A2_FIXTURES = {
+    "clue-early-development": {
+        "source_bytes": 62_267_473,
+        "source_sha256": "4f1571569ebdf98621bbd29da45ba84ab37b4f1f1033aacf822dd5b3f40358fe",
+        "encoded_bytes": 1_589_812,
+        "encoded_sha256": "46d38bedd6c2b2d9c0187b25bfb4417890ac49265703376f124b43088ec75043",
+        "segment_count": 4,
+    },
+    "clue-middle-development": {
+        "source_bytes": 69_847_327,
+        "source_sha256": "5ee50c36db110b023faf412e05398402e25ed59776ef5ee9323339f8b1aa4fa5",
+        "encoded_bytes": 840_515,
+        "encoded_sha256": "9a5c53d076dfcd8310451752e11563978ae9b76dbca59fddd943a2a9dcc63417",
+        "segment_count": 5,
+    },
+    "clue-late-development": {
+        "source_bytes": 71_463_332,
+        "source_sha256": "71091e9fa5d8fd20944e1bd5707f1c832470c56d4b662fc6ef3d34e9478eb739",
+        "encoded_bytes": 1_545_500,
+        "encoded_sha256": "9a42acbbe659f5507e007d2b46326ac6a510b5247715f874082a6dbc8bf065ec",
+        "segment_count": 5,
+    },
+    "jls2-context-stress-256": {
+        "source_bytes": 50_270_800,
+        "source_sha256": "873b0a0a7565fe8ee59c7f6deb377b83bd64677ccd87dc25e570ccd6b05a51c5",
+        "encoded_bytes": 50_070,
+        "encoded_sha256": "2fd97c117fab3e9410c5f266ef15e42790d06d1971f0849e0b4a295fd000319f",
+        "segment_count": 3,
+    },
+}
 
 
 def sha256(data: bytes) -> str:
@@ -248,6 +316,14 @@ def audit(
     development_limit_bytes: int = DEVELOPMENT_LIMIT_BYTES,
     batch_budget_bytes: int = BATCH_BUDGET_BYTES,
 ) -> dict[str, Any]:
+    if logical_cpus != EXPECTED_A2_LOGICAL_CPUS:
+        raise ValueError("logical CPU count drifted from the exact A2 evidence host")
+    if baseline_peak_rss_bytes != BASELINE_PEAK_RSS_BYTES:
+        raise ValueError("baseline peak RSS drifted from the exact A2 evidence")
+    if development_limit_bytes != DEVELOPMENT_LIMIT_BYTES:
+        raise ValueError("development limit drifted from the frozen A3 protocol")
+    if batch_budget_bytes != BATCH_BUDGET_BYTES:
+        raise ValueError("batch budget drifted from the frozen A3 protocol")
     segments = parse_stream(encoded)
     current = describe_plan(segments, current_batches(len(segments), logical_cpus))
     proposed = describe_plan(segments, proposed_batches(segments, batch_budget_bytes))
@@ -262,7 +338,9 @@ def audit(
     combined_upper = decoded_upper + encoded_upper
     overage = max(0, baseline_peak_rss_bytes - development_limit_bytes)
     required = (overage * ATTRIBUTION_PERCENT + 99) // 100
-    upper_bound_reaches_threshold = combined_upper >= required
+    # Encoded lifetime is report-only. It is too small in the retained A2
+    # evidence to establish the hypothesis and can never authorize A/B work.
+    decoded_upper_reaches_threshold = decoded_upper >= required
     return {
         "schema_version": 1,
         "name": NAME,
@@ -280,6 +358,35 @@ def audit(
             "batch_budget_bytes": batch_budget_bytes,
             "attribution_percent": ATTRIBUTION_PERCENT,
         },
+        "exact_a2_evidence_binding": {
+            "workflow_run_id": EXPECTED_A2_RUN_ID,
+            "workflow_job_id": EXPECTED_A2_JOB_ID,
+            "workflow_run_attempt": EXPECTED_A2_RUN_ATTEMPT,
+            "artifact_id": EXPECTED_A2_ARTIFACT_ID,
+            "artifact_digest": EXPECTED_A2_ARTIFACT_DIGEST,
+            "baseline_commit": EXPECTED_A2_BASELINE_COMMIT,
+            "candidate_commit": EXPECTED_A2_CANDIDATE_COMMIT,
+            "platform": EXPECTED_A2_PLATFORM,
+            "logical_cpus": EXPECTED_A2_LOGICAL_CPUS,
+            "python": EXPECTED_A2_PYTHON,
+            "rustc": EXPECTED_A2_RUSTC,
+            "cargo": EXPECTED_A2_CARGO,
+            "runner_sha256": EXPECTED_A2_RUNNER_SHA256,
+            "workflow_sha256": EXPECTED_A2_WORKFLOW_SHA256,
+            "baseline_binary_sha256": EXPECTED_A2_BASELINE_BINARY_SHA256,
+            "candidate_binary_sha256": EXPECTED_A2_CANDIDATE_BINARY_SHA256,
+            "cargo_lock_sha256": EXPECTED_A2_CARGO_LOCK_SHA256,
+            "jls2_rs_sha256": EXPECTED_A2_JLS2_RS_SHA256,
+            "zstd": EXPECTED_A2_ZSTD,
+            "allocator": {
+                "family": "glibc ptmalloc",
+                "glibc_version_from_platform": "2.35",
+                "a2_phase_counters_available": False,
+                "hosted_preflight_requires_mallinfo2": True,
+            },
+            "fixture_metadata": EXPECTED_A2_FIXTURES,
+            "exact_segment_sizes_and_modes_available_offline": False,
+        },
         "segments": segments,
         "current_a2_plan": current,
         "proposed_a3_plan": proposed,
@@ -295,14 +402,23 @@ def audit(
         "kill_gate": {
             "baseline_overage_bytes": overage,
             "required_attributed_bytes": required,
-            "upper_bound_reaches_threshold": upper_bound_reaches_threshold,
-            "status": "measurement_required",
+            "decoded_upper_bound_reaches_threshold": decoded_upper_reaches_threshold,
+            "encoded_lifetime_authorization_credit_bytes": 0,
+            "status": "hosted_attribution_required",
             "preliminary_finding": (
-                "declared_upper_bound_reaches_threshold"
-                if upper_bound_reaches_threshold
-                else "allocator_attribution_required"
+                "declared_decoded_upper_bound_reaches_threshold"
+                if decoded_upper_reaches_threshold
+                else "decoded_concurrency_attribution_insufficient"
             ),
             "passed": False,
+        },
+        "authorization": {
+            "product_ab_authorized": False,
+            "lifetime_only_release_can_authorize": False,
+            "required_next_evidence": (
+                "strict ubuntu-22.04 development-only hosted attribution preflight "
+                "bound to the exact A2 fixture metadata and complete segment topology"
+            ),
         },
         "claim_ceiling": (
             "No candidate authorization until Linux phase RSS and allocator telemetry "
@@ -315,21 +431,11 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--logical-cpus", type=int, default=4)
-    parser.add_argument(
-        "--baseline-peak-rss-bytes", type=int, default=BASELINE_PEAK_RSS_BYTES
-    )
-    parser.add_argument(
-        "--development-limit-bytes", type=int, default=DEVELOPMENT_LIMIT_BYTES
-    )
-    parser.add_argument("--batch-budget-bytes", type=int, default=BATCH_BUDGET_BYTES)
+    parser.add_argument("--logical-cpus", type=int, default=EXPECTED_A2_LOGICAL_CPUS)
     args = parser.parse_args()
     report = audit(
         args.input.read_bytes(),
         logical_cpus=args.logical_cpus,
-        baseline_peak_rss_bytes=args.baseline_peak_rss_bytes,
-        development_limit_bytes=args.development_limit_bytes,
-        batch_budget_bytes=args.batch_budget_bytes,
     )
     args.output.write_text(
         json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
