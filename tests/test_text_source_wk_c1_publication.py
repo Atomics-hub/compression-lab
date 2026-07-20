@@ -205,6 +205,25 @@ class TextSourceWkC1PublicationTests(unittest.TestCase):
         readme = (output / "README.md").read_text(encoding="utf-8")
         self.assertIn("axiom_wins = 0", readme)
         self.assertIn("Public validation", readme)
+        self.assertIn(PUBLISHER.OFFLINE_VERIFICATION_SCOPE, readme)
+        publication_provenance = json.loads(
+            (output / "publication-provenance.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(
+            publication_provenance["offline_verification_scope"],
+            PUBLISHER.OFFLINE_VERIFICATION_SCOPE,
+        )
+        self.assertFalse(
+            publication_provenance["codec_execution_performed_by_publication"]
+        )
+        self.assertFalse(
+            publication_provenance[
+                "sealed_corpus_bytes_opened_or_rehashed_by_publication"
+            ]
+        )
+        self.assertFalse(
+            publication_provenance["peak_rss_remeasured_by_publication"]
+        )
 
     def test_rejection_is_explicit(self) -> None:
         output = self.publish(strong=False)
@@ -243,6 +262,38 @@ class TextSourceWkC1PublicationTests(unittest.TestCase):
         receipt["artifact_file_evidence"]["sha256"] = receipt["artifact_sha256"]
         paths[0].write_bytes(PUBLISHER.json_bytes(receipt))
         with self.assertRaisesRegex(ValueError, "summary differs|manifest differs"):
+            PUBLISHER.collect_run(run)
+
+    def test_receipts_are_bound_to_path_derived_identity(self) -> None:
+        run = self.make_run(strong=True)
+        paths = sorted((run / "trials").glob("*/*.json"))
+        first = paths[0].read_bytes()
+        second = paths[-1].read_bytes()
+        paths[0].write_bytes(second)
+        paths[-1].write_bytes(first)
+        with self.assertRaisesRegex(ValueError, "identity differs from its path"):
+            PUBLISHER.collect_run(run)
+
+        output = self.publish(strong=False)
+        evidence = json.loads((output / "evidence.json").read_text(encoding="utf-8"))
+        evidence["trials"][0]["path"], evidence["trials"][1]["path"] = (
+            evidence["trials"][1]["path"],
+            evidence["trials"][0]["path"],
+        )
+        with self.assertRaisesRegex(ValueError, "identity differs from its path"):
+            PUBLISHER.validate_evidence(evidence)
+
+    def test_rejects_every_unexpected_entry_beneath_trials(self) -> None:
+        run = self.make_run(strong=True)
+        unexpected = run / "trials" / PUBLISHER.RUNNER.VARIANTS[0] / "nested"
+        unexpected.mkdir()
+        (unexpected / "extra.json").write_text("{}\n", encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "trial tree roster"):
+            PUBLISHER.collect_run(run)
+
+        run = self.make_run(strong=False)
+        (run / "trials" / ".DS_Store").write_bytes(b"unexpected")
+        with self.assertRaisesRegex(ValueError, "trial tree roster"):
             PUBLISHER.collect_run(run)
 
     def test_refuses_overwrite_and_detects_publication_mutation(self) -> None:

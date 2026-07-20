@@ -84,6 +84,24 @@ def verify(publication: Path) -> dict[str, Any]:
     if results != evidence["results"] or PUBLICATION.sha256_bytes(results_raw) != evidence["result_sha256"]:
         raise ValueError("WK-C1 copied result differs from public evidence")
     evidence_sha256 = PUBLICATION.sha256_file(publication / "evidence.json")
+    publication_provenance = read_canonical(
+        publication / "publication-provenance.json"
+    )
+    expected_publication_provenance = PUBLICATION.build_publication_provenance(
+        result_sha256=evidence["result_sha256"],
+        source_provenance_sha256=PUBLICATION.sha256_file(
+            publication / "provenance.txt"
+        ),
+        benchmark_log_sha256=PUBLICATION.sha256_file(
+            publication / "benchmark.log"
+        ),
+        public_evidence_sha256=evidence_sha256,
+        trial_receipts_manifest_sha256=evidence[
+            "trial_receipts_manifest_sha256"
+        ],
+    )
+    if publication_provenance != expected_publication_provenance:
+        raise ValueError("WK-C1 publication provenance does not reconstruct")
     comparison = read_canonical(publication / "comparison.json")
     expected_comparison = PUBLICATION.derive(
         evidence["config"],
@@ -131,6 +149,9 @@ def verify(publication: Path) -> dict[str, Any]:
         "result_sha256": comparison["result_sha256"],
         "public_evidence_sha256": comparison["public_evidence_sha256"],
         "claim_ceiling": comparison["claim_ceiling"],
+        "offline_verification_scope": publication_provenance[
+            "offline_verification_scope"
+        ],
     }
 
 

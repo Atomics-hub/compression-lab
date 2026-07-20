@@ -39,10 +39,16 @@ EXPECTED_FILES = {
     "comparison.json",
     "comparison.svg",
     "evidence.json",
+    "publication-provenance.json",
     "provenance.txt",
     "receipt.json",
     "results.json",
 }
+OFFLINE_VERIFICATION_SCOPE = (
+    "Offline verification validates the recorded evidence, internal recomputations, "
+    "and cryptographic hashes; it does not re-run codecs, rehash sealed corpus bytes, "
+    "or re-measure peak RSS."
+)
 RESULT_KEYS = {
     "schema_version", "name", "completed", "all_required_completed", "trial_count",
     "trial_receipts_manifest_sha256", "bindings", "screen_boundary", "measurement",
@@ -277,17 +283,36 @@ def collect_run(run: Path) -> tuple[bytes, dict[str, Any], bytes, dict[str, Any]
         raise ValueError("WK-C1 run must be an ordinary directory")
     config_raw, config = read_canonical(CONFIG)
     result_raw, result = read_canonical(run / "results.json")
-    expected_paths = {
-        run / "trials" / variant / f"{item}.r{repetition}.json"
+    trials_root = run / "trials"
+    if trials_root.is_symlink() or not trials_root.is_dir():
+        raise ValueError("WK-C1 trials must be an ordinary directory")
+    expected_by_path = {
+        trials_root / variant / f"{item}.r{repetition}.json": (
+            variant,
+            item,
+            repetition,
+        )
         for variant, item, repetition in RUNNER.schedule(config)
     }
-    observed_paths = set((run / "trials").glob("*/*.json"))
-    if observed_paths != expected_paths or any(path.is_symlink() for path in observed_paths):
+    expected_directories = {trials_root / variant for variant in RUNNER.VARIANTS}
+    expected_entries = expected_directories | set(expected_by_path)
+    observed_entries = set(trials_root.rglob("*"))
+    if observed_entries != expected_entries:
+        raise ValueError("WK-C1 retained trial tree roster differs")
+    if any(path.is_symlink() or not path.is_dir() for path in expected_directories):
+        raise ValueError("WK-C1 trial variant directory differs")
+    if any(path.is_symlink() or not path.is_file() for path in expected_by_path):
         raise ValueError("WK-C1 retained trial file roster differs")
     rows: list[dict[str, Any]] = []
     trials: list[dict[str, Any]] = []
-    for path in sorted(expected_paths):
+    for path, (variant, item_id, repetition) in sorted(expected_by_path.items()):
         raw, receipt = read_canonical(path)
+        if (
+            receipt.get("variant") != variant
+            or receipt.get("item_id") != item_id
+            or receipt.get("repetition") != repetition
+        ):
+            raise ValueError("WK-C1 receipt identity differs from its path")
         rows.append({"path": path.relative_to(run).as_posix(), "sha256": sha256_bytes(raw), "receipt": receipt})
         trials.append(receipt)
     validate_strict_result(result, config, trials)
@@ -388,6 +413,8 @@ def render_markdown(comparison: dict[str, Any]) -> str:
         "",
         "This is an offline publication of a frozen, training-only screen. `axiom_wins = 0`. Public validation, private holdout, and reserved evaluation remained sealed and unaccessed.",
         "",
+        OFFLINE_VERIFICATION_SCOPE,
+        "",
         "![Complete-byte comparison](comparison.svg)",
         "",
         "| Candidate/control | Complete bytes | Gain vs Kanzi-max | Compress MB/s | Decompress MB/s | Peak RSS MiB | Exact / deterministic |",
@@ -464,6 +491,32 @@ def build_evidence(config: dict[str, Any], result: dict[str, Any], trial_rows: l
     }
 
 
+def build_publication_provenance(
+    *,
+    result_sha256: str,
+    source_provenance_sha256: str,
+    benchmark_log_sha256: str,
+    public_evidence_sha256: str,
+    trial_receipts_manifest_sha256: str,
+) -> dict[str, Any]:
+    return {
+        "schema_version": 1,
+        "name": "text-source-wk-c1-publication-provenance-v1",
+        "offline_verification_scope": OFFLINE_VERIFICATION_SCOPE,
+        "source_artifacts": {
+            "results.json": result_sha256,
+            "provenance.txt": source_provenance_sha256,
+            "benchmark.log": benchmark_log_sha256,
+        },
+        "public_evidence_sha256": public_evidence_sha256,
+        "trial_receipts_manifest_sha256": trial_receipts_manifest_sha256,
+        "frozen_dependencies": FROZEN_DEPENDENCIES,
+        "codec_execution_performed_by_publication": False,
+        "sealed_corpus_bytes_opened_or_rehashed_by_publication": False,
+        "peak_rss_remeasured_by_publication": False,
+    }
+
+
 def validate_evidence(evidence: dict[str, Any]) -> None:
     require_keys(evidence, {"schema_version", "name", "frozen_dependencies", "config", "config_sha256", "results", "result_sha256", "trials", "trial_receipts_manifest_sha256", "run_verification"}, "WK-C1 public evidence")
     if evidence["schema_version"] != 1 or evidence["name"] != "text-source-wk-c1-public-evidence-v1" or evidence["frozen_dependencies"] != FROZEN_DEPENDENCIES:
@@ -472,6 +525,14 @@ def validate_evidence(evidence: dict[str, Any]) -> None:
         raise ValueError("WK-C1 public evidence content hashes differ")
     if not isinstance(evidence["trials"], list) or len(evidence["trials"]) != 8:
         raise ValueError("WK-C1 public trial evidence count differs")
+    expected_path_identities = {
+        f"trials/{variant}/{item_id}.r{repetition}.json": (
+            variant,
+            item_id,
+            repetition,
+        )
+        for variant, item_id, repetition in RUNNER.schedule(evidence["config"])
+    }
     paths = set()
     receipts = []
     for row in evidence["trials"]:
@@ -479,9 +540,19 @@ def validate_evidence(evidence: dict[str, Any]) -> None:
         if not isinstance(row["path"], str) or not row["path"].startswith("trials/") or row["path"] in paths:
             raise ValueError("WK-C1 public trial path differs")
         paths.add(row["path"])
+        expected_identity = expected_path_identities.get(row["path"])
+        receipt_identity = (
+            row["receipt"].get("variant"),
+            row["receipt"].get("item_id"),
+            row["receipt"].get("repetition"),
+        ) if isinstance(row["receipt"], dict) else None
+        if expected_identity is None or receipt_identity != expected_identity:
+            raise ValueError("WK-C1 public receipt identity differs from its path")
         if row["sha256"] != sha256_bytes(json_bytes(row["receipt"])):
             raise ValueError("WK-C1 public trial hash differs")
         receipts.append(row["receipt"])
+    if paths != set(expected_path_identities):
+        raise ValueError("WK-C1 public trial path roster differs")
     if evidence["trial_receipts_manifest_sha256"] != trial_manifest(evidence["trials"]):
         raise ValueError("WK-C1 public trial manifest differs")
     RUNNER.validate_config(evidence["config"])
@@ -501,6 +572,15 @@ def publish(*, run: Path, provenance: Path, benchmark_log: Path, output: Path) -
     validate_evidence(evidence)
     evidence_raw = json_bytes(evidence)
     comparison = derive(config, result, [row["receipt"] for row in trial_rows], result_sha256=sha256_bytes(result_raw), evidence_sha256=sha256_bytes(evidence_raw))
+    publication_provenance = build_publication_provenance(
+        result_sha256=sha256_bytes(result_raw),
+        source_provenance_sha256=sha256_file(provenance),
+        benchmark_log_sha256=sha256_file(benchmark_log),
+        public_evidence_sha256=sha256_bytes(evidence_raw),
+        trial_receipts_manifest_sha256=evidence[
+            "trial_receipts_manifest_sha256"
+        ],
+    )
     receipt = {
         "schema_version": 1,
         "name": "text-source-wk-c1-publication-receipt-v1",
@@ -523,6 +603,9 @@ def publish(*, run: Path, provenance: Path, benchmark_log: Path, output: Path) -
         (stage / "comparison.json").write_bytes(json_bytes(comparison))
         (stage / "comparison.svg").write_text(render_svg(comparison), encoding="utf-8")
         (stage / "evidence.json").write_bytes(evidence_raw)
+        (stage / "publication-provenance.json").write_bytes(
+            json_bytes(publication_provenance)
+        )
         (stage / "results.json").write_bytes(result_raw)
         shutil.copyfile(provenance, stage / "provenance.txt")
         shutil.copyfile(benchmark_log, stage / "benchmark.log")
