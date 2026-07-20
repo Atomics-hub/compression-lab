@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "name": "numeric-ar5-numr-toolchain-lock-v1",
+  "status": "sources_acquired_candidate_runtime_locked_baseline_binaries_unbuilt",
+  "measurement_authorized": false,
+  "corpus_access_authorized": false,
+  "claim_ceiling": "Official baseline sources and one local prototype runtime are identity-locked. No baseline comparison, corpus result, validation, holdout, speed, ratio, or product claim is authorized.",
+  "source_root": ".research-tools/numeric-ar5-numr-v1/sources",
+  "sources": [
+    {
+      "id": "fastlanes",
+      "repository": "https://github.com/cwida/FastLanes.git",
+      "revision": "f0edc1020a538f1f8098640fce8347c9ac247a0d",
+      "tree": "b4820900c171c16726b2139e5e48e7b7cd50ea2c",
+      "directory": "FastLanes",
+      "license_file": "LICENSE",
+      "license_bytes": 1104,
+      "license_sha256": "ac75229f0d44dba5bea18838232e4deee56ce093ac15cbc3fe53d765021b341d"
+    },
+    {
+      "id": "chimp",
+      "repository": "https://github.com/panagiotisl/chimp.git",
+      "revision": "320d397157c7e0696b3c64dc1711fc17a3add3da",
+      "tree": "c8ef45672e8f6007a02e4f99418cce48a4537bce",
+      "directory": "chimp",
+      "license_file": "LICENCE.md",
+      "license_bytes": 11357,
+      "license_sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+    },
+    {
+      "id": "gorilla",
+      "repository": "https://github.com/ghilesmeddour/gorilla-time-series-compression.git",
+      "revision": "093544c6e643aef911ff83527f595bc2d9280ed8",
+      "tree": "075357de2b77a378ce9ca705c7a629ad7a34d2d2",
+      "directory": "gorilla",
+      "license_file": "LICENSE",
+      "license_bytes": 1071,
+      "license_sha256": "045e925d4a0b65314416cf0b8943861bdbd4c462c7cfc599edf28ae505bbfb34"
+    },
+    {
+      "id": "blosc2",
+      "repository": "https://github.com/Blosc/c-blosc2.git",
+      "revision": "d52cbeec8afb35ada7ea62f04168e5d970d9c40b",
+      "tree": "c7d45ed686a690a01f2893a89384c1fc3b4d1c1b",
+      "directory": "c-blosc2",
+      "license_file": "LICENSE.txt",
+      "license_bytes": 1644,
+      "license_sha256": "22623131a9b9f6a86a4dc6b9bccbb1d2aeb390df86bca00fc727af24735c2fae"
+    },
+    {
+      "id": "fpzip",
+      "repository": "https://github.com/LLNL/fpzip.git",
+      "revision": "4a539c06d98b1c029b08324a086d4b75689a2b72",
+      "tree": "ccd069f840508590d900db3b9b3dd464269dc051",
+      "directory": "fpzip",
+      "license_file": "LICENSE",
+      "license_bytes": 1546,
+      "license_sha256": "d8b65908fb08fcbf2e32caa7144ec4b14361ca0c2d97251db65db2d8a9f9d76f"
+    },
+    {
+      "id": "zstd",
+      "repository": "https://github.com/facebook/zstd.git",
+      "revision": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+      "tree": "1a3cb277e9b9b37b01811a3c65f6c25d46a8f241",
+      "directory": "zstd",
+      "license_file": "LICENSE",
+      "license_bytes": 1549,
+      "license_sha256": "7055266497633c9025b777c78eb7235af13922117480ed5c674677adc381c9d8"
+    },
+    {
+      "id": "brotli",
+      "repository": "https://github.com/google/brotli.git",
+      "revision": "028fb5a23661f123017c060daa546b55cf4bde29",
+      "tree": "ba309704f7d9ef312a8daea1cdb5d20a29ebed94",
+      "directory": "brotli",
+      "license_file": "LICENSE",
+      "license_bytes": 1084,
+      "license_sha256": "3d180008e36922a4e8daec11c34c7af264fed5962d07924aea928c38e8663c94"
+    },
+    {
+      "id": "lz4",
+      "repository": "https://github.com/lz4/lz4.git",
+      "revision": "ebb370ca83af193212df4dcbadcc5d87bc0de2f0",
+      "tree": "1ff35e0f086e3b431ea0efd001eb5c6254561953",
+      "directory": "lz4",
+      "license_file": "lib/LICENSE",
+      "license_bytes": 1311,
+      "license_sha256": "8b58c446121a109ccf32edc094bba3010a3d85e4ee3702950db55e4d3e87736c"
+    }
+  ],
+  "candidate_runtime": {
+    "host": "macOS-26.5.2-arm64-arm-64bit",
+    "python_implementation": "CPython",
+    "python_version": "3.12.12",
+    "python_executable_sha256": "06002b7deb221e0e15086843b150ffa3886e6f787dcf120f9511b999d5540691",
+    "python_zstandard_version": "0.25.0",
+    "python_zstandard_backend": "cext",
+    "python_zstandard_extension_bytes": 761456,
+    "python_zstandard_extension_sha256": "b5a59cf2ff46dd1fc9e7959ccae934136a4c128c7ab747dfdbfcc16fd1f755b5",
+    "bundled_libzstd_version": "1.5.7",
+    "zstd_parameters": {
+      "level": 9,
+      "threads": 0,
+      "write_checksum": true,
+      "write_content_size": true,
+      "write_dict_id": false
+    }
+  },
+  "baseline_binary_status": "unbuilt_and_unauthorized",
+  "authorization_blockers": [
+    "baseline adapters and complete-artifact formats are not implemented or reviewed",
+    "baseline and candidate built-binary SHA-256 identities are not frozen on two architectures",
+    "licensed training corpus manifest is not frozen or acquired",
+    "benchmark runner and dedicated-host receipt are not frozen"
+  ],
+  "allowed_execution": [
+    "source identity verification",
+    "candidate synthetic exactness tests",
+    "candidate synthetic corruption tests",
+    "candidate synthetic determinism tests"
+  ],
+  "forbidden_execution": [
+    "training corpus measurement",
+    "validation access",
+    "private holdout access",
+    "baseline comparison",
+    "ratio or speed claim publication"
+  ],
+  "results": null
+}
