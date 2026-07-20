@@ -45,6 +45,13 @@ jobs:
           test "$(brew --prefix zstd)" = /opt/homebrew/opt/zstd
           test "$(brew --prefix xz)" = /opt/homebrew/opt/xz
           test "$(brew --prefix lz4)" = /opt/homebrew/opt/lz4
+          for build_tool in "$(brew --prefix cmake)/bin/cmake" /usr/bin/make /usr/bin/c++ /usr/bin/cc; do
+            test -f "$build_tool"
+            tool_bytes="$(stat -f '%z' "$build_tool")"
+            tool_sha256="$(shasum -a 256 "$build_tool" | awk '{print $1}')"
+            tool_version="$($build_tool --version | head -n 1)"
+            echo "hosted build tool $build_tool: bytes=$tool_bytes sha256=$tool_sha256 version=$tool_version"
+          done
           python scripts/prepare-frontier-headroom-e1-toolchain.py \
             --root "$RUNNER_TEMP/e1-tool-root" --allow-download --sources-only
           python scripts/safe-extract-frontier-headroom-e1-source.py \
