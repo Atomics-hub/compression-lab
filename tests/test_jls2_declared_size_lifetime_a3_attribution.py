@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import importlib.util
 from pathlib import Path
 import unittest
@@ -19,12 +20,24 @@ WORKFLOW = (
     / "workflows"
     / "jls2-declared-size-lifetime-a3-attribution.yml"
 )
+VERIFIER = (
+    ROOT / "scripts" / "verify-jls2-declared-size-lifetime-a3-attribution.py"
+)
 
 
 def load_module():
     spec = importlib.util.spec_from_file_location("jls2_a3_attribution", SCRIPT)
     if spec is None or spec.loader is None:
         raise RuntimeError("cannot load JLS2 A3 attribution runner")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def load_verifier():
+    spec = importlib.util.spec_from_file_location("jls2_a3_verifier", VERIFIER)
+    if spec is None or spec.loader is None:
+        raise RuntimeError("cannot load JLS2 A3 attribution verifier")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
@@ -86,6 +99,95 @@ def valid_report(module) -> dict[str, object]:
     }
 
 
+def valid_result(module) -> dict[str, object]:
+    reports = []
+    template = valid_report(module)
+    for fixture_id, expected in module.EXPECTED_FRAMES.items():
+        report = copy.deepcopy(template)
+        report.update(
+            {
+                "fixture_id": fixture_id,
+                "encoded_bytes": expected["encoded_bytes"],
+                "encoded_capacity_bytes": expected["encoded_bytes"],
+                "encoded_sha256": expected["encoded_sha256"],
+                "output_bytes": expected["source_bytes"],
+                "segment_count": expected["segments"],
+            }
+        )
+        segment = report["segments"][0]
+        report["segments"] = [
+            dict(segment, segment_index=index) for index in range(expected["segments"])
+        ]
+        reports.append(report)
+    gates = {
+        "exact_a2_commit": True,
+        "exact_host_and_toolchain": True,
+        "four_logical_cpus": True,
+        "two_generation_topology_identical": True,
+        "all_decodes_exact": True,
+        "decoded_concurrency_potential_at_least_threshold": True,
+        "phase_correlated_rss_reduction_at_least_threshold": True,
+        "credited_attribution_at_least_threshold": True,
+        "encoded_lifetime_credit_is_zero": True,
+    }
+    return {
+        "schema_version": 1,
+        "name": "jls2-declared-size-lifetime-a3-hosted-attribution-v1",
+        "claim_scope": "development-only decoder-memory attribution",
+        "a2_identity": {
+            "commit": module.A2_COMMIT,
+            "binary_sha256": module.A2_BINARY_SHA256,
+            "baseline_peak_rss_bytes": module.A2_BASELINE_RSS_BYTES,
+        },
+        "hosted_identity": {
+            "run_id": "123",
+            "job_id": "456",
+            "run_attempt": 1,
+            "a2_commit": module.A2_COMMIT,
+            "workflow_source_commit": "a" * 40,
+            "workflow_sha256": "b" * 64,
+            "runner_sha256": "c" * 64,
+            "diagnostic_binary_sha256": "d" * 64,
+            "a2_product_binary_sha256": module.A2_BINARY_SHA256,
+            "artifact_name": "jls2-declared-size-lifetime-a3-attribution-123",
+        },
+        "host": {
+            "platform": module.EXPECTED_PLATFORM,
+            "logical_cpus": module.EXPECTED_LOGICAL_CPUS,
+            "python": module.EXPECTED_PYTHON,
+            "rustc": module.EXPECTED_RUSTC,
+            "cargo": module.EXPECTED_CARGO,
+            "glibc": module.EXPECTED_GLIBC,
+            "allocator": module.EXPECTED_ALLOCATOR,
+            "zstandard": module.EXPECTED_ZSTD,
+        },
+        "settings": {
+            "attribution_threshold_bytes": module.ATTRIBUTION_THRESHOLD_BYTES,
+            "a3_overage_bytes": module.A3_OVERAGE_BYTES,
+            "proposed_batch_budget_bytes": module.PROPOSED_BATCH_BUDGET_BYTES,
+            "a1_runner_sha256": module.A1_RUNNER_SHA256,
+            "cargo_lock_sha256": module.EXPECTED_CARGO_LOCK_SHA256,
+            "development_fixtures_only": True,
+            "validation_accessed": False,
+            "holdout_accessed": False,
+            "product_ab_authorized_before_this_result": False,
+            "format_encoder_selector_changed": False,
+        },
+        "generations": [
+            {"generation": 1, "reports": copy.deepcopy(reports)},
+            {"generation": 2, "reports": copy.deepcopy(reports)},
+        ],
+        "summary": {
+            "minimum_decoded_concurrency_potential_bytes": 120_000_000,
+            "minimum_phase_correlated_rss_reduction_bytes": 110_000_000,
+            "minimum_credited_bytes": 110_000_000,
+            "gates": gates,
+            "passed": True,
+            "product_ab_authorized": True,
+        },
+    }
+
+
 class JLS2DeclaredSizeLifetimeA3AttributionTests(unittest.TestCase):
     def test_frozen_identity_and_threshold(self) -> None:
         module = load_module()
@@ -142,6 +244,16 @@ class JLS2DeclaredSizeLifetimeA3AttributionTests(unittest.TestCase):
         self.assertNotIn("holdout", workflow.lower())
         self.assertIn("product A/B", protocol)
         self.assertNotIn("benchmark-jls2-declared-size", workflow)
+
+    def test_verifier_rejects_incomplete_hosted_identity(self) -> None:
+        verifier = load_verifier()
+        with self.assertRaisesRegex(ValueError, "result name"):
+            verifier.validate_result({"schema_version": 1})
+
+    def test_verifier_accepts_internally_complete_result(self) -> None:
+        module = load_module()
+        verifier = load_verifier()
+        verifier.validate_result(valid_result(module))
 
 
 if __name__ == "__main__":

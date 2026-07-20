@@ -63,6 +63,7 @@ jobs:
             -v
           ruff check \
             scripts/audit-jls2-declared-size-lifetime-a3.py \
+            scripts/verify-jls2-declared-size-lifetime-a3-attribution.py \
             tests/test_jls2_declared_size_lifetime_a3_attribution.py
 
       - name: Fetch licensed development ranges only
@@ -115,6 +116,15 @@ jobs:
           echo "exit_code=$status" >> "$GITHUB_OUTPUT"
           exit 0
 
+      - name: Verify strict A3 artifact schema
+        if: always()
+        shell: bash
+        run: |
+          if test -f "$RUNNER_TEMP/$EVIDENCE_DIR/results.json"; then
+            python scripts/verify-jls2-declared-size-lifetime-a3-attribution.py \
+              "$RUNNER_TEMP/$EVIDENCE_DIR/results.json"
+          fi
+
       - name: Capture bound provenance and detached digest
         if: always()
         shell: bash
@@ -137,6 +147,7 @@ jobs:
             cargo tree --manifest-path native/Cargo.toml --locked
             sha256sum native/Cargo.lock
             sha256sum scripts/audit-jls2-declared-size-lifetime-a3.py
+            sha256sum scripts/verify-jls2-declared-size-lifetime-a3-attribution.py
             sha256sum .github/workflows/jls2-declared-size-lifetime-a3-attribution.yml
             sha256sum "$RUNNER_TEMP/a2-audit/native/target/release/clab-jls2-a3-audit"
             sha256sum "$RUNNER_TEMP/a2-audit/native/target/release/clab-jls2"
