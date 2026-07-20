@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import importlib.util
 import json
+import os
 from pathlib import Path
 import sys
 import tempfile
@@ -87,6 +88,10 @@ class FrontierHeadroomE1RunnerTests(unittest.TestCase):
                 len(frame), sum(row["artifact_bytes"] for row in choices)
             )
 
+    @unittest.skipUnless(
+        all(hasattr(os, name) for name in ("wait4", "killpg", "setsid")),
+        "E1 hosted measurements require POSIX wait4 and process groups",
+    )
     def test_bounded_process_records_wait4_and_exact_roundtrip(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
