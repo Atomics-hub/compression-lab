@@ -171,6 +171,7 @@ def valid_result(module) -> dict[str, object]:
             "proposed_batch_budget_bytes": module.PROPOSED_BATCH_BUDGET_BYTES,
             "a1_runner_sha256": module.A1_RUNNER_SHA256,
             "cargo_lock_sha256": module.EXPECTED_CARGO_LOCK_SHA256,
+            "a2_protected_file_sha256": module.EXPECTED_A2_PROTECTED_SHA256,
             "development_fixtures_only": True,
             "validation_accessed": False,
             "holdout_accessed": False,
@@ -204,6 +205,7 @@ class JLS2DeclaredSizeLifetimeA3AttributionTests(unittest.TestCase):
         self.assertEqual(module.PROPOSED_BATCH_BUDGET_BYTES, 32 * 1024 * 1024)
         self.assertEqual(module.EXPECTED_LOGICAL_CPUS, 4)
         self.assertEqual(module.EXPECTED_ZSTD["bundled-libzstd"], "1.5.7")
+        self.assertEqual(len(module.EXPECTED_A2_PROTECTED_SHA256), 4)
 
     def test_report_schema_accepts_exact_complete_diagnostic(self) -> None:
         module = load_module()
@@ -248,6 +250,22 @@ class JLS2DeclaredSizeLifetimeA3AttributionTests(unittest.TestCase):
         self.assertNotIn("holdout", workflow.lower())
         self.assertIn("product A/B", protocol)
         self.assertNotIn("benchmark-jls2-declared-size", workflow)
+        self.assertNotIn(
+            'git merge-base --is-ancestor "$A2_COMMIT" HEAD', workflow
+        )
+        self.assertIn('git cat-file -e "$A2_COMMIT^{commit}"', workflow)
+        self.assertIn('git worktree add --detach "$RUNNER_TEMP/a2-audit"', workflow)
+        self.assertIn("intentionally not assumed to be an ancestor", workflow)
+
+    def test_unrelated_lineage_cannot_weaken_protected_file_identity(self) -> None:
+        module = load_module()
+        module.validate_a2_protected_digests(
+            dict(module.EXPECTED_A2_PROTECTED_SHA256)
+        )
+        changed = dict(module.EXPECTED_A2_PROTECTED_SHA256)
+        changed["native/src/jls2.rs"] = "0" * 64
+        with self.assertRaisesRegex(ValueError, "ancestry is not accepted"):
+            module.validate_a2_protected_digests(changed)
 
     def test_verifier_rejects_incomplete_hosted_identity(self) -> None:
         verifier = load_verifier()

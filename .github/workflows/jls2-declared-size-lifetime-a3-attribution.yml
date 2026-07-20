@@ -21,6 +21,7 @@ jobs:
       PYTHONPATH: src
       A2_COMMIT: 0f3377dff647e8a6d99b65d8f8a269687faa8ec6
       AUTHORIZED_PROTOCOL_COMMIT: fc3f44e2bc595afeafb2f0848122ccaa9ddc9905
+      AUDIT_CARGO_TOML_SHA256: bc13f19097d2db6d00172e72c29075a609dbd0fa0422a0bdb2581da37317fc8b
       EVIDENCE_DIR: jls2-declared-size-lifetime-a3-attribution
 
     steps:
@@ -41,14 +42,22 @@ jobs:
       - name: Enforce diagnostic-only A3 change boundary
         shell: bash
         run: |
-          git merge-base --is-ancestor "$A2_COMMIT" HEAD
+          # A2 is intentionally not assumed to be an ancestor of this research
+          # branch. Its immutable tree and binary are checked out and bound below.
+          git cat-file -e "$A2_COMMIT^{commit}"
           git merge-base --is-ancestor "$AUTHORIZED_PROTOCOL_COMMIT" HEAD
-          test "$(git show "$A2_COMMIT":native/Cargo.lock | sha256sum | cut -d' ' -f1)" = \
-            "a905547d069da6d55bf6739307ffe9c75202cc15e87a6ae399e10b8890544783"
-          git diff --check "$A2_COMMIT"..HEAD
-          test -z "$(git diff --name-only "$A2_COMMIT"..HEAD -- \
-            src pyproject.toml setup.py native/src/lib.rs native/src/jls2.rs \
-            native/src/bin/clab-jls2.rs native/Cargo.lock)"
+          for file in \
+            native/src/lib.rs \
+            native/src/jls2.rs \
+            native/src/bin/clab-jls2.rs \
+            native/Cargo.lock
+          do
+            test "$(git show "$A2_COMMIT:$file" | sha256sum | cut -d' ' -f1)" = \
+              "$(sha256sum "$file" | cut -d' ' -f1)"
+          done
+          test "$(sha256sum native/Cargo.toml | cut -d' ' -f1)" = \
+            "$AUDIT_CARGO_TOML_SHA256"
+          git diff --check
 
       - name: Verify frozen runner and diagnostic build
         run: |

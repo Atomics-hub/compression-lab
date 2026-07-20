@@ -27,6 +27,8 @@ A2_BASELINE_RSS_BYTES = 657_682_432
 A3_OVERAGE_BYTES = 175_337_472
 ATTRIBUTION_THRESHOLD_BYTES = 105_202_484
 PROPOSED_BATCH_BUDGET_BYTES = 32 * 1024 * 1024
+# Intentional runner-image identity pin inherited from the immutable A2 evidence.
+# A later GitHub kernel is a new host and must receive a separately frozen protocol.
 EXPECTED_PLATFORM = "Linux-6.8.0-1062-azure-x86_64-with-glibc2.35"
 EXPECTED_LOGICAL_CPUS = 4
 EXPECTED_PYTHON = "3.12.13"
@@ -37,6 +39,18 @@ EXPECTED_CARGO_LOCK_SHA256 = (
 )
 EXPECTED_GLIBC = "2.35"
 EXPECTED_ALLOCATOR = "glibc-ptmalloc-mallinfo2"
+EXPECTED_A2_PROTECTED_SHA256 = {
+    "native/src/lib.rs": (
+        "ec3ba58920c8701c3eac6a6c4150c3b4474248e203376c158ec376a2b3411127"
+    ),
+    "native/src/jls2.rs": (
+        "e39441d60ab40d4ffe403cf0c84a30dda012997783f8ce3312d97d9580bc0c86"
+    ),
+    "native/src/bin/clab-jls2.rs": (
+        "45d835cc512406f747a0cab7173b2594897c2064fcddff1c53a94e8b9d43c7c9"
+    ),
+    "native/Cargo.lock": EXPECTED_CARGO_LOCK_SHA256,
+}
 EXPECTED_ZSTD = {
     "zstd": "0.13.3",
     "zstd-safe": "7.2.4",
@@ -99,6 +113,14 @@ def sha256_file(path: Path) -> str:
         while chunk := source.read(1024 * 1024):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def validate_a2_protected_digests(observed: dict[str, str]) -> None:
+    if observed != EXPECTED_A2_PROTECTED_SHA256:
+        raise ValueError(
+            "exact A2 protected-file identity mismatch; repository ancestry is not "
+            "accepted as a substitute for byte identity"
+        )
 
 
 def load_a1_runner() -> Any:
@@ -277,8 +299,12 @@ def main() -> int:
         raise ValueError("exact A2 product binary SHA-256 mismatch")
     if not args.run_id.isdigit() or not args.job_id.isdigit() or args.run_attempt < 1:
         parser.error("hosted run/job/attempt identity is invalid")
-    if sha256_file(ROOT / "native" / "Cargo.lock") != EXPECTED_CARGO_LOCK_SHA256:
-        raise ValueError("Cargo.lock identity mismatch")
+    validate_a2_protected_digests(
+        {
+            relative: sha256_file(Path.cwd() / relative)
+            for relative in EXPECTED_A2_PROTECTED_SHA256
+        }
+    )
     host = frozen_host()
     a1 = load_a1_runner()
     generations: list[dict[str, Any]] = []
@@ -397,6 +423,7 @@ def main() -> int:
             "proposed_batch_budget_bytes": PROPOSED_BATCH_BUDGET_BYTES,
             "a1_runner_sha256": A1_RUNNER_SHA256,
             "cargo_lock_sha256": EXPECTED_CARGO_LOCK_SHA256,
+            "a2_protected_file_sha256": EXPECTED_A2_PROTECTED_SHA256,
             "development_fixtures_only": True,
             "validation_accessed": False,
             "holdout_accessed": False,

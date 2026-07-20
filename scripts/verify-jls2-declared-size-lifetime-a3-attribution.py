@@ -82,6 +82,7 @@ def validate_result(result: dict[str, Any]) -> None:
         "proposed_batch_budget_bytes": contract.PROPOSED_BATCH_BUDGET_BYTES,
         "a1_runner_sha256": contract.A1_RUNNER_SHA256,
         "cargo_lock_sha256": contract.EXPECTED_CARGO_LOCK_SHA256,
+        "a2_protected_file_sha256": contract.EXPECTED_A2_PROTECTED_SHA256,
         "development_fixtures_only": True,
         "validation_accessed": False,
         "holdout_accessed": False,
