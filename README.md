@@ -69,6 +69,20 @@ The [reusable-context publication](runs/jls2-context-reuse-development-v1/public
 binds all 64 exact scheduled decodes to the hosted workflow, binary hashes,
 artifact digest, raw result, runner provenance, frozen gates, and claim ceiling.
 
+A second frozen Linux A/B then removed the remaining single-worker dispatch
+boundary while retaining A1's reusable contexts. It improved paired median
+decode throughput by **2.79%** (**439.47 MB/s** versus **427.55 MB/s**), but
+both variants still peaked at **627.2 MiB** and the stress reduction was
+**0.00%**. A2 is therefore also rejected; neither A1 nor A2 replaces the
+pre-A1 product baseline.
+
+![Rejected JLS2 inline-single-worker memory experiment](runs/jls2-context-reuse-inline-single-worker-a2-development-v1/publication/comparison.svg)
+
+The [A2 publication](runs/jls2-context-reuse-inline-single-worker-a2-development-v1/publication/README.md)
+binds the 64 exact scheduled decodes to hosted run `29676674924`, the exact A1
+and A2 binaries, raw artifact digest, recomputed gates, and development-only
+claim ceiling.
+
 <details>
 <summary><strong>Open the full same-run scorecard</strong></summary>
 

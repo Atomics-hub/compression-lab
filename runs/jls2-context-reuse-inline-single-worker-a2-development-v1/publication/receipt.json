@@ -1,0 +1,150 @@
+{
+  "a1_baseline_commit": "131547f35747cc0ff9dedbdef66d8a9516a7464f",
+  "a1_context": {
+    "candidate_commit": "131547f35747cc0ff9dedbdef66d8a9516a7464f",
+    "decision": "rejected; the pre-A1 product baseline remained retained",
+    "development_peak_rss_mib_display": 625.2,
+    "effect_on_a2": "A2 measures marginally against A1 but does not make A1 the product baseline",
+    "frozen_peak_rss_limit_mib": 448.0
+  },
+  "artifacts": {
+    "README.md": "3d264f0409b54353608357ba81cc8cde4415ad799bbc5a5d6fe0d149b5974ca6",
+    "benchmark.log": "73144934db42515f0e1505eba51e8c2779c5ef5616f29da5f0cac7d4c2f1e682",
+    "comparison.json": "6d437c2ed12ca999e57b9014ff0112735722d930c4b1c0dc2b4a30c7c465e899",
+    "comparison.svg": "c2439d741805bfffca30795a464b26a33f1f8636c697000dca58fd59a28c7202",
+    "provenance.txt": "98e7638953ca39e51788c6916e25db2a002f37b8ec4f8728c68092c1858b9226",
+    "results.json": "5b7400c4c9b408f1bb1834cc42d4e46b294aabb733b1d5891ea2cc1547399af9"
+  },
+  "binaries": {
+    "a1_sha256": "31db3a25eb0d935f43dc2411ada64e811ddd53b967a87c6d4aab113f3424a7e9",
+    "a2_sha256": "c67e9c9b1902414c2b2e67991631d4cd065041242e6dd39392d673da2ca752fd"
+  },
+  "candidate_commit": "0f3377dff647e8a6d99b65d8f8a269687faa8ec6",
+  "claim_ceiling": "Development-only A2 decoder-memory evidence; consumed public-validation ranges and the private holdout were not used.",
+  "decision": "rejected",
+  "host": {
+    "load_average_after": [
+      1.22021484375,
+      0.6982421875,
+      0.3173828125
+    ],
+    "logical_cpus": 4,
+    "platform": "Linux-6.8.0-1062-azure-x86_64-with-glibc2.35",
+    "python": "3.12.13",
+    "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)"
+  },
+  "immutable_public_validation_boundary": {
+    "effect_of_this_result": "none; a development result cannot rewrite the first score",
+    "frozen_peak_rss_limit_bytes": 536870912,
+    "gain_vs_strongest_eligible_percent": 52.9687,
+    "jls2_bytes": 489591,
+    "ranges": "consumed and never eligible for tuning or rerun",
+    "source_bytes": 96934483,
+    "standalone_decode_peak_rss_bytes": 651517952,
+    "status": "immutable_not_passed"
+  },
+  "name": "jls2-context-reuse-inline-single-worker-a2-publication-v1-receipt",
+  "pre_a1_product_baseline_commit": "7b081f6f11c2561c36289cfc57f7d3715ab8c594",
+  "product_decision": "pre_a1_product_baseline_retained",
+  "publication_sources": {
+    "a2_runner": {
+      "path": "scripts/benchmark-jls2-context-reuse-inline-single-worker-a2.py",
+      "sha256": "e5c538910b48afad74d930ce557fa6269f68e8e390c9bd6d02502c0f227ab6b4"
+    },
+    "common_publisher": {
+      "path": "scripts/publish-jls2-context-reuse.py",
+      "sha256": "a83ec27bcce4c6b0a98866441b7fa01a1b37ff7a385111c02eedc70958579a76"
+    },
+    "protocol": {
+      "path": "docs/benchmarks/2026-07-18-jls2-context-reuse-inline-single-worker-a2-protocol.md",
+      "sha256": "68ea9f5a79df3cdd4a4e81bdff91f1483307f7409544a5d5d803a3e69e211401"
+    },
+    "publisher": {
+      "path": "scripts/publish-jls2-context-reuse-inline-single-worker-a2.py",
+      "sha256": "3d305e38307c2521734eb8ef3526c2e0ce2223b5a9864d0d572ddf3488a9d142"
+    },
+    "workflow": {
+      "path": ".github/workflows/jls2-context-reuse-inline-single-worker-a2.yml",
+      "sha256": "aa9c1cb696750a6fd546da7c5767f97fc1726d721b42eedefb298f3f83884f27"
+    }
+  },
+  "schema_version": 1,
+  "source_inputs": {
+    "benchmark_log_sha256": "73144934db42515f0e1505eba51e8c2779c5ef5616f29da5f0cac7d4c2f1e682",
+    "provenance_sha256": "98e7638953ca39e51788c6916e25db2a002f37b8ec4f8728c68092c1858b9226",
+    "ratio_evidence_sha256": "66d8986ae2bf6beb2cc2a4fd4280f9dfe34f013f947e9097c80353853bf74a36",
+    "results_sha256": "5b7400c4c9b408f1bb1834cc42d4e46b294aabb733b1d5891ea2cc1547399af9"
+  },
+  "unchanged_ratio_context": {
+    "gain_vs_strongest_standard_percent": 18.082680740327106,
+    "jls2_bytes": 3523721,
+    "jls2_ratio": 57.77362396171547,
+    "original_bytes": 203578132,
+    "scope": "unchanged immutable CLUE-LDS development census",
+    "strongest_standard": "brotli-11",
+    "strongest_standard_bytes": 4301558
+  },
+  "uploaded_artifact": {
+    "digest": "sha256:b6930b7b9739a2e8768733096ba534406e1b87afa49a40b950e79bb6d72ec83d",
+    "id": 8439147016,
+    "name": "jls2-context-reuse-inline-single-worker-a2-29676674924"
+  },
+  "verification": {
+    "all_outputs_exact": true,
+    "all_trial_fields_recomputed": true,
+    "frozen_summary_and_gates_recomputed": true,
+    "same_frame_identities": [
+      {
+        "encoded_bytes": 1589812,
+        "encoded_sha256": "46d38bedd6c2b2d9c0187b25bfb4417890ac49265703376f124b43088ec75043",
+        "frame_path_recorded": "/tmp/jls2-inline-worker-a2-fzyptn95/fixtures/clue-early-development.first.jls2",
+        "item_id": "clue-early-development",
+        "same_frame_for_both_variants": true,
+        "scheduled_decodes": 16,
+        "source_bytes": 62267473,
+        "source_sha256": "4f1571569ebdf98621bbd29da45ba84ab37b4f1f1033aacf822dd5b3f40358fe"
+      },
+      {
+        "encoded_bytes": 840515,
+        "encoded_sha256": "9a5c53d076dfcd8310451752e11563978ae9b76dbca59fddd943a2a9dcc63417",
+        "frame_path_recorded": "/tmp/jls2-inline-worker-a2-fzyptn95/fixtures/clue-middle-development.first.jls2",
+        "item_id": "clue-middle-development",
+        "same_frame_for_both_variants": true,
+        "scheduled_decodes": 16,
+        "source_bytes": 69847327,
+        "source_sha256": "5ee50c36db110b023faf412e05398402e25ed59776ef5ee9323339f8b1aa4fa5"
+      },
+      {
+        "encoded_bytes": 1545500,
+        "encoded_sha256": "9a42acbbe659f5507e007d2b46326ac6a510b5247715f874082a6dbc8bf065ec",
+        "frame_path_recorded": "/tmp/jls2-inline-worker-a2-fzyptn95/fixtures/clue-late-development.first.jls2",
+        "item_id": "clue-late-development",
+        "same_frame_for_both_variants": true,
+        "scheduled_decodes": 16,
+        "source_bytes": 71463332,
+        "source_sha256": "71091e9fa5d8fd20944e1bd5707f1c832470c56d4b662fc6ef3d34e9478eb739"
+      },
+      {
+        "encoded_bytes": 50070,
+        "encoded_sha256": "2fd97c117fab3e9410c5f266ef15e42790d06d1971f0849e0b4a295fd000319f",
+        "frame_path_recorded": "/tmp/jls2-inline-worker-a2-fzyptn95/fixtures/jls2-context-stress-256.jls2",
+        "item_id": "jls2-context-stress-256",
+        "same_frame_for_both_variants": true,
+        "scheduled_decodes": 16,
+        "source_bytes": 50270800,
+        "source_sha256": "873b0a0a7565fe8ee59c7f6deb377b83bd64677ccd87dc25e570ccd6b05a51c5"
+      }
+    ],
+    "scheduled_trials": 64,
+    "strict_raw_schema_valid": true,
+    "trial_schedule_exact": true
+  },
+  "workflow_run": {
+    "attempt": 1,
+    "conclusion": "failure",
+    "job_id": 88165232780,
+    "job_url": "https://github.com/Atomics-hub/compression-lab/actions/runs/29676674924/job/88165232780",
+    "run_id": 29676674924,
+    "url": "https://github.com/Atomics-hub/compression-lab/actions/runs/29676674924"
+  }
+}
