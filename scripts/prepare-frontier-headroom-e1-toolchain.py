@@ -213,7 +213,14 @@ def prepare(
             row, root, allowed_hosts=allowed_hosts, allow_download=allow_download
         )
     for row in config["executables"]:
-        copy_atomic(imports[row["codec_id"]], root / row["path"], executable=True)
+        destination = root / row["path"]
+        copy_atomic(imports[row["codec_id"]], destination, executable=True)
+        print(
+            "prepared executable "
+            f"{row['codec_id']}: bytes={destination.stat().st_size} "
+            f"sha256={VERIFIER.sha256_file(destination)} "
+            f"expected_bytes={row['bytes']} expected_sha256={row['sha256']}"
+        )
     for row in config["runtime_assets"]:
         copy_atomic(assets[row["path"]], root / row["path"])
     VERIFIER.verify_tool_root(config, root, verify_receipt=False)
