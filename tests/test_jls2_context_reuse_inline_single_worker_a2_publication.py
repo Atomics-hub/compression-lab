@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -19,10 +20,10 @@ assert SPEC is not None and SPEC.loader is not None
 PUBLICATION = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(PUBLICATION)
 
-BASELINE_BINARY_SHA256 = "a" * 64
-CANDIDATE_BINARY_SHA256 = "b" * 64
-CANDIDATE_COMMIT = "c" * 40
-HOST_PLATFORM = "Linux-fixture-x86_64"
+BASELINE_BINARY_SHA256 = PUBLICATION.EXPECTED_BASELINE_BINARY_SHA256
+CANDIDATE_BINARY_SHA256 = PUBLICATION.EXPECTED_CANDIDATE_BINARY_SHA256
+CANDIDATE_COMMIT = PUBLICATION.EXPECTED_CANDIDATE_COMMIT
+HOST_PLATFORM = PUBLICATION.EXPECTED_HOST_PLATFORM
 RUN_ID = PUBLICATION.EXPECTED_WORKFLOW_RUN_ID
 
 
@@ -154,6 +155,36 @@ class JLS2InlineSingleWorkerA2PublicationTests(unittest.TestCase):
         self.addCleanup(self.temporary.cleanup)
         self.work = Path(self.temporary.name)
 
+    def test_clean_measured_run_bindings_are_frozen(self) -> None:
+        self.assertEqual(PUBLICATION.EXPECTED_WORKFLOW_RUN_ID, 29_676_674_924)
+        self.assertEqual(PUBLICATION.EXPECTED_WORKFLOW_JOB_ID, 88_165_232_780)
+        self.assertEqual(
+            PUBLICATION.EXPECTED_CANDIDATE_COMMIT,
+            "0f3377dff647e8a6d99b65d8f8a269687faa8ec6",
+        )
+        self.assertEqual(PUBLICATION.EXPECTED_ARTIFACT_ID, 8_439_147_016)
+        self.assertEqual(
+            PUBLICATION.EXPECTED_ARTIFACT_DIGEST,
+            "sha256:b6930b7b9739a2e8768733096ba534406e1b87afa49a40b950e79bb6d72ec83d",
+        )
+        self.assertEqual(
+            PUBLICATION.PROTOCOL_SHA256,
+            "68ea9f5a79df3cdd4a4e81bdff91f1483307f7409544a5d5d803a3e69e211401",
+        )
+
+    def test_cross_python_float_noise_is_tolerated_but_drift_is_not(self) -> None:
+        PUBLICATION.require_recomputed_equal(
+            {"aggregate_cv_percent": 0.35715928499289695},
+            {"aggregate_cv_percent": 0.3571592849928969},
+            "summary",
+        )
+        with self.assertRaisesRegex(ValueError, "frozen recomputation"):
+            PUBLICATION.require_recomputed_equal(
+                {"aggregate_cv_percent": 0.35715928499289695},
+                {"aggregate_cv_percent": 0.358},
+                "summary",
+            )
+
     def write_inputs(
         self, results: dict[str, object]
     ) -> tuple[Path, Path, Path]:
@@ -170,28 +201,39 @@ class JLS2InlineSingleWorkerA2PublicationTests(unittest.TestCase):
     ) -> tuple[Path, dict[str, object]]:
         results_path, provenance_path, log_path = self.write_inputs(results)
         output = self.work / "publication"
-        receipt = PUBLICATION.publish(
-            results_path=results_path,
-            provenance_path=provenance_path,
-            benchmark_log_path=log_path,
-            output=output,
-            candidate_commit=CANDIDATE_COMMIT,
-            baseline_binary_sha256=BASELINE_BINARY_SHA256,
-            candidate_binary_sha256=CANDIDATE_BINARY_SHA256,
-            host_platform=HOST_PLATFORM,
-            workflow_run_id=RUN_ID,
-            workflow_run_attempt=1,
-            workflow_run_url=(
-                "https://github.com/Atomics-hub/compression-lab/actions/runs/"
-                f"{RUN_ID}"
-            ),
-            workflow_run_conclusion=conclusion,
-            artifact_id=987654321,
-            artifact_name=(
-                f"jls2-context-reuse-inline-single-worker-a2-{RUN_ID}"
-            ),
-            artifact_digest=f"sha256:{'d' * 64}",
-        )
+        source_hashes = {
+            "results": PUBLICATION.sha256_file(results_path),
+            "provenance": PUBLICATION.sha256_file(provenance_path),
+            "benchmark_log": PUBLICATION.sha256_file(log_path),
+        }
+        with patch.object(
+            PUBLICATION, "EXPECTED_INPUT_SHA256", source_hashes
+        ), patch.object(PUBLICATION, "EXPECTED_WORKFLOW_CONCLUSION", conclusion):
+            receipt = PUBLICATION.publish(
+                results_path=results_path,
+                provenance_path=provenance_path,
+                benchmark_log_path=log_path,
+                output=output,
+                candidate_commit=CANDIDATE_COMMIT,
+                baseline_binary_sha256=BASELINE_BINARY_SHA256,
+                candidate_binary_sha256=CANDIDATE_BINARY_SHA256,
+                host_platform=HOST_PLATFORM,
+                workflow_run_id=RUN_ID,
+                workflow_run_attempt=PUBLICATION.EXPECTED_WORKFLOW_RUN_ATTEMPT,
+                workflow_run_url=(
+                    "https://github.com/Atomics-hub/compression-lab/actions/runs/"
+                    f"{RUN_ID}"
+                ),
+                workflow_job_id=PUBLICATION.EXPECTED_WORKFLOW_JOB_ID,
+                workflow_job_url=(
+                    "https://github.com/Atomics-hub/compression-lab/actions/runs/"
+                    f"{RUN_ID}/job/{PUBLICATION.EXPECTED_WORKFLOW_JOB_ID}"
+                ),
+                workflow_run_conclusion=conclusion,
+                artifact_id=PUBLICATION.EXPECTED_ARTIFACT_ID,
+                artifact_name=PUBLICATION.EXPECTED_ARTIFACT_NAME,
+                artifact_digest=PUBLICATION.EXPECTED_ARTIFACT_DIGEST,
+            )
         return output, receipt
 
     def test_publishes_strict_pass_bundle(self) -> None:
@@ -291,25 +333,18 @@ class JLS2InlineSingleWorkerA2PublicationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "unexpected fields"):
             self.publish(results, conclusion="success")
 
-        results = fixture_results()
-        paths = self.write_inputs(results)
         with self.assertRaisesRegex(ValueError, "frozen hosted A2 run"):
-            PUBLICATION.publish(
-                results_path=paths[0],
-                provenance_path=paths[1],
-                benchmark_log_path=paths[2],
-                output=self.work / "wrong-run",
-                candidate_commit=CANDIDATE_COMMIT,
-                baseline_binary_sha256=BASELINE_BINARY_SHA256,
-                candidate_binary_sha256=CANDIDATE_BINARY_SHA256,
-                host_platform=HOST_PLATFORM,
+            PUBLICATION.validate_metadata(
+                passed=False,
                 workflow_run_id=RUN_ID + 1,
-                workflow_run_attempt=1,
+                workflow_run_attempt=PUBLICATION.EXPECTED_WORKFLOW_RUN_ATTEMPT,
                 workflow_run_url="https://github.com/Atomics-hub/compression-lab/actions/runs/1",
-                workflow_run_conclusion="success",
-                artifact_id=1,
-                artifact_name="wrong",
-                artifact_digest=f"sha256:{'d' * 64}",
+                workflow_job_id=PUBLICATION.EXPECTED_WORKFLOW_JOB_ID,
+                workflow_job_url="https://github.com/Atomics-hub/compression-lab/actions/runs/1/job/1",
+                workflow_run_conclusion="failure",
+                artifact_id=PUBLICATION.EXPECTED_ARTIFACT_ID,
+                artifact_name=PUBLICATION.EXPECTED_ARTIFACT_NAME,
+                artifact_digest=PUBLICATION.EXPECTED_ARTIFACT_DIGEST,
             )
 
 

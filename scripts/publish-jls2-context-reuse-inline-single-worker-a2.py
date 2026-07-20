@@ -35,10 +35,33 @@ WORKFLOW = (
     / "workflows"
     / "jls2-context-reuse-inline-single-worker-a2.yml"
 )
-PROTOCOL_SHA256 = "36edb0dc43cac1dd5917063fffcc4c744c4f4df141646d6e0c3550a68ce5b60e"
+PROTOCOL_SHA256 = "68ea9f5a79df3cdd4a4e81bdff91f1483307f7409544a5d5d803a3e69e211401"
 WORKFLOW_SHA256 = "aa9c1cb696750a6fd546da7c5767f97fc1726d721b42eedefb298f3f83884f27"
 PUBLISHER_NAME = "jls2-context-reuse-inline-single-worker-a2-publication-v1"
-EXPECTED_WORKFLOW_RUN_ID = 29_676_577_151
+EXPECTED_WORKFLOW_RUN_ID = 29_676_674_924
+EXPECTED_WORKFLOW_JOB_ID = 88_165_232_780
+EXPECTED_WORKFLOW_RUN_ATTEMPT = 1
+EXPECTED_WORKFLOW_CONCLUSION = "failure"
+EXPECTED_CANDIDATE_COMMIT = "0f3377dff647e8a6d99b65d8f8a269687faa8ec6"
+EXPECTED_HOST_PLATFORM = "Linux-6.8.0-1062-azure-x86_64-with-glibc2.35"
+EXPECTED_BASELINE_BINARY_SHA256 = (
+    "31db3a25eb0d935f43dc2411ada64e811ddd53b967a87c6d4aab113f3424a7e9"
+)
+EXPECTED_CANDIDATE_BINARY_SHA256 = (
+    "c67e9c9b1902414c2b2e67991631d4cd065041242e6dd39392d673da2ca752fd"
+)
+EXPECTED_ARTIFACT_ID = 8_439_147_016
+EXPECTED_ARTIFACT_NAME = (
+    "jls2-context-reuse-inline-single-worker-a2-29676674924"
+)
+EXPECTED_ARTIFACT_DIGEST = (
+    "sha256:b6930b7b9739a2e8768733096ba534406e1b87afa49a40b950e79bb6d72ec83d"
+)
+EXPECTED_INPUT_SHA256 = {
+    "results": "5b7400c4c9b408f1bb1834cc42d4e46b294aabb733b1d5891ea2cc1547399af9",
+    "provenance": "98e7638953ca39e51788c6916e25db2a002f37b8ec4f8728c68092c1858b9226",
+    "benchmark_log": "73144934db42515f0e1505eba51e8c2779c5ef5616f29da5f0cac7d4c2f1e682",
+}
 PRE_A1_PRODUCT_BASELINE_COMMIT = "7b081f6f11c2561c36289cfc57f7d3715ab8c594"
 A1_CONTEXT = {
     "candidate_commit": "131547f35747cc0ff9dedbdef66d8a9516a7464f",
@@ -270,6 +293,33 @@ def validate_settings(settings: dict[str, Any]) -> None:
         raise ValueError("frozen A2 settings or support hashes drifted")
 
 
+def require_recomputed_equal(expected: Any, observed: Any, path: str) -> None:
+    if isinstance(expected, dict):
+        if not isinstance(observed, dict) or set(observed) != set(expected):
+            raise ValueError(f"{path} object shape differs from frozen recomputation")
+        for key, value in expected.items():
+            require_recomputed_equal(value, observed[key], f"{path}.{key}")
+        return
+    if isinstance(expected, list):
+        if not isinstance(observed, list) or len(observed) != len(expected):
+            raise ValueError(f"{path} array shape differs from frozen recomputation")
+        for index, (expected_item, observed_item) in enumerate(
+            zip(expected, observed)
+        ):
+            require_recomputed_equal(
+                expected_item, observed_item, f"{path}[{index}]"
+            )
+        return
+    if type(observed) is not type(expected):
+        raise ValueError(f"{path} type differs from frozen recomputation")
+    if isinstance(expected, float):
+        if not math.isclose(expected, observed, rel_tol=1e-15, abs_tol=1e-15):
+            raise ValueError(f"{path} differs from frozen recomputation")
+        return
+    if observed != expected:
+        raise ValueError(f"{path} differs from frozen recomputation")
+
+
 def validate_results(
     results: dict[str, Any],
     *,
@@ -311,12 +361,14 @@ def validate_results(
     candidate = COMMON.require_mapping(results["candidate"], "candidate")
     COMMON.require_keys(candidate, {"commit", "dirty"}, "candidate")
     COMMON.require_git_commit(candidate_commit, "candidate commit")
-    if candidate_commit == A2.BASELINE_COMMIT:
-        raise ValueError("A2 candidate commit must differ from exact A1")
+    if candidate_commit != EXPECTED_CANDIDATE_COMMIT:
+        raise ValueError("candidate commit is not the clean measured A2 head")
     if candidate != {"commit": candidate_commit, "dirty": False}:
         raise ValueError("supplied candidate commit does not match a clean raw A2 result")
     host = COMMON.require_mapping(results["host"], "host")
     validate_host(host, host_platform)
+    if host_platform != EXPECTED_HOST_PLATFORM:
+        raise ValueError("host platform is not the clean measured A2 host")
     binaries = COMMON.require_mapping(results["binaries"], "binaries")
     if set(binaries) != set(A2.VARIANTS):
         raise ValueError("A2 binary roster drifted")
@@ -328,8 +380,11 @@ def validate_results(
             candidate_binary_sha256, "A2 binary SHA-256"
         ),
     }
-    if supplied_hashes["baseline"] == supplied_hashes["candidate"]:
-        raise ValueError("A1 and A2 binaries must have distinct SHA-256 digests")
+    if supplied_hashes != {
+        "baseline": EXPECTED_BASELINE_BINARY_SHA256,
+        "candidate": EXPECTED_CANDIDATE_BINARY_SHA256,
+    }:
+        raise ValueError("binary digests are not the clean measured A1/A2 pair")
     for variant, expected_hash in supplied_hashes.items():
         binary = COMMON.require_mapping(binaries[variant], f"{variant} binary")
         COMMON.require_keys(binary, {"path", "sha256"}, f"{variant} binary")
@@ -360,8 +415,8 @@ def validate_results(
     }
     if set(recomputed["gates"]) != expected_gates:
         raise ValueError("frozen A2 gate roster drifted")
-    if COMMON.require_mapping(results["summary"], "summary") != recomputed:
-        raise ValueError("stored A2 summary does not match frozen recomputation")
+    stored_summary = COMMON.require_mapping(results["summary"], "summary")
+    require_recomputed_equal(recomputed, stored_summary, "summary")
     return recomputed, identities
 
 
@@ -375,6 +430,8 @@ def validate_metadata(
     workflow_run_id: int,
     workflow_run_attempt: int,
     workflow_run_url: str,
+    workflow_job_id: int,
+    workflow_job_url: str,
     workflow_run_conclusion: str,
     artifact_id: int,
     artifact_name: str,
@@ -382,22 +439,41 @@ def validate_metadata(
 ) -> None:
     if COMMON.require_int(workflow_run_id, "workflow run ID", minimum=1) != EXPECTED_WORKFLOW_RUN_ID:
         raise ValueError("workflow run ID is not the frozen hosted A2 run")
-    COMMON.require_int(workflow_run_attempt, "workflow run attempt", minimum=1)
-    COMMON.require_int(artifact_id, "artifact ID", minimum=1)
+    if (
+        COMMON.require_int(workflow_run_attempt, "workflow run attempt", minimum=1)
+        != EXPECTED_WORKFLOW_RUN_ATTEMPT
+    ):
+        raise ValueError("workflow attempt is not the clean measured A2 attempt")
+    if (
+        COMMON.require_int(workflow_job_id, "workflow job ID", minimum=1)
+        != EXPECTED_WORKFLOW_JOB_ID
+    ):
+        raise ValueError("workflow job ID is not the clean measured A2 job")
+    if COMMON.require_int(artifact_id, "artifact ID", minimum=1) != EXPECTED_ARTIFACT_ID:
+        raise ValueError("artifact ID is not the clean measured A2 artifact")
     COMMON.require_string(workflow_run_url, "workflow run URL")
+    COMMON.require_string(workflow_job_url, "workflow job URL")
     COMMON.require_string(workflow_run_conclusion, "workflow conclusion")
     COMMON.require_string(artifact_name, "artifact name")
     COMMON.require_string(artifact_digest, "artifact digest")
     expected_url = f"https://github.com/Atomics-hub/compression-lab/actions/runs/{workflow_run_id}"
     if workflow_run_url != expected_url:
         raise ValueError("workflow URL does not match the frozen hosted A2 run")
+    expected_job_url = f"{expected_url}/job/{workflow_job_id}"
+    if workflow_job_url != expected_job_url:
+        raise ValueError("workflow job URL does not match the clean measured A2 job")
     expected_conclusion = "success" if passed else "failure"
-    if workflow_run_conclusion != expected_conclusion:
+    if (
+        workflow_run_conclusion != expected_conclusion
+        or workflow_run_conclusion != EXPECTED_WORKFLOW_CONCLUSION
+    ):
         raise ValueError(f"workflow conclusion must be {expected_conclusion} for this A2 decision")
-    if artifact_name != f"jls2-context-reuse-inline-single-worker-a2-{workflow_run_id}":
+    if artifact_name != EXPECTED_ARTIFACT_NAME:
         raise ValueError("artifact name does not match the frozen A2 workflow")
     if ARTIFACT_DIGEST_PATTERN.fullmatch(artifact_digest) is None:
         raise ValueError("artifact digest must be a lowercase sha256: digest")
+    if artifact_digest != EXPECTED_ARTIFACT_DIGEST:
+        raise ValueError("artifact digest is not the clean measured A2 artifact")
 
 
 def comparison_payload(
@@ -539,6 +615,7 @@ def render_readme(comparison: dict[str, Any]) -> str:
             f"- A2 candidate: `{comparison['candidate_commit']}`",
             f"- Host: `{comparison['host']['platform']}`; Python `{comparison['host']['python']}`; `{comparison['host']['rustc']}`",
             f"- Workflow: [run {workflow['run_id']}, attempt {workflow['attempt']}]({workflow['url']}) (`{workflow['conclusion']}`)",
+            f"- Measurement job: [job {workflow['job_id']}]({workflow['job_url']})",
             f"- Uploaded artifact: ID `{artifact['id']}`, `{artifact['name']}`, `{artifact['digest']}`",
             "- Schedule: 8 discarded warmups + 56 measured trials = 64 exact decodes",
             "",
@@ -627,6 +704,28 @@ def render_svg(comparison: dict[str, Any]) -> str:
     return "\n".join(output) + "\n"
 
 
+def validate_source_files(
+    results_path: Path,
+    provenance_path: Path,
+    benchmark_log_path: Path,
+) -> dict[str, str]:
+    paths = {
+        "results": (results_path, "raw A2 results"),
+        "provenance": (provenance_path, "A2 provenance"),
+        "benchmark_log": (benchmark_log_path, "A2 benchmark log"),
+    }
+    observed = {}
+    for name, (path, label) in paths.items():
+        if not path.is_file() or path.is_symlink():
+            raise ValueError(f"{label} must be a regular non-symlink file")
+        if path.stat().st_size == 0:
+            raise ValueError(f"{label} must be nonempty")
+        observed[name] = sha256_file(path)
+    if observed != EXPECTED_INPUT_SHA256:
+        raise ValueError("local files do not match the clean measured A2 artifact")
+    return observed
+
+
 def publish(
     *,
     results_path: Path,
@@ -640,20 +739,16 @@ def publish(
     workflow_run_id: int,
     workflow_run_attempt: int,
     workflow_run_url: str,
+    workflow_job_id: int,
+    workflow_job_url: str,
     workflow_run_conclusion: str,
     artifact_id: int,
     artifact_name: str,
     artifact_digest: str,
 ) -> dict[str, Any]:
-    for path, label in (
-        (results_path, "raw A2 results"),
-        (provenance_path, "A2 provenance"),
-        (benchmark_log_path, "A2 benchmark log"),
-    ):
-        if not path.is_file() or path.is_symlink():
-            raise ValueError(f"{label} must be a regular non-symlink file")
-        if path.stat().st_size == 0:
-            raise ValueError(f"{label} must be nonempty")
+    source_hashes = validate_source_files(
+        results_path, provenance_path, benchmark_log_path
+    )
     if output.exists():
         raise ValueError("refusing to replace an existing A2 publication")
     COMMON.validate_ratio_context()
@@ -670,6 +765,8 @@ def publish(
         workflow_run_id=workflow_run_id,
         workflow_run_attempt=workflow_run_attempt,
         workflow_run_url=workflow_run_url,
+        workflow_job_id=workflow_job_id,
+        workflow_job_url=workflow_job_url,
         workflow_run_conclusion=workflow_run_conclusion,
         artifact_id=artifact_id,
         artifact_name=artifact_name,
@@ -679,6 +776,8 @@ def publish(
         "run_id": workflow_run_id,
         "attempt": workflow_run_attempt,
         "url": workflow_run_url,
+        "job_id": workflow_job_id,
+        "job_url": workflow_job_url,
         "conclusion": workflow_run_conclusion,
     }
     artifact = {"id": artifact_id, "name": artifact_name, "digest": artifact_digest}
@@ -721,9 +820,9 @@ def publish(
             "workflow_run": workflow,
             "uploaded_artifact": artifact,
             "source_inputs": {
-                "results_sha256": COMMON.sha256_file(results_path),
-                "provenance_sha256": COMMON.sha256_file(provenance_path),
-                "benchmark_log_sha256": COMMON.sha256_file(benchmark_log_path),
+                "results_sha256": source_hashes["results"],
+                "provenance_sha256": source_hashes["provenance"],
+                "benchmark_log_sha256": source_hashes["benchmark_log"],
                 "ratio_evidence_sha256": COMMON.EXPECTED_RATIO_EVIDENCE_SHA256,
             },
             "verification": {
@@ -784,6 +883,8 @@ def main() -> int:
     parser.add_argument("--workflow-run-id", type=int, required=True)
     parser.add_argument("--workflow-run-attempt", type=int, required=True)
     parser.add_argument("--workflow-run-url", required=True)
+    parser.add_argument("--workflow-job-id", type=int, required=True)
+    parser.add_argument("--workflow-job-url", required=True)
     parser.add_argument(
         "--workflow-run-conclusion", choices=("success", "failure"), required=True
     )
@@ -803,6 +904,8 @@ def main() -> int:
         workflow_run_id=args.workflow_run_id,
         workflow_run_attempt=args.workflow_run_attempt,
         workflow_run_url=args.workflow_run_url,
+        workflow_job_id=args.workflow_job_id,
+        workflow_job_url=args.workflow_job_url,
         workflow_run_conclusion=args.workflow_run_conclusion,
         artifact_id=args.artifact_id,
         artifact_name=args.artifact_name,
