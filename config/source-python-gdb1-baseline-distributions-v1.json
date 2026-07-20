@@ -9,13 +9,13 @@
     {
       "id": "kanzi-max",
       "linux_distribution": null,
-      "reference_e1_macos_executable_sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+      "reference_e1_macos_executable_sha256": "1518708ef729b2520ac706997721eb90c024266d72e97cc3a1db25a3a1afcbdd",
       "status": "pending_exact_linux_distribution"
     },
     {
       "id": "xz-lzma2-9e",
       "linux_distribution": null,
-      "reference_e1_macos_executable_sha256": "995c8e2f72446f0d0e3a29f6c3d52286cfecedfc4ffb2b42d25c3ce1ad77034c",
+      "reference_e1_macos_executable_sha256": "16b9994cca884ed2a66ba63736f1450049cbc6fd1d93076c51e5f0e7f7a71381",
       "status": "pending_exact_linux_distribution"
     },
     {
@@ -33,7 +33,7 @@
       },
       "id": "zstd-22-trained-dictionary",
       "linux_distribution": null,
-      "reference_e1_macos_executable_sha256": "aff8169fb421bb925fb16c44a7e0143fa2c7a941dc45cce76b15062a2ce54917",
+      "reference_e1_macos_executable_sha256": "9b5676aae3cb048cf68e2b40c543d9523db3b4cb911b31861bd5f4fcb050c4b6",
       "status": "pending_exact_linux_distribution_and_corpus_derived_dictionary"
     },
     {
@@ -103,7 +103,7 @@
     }
   ],
   "bindings": {
-    "e1_toolchain_sha256": "eaa6902048f65d27975ef0c81f3835a52e52bf20127f6c7f1aa5fad4b51381ba",
+    "e1_toolchain_sha256": "0ff3d076b49e7d601490f589080a045c4247cb2ca9c62bc1b3d97944cf29e95c",
     "protocol_sha256": "59f635f56738d6c908828735646dd463bffbdf44f1801064cf6317ca8a4b3954",
     "runtime_distribution_sha256": "c1c3e9ff49603433a72463626bbeccc394c95def1873359fc7ec6341a65c024e"
   },

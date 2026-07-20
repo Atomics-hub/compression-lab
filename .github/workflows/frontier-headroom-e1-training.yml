@@ -40,16 +40,30 @@ jobs:
           set -euo pipefail
           tools="$RUNNER_TEMP/e1-build"
           mkdir -p "$tools/kanzi-build"
+          brew install cmake zstd xz lz4
+          test "$(brew --prefix cmake)" = /opt/homebrew/opt/cmake
+          test "$(brew --prefix zstd)" = /opt/homebrew/opt/zstd
+          test "$(brew --prefix xz)" = /opt/homebrew/opt/xz
+          test "$(brew --prefix lz4)" = /opt/homebrew/opt/lz4
+          for build_tool in "$(brew --prefix cmake)/bin/cmake" /usr/bin/make /usr/bin/c++ /usr/bin/cc; do
+            test -f "$build_tool"
+            tool_bytes="$(stat -f '%z' "$build_tool")"
+            tool_sha256="$(shasum -a 256 "$build_tool" | awk '{print $1}')"
+            tool_version="$($build_tool --version | head -n 1)"
+            echo "hosted build tool $build_tool: bytes=$tool_bytes sha256=$tool_sha256 version=$tool_version"
+          done
           python scripts/prepare-frontier-headroom-e1-toolchain.py \
             --root "$RUNNER_TEMP/e1-tool-root" --allow-download --sources-only
           python scripts/safe-extract-frontier-headroom-e1-source.py \
             --archive "$RUNNER_TEMP/e1-tool-root/cache/kanzi-6eea1658897019ab3107df2806d5e534ef0798df.tar.gz" \
             --output "$tools/kanzi-src" --strip-components 1
-          cmake -S "$tools/kanzi-src" -B "$tools/kanzi-build" \
+          /opt/homebrew/Cellar/cmake/4.4.0/bin/cmake \
+            -S "$tools/kanzi-src" -B "$tools/kanzi-build" \
             -DCMAKE_BUILD_TYPE=Release \
             -DKANZI_ENABLE_NATIVE_OPTIMIZATIONS=ON \
             -DCMAKE_CXX_COMPILER=/usr/bin/c++
-          cmake --build "$tools/kanzi-build" --config Release \
+          /opt/homebrew/Cellar/cmake/4.4.0/bin/cmake \
+            --build "$tools/kanzi-build" --config Release \
             --target kanzi_static --parallel 10
 
           python scripts/safe-extract-frontier-headroom-e1-source.py \
@@ -63,11 +77,6 @@ jobs:
               '-D__DATE__="Jul 18 2026"' -o libzpaq.o -c libzpaq.cpp
             /usr/bin/c++ -o zpaq zpaq.o libzpaq.o -pthread
           )
-
-          brew install zstd xz lz4
-          test "$(brew --prefix zstd)" = /opt/homebrew/opt/zstd
-          test "$(brew --prefix xz)" = /opt/homebrew/opt/xz
-          test "$(brew --prefix lz4)" = /opt/homebrew/opt/lz4
 
           python scripts/prepare-frontier-headroom-e1-toolchain.py \
             --root "$RUNNER_TEMP/e1-tool-root" --allow-download \

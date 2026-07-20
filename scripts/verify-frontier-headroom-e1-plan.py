@@ -51,9 +51,9 @@ EXPECTED_ITEM_CATEGORIES = {
     "uci-multiple-features-pixels": "numeric_matrices_timeseries",
 }
 EXPECTED_BINARY_SHA256 = {
-    "kanzi-max": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
-    "zstd-19-long": "aff8169fb421bb925fb16c44a7e0143fa2c7a941dc45cce76b15062a2ce54917",
-    "xz-lzma2-9e": "995c8e2f72446f0d0e3a29f6c3d52286cfecedfc4ffb2b42d25c3ce1ad77034c",
+    "kanzi-max": "1518708ef729b2520ac706997721eb90c024266d72e97cc3a1db25a3a1afcbdd",
+    "zstd-19-long": "9b5676aae3cb048cf68e2b40c543d9523db3b4cb911b31861bd5f4fcb050c4b6",
+    "xz-lzma2-9e": "16b9994cca884ed2a66ba63736f1450049cbc6fd1d93076c51e5f0e7f7a71381",
     "zpaq-5-m510": "c54e06fca84580951509656c8b938b594727014acd3fddabcff787d021d032e8",
 }
 EXPECTED_COMMANDS = {

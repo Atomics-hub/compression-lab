@@ -142,6 +142,13 @@ def verify_build_toolchain(config: dict[str, Any]) -> list[dict[str, Any]]:
     records = []
     for row in config["build_toolchain"]:
         path = Path(row["path"])
+        if path.is_file():
+            print(
+                "prepared build tool "
+                f"{row['id']}: path={path} bytes={path.stat().st_size} "
+                f"sha256={VERIFIER.sha256_file(path)} "
+                f"expected_bytes={row['bytes']} expected_sha256={row['sha256']}"
+            )
         VERIFIER.verify_file(path, row["bytes"], row["sha256"], executable=True)
         completed = subprocess.run(
             [str(path), "--version"],
@@ -213,9 +220,23 @@ def prepare(
             row, root, allowed_hosts=allowed_hosts, allow_download=allow_download
         )
     for row in config["executables"]:
-        copy_atomic(imports[row["codec_id"]], root / row["path"], executable=True)
+        destination = root / row["path"]
+        copy_atomic(imports[row["codec_id"]], destination, executable=True)
+        print(
+            "prepared executable "
+            f"{row['codec_id']}: bytes={destination.stat().st_size} "
+            f"sha256={VERIFIER.sha256_file(destination)} "
+            f"expected_bytes={row['bytes']} expected_sha256={row['sha256']}"
+        )
     for row in config["runtime_assets"]:
-        copy_atomic(assets[row["path"]], root / row["path"])
+        destination = root / row["path"]
+        copy_atomic(assets[row["path"]], destination)
+        print(
+            "prepared runtime asset "
+            f"{row['path']}: bytes={destination.stat().st_size} "
+            f"sha256={VERIFIER.sha256_file(destination)} "
+            f"expected_bytes={row['bytes']} expected_sha256={row['sha256']}"
+        )
     VERIFIER.verify_tool_root(config, root, verify_receipt=False)
     toolchain = verify_build_toolchain(config)
     host = host_record(config)

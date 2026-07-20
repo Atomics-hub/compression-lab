@@ -36,12 +36,18 @@ pretending an ordinary date-dependent rebuild is reproducible.
 
 The zstd 1.5.7 and XZ Utils 5.8.3 source releases are independently retained,
 hashed, licensed, and paired with exact upstream reference build commands.
-The frozen E1 executables, however, are the already-measured macOS arm64
-distribution builds and their hashes must not be silently replaced by a new
-source build. A reference rebuild is admissible only if it reproduces the
+The frozen E1 executables are the macOS arm64 hosted builds reproduced with
+identical byte counts and SHA-256 values in preflight runs `29773961392` and
+`29774099968`. A reference rebuild is admissible only if it reproduces the
 frozen executable SHA-256; otherwise changing to it requires a separately
 audited successor census. This distinction avoids a false source-to-binary
 reproducibility claim.
+
+The macOS 26 build-tool boundary was independently repeated in hosted runs
+`29775201136` and `29775315737`. Both exposed byte-for-byte identical CMake
+4.4.0, GNU Make 3.81, and Apple clang 21.0.0 paths, sizes, SHA-256 values, and
+version lines. The workflow invokes CMake through its exact Cellar path; every
+build tool is still reverified by the receipt generator before promotion.
 
 Because those two distribution executables are dynamically linked, E1 also
 binds the exact non-system `libzstd`, `liblzma`, and `liblz4` bytes under the
@@ -92,7 +98,8 @@ round trips, then emits complete-byte controls and oracle summaries with
 SHA-256 accounting. Segment results include an actual one-segment AXE1G
 fallback under identical framing; payload-only wins are inadmissible.
 
-The workflow is dispatch-ready but has not been dispatched by this change.
+The workflow has completed hosted identity preflights but no corpus-bearing
+measurement. It remains dispatch-ready for the training-only census.
 Successful training measurements remain development evidence only and cannot
 raise the frozen E1 claim ceiling to validation, holdout, Axiom-win, or
 state-of-the-art evidence.
