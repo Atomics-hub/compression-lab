@@ -139,6 +139,13 @@ def validate_diagnostic_report(
         raise ValueError("diagnostic encoded SHA-256 mismatch")
     if report.get("output_bytes") != expected["source_bytes"]:
         raise ValueError("diagnostic output byte count mismatch")
+    if (
+        not isinstance(report.get("output_sha256"), str)
+        or len(report["output_sha256"]) != 64
+    ):
+        raise ValueError("diagnostic output SHA-256 is missing")
+    if report.get("encoded_capacity_bytes", 0) < report["encoded_bytes"]:
+        raise ValueError("diagnostic encoded capacity is invalid")
     if report.get("segment_count") != expected["segments"]:
         raise ValueError("diagnostic segment count mismatch")
     if not report.get("exact"):
@@ -193,6 +200,12 @@ def validate_diagnostic_report(
         raise ValueError("credited attribution does not use the frozen minimum")
     if attribution.get("encoded_lifetime_authorization_credit_bytes") != 0:
         raise ValueError("encoded lifetime received prohibited authorization credit")
+    if report.get("corruption_results") != {
+        "product_regression_suite": (
+            "verified separately by frozen workflow before corpus access"
+        )
+    }:
+        raise ValueError("frozen corruption regression evidence is missing")
 
 
 def frozen_host() -> dict[str, Any]:

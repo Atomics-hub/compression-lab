@@ -61,6 +61,7 @@ def valid_report(module) -> dict[str, object]:
         "schema_version": 1,
         "fixture_id": "jls2-context-stress-256",
         "encoded_bytes": expected["encoded_bytes"],
+        "encoded_capacity_bytes": expected["encoded_bytes"],
         "encoded_sha256": expected["encoded_sha256"],
         "output_bytes": expected["source_bytes"],
         "output_sha256": "0" * 64,
@@ -76,6 +77,11 @@ def valid_report(module) -> dict[str, object]:
             "live_encoded_bytes_report_only": expected["encoded_bytes"],
             "encoded_lifetime_authorization_credit_bytes": 0,
             "unclassified_resident_bytes": 1,
+        },
+        "corruption_results": {
+            "product_regression_suite": (
+                "verified separately by frozen workflow before corpus access"
+            )
         },
     }
 
