@@ -9,7 +9,8 @@ justify a compound decoder candidate.
 
 The retained product remains the pre-A1 commit
 `7b081f6f11c2561c36289cfc57f7d3715ab8c594`. A1 context reuse and A2 inline
-single-worker dispatch did not replace it. For isolated A3 attribution, the
+single-worker dispatch did not replace it. Neither experimental change replaces
+the pre-A1 product. For isolated A3 attribution, the
 paired baseline is the exact clean A2 commit
 `0f3377dff647e8a6d99b65d8f8a269687faa8ec6`; therefore any passing A3
 treatment is explicitly the compound A1+A2+A3 candidate, not an A3-only
@@ -74,10 +75,12 @@ The attribution report must separate:
 - unclassified resident memory (libraries, stacks, page cache, and accounting
   differences).
 
-The report may not label an upper bound as observed allocation. The kill gate
-uses the smaller of (a) declared live occupancy removed by the proposed batch
-plan and (b) the RSS/allocator reduction observed after the corresponding
-buffers drop or are trimmed. Unclassified memory is not credited.
+The report may not label an upper bound as observed allocation. Credited A3
+attribution is limited to the smaller of (a) the RSS reduction observed at the
+corresponding phase and (b) declared decoded/encoded occupancy removed plus
+phase-correlated Zstandard or allocator bytes released by that same lifetime
+change. Unclassified memory and allocator changes without phase correlation
+are not credited.
 
 ## Frozen audit inputs
 
@@ -111,7 +114,7 @@ If it clears, the candidate is frozen as follows:
 - parse and validate every declared size, frame boundary, and digest with the
   existing bounds before trusting it for scheduling;
 - preserve segment order and form consecutive batches whose summed declared
-  live working bytes do not exceed a frozen **128 MiB** budget; an individual
+  live working bytes do not exceed a frozen **32 MiB** budget; an individual
   segment above the budget runs alone;
 - release decoded raw streams, reassembly buffers, completed segment outputs,
   and no-longer-needed encoded segment storage at the earliest verified phase;
