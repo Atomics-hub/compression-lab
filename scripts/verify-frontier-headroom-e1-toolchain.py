@@ -155,7 +155,32 @@ EXPECTED_SOURCE_METADATA = {
         "license_spdx": "LicenseRef-Public-Domain AND MIT",
         "license_member": "readme.txt",
         "build_status": "exact E1 binary reproduced by this locked build on the locked toolchain",
-        "build_commands": [["$MAKE", "zpaq", "CXX=$CXX", "CXXFLAGS=-O3"]],
+        "build_commands": [
+            [
+                "$CXX",
+                "-Dunix",
+                "-O3",
+                "-Wno-builtin-macro-redefined",
+                '-D__DATE__="Jul 18 2026"',
+                "-o",
+                "zpaq.o",
+                "-c",
+                "zpaq.cpp",
+                "-pthread",
+            ],
+            [
+                "$CXX",
+                "-Dunix",
+                "-O3",
+                "-Wno-builtin-macro-redefined",
+                '-D__DATE__="Jul 18 2026"',
+                "-o",
+                "libzpaq.o",
+                "-c",
+                "libzpaq.cpp",
+            ],
+            ["$CXX", "-o", "zpaq", "zpaq.o", "libzpaq.o", "-pthread"],
+        ],
         "built_relative_path": "zpaq",
     },
 }
@@ -386,7 +411,7 @@ def validate_declaration(config: dict[str, Any]) -> dict[str, Any]:
     if (
         platform_lock.get("system") != "Darwin"
         or platform_lock.get("machine") != "arm64"
-        or platform_lock.get("minimum_memory_bytes") != 19327352832
+        or platform_lock.get("minimum_memory_bytes") != 7516192768
         or platform_lock.get("required_python_features")
         != ["os.wait4", "os.killpg", "os.setsid"]
         or platform_lock.get("measurement_process_policy") != EXPECTED_PROCESS_POLICY
@@ -484,7 +509,7 @@ def validate_declaration(config: dict[str, Any]) -> dict[str, Any]:
     declared_plan = config["execution_plan"]
     if declared_plan != {
         "whole_item_task_count": 68,
-        "sample_task_count": 17,
+        "sample_task_count": 68,
         "conditional_segment_template_count": 68,
         "task_status": "locked_not_executed",
         "corpus_accessed": False,
@@ -574,10 +599,8 @@ def validate_plan(
         raise ValueError("E1 execution-plan binding differs")
     if plan["tool_receipt_sha256"] != sha256_file(receipt_path):
         raise ValueError("E1 execution-plan tool receipt differs")
-    tool_root = receipt_path.parent.resolve()
     executable_paths = {
-        row["codec_id"]: str((tool_root / row["path"]).resolve())
-        for row in config["executables"]
+        row["codec_id"]: f"$TOOL_ROOT/{row['path']}" for row in config["executables"]
     }
     replacements = {
         "$KANZI": executable_paths["kanzi-max"],
@@ -634,34 +657,31 @@ def validate_plan(
                     "corpus_accessed": False,
                 }
             )
-    ceiling = next(
-        row
-        for row in e1["codecs"]
-        if row["id"] == e1["sample_ceiling"]["selected_profile"]
-    )
     expected_samples = []
-    for item in e1["items"]:
-        ranges = e1_sample_ranges(item["bytes"])
-        expected_samples.append(
-            {
-                "task_id": f"sample/{ceiling['id']}/{item['id']}",
-                "phase": "stratified_sample_ceiling",
-                "codec_id": ceiling["id"],
-                "item_id": item["id"],
-                "category": item["category"],
-                "source_manifest": item["source"],
-                "source_bytes": item["bytes"],
-                "source_sha256": item["sha256"],
-                "ranges": [
-                    {"offset": offset, "length": length} for offset, length in ranges
-                ],
-                "axe1s_layout": e1["sample_ceiling"]["binary_layout"],
-                "compress": command(ceiling["compress"]),
-                "decompress": command(ceiling["decompress"]),
-                "status": "locked_not_executed",
-                "corpus_accessed": False,
-            }
-        )
+    for codec in e1["codecs"]:
+        for item in e1["items"]:
+            ranges = e1_sample_ranges(item["bytes"])
+            expected_samples.append(
+                {
+                    "task_id": f"sample/{codec['id']}/{item['id']}",
+                    "phase": "stratified_sample_ceiling",
+                    "codec_id": codec["id"],
+                    "item_id": item["id"],
+                    "category": item["category"],
+                    "source_manifest": item["source"],
+                    "source_bytes": item["bytes"],
+                    "source_sha256": item["sha256"],
+                    "ranges": [
+                        {"offset": offset, "length": length}
+                        for offset, length in ranges
+                    ],
+                    "axe1s_layout": e1["sample_ceiling"]["binary_layout"],
+                    "compress": command(codec["compress"]),
+                    "decompress": command(codec["decompress"]),
+                    "status": "locked_not_executed",
+                    "corpus_accessed": False,
+                }
+            )
     if plan["whole_item_tasks"] != expected_whole:
         raise ValueError("E1 whole-item execution matrix differs")
     if plan["sample_tasks"] != expected_samples:

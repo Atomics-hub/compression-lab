@@ -21,7 +21,7 @@
   "platform_lock": {
     "system": "Darwin",
     "machine": "arm64",
-    "minimum_memory_bytes": 19327352832,
+    "minimum_memory_bytes": 7516192768,
     "required_python_features": ["os.wait4", "os.killpg", "os.setsid"],
     "measurement_process_policy": {
       "jobs": 1,
@@ -110,7 +110,9 @@
       "license_member": "readme.txt",
       "build_status": "exact E1 binary reproduced by this locked build on the locked toolchain",
       "build_commands": [
-        ["$MAKE", "zpaq", "CXX=$CXX", "CXXFLAGS=-O3"]
+        ["$CXX", "-Dunix", "-O3", "-Wno-builtin-macro-redefined", "-D__DATE__=\"Jul 18 2026\"", "-o", "zpaq.o", "-c", "zpaq.cpp", "-pthread"],
+        ["$CXX", "-Dunix", "-O3", "-Wno-builtin-macro-redefined", "-D__DATE__=\"Jul 18 2026\"", "-o", "libzpaq.o", "-c", "libzpaq.cpp"],
+        ["$CXX", "-o", "zpaq", "zpaq.o", "libzpaq.o", "-pthread"]
       ],
       "built_relative_path": "zpaq"
     }
@@ -133,7 +135,7 @@
   },
   "execution_plan": {
     "whole_item_task_count": 68,
-    "sample_task_count": 17,
+    "sample_task_count": 68,
     "conditional_segment_template_count": 68,
     "task_status": "locked_not_executed",
     "corpus_accessed": false,

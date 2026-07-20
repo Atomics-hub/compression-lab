@@ -124,7 +124,7 @@ class FrontierHeadroomE1ToolchainTests(unittest.TestCase):
             )
             VERIFIER.validate_plan(plan, self.config, receipt)
             self.assertEqual(len(plan["whole_item_tasks"]), 68)
-            self.assertEqual(len(plan["sample_tasks"]), 17)
+            self.assertEqual(len(plan["sample_tasks"]), 68)
             self.assertEqual(len(plan["conditional_segment_templates"]), 68)
             self.assertFalse(plan["corpus_accessed"])
             self.assertFalse(plan["measurements_exist"])

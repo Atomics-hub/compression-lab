@@ -266,11 +266,28 @@ def prepare(
     return receipt_path
 
 
+def acquire_sources(config_path: Path, root: Path, *, allow_download: bool) -> None:
+    """Acquire only frozen source archives; this cannot seal or admit a tool root."""
+    config = json.loads(config_path.read_bytes())
+    VERIFIER.validate_declaration(config)
+    if root.is_symlink() or (root.exists() and not root.is_dir()):
+        raise ValueError("tool root is not an ordinary directory")
+    root.mkdir(parents=True, exist_ok=True)
+    if any(path.is_file() for path in root.rglob("*") if "cache" not in path.parts):
+        raise ValueError("source-only root already contains non-cache files")
+    allowed_hosts = set(config["security_boundary"]["allowed_hosts"])
+    for row in config["sources"]:
+        acquire_source(
+            row, root, allowed_hosts=allowed_hosts, allow_download=allow_download
+        )
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     parser.add_argument("--root", type=Path, default=DEFAULT_ROOT)
     parser.add_argument("--allow-download", action="store_true")
+    parser.add_argument("--sources-only", action="store_true")
     parser.add_argument("--kanzi", type=Path, default=DEFAULT_IMPORTS["kanzi-max"])
     parser.add_argument("--zstd", type=Path, default=DEFAULT_IMPORTS["zstd-19-long"])
     parser.add_argument("--xz", type=Path, default=DEFAULT_IMPORTS["xz-lzma2-9e"])
@@ -297,13 +314,17 @@ def main() -> int:
         "lib/liblz4.1.dylib": args.liblz4,
     }
     try:
-        receipt = prepare(
-            args.config,
-            args.root,
-            imports=imports,
-            assets=assets,
-            allow_download=args.allow_download,
-        )
+        if args.sources_only:
+            acquire_sources(args.config, args.root, allow_download=args.allow_download)
+            receipt = args.root / "cache"
+        else:
+            receipt = prepare(
+                args.config,
+                args.root,
+                imports=imports,
+                assets=assets,
+                allow_download=args.allow_download,
+            )
     except (
         KeyError,
         OSError,

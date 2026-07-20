@@ -62,8 +62,7 @@ def build_plan(
     repository_commit: str,
 ) -> dict[str, Any]:
     executables = {
-        row["codec_id"]: str((tool_root / row["path"]).resolve())
-        for row in config["executables"]
+        row["codec_id"]: f"$TOOL_ROOT/{row['path']}" for row in config["executables"]
     }
     variables = {
         "$KANZI": executables["kanzi-max"],
@@ -109,34 +108,30 @@ def build_plan(
                     "corpus_accessed": False,
                 }
             )
-    ceiling = next(
-        row
-        for row in e1["codecs"]
-        if row["id"] == e1["sample_ceiling"]["selected_profile"]
-    )
-    for item in e1["items"]:
-        samples.append(
-            {
-                "task_id": f"sample/{ceiling['id']}/{item['id']}",
-                "phase": "stratified_sample_ceiling",
-                "codec_id": ceiling["id"],
-                "item_id": item["id"],
-                "category": item["category"],
-                "source_manifest": item["source"],
-                "source_bytes": item["bytes"],
-                "source_sha256": item["sha256"],
-                "ranges": [
-                    {"offset": offset, "length": length}
-                    for offset, length in E1_VERIFIER.sample_ranges(item["bytes"])
-                ],
-                "axe1s_layout": e1["sample_ceiling"]["binary_layout"],
-                "compress": substitute(ceiling["compress"], variables),
-                "decompress": substitute(ceiling["decompress"], variables),
-                "status": "locked_not_executed",
-                "corpus_accessed": False,
-            }
-        )
-    if (len(whole), len(samples), len(segments)) != (68, 17, 68):
+    for codec in e1["codecs"]:
+        for item in e1["items"]:
+            samples.append(
+                {
+                    "task_id": f"sample/{codec['id']}/{item['id']}",
+                    "phase": "stratified_sample_ceiling",
+                    "codec_id": codec["id"],
+                    "item_id": item["id"],
+                    "category": item["category"],
+                    "source_manifest": item["source"],
+                    "source_bytes": item["bytes"],
+                    "source_sha256": item["sha256"],
+                    "ranges": [
+                        {"offset": offset, "length": length}
+                        for offset, length in E1_VERIFIER.sample_ranges(item["bytes"])
+                    ],
+                    "axe1s_layout": e1["sample_ceiling"]["binary_layout"],
+                    "compress": substitute(codec["compress"], variables),
+                    "decompress": substitute(codec["decompress"], variables),
+                    "status": "locked_not_executed",
+                    "corpus_accessed": False,
+                }
+            )
+    if (len(whole), len(samples), len(segments)) != (68, 68, 68):
         raise ValueError("E1 execution task counts differ")
     return {
         "schema_version": 1,

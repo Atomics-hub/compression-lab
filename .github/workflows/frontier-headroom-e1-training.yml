@@ -1,0 +1,284 @@
+name: E1 frozen training frontier census
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: Type RUN_E1_TRAINING_ONLY to dispatch the frozen licensed training census
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: frontier-headroom-e1-training-v1
+  cancel-in-progress: false
+
+env:
+  PYTHONUNBUFFERED: "1"
+
+jobs:
+  freeze-tools-and-schedule:
+    if: inputs.confirmation == 'RUN_E1_TRAINING_ONLY'
+    runs-on: macos-26
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: "3.12"
+      - name: Verify frozen declarations before any corpus acquisition
+        run: |
+          python scripts/verify-frontier-headroom-e1-plan.py
+          python scripts/verify-frontier-headroom-e1-toolchain.py
+      - name: Build exact Kanzi and ZPAQ tools and require exact distribution tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          tools="$RUNNER_TEMP/e1-build"
+          mkdir -p "$tools/kanzi-build"
+          python scripts/prepare-frontier-headroom-e1-toolchain.py \
+            --root "$RUNNER_TEMP/e1-tool-root" --allow-download --sources-only
+          python scripts/safe-extract-frontier-headroom-e1-source.py \
+            --archive "$RUNNER_TEMP/e1-tool-root/cache/kanzi-6eea1658897019ab3107df2806d5e534ef0798df.tar.gz" \
+            --output "$tools/kanzi-src" --strip-components 1
+          cmake -S "$tools/kanzi-src" -B "$tools/kanzi-build" \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DKANZI_ENABLE_NATIVE_OPTIMIZATIONS=ON \
+            -DCMAKE_CXX_COMPILER=/usr/bin/c++
+          cmake --build "$tools/kanzi-build" --config Release \
+            --target kanzi_static --parallel 10
+
+          python scripts/safe-extract-frontier-headroom-e1-source.py \
+            --archive "$RUNNER_TEMP/e1-tool-root/cache/zpaq715.zip" \
+            --output "$tools/zpaq-src"
+          (
+            cd "$tools/zpaq-src"
+            /usr/bin/c++ -Dunix -O3 -Wno-builtin-macro-redefined \
+              '-D__DATE__="Jul 18 2026"' -o zpaq.o -c zpaq.cpp -pthread
+            /usr/bin/c++ -Dunix -O3 -Wno-builtin-macro-redefined \
+              '-D__DATE__="Jul 18 2026"' -o libzpaq.o -c libzpaq.cpp
+            /usr/bin/c++ -o zpaq zpaq.o libzpaq.o -pthread
+          )
+
+          brew install zstd xz lz4
+          test "$(brew --prefix zstd)" = /opt/homebrew/opt/zstd
+          test "$(brew --prefix xz)" = /opt/homebrew/opt/xz
+          test "$(brew --prefix lz4)" = /opt/homebrew/opt/lz4
+
+          python scripts/prepare-frontier-headroom-e1-toolchain.py \
+            --root "$RUNNER_TEMP/e1-tool-root" --allow-download \
+            --kanzi "$tools/kanzi-build/kanzi_static" \
+            --zstd /opt/homebrew/Cellar/zstd/1.5.7_1/bin/zstd \
+            --xz /opt/homebrew/Cellar/xz/5.8.3/bin/xz \
+            --zpaq "$tools/zpaq-src/zpaq" \
+            --libzstd /opt/homebrew/Cellar/zstd/1.5.7_1/lib/libzstd.1.5.7.dylib \
+            --liblzma /opt/homebrew/Cellar/xz/5.8.3/lib/liblzma.5.dylib \
+            --liblz4 /opt/homebrew/Cellar/lz4/1.10.0/lib/liblz4.1.10.0.dylib
+          python scripts/prepare-frontier-headroom-e1-execution.py \
+            --tool-root "$RUNNER_TEMP/e1-tool-root" \
+            --output "$RUNNER_TEMP/e1-schedule.json"
+          python scripts/verify-frontier-headroom-e1-toolchain.py \
+            --tool-root "$RUNNER_TEMP/e1-tool-root" \
+            --plan "$RUNNER_TEMP/e1-schedule.json"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: e1-tools-${{ github.run_id }}
+          path: ${{ runner.temp }}/e1-tool-root
+          if-no-files-found: error
+          retention-days: 30
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: e1-schedule-${{ github.run_id }}
+          path: ${{ runner.temp }}/e1-schedule.json
+          if-no-files-found: error
+          retention-days: 30
+
+  acquire-training:
+    needs: freeze-tools-and-schedule
+    runs-on: macos-26
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: "3.12"
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: e1-tools-${{ github.run_id }}
+          path: ${{ runner.temp }}/e1-tool-root
+      - name: Reverify all tools before fetching any training byte
+        run: |
+          chmod 755 "$RUNNER_TEMP/e1-tool-root/bin/"*
+          python scripts/verify-frontier-headroom-e1-toolchain.py \
+            --tool-root "$RUNNER_TEMP/e1-tool-root"
+      - name: Acquire only the four declared development corpora
+        run: |
+          set -euo pipefail
+          base="$RUNNER_TEMP/e1-training"
+          mkdir -p "$base"
+          python scripts/fetch-clue-json-corpus.py \
+            --split development --output "$base/clue" --cache "$RUNNER_TEMP/clue-cache"
+          python scripts/fetch-text-source-development.py \
+            --output "$base/text" --cache "$RUNNER_TEMP/text-cache"
+          python scripts/fetch_tabular_corpus.py \
+            --split development --output "$base/tabular" --cache "$RUNNER_TEMP/tabular-cache"
+          python scripts/fetch_tabular_successor_corpus.py \
+            --split development --output "$base/successor" --cache "$RUNNER_TEMP/successor-cache"
+          python scripts/assemble-frontier-headroom-e1-training-manifest.py \
+            --base "$base" \
+            --clue "$base/clue/manifest.json" \
+            --text "$base/text/manifest.json" \
+            --tabular "$base/tabular/manifest.json" \
+            --successor "$base/successor/manifest.json" \
+            --output "$base/manifest.json"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: e1-training-${{ github.run_id }}
+          path: ${{ runner.temp }}/e1-training
+          if-no-files-found: error
+          retention-days: 30
+
+  measure:
+    needs: [freeze-tools-and-schedule, acquire-training]
+    strategy:
+      fail-fast: false
+      matrix:
+        category: [english_wikimedia_wikitext, json_logs, numeric_matrices_timeseries, source_code_bundles, tabular_records]
+        lane: [whole-practical, whole-zpaq, sample-practical, sample-zpaq]
+    runs-on: macos-26
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: "3.12"
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: e1-tools-${{ github.run_id }}
+          path: ${{ runner.temp }}/e1-tool-root
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: e1-schedule-${{ github.run_id }}
+          path: ${{ runner.temp }}/schedule
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: e1-training-${{ github.run_id }}
+          path: ${{ runner.temp }}/training
+      - name: Execute exact shard
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod 755 "$RUNNER_TEMP/e1-tool-root/bin/"*
+          lane='${{ matrix.lane }}'
+          phase="${lane%%-*}"
+          codec="${lane#*-}"
+          if [[ "$codec" == zpaq ]]; then codec=zpaq-5-m510; fi
+          python scripts/benchmark-frontier-headroom-e1.py \
+            --schedule "$RUNNER_TEMP/schedule/e1-schedule.json" \
+            --manifest "$RUNNER_TEMP/training/manifest.json" \
+            --tool-root "$RUNNER_TEMP/e1-tool-root" \
+            --output "$RUNNER_TEMP/shard" \
+            --phase "$phase" --category '${{ matrix.category }}' \
+            --codec-group "$codec"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: e1-${{ matrix.lane }}-${{ matrix.category }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/shard
+          if-no-files-found: error
+          retention-days: 30
+
+  segment:
+    needs: measure
+    strategy:
+      fail-fast: false
+      matrix:
+        category: [english_wikimedia_wikitext, json_logs, numeric_matrices_timeseries, source_code_bundles, tabular_records]
+    runs-on: macos-26
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: "3.12"
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: e1-tools-${{ github.run_id }}
+          path: ${{ runner.temp }}/e1-tool-root
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: e1-schedule-${{ github.run_id }}
+          path: ${{ runner.temp }}/schedule
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: e1-training-${{ github.run_id }}
+          path: ${{ runner.temp }}/training
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          pattern: e1-whole-*-${{ matrix.category }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/whole
+      - name: Run conditional complete AXE1G route
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod 755 "$RUNNER_TEMP/e1-tool-root/bin/"*
+          args=()
+          while IFS= read -r result; do args+=(--whole-result "$result"); done < <(
+            find "$RUNNER_TEMP/whole" -name result.json -print | LC_ALL=C sort
+          )
+          python scripts/benchmark-frontier-headroom-e1.py \
+            --schedule "$RUNNER_TEMP/schedule/e1-schedule.json" \
+            --manifest "$RUNNER_TEMP/training/manifest.json" \
+            --tool-root "$RUNNER_TEMP/e1-tool-root" \
+            --output "$RUNNER_TEMP/shard" \
+            --phase segment --category '${{ matrix.category }}' "${args[@]}"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: e1-segment-${{ matrix.category }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/shard
+          if-no-files-found: error
+          retention-days: 30
+
+  verify-and-publish:
+    needs: segment
+    if: always() && needs.segment.result == 'success'
+    runs-on: macos-26
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: "3.12"
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: e1-tools-${{ github.run_id }}
+          path: ${{ runner.temp }}/tools
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: e1-schedule-${{ github.run_id }}
+          path: ${{ runner.temp }}/schedule
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: e1-training-${{ github.run_id }}
+          path: ${{ runner.temp }}/training
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          pattern: e1-*-*-${{ github.run_id }}
+          path: ${{ runner.temp }}/shards
+      - name: Verify raw evidence and build complete containers
+        run: |
+          python scripts/verify-frontier-headroom-e1-run.py \
+            --schedule "$RUNNER_TEMP/schedule/e1-schedule.json" \
+            --manifest "$RUNNER_TEMP/training/manifest.json" \
+            --tool-receipt "$RUNNER_TEMP/tools/receipt.json" \
+            --shards-root "$RUNNER_TEMP/shards" \
+            --output "$RUNNER_TEMP/final"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: e1-final-training-result-${{ github.run_id }}
+          path: ${{ runner.temp }}/final
+          if-no-files-found: error
+          retention-days: 90
