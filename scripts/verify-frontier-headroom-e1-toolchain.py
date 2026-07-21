@@ -48,7 +48,7 @@ EXPECTED_EXECUTABLE_IDS = {
     ),
     "zpaq-5-m510": (
         350232,
-        "3164a2c150e25815ef3f967623e73d373b2542330cafc3bc4950c2ac74cea350",
+        "fecbedd1fe9ee9bfe8308ad61d223635dc65fc853f18b79dcabd854e5e341ac0",
     ),
 }
 EXPECTED_RUNTIME_IDS = {
