@@ -47,8 +47,8 @@ EXPECTED_EXECUTABLE_IDS = {
         "16b9994cca884ed2a66ba63736f1450049cbc6fd1d93076c51e5f0e7f7a71381",
     ),
     "zpaq-5-m510": (
-        433288,
-        "c54e06fca84580951509656c8b938b594727014acd3fddabcff787d021d032e8",
+        350232,
+        "3164a2c150e25815ef3f967623e73d373b2542330cafc3bc4950c2ac74cea350",
     ),
 }
 EXPECTED_RUNTIME_IDS = {
@@ -159,6 +159,7 @@ EXPECTED_SOURCE_METADATA: dict[str, dict[str, Any]] = {
             [
                 "$CXX",
                 "-Dunix",
+                "-DNOJIT",
                 "-O3",
                 "-Wno-builtin-macro-redefined",
                 '-D__DATE__="Jul 18 2026"',
@@ -171,6 +172,7 @@ EXPECTED_SOURCE_METADATA: dict[str, dict[str, Any]] = {
             [
                 "$CXX",
                 "-Dunix",
+                "-DNOJIT",
                 "-O3",
                 "-Wno-builtin-macro-redefined",
                 '-D__DATE__="Jul 18 2026"',
@@ -610,7 +612,7 @@ def validate_plan(
         "$INPUT": "$WORK/input.bin",
         "$ARTIFACT": "$WORK/artifact.bin",
         "$RESTORED": "$WORK/restored.bin",
-        "$RESTORED_DIRECTORY": "$WORK/restored",
+        "$RESTORED_DIRECTORY": "$WORK/restored/input.bin",
     }
 
     def command(template: list[str]) -> list[str]:
@@ -627,6 +629,9 @@ def validate_plan(
     expected_whole = []
     expected_segments = []
     for codec in e1["codecs"]:
+        replacements["$ARTIFACT"] = (
+            "$WORK/artifact.zpaq" if codec["id"] == "zpaq-5-m510" else "$WORK/artifact.bin"
+        )
         for item in e1["items"]:
             expected_whole.append(
                 {
@@ -659,6 +664,9 @@ def validate_plan(
             )
     expected_samples = []
     for codec in e1["codecs"]:
+        replacements["$ARTIFACT"] = (
+            "$WORK/artifact.zpaq" if codec["id"] == "zpaq-5-m510" else "$WORK/artifact.bin"
+        )
         for item in e1["items"]:
             ranges = e1_sample_ranges(item["bytes"])
             expected_samples.append(

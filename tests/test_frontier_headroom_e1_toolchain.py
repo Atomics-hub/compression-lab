@@ -161,7 +161,10 @@ class FrontierHeadroomE1ToolchainTests(unittest.TestCase):
                 if row["codec_id"] == "zpaq-5-m510"
             )
             to_index = zpaq_task["decompress"].index("-to")
-            self.assertEqual(zpaq_task["decompress"][to_index + 1], "$WORK/restored")
+            self.assertEqual(
+                zpaq_task["decompress"][to_index + 1], "$WORK/restored/input.bin"
+            )
+            self.assertIn("$WORK/artifact.zpaq", zpaq_task["compress"])
             self.assertNotIn("$WORK/restored.bin_DIRECTORY", zpaq_task["decompress"])
 
             drifted = copy.deepcopy(plan)

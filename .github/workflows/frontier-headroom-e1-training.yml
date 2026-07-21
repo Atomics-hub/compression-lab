@@ -71,9 +71,9 @@ jobs:
             --output "$tools/zpaq-src"
           (
             cd "$tools/zpaq-src"
-            /usr/bin/c++ -Dunix -O3 -Wno-builtin-macro-redefined \
+            /usr/bin/c++ -Dunix -DNOJIT -O3 -Wno-builtin-macro-redefined \
               '-D__DATE__="Jul 18 2026"' -o zpaq.o -c zpaq.cpp -pthread
-            /usr/bin/c++ -Dunix -O3 -Wno-builtin-macro-redefined \
+            /usr/bin/c++ -Dunix -DNOJIT -O3 -Wno-builtin-macro-redefined \
               '-D__DATE__="Jul 18 2026"' -o libzpaq.o -c libzpaq.cpp
             /usr/bin/c++ -o zpaq zpaq.o libzpaq.o -pthread
           )
