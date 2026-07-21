@@ -56,7 +56,7 @@ class JsonLogNativeScreenS0Tests(unittest.TestCase):
         freeze = self.config["screen"]["freeze_requirements_before_measurement"]
         self.assertIn("base_constants_manifest_sha256", freeze)
         self.assertIn("refined_constants_manifest_sha256", freeze)
-        self.assertEqual(freeze["protocol_path"], str(PROTOCOL.relative_to(ROOT)))
+        self.assertEqual(freeze["protocol_path"], PROTOCOL.relative_to(ROOT).as_posix())
         self.assertEqual(
             freeze["protocol_sha256"], hashlib.sha256(PROTOCOL.read_bytes()).hexdigest()
         )
