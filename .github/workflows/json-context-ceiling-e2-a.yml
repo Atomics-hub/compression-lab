@@ -1,0 +1,110 @@
+name: E2-A JSON context ceiling
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: Type RUN_E2_A_JSON_CONTEXT to run the frozen development-only sweep
+        required: true
+        type: string
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: json-context-ceiling-e2-a-v1
+  cancel-in-progress: false
+
+env:
+  SOURCE_RUN_ID: "29846879040"
+  PYTHONUNBUFFERED: "1"
+
+jobs:
+  measure:
+    if: inputs.confirmation == 'RUN_E2_A_JSON_CONTEXT'
+    runs-on: macos-26
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: "3.12"
+      - name: Enforce main, clean tree, and frozen protocol tests
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = "refs/heads/main"
+          git diff --exit-code
+          python -m json.tool config/json-context-ceiling-e2-a-v1.json >/dev/null
+          python -m unittest tests.test_json_context_ceiling_e2_a -v
+      - name: Verify live E1 source artifacts against the pinned receipt
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN_ID" > "$RUNNER_TEMP/source-run.json"
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN_ID/artifacts?per_page=100" > "$RUNNER_TEMP/source-artifacts.json"
+          python scripts/verify-frontier-headroom-e1-github-recovery.py \
+            --pinned config/frontier-headroom-e1-run-29846879040-recovery.json \
+            --run "$RUNNER_TEMP/source-run.json" \
+            --artifacts "$RUNNER_TEMP/source-artifacts.json"
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: e1-tools-29846879040
+          path: ${{ runner.temp }}/tools
+          github-token: ${{ github.token }}
+          run-id: 29846879040
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: e1-training-29846879040
+          path: ${{ runner.temp }}/training
+          github-token: ${{ github.token }}
+          run-id: 29846879040
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: e1-whole-practical-json_logs-29846879040
+          path: ${{ runner.temp }}/e1-practical-json
+          github-token: ${{ github.token }}
+          run-id: 29846879040
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: e1-whole-zpaq-json_logs-29846879040
+          path: ${{ runner.temp }}/e1-zpaq-json
+          github-token: ${{ github.token }}
+          run-id: 29846879040
+      - name: Run the frozen E2-A measurement
+        run: |
+          set -euo pipefail
+          chmod +x "$RUNNER_TEMP/tools/bin/zpaq"
+          mkdir -p "$RUNNER_TEMP/e2-a"
+          python scripts/benchmark-json-context-ceiling-e2-a.py \
+            --training-root "$RUNNER_TEMP/training" \
+            --tool-root "$RUNNER_TEMP/tools" \
+            --e1-practical-result "$RUNNER_TEMP/e1-practical-json/result.json" \
+            --e1-zpaq-result "$RUNNER_TEMP/e1-zpaq-json/result.json" \
+            --output "$RUNNER_TEMP/e2-a/measurement" \
+            --repository-commit "$GITHUB_SHA" 2>&1 | tee "$RUNNER_TEMP/e2-a/run.log"
+      - name: Independently verify every retained stage-one archive
+        run: |
+          set -euo pipefail
+          python scripts/verify-json-context-ceiling-e2-a.py \
+            --result "$RUNNER_TEMP/e2-a/measurement/result.json" \
+            --training-root "$RUNNER_TEMP/training" \
+            --tool-root "$RUNNER_TEMP/tools" \
+            --e1-practical-result "$RUNNER_TEMP/e1-practical-json/result.json" \
+            --e1-zpaq-result "$RUNNER_TEMP/e1-zpaq-json/result.json" \
+            --expected-repository-commit "$GITHUB_SHA" \
+            --recheck-decodes 2>&1 | tee "$RUNNER_TEMP/e2-a/verification.log"
+          python scripts/render-json-context-ceiling-e2-a.py \
+            --result "$RUNNER_TEMP/e2-a/measurement/result.json" \
+            --output "$RUNNER_TEMP/e2-a/publication"
+          (cd "$RUNNER_TEMP/e2-a" && find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 shasum -a 256 > SHA256SUMS)
+          cat "$RUNNER_TEMP/e2-a/publication/README.md" >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        if: always()
+        with:
+          name: json-context-ceiling-e2-a-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/e2-a
+          if-no-files-found: error
+          retention-days: 90
