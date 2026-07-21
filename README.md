@@ -63,6 +63,26 @@ explains complete framing, provenance, the recovered warmup-log publication
 bug, and the exact claim ceiling. This is a training diagnostic—not a candidate
 win—and no validation or holdout data was accessed.
 
+## What bounded generic context scaling captured
+
+The frozen E2-A follow-up found that ZPAQ level 5 with a 16 MiB block was the
+best method that stayed within the stricter 460 MiB development memory target.
+It produced **1,613,165 complete bytes**, **5.78% smaller than E1 Kanzi-max**,
+with **358.3 MiB compression RSS** and **343.3 MiB decode RSS**. Larger blocks
+recovered up to the full 21.32% ratio gap but required 592.2–1,272.1 MiB on
+decode. The byte-identical confirmation and transported E1 anchor both passed.
+
+![E2-A complete-byte and memory comparison for bounded generic context scaling](runs/json-context-ceiling-e2-a-v1/comparison.svg)
+
+The preregistered decision is therefore **kill the bounded generic level-5
+lane**: its 5.78% gain missed the frozen 10% minimum. This makes the next move
+more specific, not less ambitious—Axiom is pursuing a bounded native JSON/log
+structural model rather than attempting to buy the full gap with generic model
+memory. The [immutable E2-A publication](runs/json-context-ceiling-e2-a-v1/README.md)
+contains the complete size/RSS table, artifacts, logs, receipts, and exact
+claim ceiling. It is development-only diagnostic evidence, not a new codec,
+unseen score, speed win, or state-of-the-art claim.
+
 <details>
 <summary><strong>Open the earlier development and standalone-decoder evidence</strong></summary>
 
@@ -256,7 +276,7 @@ remains independently reproducible.
 
 | Category | Objective completion | Best measured result | Gate status and evidence |
 | --- | ---: | --- | --- |
-| JSON and machine logs | **50%** | JLS2 is 52.97% smaller than the strongest eligible standard on the first frozen public-validation score | Ratio, both families, speed, exactness, integrity, and compression memory passed; overall gate failed only decoder RSS at 621.3 MiB vs 512 MiB ([immutable result](runs/clue-jls2-public-validation-v1/publication/README.md), [import receipt](runs/clue-jls2-public-validation-v1-import.json)) |
+| JSON and machine logs | **50%** | JLS2 is 52.97% smaller than the strongest eligible standard on the first frozen public-validation score; bounded generic context scaling later captured 5.78% vs E1 Kanzi-max under the stricter 460 MiB development cap | JLS2's overall gate failed only decoder RSS at 621.3 MiB vs 512 MiB; E2-A killed the generic bounded level-5 lane and directs the next candidate toward native structure-aware modeling ([JLS2 result](runs/clue-jls2-public-validation-v1/publication/README.md), [E2-A chart](runs/json-context-ceiling-e2-a-v1/README.md)) |
 | Source-code bundles | **10%** | Exact Axiom Q1 was 1.42% larger than Kanzi-max; the later non-Axiom BWT ceiling was at least 34.75% larger | Structural, low-order predictor, explicit-LZP, record-neighborhood, and BWT directions all failed frozen gates; next candidate must expose grammar productions and identifier bindings ([latest chart](runs/text-source-bwt-screen-v1/publication/README.md), [protocol](docs/benchmarks/2026-07-18-text-source-bwt-screen-protocol.md)) |
 | English Wikimedia wikitext | **10%** | Exact WK-C1 was 0.158% larger than Kanzi-max and only 0.032% better than its structure-only ablation | Structural, low-order predictor, explicit-LZP, record-neighborhood, BWT, and recursive template-column directions all failed frozen gates; the next candidate must improve prediction or coding rather than only rearrange structure ([latest chart](runs/text-source-wk-c1-screen-v1/publication/README.md), [protocol](docs/benchmarks/2026-07-18-text-source-wk-c1-protocol.md)) |
 | Delimited tables | **50%** | TBS1 vs 7-Zip-9: 3.48% larger aggregate | Frozen gate failed ([decision](docs/benchmarks/2026-07-17-tbl1-public-validation-decision.md), [Fresh successor corpus protocol](docs/benchmarks/2026-07-17-tabular-successor-corpus-protocol.md)) |

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "name": "axiom-json-log-native-screen-s0-v1",
-  "status": "refrozen_after_adversarial_review_before_any_s0_measurement",
+  "status": "refrozen_after_e2_a_completion_before_any_s0_measurement",
   "evidence_stage": "development_only_prequential_screen",
   "claim_ceiling": "Predeclared development-only model screen. It is not an exact codec result, candidate score, unseen validation, private holdout, product benchmark, independent reproduction, or state-of-the-art evidence.",
   "source": {
@@ -78,7 +78,23 @@
   "e2_a_dependency": {
     "run_id": 29867575535,
     "head_sha": "45ca664d77e1a8a2f7ac057914e3ee034d683a30",
-    "status_when_frozen": "in_progress",
+    "status_at_initial_freeze": "in_progress",
+    "completion": {
+      "conclusion": "success",
+      "artifact_id": 8513712689,
+      "artifact_name": "json-context-ceiling-e2-a-29867575535",
+      "artifact_size_in_bytes": 20336136,
+      "artifact_digest": "sha256:6cc62166967f342aac5b3904af1accb366d1a7c782757ee4091437868e7e9420",
+      "publication_path": "runs/json-context-ceiling-e2-a-v1",
+      "publication_receipt_sha256": "961ba79c6d2c67253e5a64b0ba1788af81993091fc2aed327e5a81b5f07621b3",
+      "result_sha256": "20ff8e78d1738aa72f0b114e18e586213c6c69a34b49250d93fee5110aa4b0da",
+      "e1_anchor_matched": true,
+      "confirmation_passed": true,
+      "best_eligible_method": "zpaq-5-m54",
+      "best_eligible_complete_bytes": 1613165,
+      "best_eligible_gain_basis_points": 578,
+      "outcome": "kill_bounded_level5_lane"
+    },
     "anchor_or_confirmation_failure": "Do not measure S0 until the E1 transport failure is resolved.",
     "advance": "Run S0 as frozen, then use its attributions to freeze an exact native prototype.",
     "refine": "Run the one already-authorized bounded refinement first; S0 remains frozen and follows without changing its gates.",
@@ -91,7 +107,7 @@
     "forbidden": "Never open, stat, hash, list, sample, or derive statistics from consumed validation, reserved evaluation, private holdout, or unlisted corpus paths.",
     "fresh_public_validation_status": "none_frozen",
     "private_holdout_status": "sealed; identities absent",
-    "measurement_authorization": "No S0 corpus measurement until E2-A completes with a transported E1 anchor and byte-identical confirmation."
+    "measurement_authorization": "E2-A completed successfully with a transported E1 anchor and byte-identical confirmation. S0 measurement is authorized only after its base and refined constants manifests, engine, runner, verifier, and clean-checkout confirmation procedure are committed and hash-pinned; no S0 corpus measurement has occurred at this freeze."
   },
   "screen": {
     "purpose": "Estimate the complete-byte potential and isolated contribution of bounded structure-aware JSON/log mechanisms before building an exact codec.",
