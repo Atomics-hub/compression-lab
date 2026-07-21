@@ -5,11 +5,13 @@
 //! the frozen complete-byte projection. Corpus-specific grammar and models are
 //! deliberately layered on top of these primitives.
 
+mod event;
 mod fixed_log;
 mod json;
 mod ledger;
 mod tape;
 
+pub use event::{ContextStore, EventDecoder, EventEncoder, EventError};
 pub use fixed_log::{LossTable, Probability, MAX_PROBABILITY, MIN_PROBABILITY};
 pub use json::{split_records, JsonLayout, JsonLayoutError, Record};
 pub use ledger::{Decision, Ledger, Projection};
