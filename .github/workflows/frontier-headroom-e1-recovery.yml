@@ -1,0 +1,84 @@
+name: E1 pinned evidence recovery
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: Type RECOVER_E1_29846879040 to republish the pinned retained evidence
+        required: true
+        type: string
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: frontier-headroom-e1-recovery-v1
+  cancel-in-progress: false
+
+env:
+  SOURCE_RUN_ID: "29846879040"
+  PYTHONUNBUFFERED: "1"
+
+jobs:
+  verify-and-publish:
+    if: inputs.confirmation == 'RECOVER_E1_29846879040'
+    runs-on: macos-26
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: "3.12"
+      - name: Verify the live GitHub artifact digests against the pinned receipt
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN_ID" > "$RUNNER_TEMP/source-run.json"
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN_ID/artifacts?per_page=100" > "$RUNNER_TEMP/source-artifacts.json"
+          python scripts/verify-frontier-headroom-e1-github-recovery.py \
+            --pinned config/frontier-headroom-e1-run-29846879040-recovery.json \
+            --run "$RUNNER_TEMP/source-run.json" \
+            --artifacts "$RUNNER_TEMP/source-artifacts.json"
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: e1-tools-29846879040
+          path: ${{ runner.temp }}/tools
+          github-token: ${{ github.token }}
+          run-id: 29846879040
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: e1-schedule-29846879040
+          path: ${{ runner.temp }}/schedule
+          github-token: ${{ github.token }}
+          run-id: 29846879040
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: e1-training-29846879040
+          path: ${{ runner.temp }}/training
+          github-token: ${{ github.token }}
+          run-id: 29846879040
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          pattern: e1-*-*-29846879040
+          path: ${{ runner.temp }}/shards
+          github-token: ${{ github.token }}
+          run-id: 29846879040
+      - name: Verify retained evidence and regenerate complete framed census
+        run: |
+          python scripts/verify-frontier-headroom-e1-run.py \
+            --schedule "$RUNNER_TEMP/schedule/e1-schedule.json" \
+            --manifest "$RUNNER_TEMP/training/manifest.json" \
+            --tool-receipt "$RUNNER_TEMP/tools/receipt.json" \
+            --shards-root "$RUNNER_TEMP/shards" \
+            --output "$RUNNER_TEMP/final" \
+            --recover-source-run "$SOURCE_RUN_ID" \
+            --verification-commit "$GITHUB_SHA"
+          cat "$RUNNER_TEMP/final/README.md" >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: e1-final-training-recovery-${{ github.run_id }}
+          path: ${{ runner.temp }}/final
+          if-no-files-found: error
+          retention-days: 90

@@ -8,6 +8,7 @@ import hashlib
 import importlib.util
 import json
 from pathlib import Path
+import re
 import struct
 from types import ModuleType
 from typing import Any
@@ -15,6 +16,9 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 E1_CONFIG = ROOT / "config" / "frontier-headroom-oracle-census-e1-v1.json"
+E1_RECOVERY_RECEIPT = (
+    ROOT / "config" / "frontier-headroom-e1-run-29846879040-recovery.json"
+)
 
 
 def load_script(name: str, path: Path) -> ModuleType:
@@ -72,6 +76,9 @@ SEGMENT_KEYS = {
     "repository_commit", "triggered", "whole_item_winners", "trials", "containers",
     "public_validation_accessed", "private_holdout_accessed", "claim_ceiling",
 }
+RECOVERY_RUN_ID = 29846879040
+SHA256_DIGEST = re.compile(r"sha256:[0-9a-f]{64}")
+COMMIT = re.compile(r"[0-9a-f]{40}")
 
 
 def sha256_file(path: Path) -> str:
@@ -181,6 +188,122 @@ def verify_trial(
         raise ValueError("E1 measured artifacts are nondeterministic")
 
 
+def bind_discarded_warmup_logs(
+    document: dict[str, Any], root: Path, bound: set[str], e1: dict[str, Any]
+) -> list[dict[str, Any]]:
+    """Bind legacy E1 warmup logs that the runner retained but did not receipt.
+
+    Run 29846879040 predates the runner cleanup that removes unscored warmup
+    logs.  Its artifact ZIP digests preserve the original shards, so recovery
+    must inventory the exact deterministic warmup-log roster rather than
+    deleting or broadly ignoring those files.
+    """
+    records = []
+    warmups = e1["measurement"]["warmups_practical"]
+    for trial in document["trials"]:
+        if trial["codec_id"] == "zpaq-5-m510":
+            continue
+        task_slug = trial["task_id"].replace("/", "__")
+        for index in range(warmups):
+            repetition = -1 - index
+            for process in ("compress", "decompress"):
+                streams = ["stderr"]
+                if trial["codec_id"] != "xz-lzma2-9e":
+                    streams.append("stdout")
+                for stream in streams:
+                    relative = (
+                        f"logs/{task_slug}/{repetition}/{process}.{stream}"
+                    )
+                    path = root / relative
+                    ordinary(path)
+                    size = path.stat().st_size
+                    if size > RUNNER.MAX_OUTPUT:
+                        raise ValueError(
+                            f"E1 discarded warmup log exceeds limit: {relative}"
+                        )
+                    digest = sha256_file(path)
+                    require_file(root, relative, size, digest, bound)
+                    records.append(
+                        {"path": relative, "bytes": size, "sha256": digest}
+                    )
+    return records
+
+
+def load_recovery_receipt(
+    source_run_id: int | None, schedule: dict[str, Any]
+) -> dict[str, Any] | None:
+    if source_run_id is None:
+        return None
+    if source_run_id != RECOVERY_RUN_ID:
+        raise ValueError("E1 recovery source run is not the pinned failed run")
+    ordinary(E1_RECOVERY_RECEIPT)
+    receipt = json.loads(E1_RECOVERY_RECEIPT.read_bytes())
+    require_keys(
+        receipt,
+        {
+            "schema_version", "name", "source_run_id", "source_run_attempt",
+            "source_head_sha", "source_event", "source_conclusion", "source_url",
+            "measurement_runner_sha256", "failed_publication_verifier_sha256",
+            "artifacts",
+        },
+        "recovery receipt",
+    )
+    if (
+        receipt["schema_version"] != 1
+        or receipt["name"] != "frontier-headroom-e1-github-recovery-receipt-v1"
+        or receipt["source_run_id"] != RECOVERY_RUN_ID
+        or receipt["source_run_attempt"] != 1
+        or receipt["source_head_sha"] != schedule["repository_commit"]
+        or receipt["source_event"] != "workflow_dispatch"
+        or receipt["source_conclusion"] != "failure"
+        or receipt["measurement_runner_sha256"]
+        != "d2dd2c1f07142bb8849d369688e0b20a30cb6b64881c01e3e3e3b805482527ea"
+        or receipt["failed_publication_verifier_sha256"]
+        != "4afdb9dd7ac7d2ab128fd590694814d11e55ad252a6f626fc55fc7113da0f145"
+    ):
+        raise ValueError("E1 recovery receipt identity differs")
+    names = set()
+    for artifact in receipt["artifacts"]:
+        require_keys(
+            artifact, {"id", "name", "size_in_bytes", "digest", "expired"},
+            "recovery artifact",
+        )
+        if (
+            not isinstance(artifact["id"], int)
+            or artifact["id"] <= 0
+            or not isinstance(artifact["name"], str)
+            or not isinstance(artifact["size_in_bytes"], int)
+            or artifact["size_in_bytes"] <= 0
+            or SHA256_DIGEST.fullmatch(artifact["digest"]) is None
+            or artifact["expired"] is not False
+            or artifact["name"] in names
+        ):
+            raise ValueError("E1 recovery artifact receipt differs")
+        names.add(artifact["name"])
+    if len(receipt["artifacts"]) != 28:
+        raise ValueError("E1 recovery artifact roster differs")
+    return receipt
+
+
+def source_artifact_for_shard(
+    document: dict[str, Any], receipt: dict[str, Any]
+) -> dict[str, Any]:
+    if document["phase"] == "segment":
+        lane = "segment"
+    else:
+        group = (
+            "zpaq" if document["codec_group"] == "zpaq-5-m510" else "practical"
+        )
+        lane = f"{document['phase']}-{group}"
+    expected = (
+        f"e1-{lane}-{document['category']}-{receipt['source_run_id']}"
+    )
+    matches = [row for row in receipt["artifacts"] if row["name"] == expected]
+    if len(matches) != 1:
+        raise ValueError(f"E1 recovery shard artifact is not pinned: {expected}")
+    return matches[0]
+
+
 def verify_shard(
     path: Path,
     schedule: dict[str, Any],
@@ -189,6 +312,7 @@ def verify_shard(
     receipt_sha: str,
     manifest: dict[str, Any],
     e1: dict[str, Any],
+    recovery_receipt: dict[str, Any] | None,
 ) -> dict[str, Any]:
     root = path.parent
     document = json.loads(path.read_bytes())
@@ -246,6 +370,18 @@ def verify_shard(
         rebuilt = RUNNER.axe1g(item, e1["oracle_routing"]["segment_bytes"], choices)
         if rebuilt != container_path.read_bytes():
             raise ValueError("E1 AXE1G container bytes do not reconstruct")
+    discarded_warmup_logs = []
+    legacy_warmups_present = any("/-1/" in path for path in {
+        candidate.relative_to(root).as_posix()
+        for candidate in root.rglob("*")
+        if candidate.is_file()
+    })
+    if legacy_warmups_present and recovery_receipt is None:
+        raise ValueError("E1 legacy warmup logs require explicit pinned recovery")
+    if legacy_warmups_present:
+        discarded_warmup_logs = bind_discarded_warmup_logs(
+            document, root, bound, e1
+        )
     actual = {
         candidate.relative_to(root).as_posix()
         for candidate in root.rglob("*")
@@ -255,7 +391,17 @@ def verify_shard(
         raise ValueError(
             f"E1 shard has missing or unbound files: {sorted(actual ^ bound)}"
         )
-    return document | {"_root": root, "_result_path": path}
+    source_artifact = (
+        source_artifact_for_shard(document, recovery_receipt)
+        if recovery_receipt is not None
+        else None
+    )
+    return document | {
+        "_root": root,
+        "_result_path": path,
+        "_discarded_warmup_logs": discarded_warmup_logs,
+        "_source_artifact": source_artifact,
+    }
 
 
 def write_axe1o(
@@ -374,6 +520,9 @@ def aggregate(
     receipt_path: Path,
     shards_root: Path,
     output: Path,
+    *,
+    recover_source_run: int | None = None,
+    verification_commit: str | None = None,
 ) -> dict[str, Any]:
     for path in (schedule_path, manifest_path, receipt_path):
         ordinary(path)
@@ -384,9 +533,17 @@ def aggregate(
     schedule_sha = sha256_file(schedule_path)
     manifest_sha = sha256_file(manifest_path)
     receipt_sha = sha256_file(receipt_path)
+    recovery_receipt = load_recovery_receipt(recover_source_run, schedule)
+    if recovery_receipt is not None and (
+        verification_commit is None or COMMIT.fullmatch(verification_commit) is None
+    ):
+        raise ValueError("E1 recovery requires an exact verification commit")
     shard_paths = sorted(shards_root.rglob("result.json"))
     shards = [
-        verify_shard(path, schedule, schedule_sha, manifest_sha, receipt_sha, manifest, e1)
+        verify_shard(
+            path, schedule, schedule_sha, manifest_sha, receipt_sha, manifest, e1,
+            recovery_receipt,
+        )
         for path in shard_paths
     ]
     categories = sorted({row["category"] for row in e1["items"]})
@@ -417,6 +574,20 @@ def aggregate(
             raise ValueError("E1 segment shard roster differs")
     if len(shards) != 25:
         raise ValueError("E1 total shard roster differs")
+    if recovery_receipt is not None and len(
+        {row["_source_artifact"]["name"] for row in shards}
+    ) != 25:
+        raise ValueError("E1 recovery source artifact use differs")
+    if recovery_receipt is not None:
+        for row in shards:
+            relative_parts = row["_result_path"].relative_to(shards_root).parts
+            if (
+                not relative_parts
+                or relative_parts[0] != row["_source_artifact"]["name"]
+            ):
+                raise ValueError(
+                    "E1 recovery shard directory differs from pinned artifact"
+                )
     if output.exists():
         raise ValueError("refusing to replace E1 aggregate")
     output.mkdir(parents=True)
@@ -457,6 +628,22 @@ def aggregate(
             key: value for key, value in controls.items() if key != "zpaq-5-m510"
         }
         best_practical = min(practical.values(), key=lambda row: row["bytes"])
+        practical_oracle_choices = [
+            min(
+                (
+                    row for row in whole_trials
+                    if row["item_id"] == item and row["codec_id"] != "zpaq-5-m510"
+                ),
+                key=lambda row: (row["artifact_bytes"], row["codec_id"]),
+            )
+            for item in item_ids
+        ]
+        practical_oracle = write_axe1o(
+            output / "containers" / f"{category}-practical-per-item-oracle.axe1o",
+            category,
+            manifest_sha,
+            practical_oracle_choices,
+        )
         sample_trials = [
             trial_choice(trial, shard["_root"])
             for shard in shards
@@ -540,7 +727,18 @@ def aggregate(
                 "whole_controls": controls,
                 "best_single_practical_bytes": best_practical["bytes"],
                 "best_single_ratio_bytes": best_ratio["bytes"],
+                "practical_per_item_oracle": practical_oracle,
+                "practical_routing_gain_basis_points": (
+                    best_practical["bytes"] - practical_oracle["bytes"]
+                )
+                * 10000
+                // best_practical["bytes"],
                 "per_item_oracle": oracle,
+                "total_headroom_basis_points": (
+                    best_practical["bytes"] - oracle["bytes"]
+                )
+                * 10000
+                // best_practical["bytes"],
                 "per_item_oracle_gain_basis_points": (
                     best_ratio["bytes"] - oracle["bytes"]
                 )
@@ -582,17 +780,48 @@ def aggregate(
             "path": row["_result_path"].relative_to(shards_root).as_posix(),
             "bytes": row["_result_path"].stat().st_size,
             "sha256": sha256_file(row["_result_path"]),
+            "legacy_retained_warmup_logs": row["_discarded_warmup_logs"],
+            "source_github_artifact": row["_source_artifact"],
         }
         for row in shards
     ]
     result = {
-        "schema_version": 1,
-        "name": "frontier-headroom-e1-training-result-v1",
+        "schema_version": 2,
+        "name": "frontier-headroom-e1-training-result-v2",
         "completed": True,
         "schedule_sha256": schedule_sha,
         "training_manifest_sha256": manifest_sha,
         "tool_receipt_sha256": receipt_sha,
         "repository_commit": schedule["repository_commit"],
+        "verification": {
+            "repository_commit": verification_commit,
+            "publication_verifier_sha256": sha256_file(Path(__file__)),
+            "publication_runner_sha256": sha256_file(
+                ROOT / "scripts" / "benchmark-frontier-headroom-e1.py"
+            ),
+            "measurement_runner_sha256": (
+                recovery_receipt["measurement_runner_sha256"]
+                if recovery_receipt is not None
+                else None
+            ),
+            "failed_publication_verifier_sha256": (
+                recovery_receipt["failed_publication_verifier_sha256"]
+                if recovery_receipt is not None
+                else None
+            ),
+            "config_sha256": sha256_file(E1_CONFIG),
+            "recovery_receipt_sha256": (
+                sha256_file(E1_RECOVERY_RECEIPT)
+                if recovery_receipt is not None
+                else None
+            ),
+            "source_run_id": recover_source_run,
+            "source_run_attempt": (
+                recovery_receipt["source_run_attempt"]
+                if recovery_receipt is not None
+                else None
+            ),
+        },
         "raw_shards": raw_shards,
         "category_summaries": summaries,
         "public_validation_accessed": False,
@@ -601,6 +830,39 @@ def aggregate(
         "claim_ceiling": e1["claim_ceiling"],
     }
     (output / "result.json").write_bytes(RUNNER.json_bytes(result))
+    lines = [
+        "# E1 frozen training frontier census",
+        "",
+        "> Training-only diagnostic; not an Axiom candidate, validation result, "
+        "private-holdout result, or state-of-the-art claim.",
+        "",
+        "All sizes are complete framed bytes. Routing gain compares the best "
+        "practical codec per item with the best single practical codec for the "
+        "category. Total headroom additionally includes the ZPAQ research ceiling.",
+        "",
+        "| Category | Best single practical | Practical oracle | Full oracle | "
+        "Routing gain | Total headroom |",
+        "|---|---:|---:|---:|---:|---:|",
+    ]
+    for row in summaries:
+        lines.append(
+            f"| {row['category']} | {row['best_single_practical_bytes']:,} | "
+            f"{row['practical_per_item_oracle']['bytes']:,} | "
+            f"{row['per_item_oracle']['bytes']:,} | "
+            f"{row['practical_routing_gain_basis_points'] / 100:.2f}% | "
+            f"{row['total_headroom_basis_points'] / 100:.2f}% |"
+        )
+    lines.extend(
+        [
+            "",
+            "Speed and memory are same-hosted-runner contextual measurements, "
+            "not dedicated-machine comparisons. Exact per-codec compression, "
+            "decompression, peak RSS, integrity, and provenance fields are in "
+            "`result.json`.",
+            "",
+        ]
+    )
+    (output / "README.md").write_text("\n".join(lines), encoding="utf-8")
     sums = []
     for path in sorted(
         candidate
@@ -619,6 +881,8 @@ def main() -> int:
     parser.add_argument("--tool-receipt", type=Path, required=True)
     parser.add_argument("--shards-root", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--recover-source-run", type=int)
+    parser.add_argument("--verification-commit")
     args = parser.parse_args()
     try:
         result = aggregate(
@@ -627,6 +891,8 @@ def main() -> int:
             args.tool_receipt,
             args.shards_root,
             args.output,
+            recover_source_run=args.recover_source_run,
+            verification_commit=args.verification_commit,
         )
     except (KeyError, OSError, TypeError, ValueError, json.JSONDecodeError) as error:
         raise SystemExit(f"E1 run verification failed: {error}") from error

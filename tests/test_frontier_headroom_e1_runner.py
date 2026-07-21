@@ -131,6 +131,49 @@ class FrontierHeadroomE1RunnerTests(unittest.TestCase):
             self.assertGreater(row["compress"]["peak_rss_bytes"], 0)
             self.assertEqual(row["compress"]["declared_command"], task["compress"])
 
+    @unittest.skipUnless(
+        all(hasattr(os, name) for name in ("wait4", "killpg", "setsid")),
+        "E1 hosted measurements require POSIX wait4 and process groups",
+    )
+    def test_unretained_warmup_leaves_no_unbound_logs(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            result = root / "result"
+            result.mkdir()
+            source = root / "source.bin"
+            source.write_bytes(b"warmup-data")
+            task = {
+                "task_id": "whole/kanzi-max/fixture",
+                "phase": "whole_item",
+                "codec_id": "kanzi-max",
+                "item_id": "fixture",
+                "category": "fixture",
+                "compress": [
+                    sys.executable,
+                    "-c",
+                    "from pathlib import Path; Path('$WORK/artifact.bin').write_bytes(Path('$WORK/input.bin').read_bytes())",
+                ],
+                "decompress": [
+                    sys.executable,
+                    "-c",
+                    "from pathlib import Path; Path('$WORK/restored.bin').write_bytes(Path('$WORK/artifact.bin').read_bytes())",
+                ],
+            }
+            row = RUNNER.run_repetition(
+                task,
+                source,
+                root,
+                result,
+                -1,
+                retained=False,
+                timeout_seconds=10,
+            )
+            self.assertTrue(row["warmup"])
+            self.assertEqual(
+                [path for path in (result / "logs").rglob("*") if path.is_file()],
+                [],
+            )
+
     def test_whole_trigger_uses_complete_axe1o_accounting(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             paths = []
