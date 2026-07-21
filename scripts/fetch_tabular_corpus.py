@@ -199,6 +199,7 @@ def build(
         "name": config["name"],
         "category": config["category"],
         "claim_ceiling": config["claim_ceiling"],
+        "split": config_key,
         "source_split": config_key,
         "benchmark_split": benchmark_split,
         "config_path": str(config_path),

@@ -116,6 +116,23 @@ class TabularCorpusTests(unittest.TestCase):
                 )
             self.assertFalse(output.exists())
 
+    def test_development_manifest_declares_top_level_development_split(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            cache = root / "cache"
+            cache.mkdir()
+            archive = cache / "fixture.zip"
+            digest = write_zip(archive, "data.csv", b"a,b\n1,2\n333,444\n")
+            config = root / "config.json"
+            config.write_text(json.dumps(config_for(archive, digest)))
+
+            manifest_path = MODULE.build(config, "development", root / "output", cache)
+            manifest = json.loads(manifest_path.read_text())
+            # The E1 training-manifest assembler reads a top-level "split".
+            self.assertEqual(manifest["split"], "development")
+            self.assertEqual(manifest["source_split"], "development")
+            self.assertEqual(manifest["benchmark_split"], "train")
+
     def test_checksum_mismatch_and_unsafe_member_are_rejected(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
