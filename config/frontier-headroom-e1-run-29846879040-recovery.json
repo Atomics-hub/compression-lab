@@ -1,0 +1,210 @@
+{
+  "schema_version": 1,
+  "name": "frontier-headroom-e1-github-recovery-receipt-v1",
+  "source_run_id": 29846879040,
+  "source_run_attempt": 1,
+  "source_head_sha": "ee0b98180393034da73afc5eee139036f87b91b0",
+  "source_event": "workflow_dispatch",
+  "source_conclusion": "failure",
+  "source_url": "https://github.com/Atomics-hub/compression-lab/actions/runs/29846879040",
+  "measurement_runner_sha256": "d2dd2c1f07142bb8849d369688e0b20a30cb6b64881c01e3e3e3b805482527ea",
+  "failed_publication_verifier_sha256": "4afdb9dd7ac7d2ab128fd590694814d11e55ad252a6f626fc55fc7113da0f145",
+  "artifacts": [
+    {
+      "id": 8503470053,
+      "name": "e1-sample-practical-english_wikimedia_wikitext-29846879040",
+      "size_in_bytes": 17491168,
+      "digest": "sha256:9574feff357d385a87981d62be0cf394d78654bbc02c5eb977474ee9003861cf",
+      "expired": false
+    },
+    {
+      "id": 8502495585,
+      "name": "e1-sample-practical-json_logs-29846879040",
+      "size_in_bytes": 2348646,
+      "digest": "sha256:a632c871902a0c06c44e385fe36606a21ed7915c12286e14232ec43b96e33d63",
+      "expired": false
+    },
+    {
+      "id": 8503368907,
+      "name": "e1-sample-practical-numeric_matrices_timeseries-29846879040",
+      "size_in_bytes": 6325351,
+      "digest": "sha256:77d721effee1f9fc8398ebb136fb6d8f5cb9400b37617feb18b8d65a1d4b76cb",
+      "expired": false
+    },
+    {
+      "id": 8503817107,
+      "name": "e1-sample-practical-source_code_bundles-29846879040",
+      "size_in_bytes": 6038601,
+      "digest": "sha256:7911de72fbd90297be3ed496c97dc58ffbad37889fd434e04dbdc55728798de5",
+      "expired": false
+    },
+    {
+      "id": 8503394915,
+      "name": "e1-sample-practical-tabular_records-29846879040",
+      "size_in_bytes": 2134153,
+      "digest": "sha256:a57b4344f3c582f6ae746c3675e06222d5cf52750b658c1d6fc95330557ea104",
+      "expired": false
+    },
+    {
+      "id": 8503348544,
+      "name": "e1-sample-zpaq-english_wikimedia_wikitext-29846879040",
+      "size_in_bytes": 5122239,
+      "digest": "sha256:ec130b17adefcde0e664266ce577bb039c26d33580ed028bd17b5411f3018307",
+      "expired": false
+    },
+    {
+      "id": 8502491851,
+      "name": "e1-sample-zpaq-json_logs-29846879040",
+      "size_in_bytes": 667442,
+      "digest": "sha256:4b25508145d81fa6d950f837335970be2f6464da174b60a2659a14ccb5fdef38",
+      "expired": false
+    },
+    {
+      "id": 8503414178,
+      "name": "e1-sample-zpaq-numeric_matrices_timeseries-29846879040",
+      "size_in_bytes": 1947520,
+      "digest": "sha256:c7543bd0fb669b759cc624b19918a8a7d430a637e6e790bdcd89e848b4bceb35",
+      "expired": false
+    },
+    {
+      "id": 8503779898,
+      "name": "e1-sample-zpaq-source_code_bundles-29846879040",
+      "size_in_bytes": 1739418,
+      "digest": "sha256:2a7fc4468e18e5a7ae80839f66b67e189e23505d946725cfea2183f883b4847a",
+      "expired": false
+    },
+    {
+      "id": 8503494355,
+      "name": "e1-sample-zpaq-tabular_records-29846879040",
+      "size_in_bytes": 640496,
+      "digest": "sha256:d071b0b0555a60b5b20eb704dd3296d91d8fb7de198abc17f196d9ef3b761189",
+      "expired": false
+    },
+    {
+      "id": 8501708469,
+      "name": "e1-schedule-29846879040",
+      "size_in_bytes": 7559,
+      "digest": "sha256:966743a049248e07c60d9838a8d5f0f7179a5fd9611c1b637b38b3defc141b16",
+      "expired": false
+    },
+    {
+      "id": 8505441758,
+      "name": "e1-segment-english_wikimedia_wikitext-29846879040",
+      "size_in_bytes": 352178922,
+      "digest": "sha256:77893c96a43516dc8b6a5308063630e66e106d499866b53803f9f71cd5b158c8",
+      "expired": false
+    },
+    {
+      "id": 8504089306,
+      "name": "e1-segment-json_logs-29846879040",
+      "size_in_bytes": 1092,
+      "digest": "sha256:9ad99636737f3f55210c8f8da13922d797a8fc541647b518f38494aabf75e243",
+      "expired": false
+    },
+    {
+      "id": 8505588039,
+      "name": "e1-segment-numeric_matrices_timeseries-29846879040",
+      "size_in_bytes": 131868425,
+      "digest": "sha256:60d2f0bee3b0abaf145da83eb23b46669fc6dc88b20a103b86e0ba23190ae41d",
+      "expired": false
+    },
+    {
+      "id": 8504088738,
+      "name": "e1-segment-source_code_bundles-29846879040",
+      "size_in_bytes": 1001,
+      "digest": "sha256:6941fb4498234b6c5c72f9a2b07de360b3eab14ff870db4bd93f16012d943882",
+      "expired": false
+    },
+    {
+      "id": 8504366353,
+      "name": "e1-segment-tabular_records-29846879040",
+      "size_in_bytes": 41813678,
+      "digest": "sha256:de8fedde8a4d1214364f26c7a771377bea476aeca389b42c70ec0451c78eaf87",
+      "expired": false
+    },
+    {
+      "id": 8501708083,
+      "name": "e1-tools-29846879040",
+      "size_in_bytes": 6338457,
+      "digest": "sha256:ca8d3adfa9189cbf2ac18dfa37427a129764ec01bdf86b354b793b29052e7489",
+      "expired": false
+    },
+    {
+      "id": 8502397345,
+      "name": "e1-training-29846879040",
+      "size_in_bytes": 204013233,
+      "digest": "sha256:f54fae818cab40662a2ef13fc6367d6222a01b4e9af73c6f4f466a28af09b323",
+      "expired": false
+    },
+    {
+      "id": 8503142214,
+      "name": "e1-whole-practical-english_wikimedia_wikitext-29846879040",
+      "size_in_bytes": 264671359,
+      "digest": "sha256:adbe59ad82cb782a662d7f01db99e7111ebbba10d7b2239fe89806ca9b758821",
+      "expired": false
+    },
+    {
+      "id": 8503749435,
+      "name": "e1-whole-practical-json_logs-29846879040",
+      "size_in_bytes": 30558377,
+      "digest": "sha256:9141bd68895596e2c06618599910ebac7e8e886aec9aab7b34393460f0975b6d",
+      "expired": false
+    },
+    {
+      "id": 8504069411,
+      "name": "e1-whole-practical-numeric_matrices_timeseries-29846879040",
+      "size_in_bytes": 100795238,
+      "digest": "sha256:7f73a261a1b64489c81b086606f8dd8fcd6b7a03563672aa3872d7460c754e24",
+      "expired": false
+    },
+    {
+      "id": 8503868163,
+      "name": "e1-whole-practical-source_code_bundles-29846879040",
+      "size_in_bytes": 70970426,
+      "digest": "sha256:842e9303e582050cfa4f959f7453438ef14a21bb0c3c9a120103b035dc05827c",
+      "expired": false
+    },
+    {
+      "id": 8503291039,
+      "name": "e1-whole-practical-tabular_records-29846879040",
+      "size_in_bytes": 32697692,
+      "digest": "sha256:9e0113f549fb8c28964043ad0093b878168e0a3ba552c207f4d6fdab78fabbf0",
+      "expired": false
+    },
+    {
+      "id": 8503322622,
+      "name": "e1-whole-zpaq-english_wikimedia_wikitext-29846879040",
+      "size_in_bytes": 48391352,
+      "digest": "sha256:6f33854af90eb71c2c67dedf6ae4916149341447e87a7cc4217df1ba8a1cce8a",
+      "expired": false
+    },
+    {
+      "id": 8503573369,
+      "name": "e1-whole-zpaq-json_logs-29846879040",
+      "size_in_bytes": 2702895,
+      "digest": "sha256:18a55991d1eb13a1cd0b9ab5edfa8c4325f8aa6480191ead8d258df8f10be218",
+      "expired": false
+    },
+    {
+      "id": 8503645140,
+      "name": "e1-whole-zpaq-numeric_matrices_timeseries-29846879040",
+      "size_in_bytes": 19417722,
+      "digest": "sha256:afaeefc946692e86335459aa6beaa729699a84271a026ad9d25c9da92a340d66",
+      "expired": false
+    },
+    {
+      "id": 8503785223,
+      "name": "e1-whole-zpaq-source_code_bundles-29846879040",
+      "size_in_bytes": 12626830,
+      "digest": "sha256:86afbb014ff1667baf93bd2f4e2be0dc5a37808a942e785784520e0c453ca0b5",
+      "expired": false
+    },
+    {
+      "id": 8503803562,
+      "name": "e1-whole-zpaq-tabular_records-29846879040",
+      "size_in_bytes": 6082202,
+      "digest": "sha256:e1e8e2eac06435aa82159e41c3336816e0726d5bad7db53149389766be898984",
+      "expired": false
+    }
+  ]
+}

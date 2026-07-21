@@ -292,6 +292,12 @@ def run_repetition(
                     process[key] = (
                         Path(process[key]).relative_to(result_root).as_posix()
                     )
+        # Warmups are deliberately unscored and are not represented in the
+        # shard receipt.  Do not leave their process logs in the immutable
+        # shard: the publication verifier requires every retained byte to be
+        # receipt-bound.
+        if not retained:
+            shutil.rmtree(log_dir)
         return {
             "repetition": repetition,
             "warmup": not retained,
