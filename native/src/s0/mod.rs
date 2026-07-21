@@ -6,9 +6,11 @@
 //! deliberately layered on top of these primitives.
 
 mod fixed_log;
+mod json;
 mod ledger;
 mod tape;
 
 pub use fixed_log::{LossTable, Probability, MAX_PROBABILITY, MIN_PROBABILITY};
+pub use json::{split_records, JsonLayout, JsonLayoutError, Record};
 pub use ledger::{Decision, Ledger, Projection};
 pub use tape::{Tape, TapeError, TapeReader, TapeWriter};
