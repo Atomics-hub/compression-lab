@@ -1,0 +1,194 @@
+{
+  "schema_version": 1,
+  "name": "axiom-json-log-native-screen-s0-v1",
+  "status": "refrozen_after_adversarial_review_before_any_s0_measurement",
+  "evidence_stage": "development_only_prequential_screen",
+  "claim_ceiling": "Predeclared development-only model screen. It is not an exact codec result, candidate score, unseen validation, private holdout, product benchmark, independent reproduction, or state-of-the-art evidence.",
+  "source": {
+    "measurement_run_id": 29846879040,
+    "measurement_commit": "ee0b98180393034da73afc5eee139036f87b91b0",
+    "category": "json_logs",
+    "practical_artifact": {
+      "id": 8503749435,
+      "name": "e1-whole-practical-json_logs-29846879040",
+      "size_in_bytes": 30558377,
+      "digest": "sha256:9141bd68895596e2c06618599910ebac7e8e886aec9aab7b34393460f0975b6d",
+      "result_sha256": "253bcbfbb9e7bd33bc9791f01b6b7b5f0c5e7ee1a0b54375d8fba67bee1320a4"
+    },
+    "ceiling_artifact": {
+      "id": 8503573369,
+      "name": "e1-whole-zpaq-json_logs-29846879040",
+      "size_in_bytes": 2702895,
+      "digest": "sha256:18a55991d1eb13a1cd0b9ab5edfa8c4325f8aa6480191ead8d258df8f10be218",
+      "result_sha256": "4c8213fa39b7faba353a632cd9c7fc95b3b7486fede7e04e7a49db1b22265c15"
+    },
+    "training_manifest_sha256": "f3a0fd7ba756b112162d54ab6178cd1e189301275b43ffb4825bcacde1e2d633",
+    "source_bytes": 203578132,
+    "records": 750000,
+    "per_item_reference_extraction": {
+      "date_utc": "2026-07-21",
+      "method": "Extract repetitions[0] source and artifact byte counts and SHA-256 values from the two result.json members after verifying each parent result.json SHA-256 against the frozen E2-A source_run binding.",
+      "practical_result_member": "result.json",
+      "ceiling_result_member": "result.json",
+      "status": "verified_from_recoverable_GitHub_artifacts_before_freeze"
+    }
+  },
+  "references": {
+    "aggregate": {
+      "kanzi_complete_bytes": 1712149,
+      "zpaq_510_complete_bytes": 1347064,
+      "zpaq_gain_basis_points": 2132
+    },
+    "items": [
+      {
+        "id": "clue-early-development",
+        "source_bytes": 62267473,
+        "source_sha256": "4f1571569ebdf98621bbd29da45ba84ab37b4f1f1033aacf822dd5b3f40358fe",
+        "kanzi_artifact_bytes": 630357,
+        "kanzi_artifact_sha256": "c6e2a816c2d9bbd7cf07df5cd49d708536bc57aaf436409076a2ce9b6ffe65e7",
+        "kanzi_single_item_axe1o_bytes": 630525,
+        "zpaq_510_artifact_bytes": 527496,
+        "zpaq_510_artifact_sha256": "66ac32465aaa9db0ab83b58dfad2706582e2d0dc7c60b90bb9524ba692cefa5b",
+        "zpaq_510_single_item_axe1o_bytes": 527666
+      },
+      {
+        "id": "clue-middle-development",
+        "source_bytes": 69847327,
+        "source_sha256": "5ee50c36db110b023faf412e05398402e25ed59776ef5ee9323339f8b1aa4fa5",
+        "kanzi_artifact_bytes": 438353,
+        "kanzi_artifact_sha256": "807f18feb27f50b275a11e200d49db923166675aacd49152d6ff8cb214664dc7",
+        "kanzi_single_item_axe1o_bytes": 438522,
+        "zpaq_510_artifact_bytes": 283890,
+        "zpaq_510_artifact_sha256": "b70e0146b79836afff17c1086bd593aeb03b5262669556e7de14abbef55d5df6",
+        "zpaq_510_single_item_axe1o_bytes": 284061
+      },
+      {
+        "id": "clue-late-development",
+        "source_bytes": 71463332,
+        "source_sha256": "71091e9fa5d8fd20944e1bd5707f1c832470c56d4b662fc6ef3d34e9478eb739",
+        "kanzi_artifact_bytes": 643041,
+        "kanzi_artifact_sha256": "f92fb8335cc2af460936c657fd306d6b51c2ecde0f891999ea7c4ad47ee58424",
+        "kanzi_single_item_axe1o_bytes": 643208,
+        "zpaq_510_artifact_bytes": 535274,
+        "zpaq_510_artifact_sha256": "641beac1114f4af0ef19525e68be6a2e59331f2f4a889e3cccf1f7bfcd632b7e",
+        "zpaq_510_single_item_axe1o_bytes": 535443
+      }
+    ]
+  },
+  "e2_a_dependency": {
+    "run_id": 29867575535,
+    "head_sha": "45ca664d77e1a8a2f7ac057914e3ee034d683a30",
+    "status_when_frozen": "in_progress",
+    "anchor_or_confirmation_failure": "Do not measure S0 until the E1 transport failure is resolved.",
+    "advance": "Run S0 as frozen, then use its attributions to freeze an exact native prototype.",
+    "refine": "Run the one already-authorized bounded refinement first; S0 remains frozen and follows without changing its gates.",
+    "kill_by_ratio": "Run S0 with the same gates; only structure-aware mechanisms may rescue the lane.",
+    "kill_by_ineligibility": "Run S0 with the same gates because its bounded architecture is independent of ZPAQ allocation behavior.",
+    "fragile": "Tighten any later exact native prototype to a 384 MiB measured RSS cap."
+  },
+  "information_boundary": {
+    "allowed": "Only the three exact licensed CLUE development items listed in references.items may be opened after their bytes and SHA-256 values pass.",
+    "forbidden": "Never open, stat, hash, list, sample, or derive statistics from consumed validation, reserved evaluation, private holdout, or unlisted corpus paths.",
+    "fresh_public_validation_status": "none_frozen",
+    "private_holdout_status": "sealed; identities absent",
+    "measurement_authorization": "No S0 corpus measurement until E2-A completes with a transported E1 anchor and byte-identical confirmation."
+  },
+  "screen": {
+    "purpose": "Estimate the complete-byte potential and isolated contribution of bounded structure-aware JSON/log mechanisms before building an exact codec.",
+    "primary_arm": "full",
+    "engine_requirements": {
+      "online_only": true,
+      "serialized_prior_bytes": 0,
+      "integer_probability_state": true,
+      "exact_reconstruction": "Every source byte must be reproduced exactly from the projected self-contained streams and deterministic initial state. Modeled events, escape flags, lengths, record delimiters, syntax choices, literal bytes, dictionaries, caches, and all other reconstruction information are charged.",
+      "confirmation": "A separate clean-checkout process using the pinned engine and applicable base or refined constants manifest must reproduce identical per-item Q24 modeled loss, raw-literal byte counts, modeled-event counts, projected sizes, and decoded SHA-256 values.",
+      "average_modeled_binary_event_limit_per_record": 96,
+      "event_limit_scope": "For the full arm, total_modeled_binary_events must be <= 96 * record_count separately for every item and for the aggregate. Raw literal bytes are not modeled events, but each is charged exactly 8 bits. The raw-o3, m1-chassis, m1-m2, and attribution arms are diagnostic and exempt; no exempt arm may trigger advance.",
+      "event_limit_failure": "An over-limit full arm is invalid and kills S0 regardless of projected size.",
+      "record_limit_bytes": 1048576,
+      "json_depth_limit": 32,
+      "field_count_limit": 256,
+      "segment_bytes": 16777216,
+      "segment_semantics": "Close the projection ledger at the first record boundary at or after each segment_bytes interval. No model, cache, dictionary, or probability state resets at a segment boundary.",
+      "item_semantics": "Process items in references.items order, but reset all model, cache, dictionary, probability, and segment state to the fixed empty initial state at every item boundary.",
+      "record_semantics": "A record is its exact byte sequence through and including LF. A final nonempty unterminated suffix is one record. An empty final suffix is not a record. The record delimiter and whether the final record is terminated are charged.",
+      "parse_and_fallback": "Use a strict deterministic RFC-8259 JSON parser while preserving every byte-level spelling choice needed for exact reconstruction. A malformed record or any record exceeding a declared bound takes direct-literal fallback. The fallback choice, byte length, bytes, and delimiter state are all charged; fallback does not update structure-specific state.",
+      "session_slots": 65536,
+      "session_slot_bytes_maximum": 128,
+      "token_slots": 262144,
+      "token_slot_bytes_maximum": 32,
+      "token_byte_arena_bytes_maximum": 25165824,
+      "context_table_bytes_maximum": 201326592,
+      "mixer_table_bytes_maximum": 16777216,
+      "sse_table_bytes_maximum": 16777216,
+      "total_model_state_bytes_maximum": 402653184,
+      "eviction": "Deterministic CLOCK: advance only on insertion, set the reference bit on a decoded hit, clear reference bits while scanning, evict the first zero-bit slot, and break all ties by ascending slot index.",
+      "static_or_shipped_dictionary_bytes": 0
+    },
+    "arms": [
+      {"id": "raw-o3", "mechanisms": ["single raw byte stream order-3"]},
+      {"id": "m1-chassis", "mechanisms": ["template and field demux", "per-lane order-1/2"]},
+      {"id": "m1-m2", "mechanisms": ["m1", "id delta with escape", "time delta by type with escape"]},
+      {"id": "m1-m2-m3", "mechanisms": ["m1", "m2", "bounded session reference"]},
+      {"id": "m1-m2-m4", "mechanisms": ["m1", "m2", "bounded online token dictionary"]},
+      {"id": "m1-m2-m5", "mechanisms": ["m1", "m2", "fixed-point predictor mixing", "one SSE stage"]},
+      {"id": "full", "mechanisms": ["m1", "m2", "m3", "m4", "m5"]},
+      {"id": "full-minus-m3", "mechanisms": ["m1", "m2", "m4", "m5"]},
+      {"id": "full-minus-m4", "mechanisms": ["m1", "m2", "m3", "m5"]},
+      {"id": "full-minus-m5", "mechanisms": ["m1", "m2", "m3", "m4"]}
+    ],
+    "look_budget": "Exactly one ordered measurement and one deterministic confirmation per arm. No added arms or changed constants after any S0 loss is observed except the single fully specified capacity refinement below, if and only if the primary arm lands in the refinement band.",
+    "freeze_requirements_before_measurement": {
+      "engine_commit": "Required and recorded before the first S0 measurement.",
+      "engine_source_sha256": "Required and recorded before the first S0 measurement.",
+      "base_constants_manifest_sha256": "Required and recorded before the first S0 measurement; the manifest must enumerate every context key, table size, hash, probability initialization/update, mixer learning rate, SSE bin, integer rounding rule, escape code, and stream grammar.",
+      "refined_constants_manifest_sha256": "Required and recorded before the first S0 measurement even if no refinement is later authorized; it must differ from the base manifest only at the two predeclared table maxima.",
+      "runner_and_verifier_sha256": "Required and recorded before the first S0 measurement.",
+      "protocol_path": "docs/benchmarks/2026-07-21-json-log-native-screen-s0-protocol.md",
+      "protocol_sha256": "dbc2fa3cf8906f972273a6bad59e6ca9a68aa2e11000987ae1ee756bef970dc2"
+    },
+    "projection": {
+      "charged_loss_q24": "sum_modeled_prequential_loss_q24 + raw_literal_bytes * 8 * 2^24",
+      "payload_bytes": "ceil(charged_loss_q24 / (8 * 2^24))",
+      "coder_allowance_bytes": "ceil(payload_bytes * 5 / 1000)",
+      "block_allowance_bytes": 6272,
+      "stream_metadata_bytes": 72,
+      "fixed_framing_bytes": 4096,
+      "complete_bytes": "payload_bytes + coder_allowance_bytes + 6272 + 72 + 4096",
+      "per_item_complete_bytes": "item_payload_bytes + ceil(item_payload_bytes * 5 / 1000) + 32 * ceil(item_source_bytes / 2^20) + 24 + 4096"
+    },
+    "gates": {
+      "advance_maximum_projected_complete_bytes": 1455326,
+      "advance_minimum_gain_basis_points": 1500,
+      "permit_one_refinement_minimum_bytes": 1455327,
+      "permit_one_refinement_maximum_bytes": 1540934,
+      "kill_at_or_above_projected_complete_bytes": 1540935,
+      "mechanism_report_minimum_attribution_bytes": 8561,
+      "mechanism_exact_build_minimum_attribution_bytes": 17122,
+      "full_minus_m4_minimum_gain_basis_points": 700,
+      "full_minus_m4_formula": "floor((1712149 - full_minus_m4_projected_complete_bytes) * 10000 / 1712149)",
+      "full_minus_m4_failure": "If full-minus-m4 gains fewer than 700 basis points, label the result vocabulary-carried and do not authorize an exact native build from S0.",
+      "per_item_rule": "Every full-arm per-item complete projection must not exceed that item's single-item Kanzi AXE1O reference. A violation kills S0.",
+      "decision_formula": "floor((1712149 - full_arm_projected_complete_bytes) * 10000 / 1712149)",
+      "decision_scope": "Only the full arm can trigger advance, refinement, or kill. All other arms are attribution-only except the independent full-minus-m4 quarantine gate.",
+      "attribution": {
+        "m1_bytes": "max(0, raw-o3 projected complete bytes - m1-chassis projected complete bytes)",
+        "m2_bytes": "max(0, m1-chassis projected complete bytes - m1-m2 projected complete bytes)",
+        "m3_bytes": "max(0, full-minus-m3 projected complete bytes - full projected complete bytes)",
+        "m4_bytes": "max(0, full-minus-m4 projected complete bytes - full projected complete bytes)",
+        "m5_bytes": "max(0, full-minus-m5 projected complete bytes - full projected complete bytes)",
+        "interaction_policy": "Ordered-chain interactions are credited to the later mechanism; leave-one-out interactions are not separately assigned. No alternative attribution formula is permitted."
+      }
+    },
+    "single_refinement": {
+      "authorization": "Only if the first full-arm projection is 1455327 through 1540934 bytes inclusive and all exactness, event, and per-item gates pass.",
+      "changes": {
+        "context_table_bytes_maximum": {"from": 201326592, "to": 251658240},
+        "sse_table_bytes_maximum": {"from": 16777216, "to": 25165824}
+      },
+      "unchanged": "Except for the two table maxima in changes, all mechanisms, context keys, hashes, update rules, item order, projection charges, memory ceiling, event limit, thresholds, engine source, runner, verifier, and other constants remain byte-for-byte unchanged.",
+      "confirmation": "The refined arm uses its separately pre-pinned refined constants manifest and receives its own clean-checkout deterministic confirmation under the same engine, runner, and verifier hashes.",
+      "decision": "The refined full arm must meet the unchanged 1455326-byte advance maximum and every other gate; otherwise S0 is killed. No second refinement is allowed."
+    }
+  }
+}
