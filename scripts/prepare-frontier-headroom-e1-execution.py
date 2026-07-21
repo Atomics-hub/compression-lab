@@ -72,12 +72,15 @@ def build_plan(
         "$INPUT": "$WORK/input.bin",
         "$ARTIFACT": "$WORK/artifact.bin",
         "$RESTORED": "$WORK/restored.bin",
-        "$RESTORED_DIRECTORY": "$WORK/restored",
+        "$RESTORED_DIRECTORY": "$WORK/restored/input.bin",
     }
     whole = []
     samples = []
     segments = []
     for codec in e1["codecs"]:
+        variables["$ARTIFACT"] = (
+            "$WORK/artifact.zpaq" if codec["id"] == "zpaq-5-m510" else "$WORK/artifact.bin"
+        )
         for item in e1["items"]:
             whole.append(
                 {
@@ -109,6 +112,9 @@ def build_plan(
                 }
             )
     for codec in e1["codecs"]:
+        variables["$ARTIFACT"] = (
+            "$WORK/artifact.zpaq" if codec["id"] == "zpaq-5-m510" else "$WORK/artifact.bin"
+        )
         for item in e1["items"]:
             samples.append(
                 {

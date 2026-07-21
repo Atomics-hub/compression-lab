@@ -72,7 +72,7 @@
       "id": "zpaq-5-m510",
       "tier": "research_ceiling_and_ratio",
       "version": "7.15",
-      "binary_sha256": "c54e06fca84580951509656c8b938b594727014acd3fddabcff787d021d032e8",
+      "binary_sha256": "3164a2c150e25815ef3f967623e73d373b2542330cafc3bc4950c2ac74cea350",
       "binary_receipt_sha256": "a6a80ee8acf3e2d5a645546da20335d45e4657e133451db9ee8dc2db46b210c6",
       "source_archive_sha256": "e85ec2529eb0ba22ceaeabd461e55357ef099b80f61c14f377b429ea3d49d418",
       "staged_input_name": "input.bin",

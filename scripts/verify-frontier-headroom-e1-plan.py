@@ -54,7 +54,7 @@ EXPECTED_BINARY_SHA256 = {
     "kanzi-max": "1518708ef729b2520ac706997721eb90c024266d72e97cc3a1db25a3a1afcbdd",
     "zstd-19-long": "9b5676aae3cb048cf68e2b40c543d9523db3b4cb911b31861bd5f4fcb050c4b6",
     "xz-lzma2-9e": "16b9994cca884ed2a66ba63736f1450049cbc6fd1d93076c51e5f0e7f7a71381",
-    "zpaq-5-m510": "c54e06fca84580951509656c8b938b594727014acd3fddabcff787d021d032e8",
+    "zpaq-5-m510": "3164a2c150e25815ef3f967623e73d373b2542330cafc3bc4950c2ac74cea350",
 }
 EXPECTED_COMMANDS = {
     "kanzi-max": {
