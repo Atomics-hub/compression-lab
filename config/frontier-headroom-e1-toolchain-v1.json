@@ -4,11 +4,11 @@
   "declared_at": "2026-07-20",
   "e1_bindings": {
     "config_path": "config/frontier-headroom-oracle-census-e1-v1.json",
-    "config_sha256": "4c53fe3dd746bbed27917265a059fc2202754365f9f6946045658bc9ab82e062",
+    "config_sha256": "bb2d15451e07ac073270f27951876882da4abd742cf0a13a48a44d89283837ef",
     "protocol_path": "docs/benchmarks/2026-07-20-frontier-headroom-oracle-census-e1-protocol.md",
     "protocol_sha256": "925542c5547424705fd4bf6ddcfebb7a1db808bdeb1b8e2588db62449e47cb37",
     "plan_verifier_path": "scripts/verify-frontier-headroom-e1-plan.py",
-    "plan_verifier_sha256": "25e15891ee4f05fd8751b470d6cfa9aaeebe3ec68ae57dd7fd878330b1c82d68"
+    "plan_verifier_sha256": "fcfc86a3e43fdcc0c0053b76948550176440f2ac9b5ec7779d25cb774799f2b2"
   },
   "security_boundary": {
     "official_sources_only": true,
@@ -121,7 +121,7 @@
     {"codec_id": "kanzi-max", "path": "bin/kanzi", "bytes": 779328, "sha256": "1518708ef729b2520ac706997721eb90c024266d72e97cc3a1db25a3a1afcbdd", "version_command": ["$EXECUTABLE", "--help"], "version_exit_codes": [0], "version_substring": "Kanzi 2.5.3", "runtime_assets": []},
     {"codec_id": "zstd-19-long", "path": "bin/zstd", "bytes": 188864, "sha256": "9b5676aae3cb048cf68e2b40c543d9523db3b4cb911b31861bd5f4fcb050c4b6", "version_command": ["$EXECUTABLE", "--version"], "version_exit_codes": [0], "version_substring": "v1.5.7", "runtime_assets": ["lib/libzstd.1.dylib", "lib/liblzma.5.dylib", "lib/liblz4.1.dylib"]},
     {"codec_id": "xz-lzma2-9e", "path": "bin/xz", "bytes": 114336, "sha256": "16b9994cca884ed2a66ba63736f1450049cbc6fd1d93076c51e5f0e7f7a71381", "version_command": ["$EXECUTABLE", "--version"], "version_exit_codes": [0], "version_substring": "xz (XZ Utils) 5.8.3", "runtime_assets": ["lib/liblzma.5.dylib"]},
-    {"codec_id": "zpaq-5-m510", "path": "bin/zpaq", "bytes": 350232, "sha256": "3164a2c150e25815ef3f967623e73d373b2542330cafc3bc4950c2ac74cea350", "version_command": ["$EXECUTABLE"], "version_exit_codes": [1], "version_substring": "zpaq v7.15", "runtime_assets": []}
+    {"codec_id": "zpaq-5-m510", "path": "bin/zpaq", "bytes": 350232, "sha256": "fecbedd1fe9ee9bfe8308ad61d223635dc65fc853f18b79dcabd854e5e341ac0", "version_command": ["$EXECUTABLE"], "version_exit_codes": [1], "version_substring": "zpaq v7.15", "runtime_assets": []}
   ],
   "runtime_assets": [
     {"path": "lib/libzstd.1.dylib", "bytes": 635328, "sha256": "602d50cbe6fad0f0da6d1b73284ae3f75316015aea482ebd55614b6df2406b43"},
