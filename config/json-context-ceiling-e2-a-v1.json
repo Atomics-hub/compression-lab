@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "name": "axiom-json-context-ceiling-e2-a-v1",
+  "declared_at": "2026-07-21",
+  "frozen_before_measurement": true,
+  "evidence_stage": "development_only_diagnostic",
+  "objective": "Measure how much of the E1 ZPAQ level-5 JSON/log modeling advantage survives when block size is reduced enough to satisfy Axiom's 460 MiB development memory target.",
+  "claim_ceiling": "Licensed development-only memory/ratio attribution. It is not a new codec, an Axiom candidate score, unseen validation, private holdout, independent reproduction, a practical speed win, or state-of-the-art evidence.",
+  "source_run": {
+    "id": 29846879040,
+    "head_sha": "ee0b98180393034da73afc5eee139036f87b91b0",
+    "github_recovery_receipt": "config/frontier-headroom-e1-run-29846879040-recovery.json",
+    "github_recovery_receipt_sha256": "f3d148d478bdbe5f6dc54bafccdae086ab7dec4557066fa9a7afd7e8fc335e47",
+    "tools_artifact": {
+      "id": 8501708083,
+      "name": "e1-tools-29846879040",
+      "size_in_bytes": 6338457,
+      "digest": "sha256:ca8d3adfa9189cbf2ac18dfa37427a129764ec01bdf86b354b793b29052e7489"
+    },
+    "training_artifact": {
+      "id": 8502397345,
+      "name": "e1-training-29846879040",
+      "size_in_bytes": 204013233,
+      "digest": "sha256:f54fae818cab40662a2ef13fc6367d6222a01b4e9af73c6f4f466a28af09b323"
+    },
+    "e1_practical_json_artifact": {
+      "id": 8503749435,
+      "name": "e1-whole-practical-json_logs-29846879040",
+      "size_in_bytes": 30558377,
+      "digest": "sha256:9141bd68895596e2c06618599910ebac7e8e886aec9aab7b34393460f0975b6d",
+      "result_sha256": "253bcbfbb9e7bd33bc9791f01b6b7b5f0c5e7ee1a0b54375d8fba67bee1320a4"
+    },
+    "e1_zpaq_json_artifact": {
+      "id": 8503573369,
+      "name": "e1-whole-zpaq-json_logs-29846879040",
+      "size_in_bytes": 2702895,
+      "digest": "sha256:18a55991d1eb13a1cd0b9ab5edfa8c4325f8aa6480191ead8d258df8f10be218",
+      "result_sha256": "4c8213fa39b7faba353a632cd9c7fc95b3b7486fede7e04e7a49db1b22265c15"
+    },
+    "tool_receipt_sha256": "6533bac0d8f11a479a3d16a5956f4149da2a48e24397da28e11e0318580a1782",
+    "training_manifest_sha256": "f3a0fd7ba756b112162d54ab6178cd1e189301275b43ffb4825bcacde1e2d633",
+    "zpaq_binary_sha256": "fecbedd1fe9ee9bfe8308ad61d223635dc65fc853f18b79dcabd854e5e341ac0"
+  },
+  "information_boundary": {
+    "allowed": "Only the three exact CLUE development files listed in items may be opened, after the source artifacts, receipts, manifest, binary, and complete roster pass verification.",
+    "forbidden": "Never open, stat, hash, sample, list, or derive statistics from any public-validation, consumed-validation, reserved-evaluation, private-holdout, or unlisted corpus path.",
+    "logtrie_public_validation_status": "consumed",
+    "clue_public_validation_status": "consumed",
+    "fresh_public_validation_status": "none_frozen",
+    "private_holdout_status": "sealed; identities and bytes absent from this protocol",
+    "future_score_requirement": "Acquire and freeze a licensed, lineage-distinct, previously unopened corpus before any later candidate receives a new unseen score.",
+    "failure_policy": "Any artifact, roster, digest, size, license, executable, command, exactness, determinism, accounting, resource, receipt, or seal mismatch fails closed and remains visible."
+  },
+  "items": [
+    {"id": "clue-early-development", "category": "json_logs", "path": "clue/clue-early-development.jsonl", "license": "CC-BY-4.0", "bytes": 62267473, "sha256": "4f1571569ebdf98621bbd29da45ba84ab37b4f1f1033aacf822dd5b3f40358fe"},
+    {"id": "clue-middle-development", "category": "json_logs", "path": "clue/clue-middle-development.jsonl", "license": "CC-BY-4.0", "bytes": 69847327, "sha256": "5ee50c36db110b023faf412e05398402e25ed59776ef5ee9323339f8b1aa4fa5"},
+    {"id": "clue-late-development", "category": "json_logs", "path": "clue/clue-late-development.jsonl", "license": "CC-BY-4.0", "bytes": 71463332, "sha256": "71091e9fa5d8fd20944e1bd5707f1c832470c56d4b662fc6ef3d34e9478eb739"}
+  ],
+  "methods": [
+    {"id": "zpaq-5-m54", "method": "54", "maximum_block_mib": 16},
+    {"id": "zpaq-5-m55", "method": "55", "maximum_block_mib": 32},
+    {"id": "zpaq-5-m56", "method": "56", "maximum_block_mib": 64},
+    {"id": "zpaq-5-m57", "method": "57", "maximum_block_mib": 128},
+    {"id": "zpaq-5-m510", "method": "510", "maximum_block_mib": 1024}
+  ],
+  "method_rationale": "ZPAQ 7.15 defines the digits after level 5 as a 2^B MiB maximum block size. The 16, 32, 64, and 128 MiB points measure the curve around the 460 MiB target on 62-71 MiB inputs. Method 510 is rerun as the explicit E1 archive-byte anchor; the gate refuses if it does not reproduce every E1 per-item archive digest.",
+  "command": {
+    "compress": ["$ZPAQ", "add", "$ARTIFACT", "input.bin", "-method", "$METHOD", "-threads", "1", "-noattributes", "-until", "20000101000000"],
+    "decompress": ["$ZPAQ", "extract", "$ARTIFACT", "input.bin", "-to", "$RESTORED", "-force", "-threads", "1", "-noattributes"],
+    "staged_input_name": "input.bin",
+    "staged_input_mtime_utc": "2000-01-01T00:00:00Z",
+    "artifact_path_policy": "Every trial uses a fresh nonexistent .zpaq path because zpaq add otherwise appends."
+  },
+  "measurement": {
+    "jobs": 1,
+    "threads": 1,
+    "warmups": 0,
+    "stage_one_repetitions_per_method_item": 1,
+    "confirmation_repetitions_per_selected_method_item": 1,
+    "confirmation_selection": "After stage one, select the smallest complete AXE2O method satisfying both memory targets. Also select m510 as the E1 anchor if different. Run exactly one additional repetition for each selected method and item. No other adaptive run is permitted.",
+    "schedule_order": "Methods in frozen config order 54,55,56,57,510; within each method, items sorted lexicographically by ID. Confirmation runs selected bounded method first, then m510 if different, each with the same item order.",
+    "timeout_seconds_per_process": 86400,
+    "workflow_timeout_minutes": 360,
+    "require_posix_wait4_peak_rss": true,
+    "require_exact_roundtrip_every_decode": true,
+    "require_identical_complete_artifact_sha256_across_confirmed_repetitions": true,
+    "maximum_compression_peak_rss_bytes": 482344960,
+    "maximum_decompression_peak_rss_bytes": 482344960,
+    "product_memory_cap_bytes": 536870912,
+    "product_memory_cap_status": "Context only. Passing the stricter 460 MiB development target implies same-run headroom below 512 MiB, but E2-A is not product-memory evidence.",
+    "artifact_accounting": "Count each physical self-contained .zpaq archive exactly, plus every byte in the AXE2O category container. No payload-only, estimated-bit, dictionary-excluded, or side-file size is admissible.",
+    "speed_status": "Contextual only. E2-A makes no practical-speed or commercial-tier claim."
+  },
+  "container": {
+    "name": "AXE2O",
+    "layout": "All integers are unsigned little-endian. A string is u16 byte length plus canonical UTF-8. AXE2O is magic[5]=AXE2O, version u8=1, category string, source training-manifest SHA-256 (32 raw bytes), item-count u32, then items sorted by ID: item string, method string, decoded-size u64, decoded SHA-256 (32 raw bytes), archive-size u64, archive SHA-256 (32 raw bytes); complete archive bytes follow in item-ID order.",
+    "comparison_note": "AXE2O has the same byte-width structure as E1 AXE1O. Method identifiers are counted as encoded; the fixed E1 Kanzi reference already counts its own identifier and complete archives."
+  },
+  "e1_fixed_reference": {
+    "publication_receipt": "runs/frontier-headroom-e1-training-v1/receipt.json",
+    "publication_receipt_sha256": "7d833cc96d0e5e14716560a7b9b7da56cf4b9cc0625dd48de10352b682067dce",
+    "result_member_sha256": "ce673e61840eca190903c93e56b71e0be4a59ec0b8ce11376f1ebd237793c7d2",
+    "category": "json_logs",
+    "kanzi_complete_bytes": 1712149,
+    "kanzi_complete_sha256": "1b439194f082df89d093f8daf456c9af0876b67520c2b65a2aa614cfbee9d632",
+    "zpaq_510_complete_bytes": 1347064,
+    "zpaq_510_complete_sha256": "c2da134f55e463b2326f29ec963f4ccb9ca28188777ef6ccc7710dc8a3182857",
+    "reference_recomputation": "Recompute both complete totals from the two pinned E1 raw JSON shard results before opening corpus bytes. E2 m510 must reproduce every E1 m510 per-item archive SHA-256 before any decision is admissible.",
+    "reference_scope": "Exact ratio reference only. Its speed and RSS may not be compared as same-run performance."
+  },
+  "decision_gates": {
+    "gain_basis_points_formula": "floor((1712149 - candidate_complete_bytes) * 10000 / 1712149)",
+    "eligible_method": "Every item is exact; every stage-one archive exists and is completely accounted; maximum compression RSS <=482344960; maximum decompression RSS <=482344960.",
+    "advance_threshold_basis_points": 1000,
+    "advance_maximum_complete_bytes": 1540934,
+    "kill_below_basis_points": 700,
+    "kill_when_complete_bytes_at_least": 1592299,
+    "refinement_band_minimum_complete_bytes": 1540935,
+    "refinement_band_maximum_complete_bytes": 1592298,
+    "fragile_peak_rss_bytes": 458227712,
+    "advance": "If the smallest eligible confirmed method is <=1540934 bytes, advance to a separately frozen component-attribution experiment and then a bounded native context-model prototype.",
+    "kill": "If no method is eligible, or the smallest eligible confirmed method is >=1592299 bytes, reject the bounded level-5 context-model lane on this development corpus.",
+    "refine_once": "If the smallest eligible confirmed method is 1540935..1592298 bytes inclusive, permit exactly one separately frozen refinement experiment; its design must be fixed before any further corpus measurement.",
+    "confirmation_failure": "If selected-method repetition 2 differs in complete archive SHA-256, exactness, or eligibility, or if E2 m510 differs from the pinned E1 m510 archive digests, the experiment fails; do not substitute another method in the same run.",
+    "kill_scope": "A kill rejects only this frozen ZPAQ-class level-5 context-model lane within 460 MiB on the three consumed CLUE development items. It does not disprove all bounded-memory modeling.",
+    "fragility_rule": "If the winner's maximum compression or decompression RSS is >=458227712 bytes, mark it fragile and require a later frozen stage to reconfirm RSS before downstream reliance."
+  },
+  "required_result_sections": [
+    "schema_version", "name", "completed", "repository_commit", "config_sha256", "protocol_sha256", "runner_sha256", "verifier_sha256", "source_bindings", "e1_reference", "host", "item_verification", "stage_one_trials", "confirmation_trials", "method_summaries", "selected_methods", "confirmation_containers", "decision", "file_manifest", "information_boundary", "claim_ceiling"
+  ]
+}
