@@ -1,0 +1,107 @@
+{
+  "claim_ceiling": "Licensed development-only memory/ratio attribution. It is not a new codec, an Axiom candidate score, unseen validation, private holdout, independent reproduction, a practical speed win, or state-of-the-art evidence.",
+  "decision": {
+    "best_eligible_complete_bytes": 1613165,
+    "best_eligible_gain_basis_points": 578,
+    "best_eligible_method": "zpaq-5-m54",
+    "confirmation_passed": true,
+    "outcome": "kill_bounded_level5_lane"
+  },
+  "evidence_stage": "development_only_diagnostic",
+  "information_boundary": {
+    "allowed": "Only the three exact CLUE development files listed in items may be opened, after the source artifacts, receipts, manifest, binary, and complete roster pass verification.",
+    "clue_public_validation_status": "consumed",
+    "failure_policy": "Any artifact, roster, digest, size, license, executable, command, exactness, determinism, accounting, resource, receipt, or seal mismatch fails closed and remains visible.",
+    "forbidden": "Never open, stat, hash, sample, list, or derive statistics from any public-validation, consumed-validation, reserved-evaluation, private-holdout, or unlisted corpus path.",
+    "fresh_public_validation_status": "none_frozen",
+    "future_score_requirement": "Acquire and freeze a licensed, lineage-distinct, previously unopened corpus before any later candidate receives a new unseen score.",
+    "logtrie_public_validation_status": "consumed",
+    "private_holdout_status": "sealed; identities and bytes absent from this protocol"
+  },
+  "name": "axiom-json-context-ceiling-e2-a-publication-receipt-v1",
+  "published_members": {
+    "README.md": "143d1a5639d574fc53098411760567b947736fd76f6a0683c91ebecd85c55c6f",
+    "SHA256SUMS": "6892a76fc61edefac025fda407409cd7f4a7eef1f71a346a412e6ceb811bc8bd",
+    "comparison.svg": "0908d5b4c635d62644c42369e415d00da4f0595b6b9810ec9181e617397f5556",
+    "containers/zpaq-5-m510-r1.axe2o": "762ac9f0c79b94ed5b9305d89db088fbb9ec6853e30f4124dc7c6134ffd19dd7",
+    "containers/zpaq-5-m510-r2.axe2o": "762ac9f0c79b94ed5b9305d89db088fbb9ec6853e30f4124dc7c6134ffd19dd7",
+    "containers/zpaq-5-m54-r1.axe2o": "ac5854b4b4e1820adca8e777d03d6382db5103cf91d0d1a5514344a19f20c03b",
+    "containers/zpaq-5-m54-r2.axe2o": "ac5854b4b4e1820adca8e777d03d6382db5103cf91d0d1a5514344a19f20c03b",
+    "containers/zpaq-5-m55-r1.axe2o": "8820372ca6413ad1286e1cf2bb37692c251cb36259ec4a5fc99f747bf3b4de18",
+    "containers/zpaq-5-m56-r1.axe2o": "bdcfd56c09c137f68d3a11b4ed3762de6a511516ea23890a24eea5f4f944e9b2",
+    "containers/zpaq-5-m57-r1.axe2o": "74dc75a8f91b490ac564de282f2845e3f95e66341daa3a64c1670b8434eafb43",
+    "evidence.json": "20ff8e78d1738aa72f0b114e18e586213c6c69a34b49250d93fee5110aa4b0da",
+    "github-artifacts.json": "ecf49e7b0cebf580f3292dbb3b5a4cfa454c8646b91378364b73fcbd7300db6c",
+    "github-run.json": "5f900b3261db860f60d6fb1bf7dd5c9f608ca766fa7a028d54e3f03c50ea5802",
+    "run.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "verification.log": "35680cbcfd17c8bf61fda2b91ec834fd2d8984e0f768c20a648cc700c9e17013"
+  },
+  "schema_version": 1,
+  "source_artifact": {
+    "all_member_checksums_verified": true,
+    "checksum_manifest_sha256": "6892a76fc61edefac025fda407409cd7f4a7eef1f71a346a412e6ceb811bc8bd",
+    "digest": "sha256:6cc62166967f342aac5b3904af1accb366d1a7c782757ee4091437868e7e9420",
+    "github_metadata_verified": true,
+    "id": 8513712689,
+    "member_count": 117,
+    "name": "json-context-ceiling-e2-a-29867575535",
+    "size_in_bytes": 20336136,
+    "zip_tree_verified": true
+  },
+  "source_members": {
+    "measurement/containers/zpaq-5-m510-r1.axe2o": {
+      "bytes": 1347064,
+      "sha256": "762ac9f0c79b94ed5b9305d89db088fbb9ec6853e30f4124dc7c6134ffd19dd7"
+    },
+    "measurement/containers/zpaq-5-m510-r2.axe2o": {
+      "bytes": 1347064,
+      "sha256": "762ac9f0c79b94ed5b9305d89db088fbb9ec6853e30f4124dc7c6134ffd19dd7"
+    },
+    "measurement/containers/zpaq-5-m54-r1.axe2o": {
+      "bytes": 1613165,
+      "sha256": "ac5854b4b4e1820adca8e777d03d6382db5103cf91d0d1a5514344a19f20c03b"
+    },
+    "measurement/containers/zpaq-5-m54-r2.axe2o": {
+      "bytes": 1613165,
+      "sha256": "ac5854b4b4e1820adca8e777d03d6382db5103cf91d0d1a5514344a19f20c03b"
+    },
+    "measurement/containers/zpaq-5-m55-r1.axe2o": {
+      "bytes": 1502978,
+      "sha256": "8820372ca6413ad1286e1cf2bb37692c251cb36259ec4a5fc99f747bf3b4de18"
+    },
+    "measurement/containers/zpaq-5-m56-r1.axe2o": {
+      "bytes": 1384350,
+      "sha256": "bdcfd56c09c137f68d3a11b4ed3762de6a511516ea23890a24eea5f4f944e9b2"
+    },
+    "measurement/containers/zpaq-5-m57-r1.axe2o": {
+      "bytes": 1347061,
+      "sha256": "74dc75a8f91b490ac564de282f2845e3f95e66341daa3a64c1670b8434eafb43"
+    },
+    "measurement/result.json": {
+      "bytes": 104614,
+      "sha256": "20ff8e78d1738aa72f0b114e18e586213c6c69a34b49250d93fee5110aa4b0da"
+    },
+    "publication/README.md": {
+      "bytes": 1416,
+      "sha256": "143d1a5639d574fc53098411760567b947736fd76f6a0683c91ebecd85c55c6f"
+    },
+    "publication/comparison.svg": {
+      "bytes": 2006,
+      "sha256": "0908d5b4c635d62644c42369e415d00da4f0595b6b9810ec9181e617397f5556"
+    },
+    "run.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "verification.log": {
+      "bytes": 220,
+      "sha256": "35680cbcfd17c8bf61fda2b91ec834fd2d8984e0f768c20a648cc700c9e17013"
+    }
+  },
+  "source_run": {
+    "conclusion": "success",
+    "head_sha": "45ca664d77e1a8a2f7ac057914e3ee034d683a30",
+    "id": 29867575535,
+    "url": "https://github.com/Atomics-hub/compression-lab/actions/runs/29867575535"
+  }
+}

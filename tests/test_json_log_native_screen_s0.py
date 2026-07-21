@@ -47,18 +47,36 @@ class JsonLogNativeScreenS0Tests(unittest.TestCase):
         self.assertTrue(PROTOCOL.is_file())
         self.assertEqual(
             self.config["status"],
-            "refrozen_after_adversarial_review_before_any_s0_measurement",
+            "refrozen_after_e2_a_completion_before_any_s0_measurement",
         )
         boundary = self.config["information_boundary"]
         self.assertEqual(boundary["fresh_public_validation_status"], "none_frozen")
         self.assertTrue(boundary["private_holdout_status"].startswith("sealed"))
-        self.assertIn("until E2-A completes", boundary["measurement_authorization"])
+        self.assertIn("no S0 corpus measurement", boundary["measurement_authorization"])
         freeze = self.config["screen"]["freeze_requirements_before_measurement"]
         self.assertIn("base_constants_manifest_sha256", freeze)
         self.assertIn("refined_constants_manifest_sha256", freeze)
         self.assertEqual(freeze["protocol_path"], PROTOCOL.relative_to(ROOT).as_posix())
         self.assertEqual(
             freeze["protocol_sha256"], hashlib.sha256(PROTOCOL.read_bytes()).hexdigest()
+        )
+
+    def test_e2_a_completion_is_immutably_bound_before_s0_measurement(self):
+        dependency = self.config["e2_a_dependency"]
+        completion = dependency["completion"]
+        publication = ROOT / completion["publication_path"]
+        self.assertEqual(completion["conclusion"], "success")
+        self.assertTrue(completion["e1_anchor_matched"])
+        self.assertTrue(completion["confirmation_passed"])
+        self.assertEqual(completion["outcome"], "kill_bounded_level5_lane")
+        self.assertEqual(completion["best_eligible_gain_basis_points"], 578)
+        self.assertEqual(
+            hashlib.sha256((publication / "receipt.json").read_bytes()).hexdigest(),
+            completion["publication_receipt_sha256"],
+        )
+        self.assertEqual(
+            hashlib.sha256((publication / "evidence.json").read_bytes()).hexdigest(),
+            completion["result_sha256"],
         )
 
     def test_e1_result_bindings_and_exact_per_item_references_are_pinned(self):

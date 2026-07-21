@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="567" viewBox="0 0 1000 567">
+<rect width="100%" height="100%" fill="#0b1020"/>
+<style>text{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;fill:#edf2ff}.muted{fill:#a9b4d0}.title{font-size:23px;font-weight:700}.label{font-size:15px}.value{font-size:14px}</style>
+<text x="36" y="42" class="title">Axiom E2-A — JSON context ceiling under 460 MiB</text>
+<text x="36" y="68" class="muted">Development-only · complete framed bytes · lower is better</text>
+<text x="36" y="108" class="label">E1 Kanzi-max</text>
+<rect x="250" y="90" width="610" height="22" rx="4" fill="#8aa4ff"/>
+<text x="880" y="108" class="value">1,712,149 B</text>
+<text x="36" y="180" class="label">zpaq-5-m54</text>
+<rect x="250" y="162" width="574" height="22" rx="4" fill="#52d6a5"/>
+<text x="844" y="180" class="value">1,613,165 B</text>
+<text x="250" y="205" class="muted value">RSS C 358.3 MiB · D 343.3 MiB</text>
+<text x="36" y="252" class="label">zpaq-5-m55</text>
+<rect x="250" y="234" width="535" height="22" rx="4" fill="#52d6a5"/>
+<text x="805" y="252" class="value">1,502,978 B</text>
+<text x="250" y="277" class="muted value">RSS C 622.9 MiB · D 592.2 MiB</text>
+<text x="36" y="324" class="label">zpaq-5-m56</text>
+<rect x="250" y="306" width="493" height="22" rx="4" fill="#52d6a5"/>
+<text x="763" y="324" class="value">1,384,350 B</text>
+<text x="250" y="349" class="muted value">RSS C 951.1 MiB · D 936.3 MiB</text>
+<text x="36" y="396" class="label">zpaq-5-m57</text>
+<rect x="250" y="378" width="479" height="22" rx="4" fill="#52d6a5"/>
+<text x="749" y="396" class="value">1,347,061 B</text>
+<text x="250" y="421" class="muted value">RSS C 1269.2 MiB · D 1272.1 MiB</text>
+<text x="36" y="468" class="label">zpaq-5-m510</text>
+<rect x="250" y="450" width="479" height="22" rx="4" fill="#52d6a5"/>
+<text x="749" y="468" class="value">1,347,064 B</text>
+<text x="250" y="493" class="muted value">RSS C 1270.3 MiB · D 1272.1 MiB</text>
+</svg>
