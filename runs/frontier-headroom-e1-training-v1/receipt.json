@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "name": "frontier-headroom-e1-training-publication-receipt-v1",
+  "evidence_stage": "training_only_diagnostic",
+  "source_measurement_run_id": 29846879040,
+  "source_measurement_commit": "ee0b98180393034da73afc5eee139036f87b91b0",
+  "recovery_run_id": 29863867135,
+  "recovery_commit": "6e655b586998572d69b4ea68b7876e6deb65fd7d",
+  "artifact": {
+    "id": 8508406688,
+    "name": "e1-final-training-recovery-29863867135",
+    "size_in_bytes": 427291325,
+    "digest": "sha256:9c46524876770c5fb1306f6fc35af09eb35a469199407fb31c6d6b218b049599"
+  },
+  "members": {
+    "README.md": "ee29cb990639f011a9774d7529888b3b13c284d3d47d29bd4ad009bdd84f88d4",
+    "result.json": "ce673e61840eca190903c93e56b71e0be4a59ec0b8ce11376f1ebd237793c7d2",
+    "SHA256SUMS": "c52b37f66b7a43b623e5f4be57254c40fd2da44c8ee1d02c30bc07d8e912c68c"
+  },
+  "all_member_checksums_verified": true,
+  "public_validation_accessed": false,
+  "private_holdout_accessed": false,
+  "claim_ceiling": "Licensed training-only frontier and oracle-routing census. It is not an Axiom candidate, category win, validation or holdout result, product selector, independent reproduction, commercial benchmark across unlike hosts, or state-of-the-art evidence."
+}

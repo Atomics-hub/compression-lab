@@ -42,6 +42,27 @@ Brand note: the validation protocol was frozen under the earlier public label
 **Atompress**, so the immutable evidence retains that label. The current
 product name is **Axiom**; `JLS2` remains the technical on-disk format ID.
 
+## Where the next gains are: frozen E1 frontier census
+
+The completed licensed training-only census now gives the research portfolio a
+measured direction. JSON/logs has **21.32% complete-byte headroom** between the
+best single practical codec and the ZPAQ research ceiling, with **0.00%** coming
+from practical per-item routing. Numeric/time-series has **8.69% total
+headroom**, of which **6.75%** is exposed by practical per-item routing.
+
+| Category | Practical routing gain | Total headroom including ZPAQ | Priority |
+|---|---:|---:|---|
+| **JSON/logs** | 0.00% | **21.32%** | Primary modeling lane |
+| **Numeric/time-series** | **6.75%** | **8.69%** | Secondary selector/specialist lane |
+| Tabular records | 0.00% | 3.15% | Deprioritized for ratio |
+| English Wikimedia | 0.00% | 0.19% | Deprioritized for ratio |
+| Source-code bundles | 0.00% | 0.00% | Deprioritized for ratio |
+
+The [official E1 publication](runs/frontier-headroom-e1-training-v1/README.md)
+explains complete framing, provenance, the recovered warmup-log publication
+bug, and the exact claim ceiling. This is a training diagnostic—not a candidate
+win—and no validation or holdout data was accessed.
+
 <details>
 <summary><strong>Open the earlier development and standalone-decoder evidence</strong></summary>
 
