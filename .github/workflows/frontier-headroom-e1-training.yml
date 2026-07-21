@@ -131,7 +131,8 @@ jobs:
           mkdir -p "$base"
           python scripts/fetch-clue-json-corpus.py \
             --split development --output "$base/clue" --cache "$RUNNER_TEMP/clue-cache"
-          python scripts/fetch-text-source-development.py \
+          python scripts/reconstruct-text-source-development.py \
+            --receipt runs/text-source-development-acquisition-v1.json \
             --output "$base/text" --cache "$RUNNER_TEMP/text-cache"
           python scripts/fetch_tabular_corpus.py \
             --split development --output "$base/tabular" --cache "$RUNNER_TEMP/tabular-cache"
