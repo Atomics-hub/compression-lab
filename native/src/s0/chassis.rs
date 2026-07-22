@@ -485,6 +485,7 @@ pub enum ChassisError {
     LaneOutOfRange,
     DeltaOverflow,
     SessionReference,
+    TokenReference,
     Overflow,
 }
 

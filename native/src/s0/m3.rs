@@ -166,6 +166,11 @@ impl SessionStore {
     }
 }
 
+/// Append M3's tree alphabets in their frozen order, after M2's.
+pub(super) fn extend_m3_tree_alphabets(alphabets: &mut Vec<u32>) {
+    alphabets.push(REFERENCE_ALPHABET);
+}
+
 /// The M3 layer of the value-coder chain.
 pub struct M3ValueCoder<Inner: ValueCoder> {
     store: SessionStore,
