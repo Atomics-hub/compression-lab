@@ -626,10 +626,16 @@ fn validate_id_value(value: i128) -> Result<i64, ChassisError> {
 }
 
 fn validate_scaled_time(scaled: i128, shape: TimeShape) -> Result<(), ChassisError> {
+    // Shapes are only ever constructed by `classify_time`, which bounds the
+    // fraction width at nine digits; fail closed rather than trust that.
+    let width = u32::from(shape.fraction_width);
+    if width > 9 {
+        return Err(ChassisError::DeltaOverflow);
+    }
     if !(0..=MAX_SCALED_TIME).contains(&scaled) {
         return Err(ChassisError::DeltaOverflow);
     }
-    let granularity = 10_i128.pow(9 - u32::from(shape.fraction_width));
+    let granularity = 10_i128.pow(9 - width);
     if scaled % granularity != 0 {
         return Err(ChassisError::DeltaOverflow);
     }
@@ -1009,6 +1015,61 @@ mod tests {
         let _ = encoder_coder;
     }
 
+    /// Hand-writes a TIME hit whose signed delta is `delta` against a lane
+    /// seeded from `seed_record`, and returns the decoder's verdict.
+    fn hostile_time_delta(seed_record: &[u8], delta: i128) -> Result<Vec<u8>, ChassisError> {
+        let table = LossTable::generate();
+        let layout = JsonLayout::parse(seed_record).unwrap();
+        let lane_key = super::super::chassis::lane_key(layout.skeleton(), 0).unwrap();
+        let mut events = EventEncoder::new(&table, m2_contexts().unwrap(), M2_ARM_ID, 0);
+        events.bit(TIME_HIT_BASE + bucket(lane_key), true).unwrap();
+        encode_signed_delta(&mut events, delta, &TIME_FAMILY, bucket(lane_key)).unwrap();
+        let (tape, _) = events.finish();
+
+        let mut decoder_coder = M2ValueCoder::new();
+        decoder_coder.after_miss_insert(0, &layout).unwrap();
+        let mut decoder = EventDecoder::new(&table, m2_contexts().unwrap(), &tape);
+        decoder_coder.decode_value(&mut decoder, 0, 0, lane_key)
+    }
+
+    #[test]
+    fn decoder_rejects_time_deltas_past_the_calendar_bounds() {
+        // One second past 9999-12-31T23:59:59Z.
+        assert_eq!(
+            hostile_time_delta(b"{\"t\":\"9999-12-31T23:59:59Z\"}", NANOS_PER_SECOND),
+            Err(ChassisError::DeltaOverflow)
+        );
+        // One nanosecond before 0000-01-01T00:00:00Z.
+        assert_eq!(
+            hostile_time_delta(b"{\"t\":\"0000-01-01T00:00:00Z\"}", -1),
+            Err(ChassisError::DeltaOverflow)
+        );
+        // A maximum-class delta (69 all-ones mantissa bits, ~5.9e20) exceeds
+        // the calendar range while exercising the last TIME mantissa context.
+        assert_eq!(
+            hostile_time_delta(
+                b"{\"t\":\"0000-01-01T00:00:00.000000000Z\"}",
+                (1_i128 << 69) - 1
+            ),
+            Err(ChassisError::DeltaOverflow)
+        );
+    }
+
+    #[test]
+    fn decoder_rejects_time_deltas_below_the_shape_granularity() {
+        // A width-3 shape only permits multiples of 10^6 nanoseconds; a
+        // one-nanosecond residue must fail closed, never render.
+        assert_eq!(
+            hostile_time_delta(b"{\"t\":\"2026-01-01T00:00:00.000Z\"}", 1),
+            Err(ChassisError::DeltaOverflow)
+        );
+        // The same delta is valid for a width-9 shape.
+        assert_eq!(
+            hostile_time_delta(b"{\"t\":\"2026-01-01T00:00:00.000000000Z\"}", 1),
+            Ok(b"\"2026-01-01T00:00:00.000000001Z\"".to_vec())
+        );
+    }
+
     #[test]
     fn state_footprint_is_fixed_before_and_after_heavy_observations() {
         let mut coder = M2ValueCoder::new();
@@ -1112,6 +1173,24 @@ mod tests {
                 year0_from_days(days),
                 (year, month, day),
                 "round trip failed for {year:04}-{month:02}-{day:02}"
+            );
+        }
+    }
+
+    #[test]
+    fn calendar_conversion_is_a_bijection_over_every_supported_day() {
+        for day_number in 0..DAYS_TO_YEAR_10000 as i64 {
+            let (year, month, day) = year0_from_days(day_number);
+            assert!((0..=9_999).contains(&year), "day {day_number}: year {year}");
+            assert!((1..=12).contains(&month), "day {day_number}: month {month}");
+            assert!(
+                day >= 1 && day <= days_in_month(year as u32, month),
+                "day {day_number}: {year:04}-{month:02}-{day:02}"
+            );
+            assert_eq!(
+                days_from_year0(year, month, day),
+                day_number,
+                "inverse failed at {year:04}-{month:02}-{day:02}"
             );
         }
     }
