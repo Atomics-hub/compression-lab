@@ -934,6 +934,34 @@ mod tests {
     }
 
     #[test]
+    fn coarse_shapes_charge_deltas_in_few_events() {
+        // The purpose of granularity units: a one-second step at width zero
+        // is one unit (class 1, empty mantissa): 1 hit + 1 zero-flag + 1 sign
+        // + 7 class-tree bits = 10 events, not a 36-bit nanosecond mantissa.
+        assert_eq!(
+            lane_events(
+                b"{\"t\":\"2026-07-22T10:00:00Z\"}",
+                b"\"2026-07-22T10:00:01Z\""
+            ),
+            10
+        );
+        // A legitimate in-range negative delta through the same division.
+        assert_eq!(
+            lane_events(
+                b"{\"t\":\"2026-07-22T10:00:05Z\"}",
+                b"\"2026-07-22T10:00:04Z\""
+            ),
+            10
+        );
+    }
+
+    #[test]
+    fn decreasing_timestamps_round_trip_through_unit_deltas() {
+        let source = b"{\"t\":\"2026-07-22T10:00:09.500Z\"}\n{\"t\":\"2026-07-22T10:00:07.250Z\"}\n{\"t\":\"2026-07-22T10:00:01.125Z\"}\n";
+        round_trip(source, 11);
+    }
+
+    #[test]
     fn maximum_delta_event_counts_match_the_frozen_plan() {
         // ID: previous -(2^63-1), current 2^63-1 => magnitude 2^64-2, class 64:
         // 1 hit + 1 zero + 1 sign + 6 class + 63 mantissa = 72.
