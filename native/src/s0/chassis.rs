@@ -54,6 +54,10 @@ const _: () = assert!(VALUE_ORDER1_TREE_BASE == 4_101);
 const _: () = assert!(VALUE_ORDER2_TREE_BASE == 12_293);
 const _: () = assert!(M1_TREE_CONTEXTS == 20_485);
 const _: () = assert!(SLOT_TREE_ALPHABET as usize == TEMPLATE_SLOTS);
+const _: () = assert!(TYPE_TREE_ALPHABET == 4);
+const _: () = assert!(TYPE_TREE_COUNT == TYPE_TREE_ALPHABET as usize);
+const _: () = assert!(RecordType::Empty as usize + 1 == TYPE_TREE_ALPHABET as usize);
+const _: () = assert!(VALUE_BYTE_ALPHABET == 256);
 const _: () = assert!(MAX_VALUE_BYTES == MAX_LITERAL_RUN);
 const _: () = assert!(
     VALUE_MANTISSA_CONTEXTS

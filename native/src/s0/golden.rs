@@ -67,6 +67,18 @@ const GOLDENS: &[Golden] = &[
             raw_literal_bytes: 140_019,
         },
     },
+    Golden {
+        name: "post-uncacheable-slotless-hit",
+        item_index: 4,
+        source_sha256: "7a9f3f3e42e7642b53086f1cdf32364fd7733a09c8be2c8873af7c727e8c4d52",
+        tape_sha256: "bb68e00693f999f66c74904c671955ee04516a3306974ba60fbd8c6ebaf6c7b3",
+        ledger: Ledger {
+            records: 3,
+            modeled_binary_events: 64,
+            modeled_loss_q24: 1_073_227_897,
+            raw_literal_bytes: 70_013,
+        },
+    },
 ];
 
 /// Deterministic fixture construction. All record types, multiple templates,
@@ -98,6 +110,19 @@ fn source_for(name: &str) -> Vec<u8> {
             source.extend_from_slice(b"{\"ok\":true}\n");
         }
         "empty-item" => {}
+        "post-uncacheable-slotless-hit" => {
+            // A cacheable miss, then an uncacheable miss that clears the
+            // last-slot tracker while the small template stays resident, then
+            // a hit that must charge the slot tree directly with no
+            // same-template bit.
+            source.extend_from_slice(b"{\"s\":1}\n");
+            let mut oversized = Vec::new();
+            oversized.extend_from_slice(b"{\"");
+            oversized.extend(std::iter::repeat_n(b'q', 70_000));
+            oversized.extend_from_slice(b"\":1}\n");
+            source.extend_from_slice(&oversized);
+            source.extend_from_slice(b"{\"s\":2}\n");
+        }
         "uncacheable-template-repeats" => {
             // A skeleton beyond the cacheable limit misses twice without ever
             // entering the store, then a small template misses and hits.
