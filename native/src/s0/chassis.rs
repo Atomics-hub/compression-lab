@@ -482,6 +482,8 @@ pub enum ChassisError {
     InvalidValueByte,
     TapeIdentityMismatch,
     TooManyValues,
+    LaneOutOfRange,
+    DeltaOverflow,
     Overflow,
 }
 
