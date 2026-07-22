@@ -1,4 +1,4 @@
-//! Frozen golden fixtures for the M1 and M2 arms.
+//! Frozen golden fixtures for the M1, M2, and M3 arms.
 //!
 //! These pins freeze the exact encoded tape bytes, the exact ledger, and the
 //! exact decoded source for deterministic synthetic items. Any refactor of the
@@ -6,7 +6,8 @@
 //! explicit, reviewable act: the constants below must change in the diff.
 
 use super::{
-    decode_m1_item, decode_m1_m2_item, encode_m1_item, encode_m1_m2_item, Ledger, LossTable, Tape,
+    decode_m1_item, decode_m1_m2_item, decode_m1_m2_m3_item, encode_m1_item, encode_m1_m2_item,
+    encode_m1_m2_m3_item, Ledger, LossTable, Tape,
 };
 use sha2::{Digest, Sha256};
 
@@ -126,6 +127,19 @@ const GOLDENS: &[Golden] = &[
             raw_literal_bytes: 56_259,
         },
     },
+    Golden {
+        name: "m3-session-references",
+        arm: 3,
+        item_index: 8,
+        source_sha256: "dd9cf9b1c861e4fb4748fdb97478f7ce1158fab8e6963a4c106cf296bb77ba27",
+        tape_sha256: "7a67515cd915b54804b1c1bb01e8573d921f1b63d62a5bb6650c8dc995857335",
+        ledger: Ledger {
+            records: 12,
+            modeled_binary_events: 2_305,
+            modeled_loss_q24: 14_986_381_871,
+            raw_literal_bytes: 274,
+        },
+    },
 ];
 
 /// Deterministic fixture construction. All record types, multiple templates,
@@ -226,6 +240,31 @@ fn source_for(name: &str) -> Vec<u8> {
             source.extend_from_slice(b"{\"t0000\":7}\n");
             source.extend_from_slice(b"{\"t0000\":9}\n");
         }
+        "m3-session-references" => {
+            // Repeated session strings hitting the reference cache across two
+            // templates, interleaved with typed ID deltas consumed by M2 (and
+            // so invisible to M3), M2 escapes taught to the cache, and an
+            // oversized value that can never be cached.
+            for index in 0..5_u32 {
+                source.extend_from_slice(
+                    format!(
+                        "{{\"sid\":\"sess-{}\",\"seq\":{index},\"tag\":\"t{index}\"}}\n",
+                        index % 2
+                    )
+                    .as_bytes(),
+                );
+                source.extend_from_slice(
+                    format!(
+                        "{{\"user\":\"u{}\",\"sid\":\"sess-{}\"}}\n",
+                        index % 3,
+                        index % 2
+                    )
+                    .as_bytes(),
+                );
+            }
+            source.extend_from_slice(format!("{{\"blob\":\"{}\"}}\n", "y".repeat(200)).as_bytes());
+            source.extend_from_slice(format!("{{\"blob\":\"{}\"}}\n", "y".repeat(200)).as_bytes());
+        }
         other => panic!("unknown golden fixture {other}"),
     }
     source
@@ -235,6 +274,7 @@ fn encode_arm(golden: &Golden, source: &[u8], table: &LossTable) -> (Tape, Ledge
     match golden.arm {
         1 => encode_m1_item(source, table, golden.item_index).unwrap(),
         2 => encode_m1_m2_item(source, table, golden.item_index).unwrap(),
+        3 => encode_m1_m2_m3_item(source, table, golden.item_index).unwrap(),
         other => panic!("unknown golden arm {other}"),
     }
 }
@@ -243,6 +283,7 @@ fn decode_arm(golden: &Golden, tape: &Tape, ledger: Ledger, table: &LossTable) -
     match golden.arm {
         1 => decode_m1_item(tape, ledger, table, golden.item_index).unwrap(),
         2 => decode_m1_m2_item(tape, ledger, table, golden.item_index).unwrap(),
+        3 => decode_m1_m2_m3_item(tape, ledger, table, golden.item_index).unwrap(),
         other => panic!("unknown golden arm {other}"),
     }
 }
