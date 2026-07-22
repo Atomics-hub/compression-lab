@@ -25,6 +25,16 @@ pub struct TemplateHit {
     pub same_as_last: bool,
 }
 
+/// Deterministic result of one insertion. `cleared` lists every previously
+/// occupied slot whose skeleton was removed, in exact eviction order; later
+/// mechanisms clear their per-slot state from it while M1 ignores it.
+#[derive(Clone, Debug, Default, Eq, PartialEq)]
+pub struct InsertOutcome {
+    pub inserted: Option<usize>,
+    pub cleared: Vec<usize>,
+    pub uncacheable: bool,
+}
+
 #[derive(Clone, Debug)]
 pub struct TemplateStore {
     slots: Box<[Slot]>,
@@ -100,18 +110,27 @@ impl TemplateStore {
         Ok(bytes)
     }
 
-    /// Insert an observed miss. Returns `None` for an explicitly uncacheable
-    /// skeleton and clears `last_slot` on that path.
-    pub fn insert(&mut self, skeleton: &[u8]) -> Result<Option<usize>, TemplateError> {
+    /// Insert an observed miss. Flags an explicitly uncacheable skeleton
+    /// (clearing `last_slot` on that path) and reports every occupied slot it
+    /// evicted, in exact eviction order.
+    pub fn insert(&mut self, skeleton: &[u8]) -> Result<InsertOutcome, TemplateError> {
         if skeleton.len() > self.maximum_skeleton_bytes {
             self.last_slot = None;
-            return Ok(None);
+            return Ok(InsertOutcome {
+                inserted: None,
+                cleared: Vec::new(),
+                uncacheable: true,
+            });
         }
         if self.contains_exact(skeleton) {
             return Err(TemplateError::AlreadyPresent);
         }
 
+        let mut cleared = Vec::new();
         let target = self.next_victim(None)?;
+        if self.slots[target].bytes.is_some() {
+            cleared.push(target);
+        }
         self.evict(target)?;
         while self
             .arena_bytes
@@ -120,6 +139,9 @@ impl TemplateStore {
             > self.arena_limit
         {
             let extra = self.next_victim(Some(target))?;
+            if self.slots[extra].bytes.is_some() {
+                cleared.push(extra);
+            }
             self.evict(extra)?;
         }
 
@@ -134,7 +156,11 @@ impl TemplateStore {
             .ok_or(TemplateError::Overflow)?;
         self.last_slot = Some(target);
         self.check_invariants()?;
-        Ok(Some(target))
+        Ok(InsertOutcome {
+            inserted: Some(target),
+            cleared,
+            uncacheable: false,
+        })
     }
 
     #[must_use]
@@ -247,10 +273,14 @@ impl Error for TemplateError {}
 mod tests {
     use super::*;
 
+    fn inserted(store: &mut TemplateStore, skeleton: &[u8]) -> Option<usize> {
+        store.insert(skeleton).unwrap().inserted
+    }
+
     #[test]
     fn exact_lookup_tracks_same_slot_without_trusting_hashes() {
         let mut store = TemplateStore::with_limits(3, 32, 16).unwrap();
-        assert_eq!(store.insert(b"alpha"), Ok(Some(0)));
+        assert_eq!(inserted(&mut store, b"alpha"), Some(0));
         assert_eq!(
             store.lookup(b"alpha"),
             Some(TemplateHit {
@@ -272,15 +302,36 @@ mod tests {
     #[test]
     fn clock_clears_references_and_evicts_in_ascending_order() {
         let mut store = TemplateStore::with_limits(3, 32, 16).unwrap();
-        assert_eq!(store.insert(b"a"), Ok(Some(0)));
-        assert_eq!(store.insert(b"b"), Ok(Some(1)));
-        assert_eq!(store.insert(b"c"), Ok(Some(2)));
+        assert_eq!(
+            store.insert(b"a"),
+            Ok(InsertOutcome {
+                inserted: Some(0),
+                cleared: Vec::new(),
+                uncacheable: false,
+            })
+        );
+        assert_eq!(inserted(&mut store, b"b"), Some(1));
+        assert_eq!(inserted(&mut store, b"c"), Some(2));
         store.lookup(b"a").unwrap();
         store.lookup(b"b").unwrap();
 
-        assert_eq!(store.insert(b"d"), Ok(Some(2)));
+        assert_eq!(
+            store.insert(b"d"),
+            Ok(InsertOutcome {
+                inserted: Some(2),
+                cleared: vec![2],
+                uncacheable: false,
+            })
+        );
         assert!(store.lookup(b"c").is_none());
-        assert_eq!(store.insert(b"e"), Ok(Some(0)));
+        assert_eq!(
+            store.insert(b"e"),
+            Ok(InsertOutcome {
+                inserted: Some(0),
+                cleared: vec![0],
+                uncacheable: false,
+            })
+        );
         assert!(store.lookup(b"a").is_none());
         assert!(store.lookup(b"b").is_some());
         assert!(store.lookup(b"d").is_some());
@@ -290,12 +341,21 @@ mod tests {
     #[test]
     fn arena_pressure_causes_deterministic_multi_eviction() {
         let mut store = TemplateStore::with_limits(4, 5, 4).unwrap();
-        assert_eq!(store.insert(b"aa"), Ok(Some(0)));
-        assert_eq!(store.insert(b"bb"), Ok(Some(1)));
-        assert_eq!(store.insert(b"c"), Ok(Some(2)));
+        assert_eq!(inserted(&mut store, b"aa"), Some(0));
+        assert_eq!(inserted(&mut store, b"bb"), Some(1));
+        assert_eq!(inserted(&mut store, b"c"), Some(2));
         assert_eq!(store.resident_bytes(), 5);
 
-        assert_eq!(store.insert(b"dddd"), Ok(Some(3)));
+        // The empty target slot is claimed silently; only the two occupied
+        // arena-pressure victims are reported, in exact eviction order.
+        assert_eq!(
+            store.insert(b"dddd"),
+            Ok(InsertOutcome {
+                inserted: Some(3),
+                cleared: vec![0, 1],
+                uncacheable: false,
+            })
+        );
         assert!(store.lookup(b"aa").is_none());
         assert!(store.lookup(b"bb").is_none());
         assert!(store.lookup(b"c").is_some());
@@ -314,7 +374,14 @@ mod tests {
         store.lookup(b"bb").unwrap();
         store.hand = 0;
 
-        assert_eq!(store.insert(b"cccc"), Ok(Some(0)));
+        assert_eq!(
+            store.insert(b"cccc"),
+            Ok(InsertOutcome {
+                inserted: Some(0),
+                cleared: vec![1, 2],
+                uncacheable: false,
+            })
+        );
         assert_eq!(store.resident_bytes(), 4);
         assert!(store.lookup(b"aa").is_none());
         assert!(store.lookup(b"bb").is_none());
@@ -330,7 +397,14 @@ mod tests {
         store.lookup(b"bb").unwrap();
         store.lookup(b"ccc").unwrap();
 
-        assert_eq!(store.insert(b"dddd"), Ok(Some(0)));
+        assert_eq!(
+            store.insert(b"dddd"),
+            Ok(InsertOutcome {
+                inserted: Some(0),
+                cleared: vec![0, 1, 2],
+                uncacheable: false,
+            })
+        );
         assert_eq!(store.resident_bytes(), 4);
         assert!(store.lookup(b"a").is_none());
         assert!(store.lookup(b"bb").is_none());
@@ -343,7 +417,14 @@ mod tests {
         let mut store = TemplateStore::with_limits(2, 8, 4).unwrap();
         store.insert(b"ok").unwrap();
         assert_eq!(store.last_slot(), Some(0));
-        assert_eq!(store.insert(b"12345"), Ok(None));
+        assert_eq!(
+            store.insert(b"12345"),
+            Ok(InsertOutcome {
+                inserted: None,
+                cleared: Vec::new(),
+                uncacheable: true,
+            })
+        );
         assert_eq!(store.last_slot(), None);
         assert!(store.lookup(b"ok").is_some());
     }
