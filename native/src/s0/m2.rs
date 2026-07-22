@@ -200,9 +200,14 @@ impl<Inner: ValueCoder> ValueCoder for M2ValueCoder<Inner> {
                     shape: current_shape,
                 } if current_shape == shape => {
                     events.bit(TIME_HIT_BASE + bucket, true)?;
+                    // Both scaled values are multiples of the shape's
+                    // granularity, so the delta is charged in granularity
+                    // units: a one-second step at width zero is one unit,
+                    // not a 36-bit nanosecond magnitude.
                     let delta = scaled
                         .checked_sub(previous)
-                        .ok_or(ChassisError::DeltaOverflow)?;
+                        .ok_or(ChassisError::DeltaOverflow)?
+                        / shape_granularity(shape);
                     encode_signed_delta(events, delta, &TIME_FAMILY, bucket)?;
                     LaneState::Time {
                         previous: scaled,
@@ -259,7 +264,9 @@ impl<Inner: ValueCoder> ValueCoder for M2ValueCoder<Inner> {
             }
             LaneState::Time { previous, shape } => {
                 if events.bit(TIME_HIT_BASE + bucket)? {
-                    let delta = decode_signed_delta(events, &TIME_FAMILY, bucket)?;
+                    let delta = decode_signed_delta(events, &TIME_FAMILY, bucket)?
+                        .checked_mul(shape_granularity(shape))
+                        .ok_or(ChassisError::DeltaOverflow)?;
                     let current = previous
                         .checked_add(delta)
                         .ok_or(ChassisError::DeltaOverflow)?;
@@ -660,18 +667,22 @@ fn validate_id_value(value: i128) -> Result<i64, ChassisError> {
     Ok(value)
 }
 
+/// Nanoseconds per least-significant rendered digit of the stored shape.
+/// Shapes are only ever constructed by `classify_time`, which bounds the
+/// fraction width at nine digits; a wider width saturates to the finest
+/// granularity and is rejected by `validate_scaled_time`.
+fn shape_granularity(shape: TimeShape) -> i128 {
+    10_i128.pow(9_u32.saturating_sub(u32::from(shape.fraction_width)))
+}
+
 fn validate_scaled_time(scaled: i128, shape: TimeShape) -> Result<(), ChassisError> {
-    // Shapes are only ever constructed by `classify_time`, which bounds the
-    // fraction width at nine digits; fail closed rather than trust that.
-    let width = u32::from(shape.fraction_width);
-    if width > 9 {
+    if shape.fraction_width > 9 {
         return Err(ChassisError::DeltaOverflow);
     }
     if !(0..=MAX_SCALED_TIME).contains(&scaled) {
         return Err(ChassisError::DeltaOverflow);
     }
-    let granularity = 10_i128.pow(9 - width);
-    if scaled % granularity != 0 {
+    if scaled % shape_granularity(shape) != 0 {
         return Err(ChassisError::DeltaOverflow);
     }
     Ok(())
@@ -1069,12 +1080,12 @@ mod tests {
 
     #[test]
     fn decoder_rejects_time_deltas_past_the_calendar_bounds() {
-        // One second past 9999-12-31T23:59:59Z.
+        // One granularity unit (one second at width zero) past the maximum.
         assert_eq!(
-            hostile_time_delta(b"{\"t\":\"9999-12-31T23:59:59Z\"}", NANOS_PER_SECOND),
+            hostile_time_delta(b"{\"t\":\"9999-12-31T23:59:59Z\"}", 1),
             Err(ChassisError::DeltaOverflow)
         );
-        // One nanosecond before 0000-01-01T00:00:00Z.
+        // One unit before 0000-01-01T00:00:00Z.
         assert_eq!(
             hostile_time_delta(b"{\"t\":\"0000-01-01T00:00:00Z\"}", -1),
             Err(ChassisError::DeltaOverflow)
@@ -1091,17 +1102,23 @@ mod tests {
     }
 
     #[test]
-    fn decoder_rejects_time_deltas_below_the_shape_granularity() {
-        // A width-3 shape only permits multiples of 10^6 nanoseconds; a
-        // one-nanosecond residue must fail closed, never render.
+    fn time_deltas_are_charged_in_shape_granularity_units() {
+        // One unit at width 3 is one millisecond; one unit at width 9 is one
+        // nanosecond. Sub-granularity residues are unrepresentable through
+        // the unit grammar, and the validator still rejects them directly.
         assert_eq!(
             hostile_time_delta(b"{\"t\":\"2026-01-01T00:00:00.000Z\"}", 1),
-            Err(ChassisError::DeltaOverflow)
+            Ok(b"\"2026-01-01T00:00:00.001Z\"".to_vec())
         );
-        // The same delta is valid for a width-9 shape.
         assert_eq!(
             hostile_time_delta(b"{\"t\":\"2026-01-01T00:00:00.000000000Z\"}", 1),
             Ok(b"\"2026-01-01T00:00:00.000000001Z\"".to_vec())
+        );
+        let (scaled, shape) = classify_time(b"\"2026-01-01T00:00:00.000Z\"").unwrap();
+        assert_eq!(validate_scaled_time(scaled, shape), Ok(()));
+        assert_eq!(
+            validate_scaled_time(scaled + 1, shape),
+            Err(ChassisError::DeltaOverflow)
         );
     }
 
