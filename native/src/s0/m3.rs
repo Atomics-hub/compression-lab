@@ -281,7 +281,7 @@ fn m3_chain() -> M3Chain {
 pub fn m3_contexts() -> Result<ContextStore, ChassisError> {
     let mut alphabets = Vec::with_capacity(M2_TREE_CONTEXTS + M3_TREE_CONTEXTS);
     extend_m2_tree_alphabets(&mut alphabets);
-    alphabets.push(REFERENCE_ALPHABET);
+    extend_m3_tree_alphabets(&mut alphabets);
     chassis_contexts(M2_BINARY_CONTEXTS + M3_BINARY_CONTEXTS, &alphabets)
 }
 

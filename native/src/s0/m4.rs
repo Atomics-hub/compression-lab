@@ -150,6 +150,11 @@ impl TokenStore {
         if bytes.len() < M4_TOKEN_BYTES_MIN || bytes.len() > M4_TOKEN_BYTES_MAX {
             return Ok(());
         }
+        // Unreachable with the frozen limits (32 bytes vs a 24 MiB arena) but
+        // keeps shrunken test stores from scanning for impossible space.
+        if bytes.len() > self.arena_limit {
+            return Ok(());
+        }
         if self.slot_holding(bytes).is_some() {
             return Ok(());
         }
@@ -275,6 +280,13 @@ impl M4ValueCoder {
     fn contains_token(&self, bytes: &[u8]) -> bool {
         self.store.slot_holding(bytes).is_some()
     }
+
+    #[cfg(test)]
+    fn with_store_limits(slot_count: usize, arena_limit: usize) -> Self {
+        Self {
+            store: TokenStore::with_limits(slot_count, arena_limit),
+        }
+    }
 }
 
 impl ValueCoder for M4ValueCoder {
@@ -286,6 +298,7 @@ impl ValueCoder for M4ValueCoder {
         lane_key: u64,
         bytes: &[u8],
     ) -> Result<(), ChassisError> {
+        debug_assert!(!bytes.is_empty(), "JSON values are never empty");
         let bucket = bucket(lane_key);
         let mut cursor = 0_usize;
         loop {
@@ -667,6 +680,52 @@ mod tests {
             decode_m1_m2_m4_item(&m2_tape, m2_ledger, &table, 3),
             Err(ChassisError::TapeIdentityMismatch)
         );
+    }
+
+    #[test]
+    fn full_chain_round_trip_survives_slot_and_arena_eviction() {
+        // A shrunken dictionary forces both CLOCK slot reuse and
+        // arena-pressure eviction through the real chassis entry points on
+        // both sides; the byte stream must stay lossless and deterministic.
+        use super::super::chassis::{decode_chassis_item, encode_chassis_item};
+        let table = LossTable::generate();
+        let mut source = Vec::new();
+        for index in 0..120_u32 {
+            source.extend_from_slice(
+                format!(
+                    "{{\"w\":\"word{:02}\",\"again\":\"word{:02}\"}}\n",
+                    index % 40,
+                    (index + 1) % 40
+                )
+                .as_bytes(),
+            );
+        }
+        let encode = || {
+            encode_chassis_item(
+                &source,
+                &table,
+                m4_contexts().unwrap(),
+                M4_ARM_ID,
+                6,
+                &mut M2ValueCoder::with_inner(M4ValueCoder::with_store_limits(8, 48)),
+            )
+            .unwrap()
+        };
+        let (tape, ledger) = encode();
+        let decoded = decode_chassis_item(
+            &tape,
+            ledger,
+            &table,
+            m4_contexts().unwrap(),
+            M4_ARM_ID,
+            6,
+            &mut M2ValueCoder::with_inner(M4ValueCoder::with_store_limits(8, 48)),
+        )
+        .unwrap();
+        assert_eq!(decoded, source);
+        let (repeat_tape, repeat_ledger) = encode();
+        assert_eq!(repeat_tape.to_bytes(), tape.to_bytes());
+        assert_eq!(repeat_ledger, ledger);
     }
 
     #[test]
