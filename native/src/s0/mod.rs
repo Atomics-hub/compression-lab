@@ -7,6 +7,8 @@
 
 mod event;
 mod fixed_log;
+#[cfg(test)]
+mod golden;
 mod json;
 mod ledger;
 mod m1;
