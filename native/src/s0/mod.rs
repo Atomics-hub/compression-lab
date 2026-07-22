@@ -5,6 +5,7 @@
 //! the frozen complete-byte projection. Corpus-specific grammar and models are
 //! deliberately layered on top of these primitives.
 
+mod chassis;
 mod event;
 mod fixed_log;
 #[cfg(test)]
@@ -15,10 +16,15 @@ mod m1;
 mod tape;
 mod template;
 
+pub use chassis::{
+    chassis_contexts, decode_chassis_item, decode_m1_value, encode_chassis_item, encode_m1_value,
+    lane_key, ChassisError, M1ValueCoder, RecordType, ValueCoder, M1_BINARY_CONTEXTS,
+    M1_TREE_CONTEXTS, MAX_VALUE_BYTES,
+};
 pub use event::{ContextStore, EventDecoder, EventEncoder, EventError};
 pub use fixed_log::{LossTable, Probability, MAX_PROBABILITY, MIN_PROBABILITY};
 pub use json::{split_records, JsonLayout, JsonLayoutError, Record};
 pub use ledger::{Decision, Ledger, Projection};
-pub use m1::{decode_m1_item, encode_m1_item, M1Error};
+pub use m1::{decode_m1_item, encode_m1_item, M1Error, M1_ARM_ID};
 pub use tape::{Tape, TapeError, TapeReader, TapeWriter};
-pub use template::{TemplateError, TemplateHit, TemplateStore};
+pub use template::{InsertOutcome, TemplateError, TemplateHit, TemplateStore};
