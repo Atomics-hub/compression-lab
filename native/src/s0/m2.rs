@@ -8,8 +8,8 @@
 //! collisions may share predictions but never reconstruction state.
 
 use super::chassis::{
-    chassis_contexts, decode_chassis_item, decode_m1_value, encode_chassis_item, encode_m1_value,
-    ChassisError, ValueCoder, M1_BINARY_CONTEXTS, M1_TREE_CONTEXTS,
+    chassis_contexts, decode_chassis_item, encode_chassis_item, ChassisError, M1ValueCoder,
+    ValueCoder, M1_BINARY_CONTEXTS, M1_TREE_CONTEXTS,
 };
 use super::template::TEMPLATE_SLOTS;
 use super::{ContextStore, EventDecoder, EventEncoder, JsonLayout, Ledger, LossTable, Tape};
@@ -98,8 +98,13 @@ impl Classified {
     }
 }
 
-pub struct M2ValueCoder {
+/// M2 wraps an inner value coder: M2 decides first, and escapes plus
+/// ineligible values (untyped lanes, lane index >= 64) proceed to the inner
+/// coder. Whether the inner coder is plain M1 or a longer mechanism chain
+/// never changes M2's hit/escape sequence for identical input.
+pub struct M2ValueCoder<Inner: ValueCoder = M1ValueCoder> {
     lanes: Box<[LaneState]>,
+    inner: Inner,
 }
 
 impl Default for M2ValueCoder {
@@ -113,8 +118,16 @@ impl M2ValueCoder {
     /// construction.
     #[must_use]
     pub fn new() -> Self {
+        Self::with_inner(M1ValueCoder)
+    }
+}
+
+impl<Inner: ValueCoder> M2ValueCoder<Inner> {
+    #[must_use]
+    pub fn with_inner(inner: Inner) -> Self {
         Self {
             lanes: vec![LaneState::Empty; TEMPLATE_SLOTS * M2_LANES_PER_SLOT].into_boxed_slice(),
+            inner,
         }
     }
 
@@ -140,7 +153,7 @@ impl M2ValueCoder {
     }
 }
 
-impl ValueCoder for M2ValueCoder {
+impl<Inner: ValueCoder> ValueCoder for M2ValueCoder<Inner> {
     fn encode_value(
         &mut self,
         events: &mut EventEncoder<'_>,
@@ -150,13 +163,16 @@ impl ValueCoder for M2ValueCoder {
         bytes: &[u8],
     ) -> Result<(), ChassisError> {
         if lane_index >= M2_LANES_PER_SLOT {
-            return encode_m1_value(events, lane_key, bytes);
+            return self
+                .inner
+                .encode_value(events, slot, lane_index, lane_key, bytes);
         }
         let bucket = bucket(lane_key);
         let state = *self.lane_mut(slot, lane_index)?;
         let next = match state {
             LaneState::Empty => {
-                encode_m1_value(events, lane_key, bytes)?;
+                self.inner
+                    .encode_value(events, slot, lane_index, lane_key, bytes)?;
                 classify(bytes).armed()
             }
             LaneState::Id { previous } => match classify(bytes) {
@@ -168,7 +184,8 @@ impl ValueCoder for M2ValueCoder {
                 }
                 other => {
                     events.bit(ID_HIT_BASE + bucket, false)?;
-                    encode_m1_value(events, lane_key, bytes)?;
+                    self.inner
+                        .encode_value(events, slot, lane_index, lane_key, bytes)?;
                     other.armed()
                 }
             },
@@ -189,7 +206,8 @@ impl ValueCoder for M2ValueCoder {
                 }
                 other => {
                     events.bit(TIME_HIT_BASE + bucket, false)?;
-                    encode_m1_value(events, lane_key, bytes)?;
+                    self.inner
+                        .encode_value(events, slot, lane_index, lane_key, bytes)?;
                     other.armed()
                 }
             },
@@ -206,13 +224,15 @@ impl ValueCoder for M2ValueCoder {
         lane_key: u64,
     ) -> Result<Vec<u8>, ChassisError> {
         if lane_index >= M2_LANES_PER_SLOT {
-            return decode_m1_value(events, lane_key);
+            return self.inner.decode_value(events, slot, lane_index, lane_key);
         }
         let bucket = bucket(lane_key);
         let state = *self.lane_mut(slot, lane_index)?;
         let (bytes, next) = match state {
             LaneState::Empty => {
-                let bytes = decode_m1_value(events, lane_key)?;
+                let bytes = self
+                    .inner
+                    .decode_value(events, slot, lane_index, lane_key)?;
                 let next = classify(&bytes).armed();
                 (bytes, next)
             }
@@ -225,7 +245,9 @@ impl ValueCoder for M2ValueCoder {
                     let current = validate_id_value(current)?;
                     (render_id(current), LaneState::Id { previous: current })
                 } else {
-                    let bytes = decode_m1_value(events, lane_key)?;
+                    let bytes = self
+                        .inner
+                        .decode_value(events, slot, lane_index, lane_key)?;
                     let next = classify(&bytes).armed();
                     (bytes, next)
                 }
@@ -245,7 +267,9 @@ impl ValueCoder for M2ValueCoder {
                         },
                     )
                 } else {
-                    let bytes = decode_m1_value(events, lane_key)?;
+                    let bytes = self
+                        .inner
+                        .decode_value(events, slot, lane_index, lane_key)?;
                     let next = classify(&bytes).armed();
                     (bytes, next)
                 }
@@ -264,7 +288,7 @@ impl ValueCoder for M2ValueCoder {
                 None => LaneState::Empty,
             };
         }
-        Ok(())
+        self.inner.after_miss_insert(slot, layout)
     }
 
     fn on_slots_cleared(&mut self, cleared_slots: &[usize]) -> Result<(), ChassisError> {
@@ -273,7 +297,7 @@ impl ValueCoder for M2ValueCoder {
                 *self.lane_mut(slot, lane_index)? = LaneState::Empty;
             }
         }
-        Ok(())
+        self.inner.on_slots_cleared(cleared_slots)
     }
 }
 
