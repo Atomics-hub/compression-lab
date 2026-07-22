@@ -4,6 +4,7 @@
 //! header lengths are integrity bounds; exhaustion and `is_finished` are
 //! fail-closed checks, never grammar signals.
 
+use super::m5::M5Mixer;
 use super::{Ledger, LossTable, Probability, Tape, TapeError, TapeReader, TapeWriter};
 use std::error::Error;
 use std::fmt::{Display, Formatter};
@@ -15,6 +16,25 @@ pub const MAX_LITERAL_RUN: usize = 1 << 20;
 
 const MIN_ALPHABET: u32 = 2;
 const MAX_ALPHABET: u32 = 65_536;
+// Stable per-event identities for the optional M5 estimator. Plain binary
+// contexts use their absolute index (< 2^39); the shared literal-length
+// mantissa array is offset by bit 39; tree nodes and mixed-tree nodes carry
+// their tree indices in disjoint high-bit namespaces. Identities are pinned:
+// changing them changes every M5-arm loss.
+const LENGTH_CLASS_TREE_INDEX: u64 = (1 << 23) - 1;
+const LENGTH_MANTISSA_ID_BASE: u64 = 1 << 39;
+
+fn tree_node_id(tree_index: u64, node: usize) -> u64 {
+    debug_assert!(tree_index < (1 << 23) && node < (1 << 17));
+    (1 << 40) | (tree_index << 17) | node as u64
+}
+
+fn mixed_node_id(first: u64, second: u64, node: usize) -> u64 {
+    debug_assert!(first < (1 << 23) && second < (1 << 23) && node < (1 << 17));
+    (1 << 63) | (first << 40) | (second << 17) | node as u64
+}
+
+type Mixer = Option<Box<M5Mixer>>;
 const LENGTH_CLASS_ALPHABET: u32 = 21;
 const LENGTH_MANTISSA_CONTEXTS: usize = 210;
 const _: () = assert!(LENGTH_CLASS_ALPHABET as usize == MAX_LITERAL_RUN.ilog2() as usize + 1);
@@ -46,7 +66,9 @@ impl BitTree {
 
     fn encode(
         &mut self,
+        tree_index: u64,
         symbol: u32,
+        mixer: &mut Mixer,
         table: &LossTable,
         ledger: &mut Ledger,
         writer: &mut TapeWriter,
@@ -57,7 +79,15 @@ impl BitTree {
         let mut node = 0_usize;
         for shift in (0..self.width).rev() {
             let bit = symbol & (1 << shift) != 0;
-            encode_modeled_bit(&mut self.probabilities[node], bit, table, ledger, writer)?;
+            encode_modeled_bit(
+                &mut self.probabilities[node],
+                bit,
+                tree_node_id(tree_index, node),
+                mixer,
+                table,
+                ledger,
+                writer,
+            )?;
             node = node * 2 + 1 + usize::from(bit);
         }
         Ok(())
@@ -65,6 +95,8 @@ impl BitTree {
 
     fn decode(
         &mut self,
+        tree_index: u64,
+        mixer: &mut Mixer,
         table: &LossTable,
         ledger: &mut Ledger,
         reader: &mut TapeReader<'_>,
@@ -72,7 +104,14 @@ impl BitTree {
         let mut symbol = 0_u32;
         let mut node = 0_usize;
         for _ in 0..self.width {
-            let bit = decode_modeled_bit(&mut self.probabilities[node], table, ledger, reader)?;
+            let bit = decode_modeled_bit(
+                &mut self.probabilities[node],
+                tree_node_id(tree_index, node),
+                mixer,
+                table,
+                ledger,
+                reader,
+            )?;
             symbol = (symbol << 1) | u32::from(bit);
             node = node * 2 + 1 + usize::from(bit);
         }
@@ -133,6 +172,7 @@ pub struct EventEncoder<'a> {
     contexts: ContextStore,
     ledger: Ledger,
     writer: TapeWriter,
+    mixer: Mixer,
 }
 
 impl<'a> EventEncoder<'a> {
@@ -143,7 +183,24 @@ impl<'a> EventEncoder<'a> {
             contexts,
             ledger: Ledger::default(),
             writer: TapeWriter::new(arm_id, item_index),
+            mixer: None,
         }
+    }
+
+    /// M5 arms route every charged probability through the estimator. The
+    /// tape bits, grammar, and event counts are identical with or without it;
+    /// only the charged Q24 loss changes.
+    #[must_use]
+    pub fn with_mixer(
+        table: &'a LossTable,
+        contexts: ContextStore,
+        arm_id: u8,
+        item_index: u8,
+        mixer: Box<M5Mixer>,
+    ) -> Self {
+        let mut encoder = Self::new(table, contexts, arm_id, item_index);
+        encoder.mixer = Some(mixer);
+        encoder
     }
 
     pub fn bit(&mut self, context: usize, bit: bool) -> Result<(), EventError> {
@@ -155,6 +212,8 @@ impl<'a> EventEncoder<'a> {
         encode_modeled_bit(
             probability,
             bit,
+            context as u64,
+            &mut self.mixer,
             self.table,
             &mut self.ledger,
             &mut self.writer,
@@ -167,7 +226,14 @@ impl<'a> EventEncoder<'a> {
             .trees
             .get_mut(context)
             .ok_or(EventError::ContextOutOfRange)?;
-        tree.encode(symbol, self.table, &mut self.ledger, &mut self.writer)
+        tree.encode(
+            context as u64,
+            symbol,
+            &mut self.mixer,
+            self.table,
+            &mut self.ledger,
+            &mut self.writer,
+        )
     }
 
     pub fn mixed_symbol(
@@ -181,7 +247,10 @@ impl<'a> EventEncoder<'a> {
         encode_mixed_symbol(
             first,
             second,
+            first_context as u64,
+            second_context as u64,
             symbol,
+            &mut self.mixer,
             self.table,
             &mut self.ledger,
             &mut self.writer,
@@ -206,9 +275,12 @@ impl<'a> EventEncoder<'a> {
             .ok_or(EventError::ContextOutOfRange)?;
         encode_length(
             tree,
+            class_tree_context as u64,
             mantissas,
+            mantissa_context_base as u64,
             length,
             maximum,
+            &mut self.mixer,
             self.table,
             &mut self.ledger,
             &mut self.writer,
@@ -226,9 +298,12 @@ impl<'a> EventEncoder<'a> {
         }
         encode_length(
             &mut self.contexts.length_class,
+            LENGTH_CLASS_TREE_INDEX,
             self.contexts.length_mantissas.as_mut_slice(),
+            LENGTH_MANTISSA_ID_BASE,
             bytes.len(),
             MAX_LITERAL_RUN,
+            &mut self.mixer,
             self.table,
             &mut self.ledger,
             &mut self.writer,
@@ -259,6 +334,7 @@ pub struct EventDecoder<'a> {
     contexts: ContextStore,
     ledger: Ledger,
     reader: TapeReader<'a>,
+    mixer: Mixer,
 }
 
 impl<'a> EventDecoder<'a> {
@@ -269,7 +345,22 @@ impl<'a> EventDecoder<'a> {
             contexts,
             ledger: Ledger::default(),
             reader: tape.reader(),
+            mixer: None,
         }
+    }
+
+    /// Mirror of [`EventEncoder::with_mixer`]: the independent decoder ledger
+    /// only matches the encoder's when both run the identical estimator.
+    #[must_use]
+    pub fn with_mixer(
+        table: &'a LossTable,
+        contexts: ContextStore,
+        tape: &'a Tape,
+        mixer: Box<M5Mixer>,
+    ) -> Self {
+        let mut decoder = Self::new(table, contexts, tape);
+        decoder.mixer = Some(mixer);
+        decoder
     }
 
     pub fn bit(&mut self, context: usize) -> Result<bool, EventError> {
@@ -278,7 +369,14 @@ impl<'a> EventDecoder<'a> {
             .bits
             .get_mut(context)
             .ok_or(EventError::ContextOutOfRange)?;
-        decode_modeled_bit(probability, self.table, &mut self.ledger, &mut self.reader)
+        decode_modeled_bit(
+            probability,
+            context as u64,
+            &mut self.mixer,
+            self.table,
+            &mut self.ledger,
+            &mut self.reader,
+        )
     }
 
     pub fn symbol(&mut self, context: usize) -> Result<u32, EventError> {
@@ -287,7 +385,13 @@ impl<'a> EventDecoder<'a> {
             .trees
             .get_mut(context)
             .ok_or(EventError::ContextOutOfRange)?;
-        tree.decode(self.table, &mut self.ledger, &mut self.reader)
+        tree.decode(
+            context as u64,
+            &mut self.mixer,
+            self.table,
+            &mut self.ledger,
+            &mut self.reader,
+        )
     }
 
     pub fn mixed_symbol(
@@ -300,6 +404,9 @@ impl<'a> EventDecoder<'a> {
         decode_mixed_symbol(
             first,
             second,
+            first_context as u64,
+            second_context as u64,
+            &mut self.mixer,
             self.table,
             &mut self.ledger,
             &mut self.reader,
@@ -323,8 +430,11 @@ impl<'a> EventDecoder<'a> {
             .ok_or(EventError::ContextOutOfRange)?;
         decode_length(
             tree,
+            class_tree_context as u64,
             mantissas,
+            mantissa_context_base as u64,
             maximum,
+            &mut self.mixer,
             self.table,
             &mut self.ledger,
             &mut self.reader,
@@ -334,8 +444,11 @@ impl<'a> EventDecoder<'a> {
     pub fn literal(&mut self) -> Result<Vec<u8>, EventError> {
         let length = decode_length(
             &mut self.contexts.length_class,
+            LENGTH_CLASS_TREE_INDEX,
             self.contexts.length_mantissas.as_mut_slice(),
+            LENGTH_MANTISSA_ID_BASE,
             MAX_LITERAL_RUN,
+            &mut self.mixer,
             self.table,
             &mut self.ledger,
             &mut self.reader,
@@ -374,45 +487,79 @@ impl<'a> EventDecoder<'a> {
     }
 }
 
+/// Charged probability of one for this event: the raw context estimate, or
+/// the M5-refined estimate when a mixer is attached. The refinement never
+/// changes the tape bit, only the charged loss.
+fn charged_probability_of_one(base: u16, id: u64, mixer: &mut Mixer) -> u16 {
+    match mixer {
+        Some(m5) => m5.predict(id, base),
+        None => base,
+    }
+}
+
+fn observed_probability(probability_of_one: u16, bit: bool) -> u32 {
+    if bit {
+        u32::from(probability_of_one)
+    } else {
+        65_536 - u32::from(probability_of_one)
+    }
+}
+
 fn encode_modeled_bit(
     probability: &mut Probability,
     bit: bool,
+    id: u64,
+    mixer: &mut Mixer,
     table: &LossTable,
     ledger: &mut Ledger,
     writer: &mut TapeWriter,
 ) -> Result<(), EventError> {
+    let charged = charged_probability_of_one(probability.probability_of_one(), id, mixer);
     let loss = table
-        .get(probability.probability_of(bit))
+        .get(observed_probability(charged, bit))
         .ok_or(EventError::InvalidProbability)?;
     ledger
         .add_modeled_event(loss)
         .ok_or(EventError::LedgerOverflow)?;
     writer.push_bit(bit)?;
+    if let Some(m5) = mixer {
+        m5.update(bit);
+    }
     probability.update(bit, RATE_SHIFT);
     Ok(())
 }
 
 fn decode_modeled_bit(
     probability: &mut Probability,
+    id: u64,
+    mixer: &mut Mixer,
     table: &LossTable,
     ledger: &mut Ledger,
     reader: &mut TapeReader<'_>,
 ) -> Result<bool, EventError> {
     let bit = reader.read_bit()?;
+    let charged = charged_probability_of_one(probability.probability_of_one(), id, mixer);
     let loss = table
-        .get(probability.probability_of(bit))
+        .get(observed_probability(charged, bit))
         .ok_or(EventError::InvalidProbability)?;
     ledger
         .add_modeled_event(loss)
         .ok_or(EventError::LedgerOverflow)?;
+    if let Some(m5) = mixer {
+        m5.update(bit);
+    }
     probability.update(bit, RATE_SHIFT);
     Ok(bit)
 }
 
+#[allow(clippy::too_many_arguments)]
 fn encode_mixed_symbol(
     first: &mut BitTree,
     second: &mut BitTree,
+    first_index: u64,
+    second_index: u64,
     symbol: u32,
+    mixer: &mut Mixer,
     table: &LossTable,
     ledger: &mut Ledger,
     writer: &mut TapeWriter,
@@ -425,6 +572,8 @@ fn encode_mixed_symbol(
             &mut first.probabilities[node],
             &mut second.probabilities[node],
             bit,
+            mixed_node_id(first_index, second_index, node),
+            mixer,
             table,
             ledger,
             |output_bit| writer.push_bit(output_bit).map_err(EventError::from),
@@ -434,9 +583,13 @@ fn encode_mixed_symbol(
     Ok(())
 }
 
+#[allow(clippy::too_many_arguments)]
 fn decode_mixed_symbol(
     first: &mut BitTree,
     second: &mut BitTree,
+    first_index: u64,
+    second_index: u64,
+    mixer: &mut Mixer,
     table: &LossTable,
     ledger: &mut Ledger,
     reader: &mut TapeReader<'_>,
@@ -450,6 +603,8 @@ fn decode_mixed_symbol(
             &mut first.probabilities[node],
             &mut second.probabilities[node],
             bit,
+            mixed_node_id(first_index, second_index, node),
+            mixer,
             table,
             ledger,
             |_| Ok(()),
@@ -463,10 +618,13 @@ fn decode_mixed_symbol(
     Ok(symbol)
 }
 
+#[allow(clippy::too_many_arguments)]
 fn charge_mixed_bit(
     first: &mut Probability,
     second: &mut Probability,
     bit: bool,
+    id: u64,
+    mixer: &mut Mixer,
     table: &LossTable,
     ledger: &mut Ledger,
     write: impl FnOnce(bool) -> Result<(), EventError>,
@@ -475,12 +633,18 @@ fn charge_mixed_bit(
     // complement. This rounds odd sums one unit toward zero for p1.
     let mixed_one =
         (u32::from(first.probability_of_one()) + u32::from(second.probability_of_one())) / 2;
-    let observed = if bit { mixed_one } else { 65_536 - mixed_one };
-    let loss = table.get(observed).ok_or(EventError::InvalidProbability)?;
+    let base = u16::try_from(mixed_one).map_err(|_| EventError::InvalidProbability)?;
+    let charged = charged_probability_of_one(base, id, mixer);
+    let loss = table
+        .get(observed_probability(charged, bit))
+        .ok_or(EventError::InvalidProbability)?;
     ledger
         .add_modeled_event(loss)
         .ok_or(EventError::LedgerOverflow)?;
     write(bit)?;
+    if let Some(m5) = mixer {
+        m5.update(bit);
+    }
     first.update(bit, RATE_SHIFT);
     second.update(bit, RATE_SHIFT);
     Ok(())
@@ -525,9 +689,12 @@ fn two_trees_mut(
 #[allow(clippy::too_many_arguments)]
 fn encode_length(
     class_tree: &mut BitTree,
+    class_tree_index: u64,
     mantissas: &mut [Probability],
+    mantissa_id_base: u64,
     length: usize,
     maximum: usize,
+    mixer: &mut Mixer,
     table: &LossTable,
     ledger: &mut Ledger,
     writer: &mut TapeWriter,
@@ -544,21 +711,33 @@ fn encode_length(
     }
     // Bounds and context capacity are intentionally checked before the first
     // charged event so these configuration errors leave the encoder untouched.
-    class_tree.encode(class - 1, table, ledger, writer)?;
+    class_tree.encode(class_tree_index, class - 1, mixer, table, ledger, writer)?;
     for position in (0..class - 1).rev() {
         let probability = mantissas
             .get_mut(offset + position as usize)
             .ok_or(EventError::ContextOutOfRange)?;
         let bit = length & (1 << position) != 0;
-        encode_modeled_bit(probability, bit, table, ledger, writer)?;
+        encode_modeled_bit(
+            probability,
+            bit,
+            mantissa_id_base + offset as u64 + u64::from(position),
+            mixer,
+            table,
+            ledger,
+            writer,
+        )?;
     }
     Ok(())
 }
 
+#[allow(clippy::too_many_arguments)]
 fn decode_length(
     class_tree: &mut BitTree,
+    class_tree_index: u64,
     mantissas: &mut [Probability],
+    mantissa_id_base: u64,
     maximum: usize,
+    mixer: &mut Mixer,
     table: &LossTable,
     ledger: &mut Ledger,
     reader: &mut TapeReader<'_>,
@@ -566,7 +745,7 @@ fn decode_length(
     if maximum == 0 {
         return Err(EventError::LengthOutOfRange);
     }
-    let class = class_tree.decode(table, ledger, reader)? + 1;
+    let class = class_tree.decode(class_tree_index, mixer, table, ledger, reader)? + 1;
     let offset = mantissa_offset(class);
     let mut length = 1_u32
         .checked_shl(class - 1)
@@ -575,7 +754,14 @@ fn decode_length(
         let probability = mantissas
             .get_mut(offset + position as usize)
             .ok_or(EventError::ContextOutOfRange)?;
-        if decode_modeled_bit(probability, table, ledger, reader)? {
+        if decode_modeled_bit(
+            probability,
+            mantissa_id_base + offset as u64 + u64::from(position),
+            mixer,
+            table,
+            ledger,
+            reader,
+        )? {
             length |= 1 << position;
         }
     }
@@ -940,16 +1126,18 @@ mod tests {
             encode_modeled_bit(
                 &mut store.bits[(value as usize) % 7],
                 value % 3 == 0,
+                (value as u64) % 7,
+                &mut None,
                 &table,
                 &mut ledger,
                 &mut writer,
             )
             .unwrap();
             store.trees[0]
-                .encode(value % 3, &table, &mut ledger, &mut writer)
+                .encode(0, value % 3, &mut None, &table, &mut ledger, &mut writer)
                 .unwrap();
             store.trees[1]
-                .encode(value % 256, &table, &mut ledger, &mut writer)
+                .encode(1, value % 256, &mut None, &table, &mut ledger, &mut writer)
                 .unwrap();
         }
         assert_eq!(store.modeled_state_bytes(), expected);
