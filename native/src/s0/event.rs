@@ -170,6 +170,33 @@ impl<'a> EventEncoder<'a> {
         tree.encode(symbol, self.table, &mut self.ledger, &mut self.writer)
     }
 
+    pub fn length(
+        &mut self,
+        class_tree_context: usize,
+        mantissa_context_base: usize,
+        length: usize,
+        maximum: usize,
+    ) -> Result<(), EventError> {
+        // The caller owns the frozen context layout: this tree and contiguous
+        // mantissa range must not overlap unrelated grammar contexts.
+        let ContextStore { bits, trees, .. } = &mut self.contexts;
+        let tree = trees
+            .get_mut(class_tree_context)
+            .ok_or(EventError::ContextOutOfRange)?;
+        let mantissas = bits
+            .get_mut(mantissa_context_base..)
+            .ok_or(EventError::ContextOutOfRange)?;
+        encode_length(
+            tree,
+            mantissas,
+            length,
+            maximum,
+            self.table,
+            &mut self.ledger,
+            &mut self.writer,
+        )
+    }
+
     pub fn literal(&mut self, bytes: &[u8]) -> Result<(), EventError> {
         // Every encoder error is terminal for the item. Callers must discard
         // this instance rather than trying to reuse partially charged state.
@@ -179,34 +206,28 @@ impl<'a> EventEncoder<'a> {
         if bytes.len() > MAX_LITERAL_RUN {
             return Err(EventError::LiteralRunTooLong);
         }
-        let length = u32::try_from(bytes.len()).map_err(|_| EventError::LiteralRunTooLong)?;
-        let class = u32::BITS - length.leading_zeros();
-        self.contexts.length_class.encode(
-            class - 1,
+        encode_length(
+            &mut self.contexts.length_class,
+            self.contexts.length_mantissas.as_mut_slice(),
+            bytes.len(),
+            MAX_LITERAL_RUN,
             self.table,
             &mut self.ledger,
             &mut self.writer,
         )?;
-        let offset = mantissa_offset(class);
-        for position in (0..class - 1).rev() {
-            let probability = &mut self.contexts.length_mantissas[offset + position as usize];
-            let bit = length & (1 << position) != 0;
-            encode_modeled_bit(
-                probability,
-                bit,
-                self.table,
-                &mut self.ledger,
-                &mut self.writer,
-            )?;
-        }
         self.writer.push_literals(bytes)?;
         self.ledger
-            .add_raw_literals(length.into())
+            .add_raw_literals(bytes.len() as u64)
             .ok_or(EventError::LedgerOverflow)
     }
 
     pub fn record(&mut self) -> Result<(), EventError> {
         self.ledger.add_record().ok_or(EventError::LedgerOverflow)
+    }
+
+    #[must_use]
+    pub fn ledger(&self) -> Ledger {
+        self.ledger
     }
 
     #[must_use]
@@ -251,24 +272,44 @@ impl<'a> EventDecoder<'a> {
         tree.decode(self.table, &mut self.ledger, &mut self.reader)
     }
 
+    pub fn length(
+        &mut self,
+        class_tree_context: usize,
+        mantissa_context_base: usize,
+        maximum: usize,
+    ) -> Result<usize, EventError> {
+        // The caller owns the frozen context layout: this tree and contiguous
+        // mantissa range must match the encoder's assignment exactly.
+        let ContextStore { bits, trees, .. } = &mut self.contexts;
+        let tree = trees
+            .get_mut(class_tree_context)
+            .ok_or(EventError::ContextOutOfRange)?;
+        let mantissas = bits
+            .get_mut(mantissa_context_base..)
+            .ok_or(EventError::ContextOutOfRange)?;
+        decode_length(
+            tree,
+            mantissas,
+            maximum,
+            self.table,
+            &mut self.ledger,
+            &mut self.reader,
+        )
+    }
+
     pub fn literal(&mut self) -> Result<Vec<u8>, EventError> {
-        let class =
-            self.contexts
-                .length_class
-                .decode(self.table, &mut self.ledger, &mut self.reader)?
-                + 1;
-        let offset = mantissa_offset(class);
-        let mut length = 1_u32 << (class - 1);
-        for position in (0..class - 1).rev() {
-            let probability = &mut self.contexts.length_mantissas[offset + position as usize];
-            if decode_modeled_bit(probability, self.table, &mut self.ledger, &mut self.reader)? {
-                length |= 1 << position;
-            }
-        }
-        let length = usize::try_from(length).map_err(|_| EventError::LiteralRunTooLong)?;
-        if length > MAX_LITERAL_RUN {
-            return Err(EventError::LiteralRunTooLong);
-        }
+        let length = decode_length(
+            &mut self.contexts.length_class,
+            self.contexts.length_mantissas.as_mut_slice(),
+            MAX_LITERAL_RUN,
+            self.table,
+            &mut self.ledger,
+            &mut self.reader,
+        )
+        .map_err(|error| match error {
+            EventError::LengthOutOfRange => EventError::LiteralRunTooLong,
+            other => other,
+        })?;
         let bytes = self.reader.read_literals(length)?.to_vec();
         self.ledger
             .add_raw_literals(length as u64)
@@ -278,6 +319,11 @@ impl<'a> EventDecoder<'a> {
 
     pub fn record(&mut self) -> Result<(), EventError> {
         self.ledger.add_record().ok_or(EventError::LedgerOverflow)
+    }
+
+    #[must_use]
+    pub fn ledger(&self) -> Ledger {
+        self.ledger
     }
 
     pub fn finish(self, encoder_ledger: Ledger) -> Result<Ledger, EventError> {
@@ -329,6 +375,70 @@ fn decode_modeled_bit(
     Ok(bit)
 }
 
+#[allow(clippy::too_many_arguments)]
+fn encode_length(
+    class_tree: &mut BitTree,
+    mantissas: &mut [Probability],
+    length: usize,
+    maximum: usize,
+    table: &LossTable,
+    ledger: &mut Ledger,
+    writer: &mut TapeWriter,
+) -> Result<(), EventError> {
+    if length == 0 || length > maximum || maximum == 0 {
+        return Err(EventError::LengthOutOfRange);
+    }
+    let length = u32::try_from(length).map_err(|_| EventError::LengthOutOfRange)?;
+    let class = u32::BITS - length.leading_zeros();
+    let offset = mantissa_offset(class);
+    let required = offset + (class - 1) as usize;
+    if mantissas.len() < required {
+        return Err(EventError::ContextOutOfRange);
+    }
+    // Bounds and context capacity are intentionally checked before the first
+    // charged event so these configuration errors leave the encoder untouched.
+    class_tree.encode(class - 1, table, ledger, writer)?;
+    for position in (0..class - 1).rev() {
+        let probability = mantissas
+            .get_mut(offset + position as usize)
+            .ok_or(EventError::ContextOutOfRange)?;
+        let bit = length & (1 << position) != 0;
+        encode_modeled_bit(probability, bit, table, ledger, writer)?;
+    }
+    Ok(())
+}
+
+fn decode_length(
+    class_tree: &mut BitTree,
+    mantissas: &mut [Probability],
+    maximum: usize,
+    table: &LossTable,
+    ledger: &mut Ledger,
+    reader: &mut TapeReader<'_>,
+) -> Result<usize, EventError> {
+    if maximum == 0 {
+        return Err(EventError::LengthOutOfRange);
+    }
+    let class = class_tree.decode(table, ledger, reader)? + 1;
+    let offset = mantissa_offset(class);
+    let mut length = 1_u32
+        .checked_shl(class - 1)
+        .ok_or(EventError::LengthOutOfRange)?;
+    for position in (0..class - 1).rev() {
+        let probability = mantissas
+            .get_mut(offset + position as usize)
+            .ok_or(EventError::ContextOutOfRange)?;
+        if decode_modeled_bit(probability, table, ledger, reader)? {
+            length |= 1 << position;
+        }
+    }
+    let length = usize::try_from(length).map_err(|_| EventError::LengthOutOfRange)?;
+    if length > maximum {
+        return Err(EventError::LengthOutOfRange);
+    }
+    Ok(length)
+}
+
 fn mantissa_offset(class: u32) -> usize {
     let lower_classes = usize::try_from(class - 1).expect("literal class is bounded");
     lower_classes * lower_classes.saturating_sub(1) / 2
@@ -342,6 +452,7 @@ pub enum EventError {
     ForbiddenSymbol,
     LiteralRunEmpty,
     LiteralRunTooLong,
+    LengthOutOfRange,
     InvalidProbability,
     LedgerOverflow,
     LedgerDivergence { encoder: Ledger, decoder: Ledger },
@@ -438,6 +549,97 @@ mod tests {
             assert_eq!(decoder.literal().unwrap(), payload);
             decoder.finish(ledger).unwrap();
         }
+    }
+
+    #[test]
+    fn shared_modeled_lengths_round_trip_and_enforce_bounds() {
+        let table = LossTable::generate();
+        let values = [1, 2, 255, 256, MAX_LITERAL_RUN];
+        let mut encoder = EventEncoder::new(
+            &table,
+            ContextStore::new(LENGTH_MANTISSA_CONTEXTS, &[LENGTH_CLASS_ALPHABET]).unwrap(),
+            0,
+            0,
+        );
+        for value in values {
+            encoder.length(0, 0, value, MAX_LITERAL_RUN).unwrap();
+        }
+        let (tape, ledger) = encoder.finish();
+        let mut decoder = EventDecoder::new(
+            &table,
+            ContextStore::new(LENGTH_MANTISSA_CONTEXTS, &[LENGTH_CLASS_ALPHABET]).unwrap(),
+            &tape,
+        );
+        for value in values {
+            assert_eq!(decoder.length(0, 0, MAX_LITERAL_RUN).unwrap(), value);
+        }
+        decoder.finish(ledger).unwrap();
+
+        let mut encoder = EventEncoder::new(
+            &table,
+            ContextStore::new(LENGTH_MANTISSA_CONTEXTS, &[LENGTH_CLASS_ALPHABET]).unwrap(),
+            0,
+            0,
+        );
+        assert_eq!(
+            encoder.length(0, 0, 0, MAX_LITERAL_RUN),
+            Err(EventError::LengthOutOfRange)
+        );
+        assert_eq!(
+            encoder.length(0, 0, 9, 8),
+            Err(EventError::LengthOutOfRange)
+        );
+
+        encoder.length(0, 0, 9, 16).unwrap();
+        let (tape, _) = encoder.finish();
+        let mut decoder = EventDecoder::new(
+            &table,
+            ContextStore::new(LENGTH_MANTISSA_CONTEXTS, &[LENGTH_CLASS_ALPHABET]).unwrap(),
+            &tape,
+        );
+        assert_eq!(decoder.length(0, 0, 8), Err(EventError::LengthOutOfRange));
+    }
+
+    #[test]
+    fn shared_modeled_lengths_fail_closed_on_bad_contexts_and_hostile_classes() {
+        let table = LossTable::generate();
+        let mut encoder = EventEncoder::new(&table, ContextStore::new(0, &[]).unwrap(), 0, 0);
+        assert_eq!(
+            encoder.length(0, 0, 1, MAX_LITERAL_RUN),
+            Err(EventError::ContextOutOfRange)
+        );
+
+        let mut encoder = EventEncoder::new(&table, ContextStore::new(0, &[21]).unwrap(), 0, 0);
+        assert_eq!(
+            encoder.length(0, 0, 2, MAX_LITERAL_RUN),
+            Err(EventError::ContextOutOfRange)
+        );
+        assert_eq!(encoder.ledger(), Ledger::default());
+
+        let mut encoder = EventEncoder::new(
+            &table,
+            ContextStore::new(LENGTH_MANTISSA_CONTEXTS, &[2]).unwrap(),
+            0,
+            0,
+        );
+        assert_eq!(
+            encoder.length(0, 0, 4, MAX_LITERAL_RUN),
+            Err(EventError::SymbolOutOfRange)
+        );
+        assert_eq!(encoder.ledger(), Ledger::default());
+
+        // Symbol 32 in a 64-way class tree means class 33. The checked leading
+        // shift rejects it before any mantissa access or unchecked shift.
+        let mut writer = TapeWriter::new(0, 0);
+        for bit in [true, false, false, false, false, false] {
+            writer.push_bit(bit).unwrap();
+        }
+        let tape = writer.finish();
+        let mut decoder = EventDecoder::new(&table, ContextStore::new(0, &[64]).unwrap(), &tape);
+        assert_eq!(
+            decoder.length(0, 0, usize::MAX),
+            Err(EventError::LengthOutOfRange)
+        );
     }
 
     #[test]
