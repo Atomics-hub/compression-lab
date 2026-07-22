@@ -170,6 +170,24 @@ impl<'a> EventEncoder<'a> {
         tree.encode(symbol, self.table, &mut self.ledger, &mut self.writer)
     }
 
+    pub fn mixed_symbol(
+        &mut self,
+        first_context: usize,
+        second_context: usize,
+        symbol: u32,
+    ) -> Result<(), EventError> {
+        let (first, second) =
+            two_trees_mut(&mut self.contexts.trees, first_context, second_context)?;
+        encode_mixed_symbol(
+            first,
+            second,
+            symbol,
+            self.table,
+            &mut self.ledger,
+            &mut self.writer,
+        )
+    }
+
     pub fn length(
         &mut self,
         class_tree_context: usize,
@@ -270,6 +288,22 @@ impl<'a> EventDecoder<'a> {
             .get_mut(context)
             .ok_or(EventError::ContextOutOfRange)?;
         tree.decode(self.table, &mut self.ledger, &mut self.reader)
+    }
+
+    pub fn mixed_symbol(
+        &mut self,
+        first_context: usize,
+        second_context: usize,
+    ) -> Result<u32, EventError> {
+        let (first, second) =
+            two_trees_mut(&mut self.contexts.trees, first_context, second_context)?;
+        decode_mixed_symbol(
+            first,
+            second,
+            self.table,
+            &mut self.ledger,
+            &mut self.reader,
+        )
     }
 
     pub fn length(
@@ -375,6 +409,119 @@ fn decode_modeled_bit(
     Ok(bit)
 }
 
+fn encode_mixed_symbol(
+    first: &mut BitTree,
+    second: &mut BitTree,
+    symbol: u32,
+    table: &LossTable,
+    ledger: &mut Ledger,
+    writer: &mut TapeWriter,
+) -> Result<(), EventError> {
+    validate_mixed_trees(first, second, symbol)?;
+    let mut node = 0_usize;
+    for shift in (0..first.width).rev() {
+        let bit = symbol & (1 << shift) != 0;
+        charge_mixed_bit(
+            &mut first.probabilities[node],
+            &mut second.probabilities[node],
+            bit,
+            table,
+            ledger,
+            |output_bit| writer.push_bit(output_bit).map_err(EventError::from),
+        )?;
+        node = node * 2 + 1 + usize::from(bit);
+    }
+    Ok(())
+}
+
+fn decode_mixed_symbol(
+    first: &mut BitTree,
+    second: &mut BitTree,
+    table: &LossTable,
+    ledger: &mut Ledger,
+    reader: &mut TapeReader<'_>,
+) -> Result<u32, EventError> {
+    validate_mixed_trees(first, second, 0)?;
+    let mut symbol = 0_u32;
+    let mut node = 0_usize;
+    for _ in 0..first.width {
+        let bit = reader.read_bit()?;
+        charge_mixed_bit(
+            &mut first.probabilities[node],
+            &mut second.probabilities[node],
+            bit,
+            table,
+            ledger,
+            |_| Ok(()),
+        )?;
+        symbol = (symbol << 1) | u32::from(bit);
+        node = node * 2 + 1 + usize::from(bit);
+    }
+    if symbol >= first.alphabet {
+        return Err(EventError::ForbiddenSymbol);
+    }
+    Ok(symbol)
+}
+
+fn charge_mixed_bit(
+    first: &mut Probability,
+    second: &mut Probability,
+    bit: bool,
+    table: &LossTable,
+    ledger: &mut Ledger,
+    write: impl FnOnce(bool) -> Result<(), EventError>,
+) -> Result<(), EventError> {
+    // Freeze the mix as floor((p1_a + p1_b) / 2), then derive p0 as its
+    // complement. This rounds odd sums one unit toward zero for p1.
+    let mixed_one =
+        (u32::from(first.probability_of_one()) + u32::from(second.probability_of_one())) / 2;
+    let observed = if bit { mixed_one } else { 65_536 - mixed_one };
+    let loss = table.get(observed).ok_or(EventError::InvalidProbability)?;
+    ledger
+        .add_modeled_event(loss)
+        .ok_or(EventError::LedgerOverflow)?;
+    write(bit)?;
+    first.update(bit, RATE_SHIFT);
+    second.update(bit, RATE_SHIFT);
+    Ok(())
+}
+
+fn validate_mixed_trees(first: &BitTree, second: &BitTree, symbol: u32) -> Result<(), EventError> {
+    if first.alphabet != second.alphabet || first.width != second.width {
+        return Err(EventError::AlphabetMismatch);
+    }
+    if symbol >= first.alphabet {
+        return Err(EventError::SymbolOutOfRange);
+    }
+    Ok(())
+}
+
+fn two_trees_mut(
+    trees: &mut [BitTree],
+    first: usize,
+    second: usize,
+) -> Result<(&mut BitTree, &mut BitTree), EventError> {
+    if first == second {
+        return Err(EventError::ContextOverlap);
+    }
+    if first >= trees.len() || second >= trees.len() {
+        return Err(EventError::ContextOutOfRange);
+    }
+    if first < second {
+        let (left, right) = trees.split_at_mut(second);
+        Ok((
+            left.get_mut(first).ok_or(EventError::ContextOutOfRange)?,
+            right.get_mut(0).ok_or(EventError::ContextOutOfRange)?,
+        ))
+    } else {
+        let (left, right) = trees.split_at_mut(first);
+        Ok((
+            right.get_mut(0).ok_or(EventError::ContextOutOfRange)?,
+            left.get_mut(second).ok_or(EventError::ContextOutOfRange)?,
+        ))
+    }
+}
+
 #[allow(clippy::too_many_arguments)]
 fn encode_length(
     class_tree: &mut BitTree,
@@ -448,6 +595,8 @@ fn mantissa_offset(class: u32) -> usize {
 pub enum EventError {
     AlphabetOutOfRange,
     ContextOutOfRange,
+    ContextOverlap,
+    AlphabetMismatch,
     SymbolOutOfRange,
     ForbiddenSymbol,
     LiteralRunEmpty,
@@ -532,6 +681,51 @@ mod tests {
         let tape = writer.finish();
         let mut decoder = EventDecoder::new(&table, ContextStore::new(0, &[3]).unwrap(), &tape);
         assert_eq!(decoder.symbol(0), Err(EventError::ForbiddenSymbol));
+    }
+
+    #[test]
+    fn mixed_symbols_charge_one_event_per_bit_and_update_both_models() {
+        let table = LossTable::generate();
+        let mut encoder = EventEncoder::new(&table, ContextStore::new(0, &[4, 4]).unwrap(), 0, 0);
+        for _ in 0..10 {
+            encoder.symbol(0, 3).unwrap();
+            encoder.symbol(1, 0).unwrap();
+        }
+        let before = encoder.ledger().modeled_binary_events;
+        encoder.mixed_symbol(0, 1, 2).unwrap();
+        assert_eq!(encoder.ledger().modeled_binary_events - before, 2);
+        let (tape, ledger) = encoder.finish();
+
+        let mut decoder = EventDecoder::new(&table, ContextStore::new(0, &[4, 4]).unwrap(), &tape);
+        for _ in 0..10 {
+            assert_eq!(decoder.symbol(0).unwrap(), 3);
+            assert_eq!(decoder.symbol(1).unwrap(), 0);
+        }
+        assert_eq!(decoder.mixed_symbol(0, 1).unwrap(), 2);
+        decoder.finish(ledger).unwrap();
+    }
+
+    #[test]
+    fn mixed_symbols_reject_overlapping_or_incompatible_contexts_precharge() {
+        let table = LossTable::generate();
+        let mut encoder = EventEncoder::new(&table, ContextStore::new(0, &[3, 4]).unwrap(), 0, 0);
+        assert_eq!(
+            encoder.mixed_symbol(0, 0, 1),
+            Err(EventError::ContextOverlap)
+        );
+        assert_eq!(
+            encoder.mixed_symbol(0, 1, 1),
+            Err(EventError::AlphabetMismatch)
+        );
+        assert_eq!(
+            encoder.mixed_symbol(0, 2, 1),
+            Err(EventError::ContextOutOfRange)
+        );
+        assert_eq!(
+            encoder.mixed_symbol(3, 0, 1),
+            Err(EventError::ContextOutOfRange)
+        );
+        assert_eq!(encoder.ledger(), Ledger::default());
     }
 
     #[test]

@@ -85,6 +85,26 @@ impl JsonLayout {
     ) -> Result<Vec<u8>, JsonLayoutError> {
         reconstruct(skeleton, values)
     }
+
+    pub fn placeholder_count(skeleton: &[u8]) -> Result<usize, JsonLayoutError> {
+        let mut offset = 0_usize;
+        let mut count = 0_usize;
+        while offset < skeleton.len() {
+            if skeleton[offset] != MARKER {
+                offset += 1;
+                continue;
+            }
+            match skeleton.get(offset + 1) {
+                Some(&PLACEHOLDER) => {
+                    count = count.checked_add(1).ok_or(JsonLayoutError::Overflow)?
+                }
+                Some(&ESCAPED_MARKER) => {}
+                _ => return Err(JsonLayoutError::InvalidSkeleton),
+            }
+            offset += 2;
+        }
+        Ok(count)
+    }
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -486,6 +506,21 @@ mod tests {
         assert_eq!(
             JsonLayout::reconstruct_from(b"{}", &[b"unused".to_vec()]),
             Err(JsonLayoutError::PlaceholderMismatch)
+        );
+        assert_eq!(
+            JsonLayout::placeholder_count(&[MARKER]),
+            Err(JsonLayoutError::InvalidSkeleton)
+        );
+        assert_eq!(
+            JsonLayout::placeholder_count(&[
+                MARKER,
+                PLACEHOLDER,
+                MARKER,
+                ESCAPED_MARKER,
+                MARKER,
+                PLACEHOLDER,
+            ]),
+            Ok(2)
         );
     }
 }

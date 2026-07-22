@@ -61,6 +61,16 @@ impl Tape {
     }
 
     #[must_use]
+    pub fn arm_id(&self) -> u8 {
+        self.arm_id
+    }
+
+    #[must_use]
+    pub fn item_index(&self) -> u8 {
+        self.item_index
+    }
+
+    #[must_use]
     pub fn to_bytes(&self) -> Vec<u8> {
         let mut output = Vec::with_capacity(
             HEADER_BYTES + self.bit_bytes.len() + 8 + self.literals.len() + DIGEST_BYTES,

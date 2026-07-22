@@ -214,7 +214,12 @@ impl TemplateStore {
 
 #[must_use]
 pub fn fnv1a64(bytes: &[u8]) -> u64 {
-    bytes.iter().fold(FNV_OFFSET, |hash, byte| {
+    fnv1a64_extend(FNV_OFFSET, bytes)
+}
+
+#[must_use]
+pub fn fnv1a64_extend(seed: u64, bytes: &[u8]) -> u64 {
+    bytes.iter().fold(seed, |hash, byte| {
         (hash ^ u64::from(*byte)).wrapping_mul(FNV_PRIME)
     })
 }
