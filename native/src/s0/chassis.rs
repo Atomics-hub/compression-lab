@@ -484,6 +484,7 @@ pub enum ChassisError {
     TooManyValues,
     LaneOutOfRange,
     DeltaOverflow,
+    SessionReference,
     Overflow,
 }
 

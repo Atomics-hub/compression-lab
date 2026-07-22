@@ -14,6 +14,7 @@ mod json;
 mod ledger;
 mod m1;
 mod m2;
+mod m3;
 mod tape;
 mod template;
 
@@ -30,6 +31,11 @@ pub use m1::{decode_m1_item, encode_m1_item, M1Error, M1_ARM_ID};
 pub use m2::{
     decode_m1_m2_item, encode_m1_m2_item, m2_contexts, M2ValueCoder, M2_ARM_ID, M2_BINARY_CONTEXTS,
     M2_DECLARED_STATE_BYTES, M2_LANES_PER_SLOT, M2_LANE_STATE_BYTES, M2_TREE_CONTEXTS,
+};
+pub use m3::{
+    decode_m1_m2_m3_item, encode_m1_m2_m3_item, m3_contexts, M3ValueCoder, M3_ARM_ID,
+    M3_BINARY_CONTEXTS, M3_DECLARED_SLOT_BYTES, M3_DECLARED_STATE_BYTES, M3_SESSION_SLOTS,
+    M3_SLOT_VALUE_BYTES, M3_TREE_CONTEXTS,
 };
 pub use tape::{Tape, TapeError, TapeReader, TapeWriter};
 pub use template::{InsertOutcome, TemplateError, TemplateHit, TemplateStore};

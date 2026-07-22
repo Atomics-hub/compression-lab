@@ -151,6 +151,11 @@ impl<Inner: ValueCoder> M2ValueCoder<Inner> {
     fn lane_state(&self, slot: usize, lane_index: usize) -> LaneState {
         self.lanes[slot * M2_LANES_PER_SLOT + lane_index]
     }
+
+    #[cfg(test)]
+    pub(super) fn inner_mut(&mut self) -> &mut Inner {
+        &mut self.inner
+    }
 }
 
 impl<Inner: ValueCoder> ValueCoder for M2ValueCoder<Inner> {
@@ -301,10 +306,16 @@ impl<Inner: ValueCoder> ValueCoder for M2ValueCoder<Inner> {
     }
 }
 
-pub fn m2_contexts() -> Result<ContextStore, ChassisError> {
-    let mut alphabets = Vec::with_capacity(M2_TREE_CONTEXTS);
+/// Append M2's tree alphabets in their frozen order; later mechanism blocks
+/// build on this to keep every absolute context index arm-invariant.
+pub(super) fn extend_m2_tree_alphabets(alphabets: &mut Vec<u32>) {
     alphabets.extend(std::iter::repeat_n(ID_CLASS_ALPHABET, LANE_BUCKETS));
     alphabets.extend(std::iter::repeat_n(TIME_CLASS_ALPHABET, LANE_BUCKETS));
+}
+
+pub fn m2_contexts() -> Result<ContextStore, ChassisError> {
+    let mut alphabets = Vec::with_capacity(M2_TREE_CONTEXTS);
+    extend_m2_tree_alphabets(&mut alphabets);
     chassis_contexts(M2_BINARY_CONTEXTS, &alphabets)
 }
 
