@@ -379,6 +379,23 @@ mod tests {
     }
 
     #[test]
+    fn estimator_learns_the_all_zero_edge_symmetrically() {
+        // The antisymmetric lower edge: node 0, zero fraction, squash floor,
+        // and the negative weight clamp side.
+        let table = LossTable::generate();
+        let mut mixer = M5Mixer::new(&table);
+        let mut base = Probability::default();
+        for _ in 0..2_000 {
+            let _ = mixer.predict(43, base.probability_of_one());
+            mixer.update(false);
+            base.update(false, 5);
+        }
+        let refined = mixer.predict(43, base.probability_of_one());
+        mixer.update(false);
+        assert!(refined < 536, "estimator failed to learn zeros: {refined}");
+    }
+
+    #[test]
     fn estimator_learns_a_strongly_biased_context() {
         // After warmup on constant-one bits the estimator must be highly
         // confident. The squash ceiling (+-8 log2-odds) keeps the blended

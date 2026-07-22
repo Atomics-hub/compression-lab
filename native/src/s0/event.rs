@@ -25,10 +25,12 @@ const LENGTH_CLASS_TREE_INDEX: u64 = (1 << 23) - 1;
 const LENGTH_MANTISSA_ID_BASE: u64 = 1 << 39;
 
 fn tree_node_id(tree_index: u64, node: usize) -> u64 {
+    debug_assert!(tree_index < (1 << 23) && node < (1 << 17));
     (1 << 40) | (tree_index << 17) | node as u64
 }
 
 fn mixed_node_id(first: u64, second: u64, node: usize) -> u64 {
+    debug_assert!(first < (1 << 23) && second < (1 << 23) && node < (1 << 17));
     (1 << 63) | (first << 40) | (second << 17) | node as u64
 }
 
