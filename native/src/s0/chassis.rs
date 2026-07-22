@@ -7,6 +7,7 @@
 //! [`chassis_contexts`].
 
 use super::event::MAX_LITERAL_RUN;
+use super::m5::M5Mixer;
 use super::template::{fnv1a64, fnv1a64_extend, TEMPLATE_SLOTS};
 use super::{
     split_records, ContextStore, EventDecoder, EventEncoder, EventError, JsonLayout,
@@ -194,8 +195,31 @@ pub fn encode_chassis_item<C: ValueCoder>(
     item_index: u8,
     coder: &mut C,
 ) -> Result<(Tape, Ledger), ChassisError> {
+    let events = EventEncoder::new(table, contexts, arm_id, item_index);
+    encode_chassis_records(source, events, coder)
+}
+
+/// M5 arms: identical grammar and tape bits, refined charged probabilities.
+#[allow(clippy::too_many_arguments)]
+pub fn encode_chassis_item_with_mixer<C: ValueCoder>(
+    source: &[u8],
+    table: &LossTable,
+    contexts: ContextStore,
+    arm_id: u8,
+    item_index: u8,
+    coder: &mut C,
+    mixer: Box<M5Mixer>,
+) -> Result<(Tape, Ledger), ChassisError> {
+    let events = EventEncoder::with_mixer(table, contexts, arm_id, item_index, mixer);
+    encode_chassis_records(source, events, coder)
+}
+
+fn encode_chassis_records<C: ValueCoder>(
+    source: &[u8],
+    mut events: EventEncoder<'_>,
+    coder: &mut C,
+) -> Result<(Tape, Ledger), ChassisError> {
     let records = split_records(source);
-    let mut events = EventEncoder::new(table, contexts, arm_id, item_index);
     let mut templates = TemplateStore::new();
     let mut previous_type = RecordType::Miss;
 
@@ -232,7 +256,34 @@ pub fn decode_chassis_item<C: ValueCoder>(
     if tape.arm_id() != expected_arm_id || tape.item_index() != expected_item_index {
         return Err(ChassisError::TapeIdentityMismatch);
     }
-    let mut events = EventDecoder::new(table, contexts, tape);
+    let events = EventDecoder::new(table, contexts, tape);
+    decode_chassis_records(events, expected_ledger, coder)
+}
+
+/// Mirror of [`encode_chassis_item_with_mixer`].
+#[allow(clippy::too_many_arguments)]
+pub fn decode_chassis_item_with_mixer<C: ValueCoder>(
+    tape: &Tape,
+    expected_ledger: Ledger,
+    table: &LossTable,
+    contexts: ContextStore,
+    expected_arm_id: u8,
+    expected_item_index: u8,
+    coder: &mut C,
+    mixer: Box<M5Mixer>,
+) -> Result<Vec<u8>, ChassisError> {
+    if tape.arm_id() != expected_arm_id || tape.item_index() != expected_item_index {
+        return Err(ChassisError::TapeIdentityMismatch);
+    }
+    let events = EventDecoder::with_mixer(table, contexts, tape, mixer);
+    decode_chassis_records(events, expected_ledger, coder)
+}
+
+fn decode_chassis_records<C: ValueCoder>(
+    mut events: EventDecoder<'_>,
+    expected_ledger: Ledger,
+    coder: &mut C,
+) -> Result<Vec<u8>, ChassisError> {
     let mut templates = TemplateStore::new();
     let mut previous_type = RecordType::Miss;
     let mut output = Vec::new();

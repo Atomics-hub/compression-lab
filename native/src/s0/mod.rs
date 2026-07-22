@@ -16,13 +16,14 @@ mod m1;
 mod m2;
 mod m3;
 mod m4;
+mod m5;
 mod tape;
 mod template;
 
 pub use chassis::{
-    chassis_contexts, decode_chassis_item, decode_m1_value, encode_chassis_item, encode_m1_value,
-    lane_key, ChassisError, M1ValueCoder, RecordType, ValueCoder, M1_BINARY_CONTEXTS,
-    M1_TREE_CONTEXTS, MAX_VALUE_BYTES,
+    chassis_contexts, decode_chassis_item, decode_chassis_item_with_mixer, decode_m1_value,
+    encode_chassis_item, encode_chassis_item_with_mixer, encode_m1_value, lane_key, ChassisError,
+    M1ValueCoder, RecordType, ValueCoder, M1_BINARY_CONTEXTS, M1_TREE_CONTEXTS, MAX_VALUE_BYTES,
 };
 pub use event::{ContextStore, EventDecoder, EventEncoder, EventError};
 pub use fixed_log::{LossTable, Probability, MAX_PROBABILITY, MIN_PROBABILITY};
@@ -42,6 +43,11 @@ pub use m4::{
     decode_m1_m2_m4_item, encode_m1_m2_m4_item, m4_contexts, M4ValueCoder, M4_ARM_ID,
     M4_BINARY_CONTEXTS, M4_DECLARED_SLOT_BYTES, M4_DECLARED_STATE_BYTES, M4_TOKEN_ARENA_BYTES,
     M4_TOKEN_BYTES_MAX, M4_TOKEN_BYTES_MIN, M4_TOKEN_SLOTS, M4_TREE_CONTEXTS,
+};
+pub use m5::{
+    decode_m1_m2_m5_item, encode_m1_m2_m5_item, M5Mixer, M5_ARM_ID, MIXER_BUCKETS,
+    MIXER_TABLE_BYTES_MAXIMUM, SSE_BASE_BUCKET_BITS, SSE_NODES, SSE_REFINED_BUCKET_BITS,
+    SSE_TABLE_BYTES_MAXIMUM, SSE_TABLE_BYTES_REFINED_MAXIMUM,
 };
 pub use tape::{Tape, TapeError, TapeReader, TapeWriter};
 pub use template::{InsertOutcome, TemplateError, TemplateHit, TemplateStore};
