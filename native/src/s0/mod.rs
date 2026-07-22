@@ -5,6 +5,7 @@
 //! the frozen complete-byte projection. Corpus-specific grammar and models are
 //! deliberately layered on top of these primitives.
 
+mod arms;
 mod chassis;
 mod event;
 mod fixed_log;
@@ -17,9 +18,16 @@ mod m2;
 mod m3;
 mod m4;
 mod m5;
+mod raw;
 mod tape;
 mod template;
 
+pub use arms::{
+    decode_full_item, decode_full_minus_m3_item, decode_full_minus_m4_item,
+    decode_full_minus_m5_item, encode_full_item, encode_full_minus_m3_item,
+    encode_full_minus_m4_item, encode_full_minus_m5_item, FULL_ARM_ID, FULL_MINUS_M3_ARM_ID,
+    FULL_MINUS_M4_ARM_ID, FULL_MINUS_M5_ARM_ID,
+};
 pub use chassis::{
     chassis_contexts, decode_chassis_item, decode_chassis_item_with_mixer, decode_m1_value,
     encode_chassis_item, encode_chassis_item_with_mixer, encode_m1_value, lane_key, ChassisError,
@@ -49,5 +57,6 @@ pub use m5::{
     MIXER_TABLE_BYTES_MAXIMUM, SSE_BASE_BUCKET_BITS, SSE_NODES, SSE_REFINED_BUCKET_BITS,
     SSE_TABLE_BYTES_MAXIMUM, SSE_TABLE_BYTES_REFINED_MAXIMUM,
 };
+pub use raw::{decode_raw_o3_item, encode_raw_o3_item, RAW_ARM_ID, RAW_ORDER3_TREES};
 pub use tape::{Tape, TapeError, TapeReader, TapeWriter};
 pub use template::{InsertOutcome, TemplateError, TemplateHit, TemplateStore};

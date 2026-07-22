@@ -1,4 +1,4 @@
-//! Frozen golden fixtures for the M1, M2, M3, and M4 arms.
+//! Frozen golden fixtures for the mechanism, baseline, and composed arms.
 //!
 //! These pins freeze the exact encoded tape bytes, the exact ledger, and the
 //! exact decoded source for deterministic synthetic items. Any refactor of the
@@ -6,8 +6,9 @@
 //! explicit, reviewable act: the constants below must change in the diff.
 
 use super::{
-    decode_m1_item, decode_m1_m2_item, decode_m1_m2_m3_item, decode_m1_m2_m4_item, encode_m1_item,
-    encode_m1_m2_item, encode_m1_m2_m3_item, encode_m1_m2_m4_item, Ledger, LossTable, Tape,
+    decode_full_item, decode_m1_item, decode_m1_m2_item, decode_m1_m2_m3_item,
+    decode_m1_m2_m4_item, decode_raw_o3_item, encode_full_item, encode_m1_item, encode_m1_m2_item,
+    encode_m1_m2_m3_item, encode_m1_m2_m4_item, encode_raw_o3_item, Ledger, LossTable, Tape,
 };
 use sha2::{Digest, Sha256};
 
@@ -93,11 +94,11 @@ const GOLDENS: &[Golden] = &[
         arm: 2,
         item_index: 5,
         source_sha256: "fddf0442af26065519dfcae894d3267a9d35266c88fcaa6a435c12a01e5785b6",
-        tape_sha256: "c1a44845fa28bba071d6b2e00940c965667fc1e0123ca8acd160e2c6d046346c",
+        tape_sha256: "7b3dcfce125cc7f622701e9cba577259e0d735b6995b5805d0c45c28207af79c",
         ledger: Ledger {
             records: 9,
-            modeled_binary_events: 847,
-            modeled_loss_q24: 13_666_490_909,
+            modeled_binary_events: 762,
+            modeled_loss_q24: 12_262_027_010,
             raw_literal_bytes: 53,
         },
     },
@@ -144,13 +145,39 @@ const GOLDENS: &[Golden] = &[
         name: "m4-token-dictionary",
         arm: 4,
         item_index: 9,
-        source_sha256: "c7c30cab1bbf7bd3ab9ae66d94645232f5709eff90bec1f750a023c4f1828af6",
-        tape_sha256: "e0782102ca534edfe7e1e50c48a76049b1dd62ebf44bf511fd4add0abccc8f39",
+        source_sha256: "806e11940e01fd67098d841541a913fbadc282f483a2605e096d7454c2ca83bb",
+        tape_sha256: "18aa45652af9a9970f1ef06510bd573c222c12d74631f727ce2bccde4502cdac",
         ledger: Ledger {
             records: 11,
-            modeled_binary_events: 1_826,
-            modeled_loss_q24: 22_187_851_441,
-            raw_literal_bytes: 56,
+            modeled_binary_events: 929,
+            modeled_loss_q24: 11_649_694_073,
+            raw_literal_bytes: 183,
+        },
+    },
+    Golden {
+        name: "raw-o3-baseline",
+        arm: 0,
+        item_index: 10,
+        source_sha256: "6b5a9c463b3577e90e10b0c0935a977a0db49facf296ae82f3c3747f7c44dfab",
+        tape_sha256: "f1a8b71582d2d80523a517675e15b09358a4c0efeeab29196b7fd49747b40021",
+        ledger: Ledger {
+            records: 0,
+            modeled_binary_events: 6_580,
+            modeled_loss_q24: 61_408_619_261,
+            raw_literal_bytes: 0,
+        },
+    },
+    Golden {
+        name: "full-arm-composite",
+        arm: 6,
+        item_index: 11,
+        source_sha256: "fa5ec73775aafec50a79fb11f77669c3532f95aeb639e5753b7f08511e336f42",
+        tape_sha256: "96dd56fe6377d5f13140f19249fdae518165817c7dc69002e9554ad98040c0e7",
+        ledger: Ledger {
+            records: 13,
+            modeled_binary_events: 831,
+            modeled_loss_q24: 12_711_986_935,
+            raw_literal_bytes: 194,
         },
     },
 ];
@@ -300,7 +327,7 @@ fn source_for(name: &str) -> Vec<u8> {
             for index in 0..8_u32 {
                 source.extend_from_slice(
                     format!(
-                        "{{\"seq\":{index},\"path\":\"/svc/widgets/{}/state\",\"raw\":\"#{}!\"}}\n",
+                        "{{\"seq\":{index},\"path\":\"/services/widgetstore/{}/laststate\",\"raw\":\"#{}!\"}}\n",
                         index % 3,
                         index
                     )
@@ -310,8 +337,34 @@ fn source_for(name: &str) -> Vec<u8> {
             source.extend_from_slice(b"\n");
             source.extend_from_slice(b"{bad}\n");
             source.extend_from_slice(
-                b"{\"seq\":9,\"path\":\"/svc/widgets/0/state\",\"raw\":\"pre gadgets77 post\"}",
+                b"{\"seq\":9,\"path\":\"/services/widgetstore/0/laststate\",\"raw\":\"pre gadgetsbay77 post\"}",
             );
+        }
+        "raw-o3-baseline" => {
+            // Structure-free bytes for the order-3 baseline: JSON-ish lines,
+            // raw binary, and a long repeated pattern.
+            source.extend_from_slice(b"{\"json\":1}\nnot json at all\n");
+            source.extend((0..=255_u16).map(|byte| byte as u8));
+            source.extend_from_slice("pattern".repeat(64).as_bytes());
+        }
+        "full-arm-composite" => {
+            // Every mechanism at once: typed ID/TIME deltas, session
+            // references, dictionary tokens, unmatched literals, empty and
+            // fallback records, with the M5 estimator refining every loss.
+            for index in 0..10_u32 {
+                source.extend_from_slice(
+                    format!(
+                        "{{\"id\":{},\"ts\":\"2026-07-22T12:{:02}:00Z\",\"sid\":\"sess-{}\",\"path\":\"/services/widgetstore/{}/laststate\",\"raw\":\"#{}!\"}}\n",
+                        900 + index,
+                        index % 60,
+                        index % 2,
+                        index % 3,
+                        index
+                    )
+                    .as_bytes(),
+                );
+            }
+            source.extend_from_slice(b"\n{bad}\n{\"tail\":\"end\"}");
         }
         other => panic!("unknown golden fixture {other}"),
     }
@@ -324,6 +377,8 @@ fn encode_arm(golden: &Golden, source: &[u8], table: &LossTable) -> (Tape, Ledge
         2 => encode_m1_m2_item(source, table, golden.item_index).unwrap(),
         3 => encode_m1_m2_m3_item(source, table, golden.item_index).unwrap(),
         4 => encode_m1_m2_m4_item(source, table, golden.item_index).unwrap(),
+        0 => encode_raw_o3_item(source, table, golden.item_index).unwrap(),
+        6 => encode_full_item(source, table, golden.item_index).unwrap(),
         other => panic!("unknown golden arm {other}"),
     }
 }
@@ -334,6 +389,8 @@ fn decode_arm(golden: &Golden, tape: &Tape, ledger: Ledger, table: &LossTable) -
         2 => decode_m1_m2_item(tape, ledger, table, golden.item_index).unwrap(),
         3 => decode_m1_m2_m3_item(tape, ledger, table, golden.item_index).unwrap(),
         4 => decode_m1_m2_m4_item(tape, ledger, table, golden.item_index).unwrap(),
+        0 => decode_raw_o3_item(tape, ledger, table, golden.item_index).unwrap(),
+        6 => decode_full_item(tape, ledger, table, golden.item_index).unwrap(),
         other => panic!("unknown golden arm {other}"),
     }
 }

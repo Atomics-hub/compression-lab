@@ -2,15 +2,17 @@
 //!
 //! M4 terminates the value-coder chain: every value it sees is coded as a
 //! sequence of segments, each either a charged reference to a dictionary
-//! token or an unmatched byte run coded through the unchanged M1 lane models.
-//! After a value is coded, both sides teach the dictionary from its exact
-//! bytes. There is no static or shipped dictionary; all state is input
+//! token or an unmatched byte run on the direct literal channel (modeled
+//! length events plus raw bytes charged at eight bits). Literal bytes keep
+//! the full arm inside the frozen 96-events-per-record budget: only length,
+//! hit, and continue events are modeled. After a value is coded, both sides
+//! teach the dictionary from its exact bytes. There is no static or shipped dictionary; all state is input
 //! derived and item scoped. Values consumed by an M2 or M3 hit never reach
 //! M4.
 
 use super::chassis::{
-    chassis_contexts, decode_chassis_item, decode_m1_value, encode_chassis_item, encode_m1_value,
-    ChassisError, ValueCoder, M1_BINARY_CONTEXTS, M1_TREE_CONTEXTS, MAX_VALUE_BYTES,
+    chassis_contexts, decode_chassis_item, encode_chassis_item, ChassisError, ValueCoder,
+    M1_BINARY_CONTEXTS, M1_TREE_CONTEXTS, MAX_VALUE_BYTES,
 };
 use super::m2::{extend_m2_tree_alphabets, M2ValueCoder, M2_BINARY_CONTEXTS, M2_TREE_CONTEXTS};
 use super::m3::{extend_m3_tree_alphabets, M3_BINARY_CONTEXTS, M3_TREE_CONTEXTS};
@@ -21,7 +23,7 @@ use std::collections::HashMap;
 pub const M4_ARM_ID: u8 = 4;
 
 pub const M4_TOKEN_SLOTS: usize = 262_144;
-pub const M4_TOKEN_BYTES_MIN: usize = 2;
+pub const M4_TOKEN_BYTES_MIN: usize = 8;
 pub const M4_TOKEN_BYTES_MAX: usize = 32;
 pub const M4_TOKEN_ARENA_BYTES: usize = 25_165_824;
 pub const M4_DECLARED_SLOT_BYTES: usize = 16;
@@ -45,7 +47,7 @@ const _: () = assert!(TOKEN_HIGH_TREE == 22_534);
 const _: () = assert!(TOKEN_LOW_TREE == 22_535);
 const _: () = assert!(TOKEN_SPLIT as usize * TOKEN_SPLIT as usize == M4_TOKEN_SLOTS);
 const _: () = assert!(TOKEN_SPLIT <= 65_536);
-const _: () = assert!(M4_TOKEN_BYTES_MIN >= 2 && M4_TOKEN_BYTES_MIN <= M4_TOKEN_BYTES_MAX);
+const _: () = assert!(M4_TOKEN_BYTES_MIN >= 8 && M4_TOKEN_BYTES_MIN <= M4_TOKEN_BYTES_MAX);
 const _: () = assert!(M4_TOKEN_BYTES_MAX <= M4_TOKEN_ARENA_BYTES);
 const _: () = assert!(LANE_BUCKETS.is_power_of_two());
 
@@ -256,7 +258,8 @@ impl M4ValueCoder {
     /// Frozen teaching rule: split the exact value bytes into maximal runs of
     /// ASCII alphanumerics and maximal runs of everything else, clip each run
     /// into 32-byte chunks left to right, and insert every chunk of at least
-    /// two bytes.
+    /// eight bytes. The floor keeps segment fragmentation from spending the
+    /// 96-events-per-record budget on references that barely beat literals.
     fn teach(&mut self, bytes: &[u8]) -> Result<(), ChassisError> {
         let mut start = 0_usize;
         while start < bytes.len() {
@@ -315,7 +318,7 @@ impl ValueCoder for M4ValueCoder {
                 while cursor < bytes.len() && !self.store.has_match(&bytes[cursor..]) {
                     cursor += 1;
                 }
-                encode_m1_value(events, lane_key, &bytes[start..cursor])?;
+                events.literal(&bytes[start..cursor])?;
             }
             let more = cursor < bytes.len();
             events.bit(CONTINUE_BASE + bucket, more)?;
@@ -343,7 +346,7 @@ impl ValueCoder for M4ValueCoder {
                 let bytes = self.store.select(token_slot)?;
                 value.extend_from_slice(bytes);
             } else {
-                let segment = decode_m1_value(events, lane_key)?;
+                let segment = events.literal()?;
                 value.extend_from_slice(&segment);
             }
             if value.len() > MAX_VALUE_BYTES {
@@ -432,7 +435,7 @@ pub fn decode_m1_m2_m4_item(
 
 #[cfg(test)]
 mod tests {
-    use super::super::chassis::{encode_m1_value, lane_key};
+    use super::super::chassis::lane_key;
     use super::super::m2::encode_m1_m2_item;
     use super::super::m3::M3ValueCoder;
     use super::*;
@@ -477,19 +480,28 @@ mod tests {
     }
 
     #[test]
-    fn matchless_values_cost_exactly_two_extra_bits_each() {
+    fn matchless_values_use_the_literal_channel_plus_two_bits() {
+        // A single unmatched segment charges one hit bit, the modeled literal
+        // length, the raw bytes at eight uncounted bits each, and one
+        // continue bit — never per-byte modeled events.
         let table = LossTable::generate();
-        // Byte values below never form alphanumeric runs of length >= 2, so
-        // the dictionary stays empty of anything matchable and every value is
-        // a single unmatched segment: one hit bit plus one continue bit over
-        // the plain M1 cost.
-        let source = b"{\"a\":\"#!\",\"b\":\"()\"}\n{\"a\":\"[]\",\"b\":\"{}\"}\n{\"a\":\"<>\",\"b\":\"%^\"}\n";
-        let (_, m2_ledger) = encode_m1_m2_item(source, &table, 1).unwrap();
-        let m4_ledger = round_trip(source, 1);
+        let layout = JsonLayout::parse(b"{\"s\":\"#!$%\"}").unwrap();
+        let key = lane_key(layout.skeleton(), 0).unwrap();
+        let value = b"\"#!$%\"";
+
+        let mut probe = EventEncoder::new(&table, m4_contexts().unwrap(), M4_ARM_ID, 0);
+        probe.literal(value).unwrap();
+        let literal_events = probe.ledger().modeled_binary_events;
+
+        let mut coder = M4ValueCoder::new();
+        let mut events = EventEncoder::new(&table, m4_contexts().unwrap(), M4_ARM_ID, 0);
+        coder.encode_value(&mut events, 0, 0, key, value).unwrap();
         assert_eq!(
-            m4_ledger.modeled_binary_events,
-            m2_ledger.modeled_binary_events + 4 * 2
+            events.ledger().modeled_binary_events,
+            literal_events + 2,
+            "hit bit + literal length + continue bit"
         );
+        assert_eq!(events.ledger().raw_literal_bytes, value.len() as u64);
     }
 
     #[test]
@@ -501,77 +513,78 @@ mod tests {
         coder.after_miss_insert(0, &layout).unwrap();
         assert!(coder.contains_token(b"sessiontoken"));
 
-        // The value is quote + token + quote: a one-byte miss segment, a
-        // token hit, and another one-byte miss segment, each with its
+        // The value is quote + token + quote: a one-byte literal segment, a
+        // token hit, and another one-byte literal segment, each with its
         // continue bit. Hit cost is 1 + 9 + 9 = 19 events.
         let mut events = EventEncoder::new(&table, m4_contexts().unwrap(), M4_ARM_ID, 0);
         let mut plain = EventEncoder::new(&table, m4_contexts().unwrap(), M4_ARM_ID, 0);
-        encode_m1_value(&mut plain, key, b"\"").unwrap();
-        encode_m1_value(&mut plain, key, b"\"").unwrap();
+        plain.literal(b"\"").unwrap();
+        plain.literal(b"\"").unwrap();
         let quotes = plain.ledger().modeled_binary_events;
         coder
             .encode_value(&mut events, 0, 0, key, b"\"sessiontoken\"")
             .unwrap();
         assert_eq!(events.ledger().modeled_binary_events, quotes + 2 + 19 + 3);
+        assert_eq!(events.ledger().raw_literal_bytes, 2);
     }
 
     #[test]
     fn longest_match_wins_over_shorter_tokens() {
         let mut store = TokenStore::new();
-        store.insert(b"abc").unwrap();
-        store.insert(b"abcdef").unwrap();
-        let (slot, length) = store.lookup_longest(b"abcdefxyz").unwrap();
-        assert_eq!(length, 6);
+        store.insert(b"abcdefgh").unwrap();
+        store.insert(b"abcdefghijkl").unwrap();
+        let (slot, length) = store.lookup_longest(b"abcdefghijklxyz").unwrap();
+        assert_eq!(length, 12);
         assert_eq!(
             store.slots[slot].bytes.as_deref(),
-            Some(b"abcdef".as_slice())
+            Some(b"abcdefghijkl".as_slice())
         );
-        let (_, shorter) = store.lookup_longest(b"abcdxyz").unwrap();
-        assert_eq!(shorter, 3);
+        let (_, shorter) = store.lookup_longest(b"abcdefghixyz").unwrap();
+        assert_eq!(shorter, 8);
     }
 
     #[test]
     fn teaching_splits_alnum_runs_and_clips_to_32_bytes() {
         let mut coder = M4ValueCoder::new();
         let long_run: String = "a".repeat(33);
-        let value = format!("\"{long_run}--tail7\"");
+        let value = format!("\"{long_run}--longtail99\"");
         coder.teach(value.as_bytes()).unwrap();
         assert!(coder.contains_token("a".repeat(32).as_bytes()));
         assert!(!coder.contains_token("a".repeat(33).as_bytes()));
         assert!(!coder.contains_token(b"a")); // one-byte leftover chunk dropped
-        assert!(coder.contains_token(b"--"));
-        assert!(coder.contains_token(b"tail7"));
+        assert!(!coder.contains_token(b"--")); // below the eight-byte floor
+        assert!(coder.contains_token(b"longtail99"));
         assert!(!coder.contains_token(b"\"")); // single quote too short
     }
 
     #[test]
     fn arena_pressure_evicts_deterministically() {
-        let mut store = TokenStore::with_limits(4, 8);
-        store.insert(b"aaa").unwrap();
-        store.insert(b"bbb").unwrap();
-        store.insert(b"cc").unwrap();
-        assert_eq!(store.arena_bytes, 8);
-        // Inserting four more bytes exceeds the arena: the empty target slot
-        // is claimed, then victims evict in scan order until it fits.
-        store.insert(b"dddd").unwrap();
-        assert!(store.slot_holding(b"aaa").is_none());
-        assert!(store.slot_holding(b"bbb").is_none());
-        assert!(store.slot_holding(b"cc").is_some());
-        assert!(store.slot_holding(b"dddd").is_some());
-        assert_eq!(store.arena_bytes, 6);
+        let mut store = TokenStore::with_limits(4, 26);
+        store.insert(b"aaaaaaaaa").unwrap(); // 9 bytes
+        store.insert(b"bbbbbbbbb").unwrap(); // 9 bytes
+        store.insert(b"cccccccc").unwrap(); // 8 bytes
+        assert_eq!(store.arena_bytes, 26);
+        // Twelve more bytes exceed the arena: the empty target slot is
+        // claimed, then victims evict in scan order until it fits.
+        store.insert(b"dddddddddddd").unwrap();
+        assert!(store.slot_holding(b"aaaaaaaaa").is_none());
+        assert!(store.slot_holding(b"bbbbbbbbb").is_none());
+        assert!(store.slot_holding(b"cccccccc").is_some());
+        assert!(store.slot_holding(b"dddddddddddd").is_some());
+        assert_eq!(store.arena_bytes, 20);
     }
 
     #[test]
     fn clock_reference_bits_protect_hit_tokens() {
         let mut store = TokenStore::with_limits(3, 1_024);
-        store.insert(b"one1").unwrap();
-        store.insert(b"two2").unwrap();
-        store.insert(b"three3").unwrap();
-        assert!(store.lookup_longest(b"one1...").is_some());
-        store.insert(b"four4").unwrap();
-        assert!(store.slot_holding(b"one1").is_some());
-        assert!(store.slot_holding(b"two2").is_none());
-        assert!(store.slot_holding(b"four4").is_some());
+        store.insert(b"one1one1").unwrap();
+        store.insert(b"two2two2").unwrap();
+        store.insert(b"three3three3").unwrap();
+        assert!(store.lookup_longest(b"one1one1...").is_some());
+        store.insert(b"four4four4").unwrap();
+        assert!(store.slot_holding(b"one1one1").is_some());
+        assert!(store.slot_holding(b"two2two2").is_none());
+        assert!(store.slot_holding(b"four4four4").is_some());
     }
 
     #[test]
@@ -693,7 +706,7 @@ mod tests {
         for index in 0..120_u32 {
             source.extend_from_slice(
                 format!(
-                    "{{\"w\":\"word{:02}\",\"again\":\"word{:02}\"}}\n",
+                    "{{\"w\":\"longword{:02}\",\"again\":\"longword{:02}\"}}\n",
                     index % 40,
                     (index + 1) % 40
                 )
@@ -707,7 +720,7 @@ mod tests {
                 m4_contexts().unwrap(),
                 M4_ARM_ID,
                 6,
-                &mut M2ValueCoder::with_inner(M4ValueCoder::with_store_limits(8, 48)),
+                &mut M2ValueCoder::with_inner(M4ValueCoder::with_store_limits(8, 64)),
             )
             .unwrap()
         };
@@ -719,7 +732,7 @@ mod tests {
             m4_contexts().unwrap(),
             M4_ARM_ID,
             6,
-            &mut M2ValueCoder::with_inner(M4ValueCoder::with_store_limits(8, 48)),
+            &mut M2ValueCoder::with_inner(M4ValueCoder::with_store_limits(8, 64)),
         )
         .unwrap();
         assert_eq!(decoded, source);
