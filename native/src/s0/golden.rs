@@ -131,13 +131,13 @@ const GOLDENS: &[Golden] = &[
         name: "m3-session-references",
         arm: 3,
         item_index: 8,
-        source_sha256: "dd9cf9b1c861e4fb4748fdb97478f7ce1158fab8e6963a4c106cf296bb77ba27",
-        tape_sha256: "7a67515cd915b54804b1c1bb01e8573d921f1b63d62a5bb6650c8dc995857335",
+        source_sha256: "c2df83fa20326705929fe8c1f043303637ce292081d5c9a0c9fd2f02c4fbe01d",
+        tape_sha256: "ae34028d000859ef2ca4727836b284d00502012c4088c0a51a3a10e65d471dd3",
         ledger: Ledger {
-            records: 12,
-            modeled_binary_events: 2_305,
-            modeled_loss_q24: 14_986_381_871,
-            raw_literal_bytes: 274,
+            records: 14,
+            modeled_binary_events: 6_423,
+            modeled_loss_q24: 83_019_960_591,
+            raw_literal_bytes: 1_196,
         },
     },
 ];
@@ -264,6 +264,20 @@ fn source_for(name: &str) -> Vec<u8> {
             }
             source.extend_from_slice(format!("{{\"blob\":\"{}\"}}\n", "y".repeat(200)).as_bytes());
             source.extend_from_slice(format!("{{\"blob\":\"{}\"}}\n", "y".repeat(200)).as_bytes());
+            // A 66-value template whose lane-64 string repeats pins the
+            // lane-index >= 64 route into the session cache.
+            for round in 0..2_u32 {
+                let fields: Vec<String> = (0..66)
+                    .map(|lane| {
+                        if lane == 64 {
+                            "\"w64\":\"wide-session\"".to_string()
+                        } else {
+                            format!("\"w{lane:02}\":\"v{lane}r{round}\"")
+                        }
+                    })
+                    .collect();
+                source.extend_from_slice(format!("{{{}}}\n", fields.join(",")).as_bytes());
+            }
         }
         other => panic!("unknown golden fixture {other}"),
     }

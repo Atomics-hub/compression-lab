@@ -35,6 +35,9 @@ pub const M3_TREE_CONTEXTS: usize = 1;
 const _: () = assert!(M3_HIT_BASE == 10_720);
 const _: () = assert!(REFERENCE_TREE == 22_533);
 const _: () = assert!(REFERENCE_ALPHABET as usize == M3_SESSION_SLOTS);
+// The event layer's maximum tree alphabet is 65,536; a larger slot count
+// would only fail at runtime in BitTree::new, so pin the ceiling here.
+const _: () = assert!(M3_SESSION_SLOTS <= 65_536);
 const _: () = assert!(LANE_BUCKETS.is_power_of_two());
 
 #[derive(Clone, Debug, Default)]
@@ -46,9 +49,11 @@ struct SessionSlot {
 
 /// Deterministic bounded value cache with the frozen CLOCK rule: the hand
 /// advances only during insertion, reference bits are set on decoded hits,
-/// cleared while scanning, and the first zero-bit slot is claimed, ties broken
-/// by ascending scan order. Hashes only reject non-candidates; hit selection
-/// always compares complete value bytes, in ascending slot order.
+/// cleared while scanning, and the first zero-bit slot in ascending scan
+/// order from the hand is claimed — the same hand-relative reading the
+/// merged TemplateStore uses, pinned by the eviction tests. Hashes only
+/// reject non-candidates; hit selection always compares complete value
+/// bytes, in ascending slot order.
 struct SessionStore {
     slots: Box<[SessionSlot]>,
     // Acceleration index only: maps a value hash to its candidate slots in
@@ -521,6 +526,29 @@ mod tests {
         assert_eq!(
             decode_m1_m2_m3_item(&m2_tape, m2_ledger, &table, 4),
             Err(ChassisError::TapeIdentityMismatch)
+        );
+    }
+
+    #[test]
+    fn full_chain_round_trip_survives_a_clock_eviction_cycle() {
+        // More unique cacheable values than session slots, all flowing
+        // through the arm-3 entry points, so both the encoder and the decoder
+        // run CLOCK evictions mid-stream. A recently taught value then hits
+        // after evictions began, and the very first value — already evicted —
+        // misses again and still round-trips exactly.
+        let table = LossTable::generate();
+        let total = M3_SESSION_SLOTS + 40;
+        let mut source = Vec::with_capacity(total * 16 + 48);
+        for index in 0..total {
+            source.extend_from_slice(format!("{{\"s\":\"a{index:06}\"}}\n").as_bytes());
+        }
+        source.extend_from_slice(format!("{{\"s\":\"a{:06}\"}}\n", total - 2).as_bytes());
+        source.extend_from_slice(b"{\"s\":\"a000000\"}\n");
+
+        let (tape, ledger) = encode_m1_m2_m3_item(&source, &table, 5).unwrap();
+        assert_eq!(
+            decode_m1_m2_m3_item(&tape, ledger, &table, 5).unwrap(),
+            source
         );
     }
 
