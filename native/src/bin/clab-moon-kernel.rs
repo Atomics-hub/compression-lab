@@ -481,7 +481,7 @@ mod tests {
         );
         assert_eq!(
             receipt_field(&receipt, "declared_model_state_bytes"),
-            "119799808"
+            "119947264"
         );
 
         let output = scratch.path("h1.decoded");

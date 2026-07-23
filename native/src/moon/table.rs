@@ -19,8 +19,13 @@ pub const H1_CONTEXT_TABLE_BYTES: usize = H1_CONTEXT_CELLS * H1_CELL_BYTES;
 
 /// Bounded, deterministic probe depth for a check-byte mismatch.
 pub const H1_PROBE_DEPTH: usize = 4;
-/// Claim strength of a freshly inserted context. An incumbent is evicted on a
-/// probe only when its priority is strictly below this newcomer confidence.
+/// The newcomer confidence, and the claim priority a freshly inserted context
+/// starts at. An incumbent is evicted on a probe only when its priority is
+/// strictly below this value. A fresh claim starts *at* it (so a just-claimed
+/// cell is not immediately re-evictable); each colliding probe ages the
+/// incumbent by one, so a repeatedly-collided cold cell falls below it and
+/// becomes evictable. "Below the newcomer confidence" in the eviction code
+/// means exactly `priority < H1_NEWCOMER_PRIORITY`.
 pub const H1_NEWCOMER_PRIORITY: u8 = 1;
 /// Counter ceiling. When either counter reaches it, both halve so the cell
 /// tracks a moving average rather than a frozen lifetime frequency.
@@ -156,7 +161,9 @@ impl ContextTable {
                 return index;
             }
             // Check-byte mismatch: a genuine collision. Evict only when the
-            // incumbent is weaker than the arriving context, else probe on.
+            // incumbent's priority is below the newcomer confidence
+            // (H1_NEWCOMER_PRIORITY), else probe on. Aging below drives cold
+            // incumbents under that threshold over repeated collisions.
             if u16::from(cell.priority) < u16::from(H1_NEWCOMER_PRIORITY) {
                 self.claim(index, check);
                 return index;

@@ -9,6 +9,20 @@ the generator version, seed, parameters, and the SHA-256 of the emitted bytes.
 
 This generator never reads any corpus, licensed development item, or network
 resource. It only writes synthetic bytes.
+
+Parameter semantics worth knowing:
+
+- ``duplication_factor`` models *contiguous* repeats only: each freshly built
+  record is emitted ``round(duplication_factor)`` times back-to-back, so it
+  raises adjacency-local repetition (what a whole-value/copy layer catches),
+  not scattered recurrence.
+- ``round(...)`` is Python's banker's rounding (round-half-to-even), so e.g.
+  ``2.5`` rounds to ``2`` and ``3.5`` to ``4``. Pass whole numbers to avoid
+  surprise.
+- ``session_concurrency`` selects among the first ``session_concurrency``
+  session keys; when it exceeds ``key_cardinality`` the selection index is
+  taken modulo the key pool, so distinct concurrency slots alias onto the same
+  key. Keep ``session_concurrency <= key_cardinality`` for one-to-one keys.
 """
 
 from __future__ import annotations
@@ -177,16 +191,20 @@ def emit(args: argparse.Namespace) -> bytes:
     lines: list[str] = []
     clock = 0
     emitted = 0
+    # Banker's rounding (round-half-to-even); contiguous repeats per record.
     duplication = max(1, round(args.duplication_factor))
     target = args.records
     while emitted < target:
         # Build one fresh record, then repeat it `duplication` times (bounded by
-        # the remaining budget) to realize the duplication factor.
+        # the remaining budget) to realize the duplication factor as contiguous
+        # (adjacency-local) repetition.
         if rng.below(1000) < round(args.timestamp_monotonicity * 1000):
             clock += 1
         else:
             clock = max(0, clock - rng.below(4))
         template = templates[rng.below(len(templates))]
+        # session_concurrency picks among that many active slots; the modulo
+        # aliases slots onto keys when concurrency exceeds key_cardinality.
         session = sessions[rng.below(args.session_concurrency) % len(sessions)]
         value = values[rng.below(len(values))]
         level = LEVELS[rng.below(len(LEVELS))]
