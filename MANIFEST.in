@@ -10,6 +10,7 @@ include native-dense/Cargo.toml
 recursive-include config *.json
 recursive-include docs *.md
 recursive-include native/src *.rs
+include native/src/moon/data/h8-static-mixer-weights.bin
 recursive-include native-dense/src *.rs
 include runs/dms2-native-development-gate-v1.json
 include runs/fixed-sign-sampled-probe-validation.json

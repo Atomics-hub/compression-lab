@@ -1,0 +1,25 @@
+{
+  "schema": "moon-h8-month-discipline-v1",
+  "evidence_stage": "development_only_prescreen",
+  "note": "Pinned BEFORE any H8 measurement (helm tightening #3, no month shopping). The frozen static mixer weights are learned ONLY on train_month_a. eval_month_b must remain UNSEEN by training; the helm-run sweep evaluates the frozen weights on month B plus synthetics against the adaptive H1 arm. Slices are public GH Archive hours (gharchive.org), redistributable public event data; the AIT/Landauer lineage family is excluded.",
+  "train_month_a": {
+    "month": "A",
+    "hour": "gharchive-2026-05-15-14",
+    "slice": "slices/gharchive-2026-05-15-14-s24.ndjson",
+    "sha256": "a6873fdebc69a79c1cad8e7b4b52c8d207c5e7f5fa5ed1df3ec4117d920802b4",
+    "role": "training only; does not consume the run budget"
+  },
+  "eval_month_b": {
+    "month": "B",
+    "hour": "gharchive-2026-06-15-14",
+    "slice": "slices/gharchive-2026-06-15-14-s24.ndjson",
+    "sha256": "05220440b98e0adfc933ce0b6f838a6bed37d35118e4bb4f02075d7e34e50f79",
+    "role": "unseen holdout; evaluated by the sweep, never read during training"
+  },
+  "weight_artifact": {
+    "file": "h8-static-mixer-weights.bin",
+    "receipt": "h8-static-mixer-weights.receipt.json",
+    "procedure_version": 1,
+    "sha256": "ad0d73cdfcac3e376731852eaf99b1c146a933e9f8efbdd49743bf7b538c908e"
+  }
+}

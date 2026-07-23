@@ -67,6 +67,13 @@ KILL_LINES = {
         "Kill if the hybrid does not beat max(H1-alone, M3-alone) by >= 3% on the "
         "public set."
     ),
+    # Draft cycle-1 §2-H8 ("Kill if the frozen mixer loses to the adaptive
+    # mixer by > 2% on the unseen month"), phrased mechanically. Byte-identical
+    # to the kernel's H8_KILL_CRITERION.
+    "h8-static-mixer": (
+        "Kill if frozen-mixer complete bytes exceed 1.02x adaptive H1 complete "
+        "bytes on the unseen month."
+    ),
     # Verbatim from draft cycle-1 §2-H9.
     "h9-grammar": "Kill if bounded-grammar size > 1.3x local ZPAQ-16MiB on the public set.",
 }
