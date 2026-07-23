@@ -1,0 +1,21 @@
+   Compiling libc v0.2.186
+   Compiling shlex v2.0.1
+   Compiling find-msvc-tools v0.1.9
+   Compiling pkg-config v0.3.33
+   Compiling typenum v1.20.1
+   Compiling zstd-safe v7.2.4
+   Compiling const-oid v0.10.2
+   Compiling cfg-if v1.0.4
+   Compiling hybrid-array v0.4.13
+   Compiling jobserver v0.1.34
+   Compiling cc v1.2.67
+   Compiling block-buffer v0.12.1
+   Compiling crypto-common v0.2.2
+   Compiling cpufeatures v0.3.0
+   Compiling digest v0.11.3
+   Compiling zstd-sys v2.0.16+zstd.1.5.7
+   Compiling sha2 v0.11.0
+   Compiling zstd v0.13.3
+   Compiling compression-lab-native v0.1.0 (/Users/guts/Documents/axiom-s0-research/confirm-scratch/checkout/native)
+    Finished `release` profile [optimized] target(s) in 16.88s
+{"confirmed": true, "receipts": 30}

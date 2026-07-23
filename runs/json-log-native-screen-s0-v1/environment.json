@@ -1,0 +1,288 @@
+{
+  "host": {
+    "machine": "arm64",
+    "platform": "macOS-26.5.2-arm64-arm-64bit",
+    "python": "3.12.12 (main, Oct 28 2025, 11:52:25) [Clang 20.1.4 ]",
+    "rss_units_raw": "bytes"
+  },
+  "kernel_binary_sha256": "0a474ef1c63364ad1f9030305684896b35ff0e056bfd49dc32d8a8d03a30e995",
+  "measurements": [
+    {
+      "arm": "raw-o3",
+      "cpu_system_ns": 161566000,
+      "cpu_user_ns": 8921061000,
+      "item_id": "clue-early-development",
+      "peak_rss_bytes": 550305792,
+      "peak_rss_raw": 550305792,
+      "wall_ns": 9603549542
+    },
+    {
+      "arm": "raw-o3",
+      "cpu_system_ns": 164251999,
+      "cpu_user_ns": 9878929000,
+      "item_id": "clue-middle-development",
+      "peak_rss_bytes": 599605248,
+      "peak_rss_raw": 599605248,
+      "wall_ns": 10126246416
+    },
+    {
+      "arm": "raw-o3",
+      "cpu_system_ns": 162960000,
+      "cpu_user_ns": 10049893000,
+      "item_id": "clue-late-development",
+      "peak_rss_bytes": 610058240,
+      "peak_rss_raw": 610058240,
+      "wall_ns": 10299790417
+    },
+    {
+      "arm": "m1-chassis",
+      "cpu_system_ns": 78495000,
+      "cpu_user_ns": 6197492000,
+      "item_id": "clue-early-development",
+      "peak_rss_bytes": 333774848,
+      "peak_rss_raw": 333774848,
+      "wall_ns": 6324434750
+    },
+    {
+      "arm": "m1-chassis",
+      "cpu_system_ns": 84523000,
+      "cpu_user_ns": 6972639000,
+      "item_id": "clue-middle-development",
+      "peak_rss_bytes": 385384448,
+      "peak_rss_raw": 385384448,
+      "wall_ns": 7121177333
+    },
+    {
+      "arm": "m1-chassis",
+      "cpu_system_ns": 87587000,
+      "cpu_user_ns": 7132508000,
+      "item_id": "clue-late-development",
+      "peak_rss_bytes": 391938048,
+      "peak_rss_raw": 391938048,
+      "wall_ns": 7276442917
+    },
+    {
+      "arm": "m1-m2",
+      "cpu_system_ns": 75472000,
+      "cpu_user_ns": 5545560000,
+      "item_id": "clue-early-development",
+      "peak_rss_bytes": 314818560,
+      "peak_rss_raw": 314818560,
+      "wall_ns": 5665585458
+    },
+    {
+      "arm": "m1-m2",
+      "cpu_system_ns": 80957000,
+      "cpu_user_ns": 6214232000,
+      "item_id": "clue-middle-development",
+      "peak_rss_bytes": 364265472,
+      "peak_rss_raw": 364265472,
+      "wall_ns": 6356992791
+    },
+    {
+      "arm": "m1-m2",
+      "cpu_system_ns": 81853000,
+      "cpu_user_ns": 6407351000,
+      "item_id": "clue-late-development",
+      "peak_rss_bytes": 370737152,
+      "peak_rss_raw": 370737152,
+      "wall_ns": 6547393625
+    },
+    {
+      "arm": "m1-m2-m3",
+      "cpu_system_ns": 46539000,
+      "cpu_user_ns": 2816732000,
+      "item_id": "clue-early-development",
+      "peak_rss_bytes": 210780160,
+      "peak_rss_raw": 210780160,
+      "wall_ns": 2880401000
+    },
+    {
+      "arm": "m1-m2-m3",
+      "cpu_system_ns": 47553000,
+      "cpu_user_ns": 2887156000,
+      "item_id": "clue-middle-development",
+      "peak_rss_bytes": 232079360,
+      "peak_rss_raw": 232079360,
+      "wall_ns": 2955862584
+    },
+    {
+      "arm": "m1-m2-m3",
+      "cpu_system_ns": 63693000,
+      "cpu_user_ns": 4117276000,
+      "item_id": "clue-late-development",
+      "peak_rss_bytes": 281329664,
+      "peak_rss_raw": 281329664,
+      "wall_ns": 4213087541
+    },
+    {
+      "arm": "m1-m2-m4",
+      "cpu_system_ns": 102913999,
+      "cpu_user_ns": 17131471000,
+      "item_id": "clue-early-development",
+      "peak_rss_bytes": 291979264,
+      "peak_rss_raw": 291979264,
+      "wall_ns": 17326922875
+    },
+    {
+      "arm": "m1-m2-m4",
+      "cpu_system_ns": 99552000,
+      "cpu_user_ns": 21969968000,
+      "item_id": "clue-middle-development",
+      "peak_rss_bytes": 335691776,
+      "peak_rss_raw": 335691776,
+      "wall_ns": 22137831958
+    },
+    {
+      "arm": "m1-m2-m4",
+      "cpu_system_ns": 94004999,
+      "cpu_user_ns": 17318777000,
+      "item_id": "clue-late-development",
+      "peak_rss_bytes": 331776000,
+      "peak_rss_raw": 331776000,
+      "wall_ns": 17464475375
+    },
+    {
+      "arm": "m1-m2-m5",
+      "cpu_system_ns": 165027999,
+      "cpu_user_ns": 63737295000,
+      "item_id": "clue-early-development",
+      "peak_rss_bytes": 335249408,
+      "peak_rss_raw": 335249408,
+      "wall_ns": 64010656083
+    },
+    {
+      "arm": "m1-m2-m5",
+      "cpu_system_ns": 180915000,
+      "cpu_user_ns": 72028039000,
+      "item_id": "clue-middle-development",
+      "peak_rss_bytes": 384237568,
+      "peak_rss_raw": 384237568,
+      "wall_ns": 72334658625
+    },
+    {
+      "arm": "m1-m2-m5",
+      "cpu_system_ns": 235656999,
+      "cpu_user_ns": 75692785000,
+      "item_id": "clue-late-development",
+      "peak_rss_bytes": 390856704,
+      "peak_rss_raw": 390856704,
+      "wall_ns": 76248532375
+    },
+    {
+      "arm": "full",
+      "cpu_system_ns": 65394999,
+      "cpu_user_ns": 13368141000,
+      "item_id": "clue-early-development",
+      "peak_rss_bytes": 232275968,
+      "peak_rss_raw": 232275968,
+      "wall_ns": 13451786375
+    },
+    {
+      "arm": "full",
+      "cpu_system_ns": 67476000,
+      "cpu_user_ns": 13528857000,
+      "item_id": "clue-middle-development",
+      "peak_rss_bytes": 250888192,
+      "peak_rss_raw": 250888192,
+      "wall_ns": 13620709334
+    },
+    {
+      "arm": "full",
+      "cpu_system_ns": 89006000,
+      "cpu_user_ns": 20336286000,
+      "item_id": "clue-late-development",
+      "peak_rss_bytes": 281788416,
+      "peak_rss_raw": 281788416,
+      "wall_ns": 20462007792
+    },
+    {
+      "arm": "full-minus-m3",
+      "cpu_system_ns": 104876000,
+      "cpu_user_ns": 26485182000,
+      "item_id": "clue-early-development",
+      "peak_rss_bytes": 313344000,
+      "peak_rss_raw": 313344000,
+      "wall_ns": 26660999708
+    },
+    {
+      "arm": "full-minus-m3",
+      "cpu_system_ns": 126279000,
+      "cpu_user_ns": 33710887000,
+      "item_id": "clue-middle-development",
+      "peak_rss_bytes": 354762752,
+      "peak_rss_raw": 354762752,
+      "wall_ns": 33905357250
+    },
+    {
+      "arm": "full-minus-m3",
+      "cpu_system_ns": 119210000,
+      "cpu_user_ns": 29846813000,
+      "item_id": "clue-late-development",
+      "peak_rss_bytes": 352256000,
+      "peak_rss_raw": 352256000,
+      "wall_ns": 30030356583
+    },
+    {
+      "arm": "full-minus-m4",
+      "cpu_system_ns": 80834999,
+      "cpu_user_ns": 21440544000,
+      "item_id": "clue-early-development",
+      "peak_rss_bytes": 228245504,
+      "peak_rss_raw": 228245504,
+      "wall_ns": 21554357500
+    },
+    {
+      "arm": "full-minus-m4",
+      "cpu_system_ns": 81661000,
+      "cpu_user_ns": 22933983000,
+      "item_id": "clue-middle-development",
+      "peak_rss_bytes": 251543552,
+      "peak_rss_raw": 251543552,
+      "wall_ns": 23077745000
+    },
+    {
+      "arm": "full-minus-m4",
+      "cpu_system_ns": 112638999,
+      "cpu_user_ns": 41884248000,
+      "item_id": "clue-late-development",
+      "peak_rss_bytes": 300597248,
+      "peak_rss_raw": 300597248,
+      "wall_ns": 42107161917
+    },
+    {
+      "arm": "full-minus-m5",
+      "cpu_system_ns": 53072999,
+      "cpu_user_ns": 7573776000,
+      "item_id": "clue-early-development",
+      "peak_rss_bytes": 212926464,
+      "peak_rss_raw": 212926464,
+      "wall_ns": 7674988375
+    },
+    {
+      "arm": "full-minus-m5",
+      "cpu_system_ns": 57290000,
+      "cpu_user_ns": 8204801000,
+      "item_id": "clue-middle-development",
+      "peak_rss_bytes": 231309312,
+      "peak_rss_raw": 231309312,
+      "wall_ns": 8285609333
+    },
+    {
+      "arm": "full-minus-m5",
+      "cpu_system_ns": 77606000,
+      "cpu_user_ns": 12444952000,
+      "item_id": "clue-late-development",
+      "peak_rss_bytes": 262733824,
+      "peak_rss_raw": 262733824,
+      "wall_ns": 12558191083
+    }
+  ],
+  "note": "Host-specific measurements; ignored by the verifier for byte comparisons.",
+  "profile": "base",
+  "schema_version": 1,
+  "toolchain": {
+    "cargo": "cargo 1.93.1 (083ac5135 2025-12-15)",
+    "rustc": "rustc 1.93.1 (01f6ddf75 2026-02-11)"
+  }
+}

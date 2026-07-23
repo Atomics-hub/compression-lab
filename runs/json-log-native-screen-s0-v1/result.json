@@ -1,0 +1,2164 @@
+{
+  "arms": [
+    {
+      "aggregate_gain_basis_points": -67927,
+      "aggregate_ledger": {
+        "modeled_binary_events": 1832203191,
+        "modeled_loss_q24": 1780464467193684,
+        "raw_literal_bytes": 0,
+        "records": 0
+      },
+      "aggregate_projection": {
+        "block_allowance_bytes": 6272,
+        "coder_allowance_bytes": 66328,
+        "complete_bytes": 13342263,
+        "fixed_framing_bytes": 4096,
+        "payload_bytes": 13265495,
+        "stream_metadata_bytes": 72
+      },
+      "decides": false,
+      "event_limit_applies": false,
+      "id": 0,
+      "name": "raw-o3",
+      "per_item": [
+        {
+          "decoded_sha256": "4f1571569ebdf98621bbd29da45ba84ab37b4f1f1033aacf822dd5b3f40358fe",
+          "item_id": "clue-early-development",
+          "item_index": 0,
+          "item_projection": {
+            "block_allowance_bytes": 1920,
+            "coder_allowance_bytes": 23744,
+            "complete_bytes": 4778402,
+            "fixed_framing_bytes": 4096,
+            "payload_bytes": 4748618,
+            "stream_metadata_bytes": 24
+          },
+          "ledger": {
+            "modeled_binary_events": 560407258,
+            "modeled_loss_q24": 637348600949323,
+            "raw_literal_bytes": 0,
+            "records": 0
+          },
+          "segment_interval_bytes": 16777216,
+          "segments": [
+            {
+              "ledger": {
+                "modeled_binary_events": 150996573,
+                "modeled_loss_q24": 163751824359254,
+                "raw_literal_bytes": 0,
+                "records": 0
+              },
+              "records": 74301,
+              "source_bytes": 16777397
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 301991607,
+                "modeled_loss_q24": 338760173734848,
+                "raw_literal_bytes": 0,
+                "records": 0
+              },
+              "records": 138557,
+              "source_bytes": 33554623
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 452986362,
+                "modeled_loss_q24": 524234532443478,
+                "raw_literal_bytes": 0,
+                "records": 0
+              },
+              "records": 199164,
+              "source_bytes": 50331818
+            }
+          ],
+          "source_sha256": "4f1571569ebdf98621bbd29da45ba84ab37b4f1f1033aacf822dd5b3f40358fe",
+          "tape_sha256": "d84475f494f49730219ce48f8b6a4e18348f361f06f811f248051e4673108fcb"
+        },
+        {
+          "decoded_sha256": "5ee50c36db110b023faf412e05398402e25ed59776ef5ee9323339f8b1aa4fa5",
+          "item_id": "clue-middle-development",
+          "item_index": 1,
+          "item_projection": {
+            "block_allowance_bytes": 2144,
+            "coder_allowance_bytes": 18860,
+            "complete_bytes": 3797095,
+            "fixed_framing_bytes": 4096,
+            "payload_bytes": 3771971,
+            "stream_metadata_bytes": 24
+          },
+          "ledger": {
+            "modeled_binary_events": 628625944,
+            "modeled_loss_q24": 506265297782501,
+            "raw_literal_bytes": 0,
+            "records": 0
+          },
+          "segment_interval_bytes": 16777216,
+          "segments": [
+            {
+              "ledger": {
+                "modeled_binary_events": 150997140,
+                "modeled_loss_q24": 141076117920011,
+                "raw_literal_bytes": 0,
+                "records": 0
+              },
+              "records": 55304,
+              "source_bytes": 16777460
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 301989942,
+                "modeled_loss_q24": 264663106559074,
+                "raw_literal_bytes": 0,
+                "records": 0
+              },
+              "records": 116224,
+              "source_bytes": 33554438
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 452986479,
+                "modeled_loss_q24": 384054387528819,
+                "raw_literal_bytes": 0,
+                "records": 0
+              },
+              "records": 177467,
+              "source_bytes": 50331831
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 603980469,
+                "modeled_loss_q24": 482635838519654,
+                "raw_literal_bytes": 0,
+                "records": 0
+              },
+              "records": 239986,
+              "source_bytes": 67108941
+            }
+          ],
+          "source_sha256": "5ee50c36db110b023faf412e05398402e25ed59776ef5ee9323339f8b1aa4fa5",
+          "tape_sha256": "c327e8932545acc813062b6609d2bce9c945f12ae3682b39982c62c838d3ab1a"
+        },
+        {
+          "decoded_sha256": "71091e9fa5d8fd20944e1bd5707f1c832470c56d4b662fc6ef3d34e9478eb739",
+          "item_id": "clue-late-development",
+          "item_index": 2,
+          "item_projection": {
+            "block_allowance_bytes": 2208,
+            "coder_allowance_bytes": 23725,
+            "complete_bytes": 4774960,
+            "fixed_framing_bytes": 4096,
+            "payload_bytes": 4744907,
+            "stream_metadata_bytes": 24
+          },
+          "ledger": {
+            "modeled_binary_events": 643169989,
+            "modeled_loss_q24": 636850568461860,
+            "raw_literal_bytes": 0,
+            "records": 0
+          },
+          "segment_interval_bytes": 16777216,
+          "segments": [
+            {
+              "ledger": {
+                "modeled_binary_events": 150995142,
+                "modeled_loss_q24": 158169524018998,
+                "raw_literal_bytes": 0,
+                "records": 0
+              },
+              "records": 63605,
+              "source_bytes": 16777238
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 301993830,
+                "modeled_loss_q24": 315714950417198,
+                "raw_literal_bytes": 0,
+                "records": 0
+              },
+              "records": 101981,
+              "source_bytes": 33554870
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 452985471,
+                "modeled_loss_q24": 457544011759151,
+                "raw_literal_bytes": 0,
+                "records": 0
+              },
+              "records": 164615,
+              "source_bytes": 50331719
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 603982368,
+                "modeled_loss_q24": 600812637756767,
+                "raw_literal_bytes": 0,
+                "records": 0
+              },
+              "records": 232578,
+              "source_bytes": 67109152
+            }
+          ],
+          "source_sha256": "71091e9fa5d8fd20944e1bd5707f1c832470c56d4b662fc6ef3d34e9478eb739",
+          "tape_sha256": "3d89a2a441192bb0d02944f55695a0c72818617ce65b1b763b8ae169e7a12da1"
+        }
+      ]
+    },
+    {
+      "aggregate_gain_basis_points": -141713,
+      "aggregate_ledger": {
+        "modeled_binary_events": 1278219320,
+        "modeled_loss_q24": 3467019516475634,
+        "raw_literal_bytes": 4507,
+        "records": 750000
+      },
+      "aggregate_projection": {
+        "block_allowance_bytes": 6272,
+        "coder_allowance_bytes": 129180,
+        "complete_bytes": 25975436,
+        "fixed_framing_bytes": 4096,
+        "payload_bytes": 25835816,
+        "stream_metadata_bytes": 72
+      },
+      "decides": false,
+      "event_limit_applies": false,
+      "id": 1,
+      "name": "m1-chassis",
+      "per_item": [
+        {
+          "decoded_sha256": "4f1571569ebdf98621bbd29da45ba84ab37b4f1f1033aacf822dd5b3f40358fe",
+          "item_id": "clue-early-development",
+          "item_index": 0,
+          "item_projection": {
+            "block_allowance_bytes": 1920,
+            "coder_allowance_bytes": 39572,
+            "complete_bytes": 7959949,
+            "fixed_framing_bytes": 4096,
+            "payload_bytes": 7914337,
+            "stream_metadata_bytes": 24
+          },
+          "ledger": {
+            "modeled_binary_events": 377024646,
+            "modeled_loss_q24": 1062134554322015,
+            "raw_literal_bytes": 817,
+            "records": 250000
+          },
+          "segment_interval_bytes": 16777216,
+          "segments": [
+            {
+              "ledger": {
+                "modeled_binary_events": 97764693,
+                "modeled_loss_q24": 240306342179741,
+                "raw_literal_bytes": 817,
+                "records": 74301
+              },
+              "records": 74301,
+              "source_bytes": 16777397
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 200686593,
+                "modeled_loss_q24": 542377617594979,
+                "raw_literal_bytes": 817,
+                "records": 138557
+              },
+              "records": 138557,
+              "source_bytes": 33554623
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 306320703,
+                "modeled_loss_q24": 876890164580535,
+                "raw_literal_bytes": 817,
+                "records": 199164
+              },
+              "records": 199164,
+              "source_bytes": 50331818
+            }
+          ],
+          "source_sha256": "4f1571569ebdf98621bbd29da45ba84ab37b4f1f1033aacf822dd5b3f40358fe",
+          "tape_sha256": "ce6c12fdd280d4672c517b23657963f1d185eab0f444b8d492bfcbfa2f339bea"
+        },
+        {
+          "decoded_sha256": "5ee50c36db110b023faf412e05398402e25ed59776ef5ee9323339f8b1aa4fa5",
+          "item_id": "clue-middle-development",
+          "item_index": 1,
+          "item_projection": {
+            "block_allowance_bytes": 2144,
+            "coder_allowance_bytes": 42161,
+            "complete_bytes": 8480540,
+            "fixed_framing_bytes": 4096,
+            "payload_bytes": 8432115,
+            "stream_metadata_bytes": 24
+          },
+          "ledger": {
+            "modeled_binary_events": 446458107,
+            "modeled_loss_q24": 1131525004168129,
+            "raw_literal_bytes": 1596,
+            "records": 250000
+          },
+          "segment_interval_bytes": 16777216,
+          "segments": [
+            {
+              "ledger": {
+                "modeled_binary_events": 109431572,
+                "modeled_loss_q24": 307128507044150,
+                "raw_literal_bytes": 1596,
+                "records": 55304
+              },
+              "records": 55304,
+              "source_bytes": 16777460
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 216229453,
+                "modeled_loss_q24": 578702279694348,
+                "raw_literal_bytes": 1596,
+                "records": 116224
+              },
+              "records": 116224,
+              "source_bytes": 33554438
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 322842272,
+                "modeled_loss_q24": 843673006305280,
+                "raw_literal_bytes": 1596,
+                "records": 177467
+              },
+              "records": 177467,
+              "source_bytes": 50331831
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 429081433,
+                "modeled_loss_q24": 1082952585786564,
+                "raw_literal_bytes": 1596,
+                "records": 239986
+              },
+              "records": 239986,
+              "source_bytes": 67108941
+            }
+          ],
+          "source_sha256": "5ee50c36db110b023faf412e05398402e25ed59776ef5ee9323339f8b1aa4fa5",
+          "tape_sha256": "f780e67146ac7b64d21a7353c69bb30247b9e34d7b01420190a9a1bceb93810b"
+        },
+        {
+          "decoded_sha256": "71091e9fa5d8fd20944e1bd5707f1c832470c56d4b662fc6ef3d34e9478eb739",
+          "item_id": "clue-late-development",
+          "item_index": 2,
+          "item_projection": {
+            "block_allowance_bytes": 2208,
+            "coder_allowance_bytes": 47447,
+            "complete_bytes": 9543140,
+            "fixed_framing_bytes": 4096,
+            "payload_bytes": 9489365,
+            "stream_metadata_bytes": 24
+          },
+          "ledger": {
+            "modeled_binary_events": 454736567,
+            "modeled_loss_q24": 1273359957985490,
+            "raw_literal_bytes": 2094,
+            "records": 250000
+          },
+          "segment_interval_bytes": 16777216,
+          "segments": [
+            {
+              "ledger": {
+                "modeled_binary_events": 104891192,
+                "modeled_loss_q24": 284498091921347,
+                "raw_literal_bytes": 2094,
+                "records": 63605
+              },
+              "records": 63605,
+              "source_bytes": 16777238
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 219326257,
+                "modeled_loss_q24": 649262774846449,
+                "raw_literal_bytes": 2094,
+                "records": 101981
+              },
+              "records": 101981,
+              "source_bytes": 33554870
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 324308088,
+                "modeled_loss_q24": 927407510596228,
+                "raw_literal_bytes": 2094,
+                "records": 164615
+              },
+              "records": 164615,
+              "source_bytes": 50331719
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 427720800,
+                "modeled_loss_q24": 1204063785514459,
+                "raw_literal_bytes": 2094,
+                "records": 232578
+              },
+              "records": 232578,
+              "source_bytes": 67109152
+            }
+          ],
+          "source_sha256": "71091e9fa5d8fd20944e1bd5707f1c832470c56d4b662fc6ef3d34e9478eb739",
+          "tape_sha256": "b14c98e962b5c649617710910e1a2a3c48c698f72159d3d028a0a17ee9885e1e"
+        }
+      ]
+    },
+    {
+      "aggregate_gain_basis_points": -124296,
+      "aggregate_ledger": {
+        "modeled_binary_events": 1102448741,
+        "modeled_loss_q24": 3068764040350920,
+        "raw_literal_bytes": 4507,
+        "records": 750000
+      },
+      "aggregate_projection": {
+        "block_allowance_bytes": 6272,
+        "coder_allowance_bytes": 114343,
+        "complete_bytes": 22993364,
+        "fixed_framing_bytes": 4096,
+        "payload_bytes": 22868581,
+        "stream_metadata_bytes": 72
+      },
+      "decides": false,
+      "event_limit_applies": false,
+      "id": 2,
+      "name": "m1-m2",
+      "per_item": [
+        {
+          "decoded_sha256": "4f1571569ebdf98621bbd29da45ba84ab37b4f1f1033aacf822dd5b3f40358fe",
+          "item_id": "clue-early-development",
+          "item_index": 0,
+          "item_projection": {
+            "block_allowance_bytes": 1920,
+            "coder_allowance_bytes": 34947,
+            "complete_bytes": 7030299,
+            "fixed_framing_bytes": 4096,
+            "payload_bytes": 6989312,
+            "stream_metadata_bytes": 24
+          },
+          "ledger": {
+            "modeled_binary_events": 321621704,
+            "modeled_loss_q24": 937979856662373,
+            "raw_literal_bytes": 817,
+            "records": 250000
+          },
+          "segment_interval_bytes": 16777216,
+          "segments": [
+            {
+              "ledger": {
+                "modeled_binary_events": 81739489,
+                "modeled_loss_q24": 200485239235655,
+                "raw_literal_bytes": 817,
+                "records": 74301
+              },
+              "records": 74301,
+              "source_bytes": 16777397
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 170412487,
+                "modeled_loss_q24": 470246910130375,
+                "raw_literal_bytes": 817,
+                "records": 138557
+              },
+              "records": 138557,
+              "source_bytes": 33554623
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 262359095,
+                "modeled_loss_q24": 776762245553581,
+                "raw_literal_bytes": 817,
+                "records": 199164
+              },
+              "records": 199164,
+              "source_bytes": 50331818
+            }
+          ],
+          "source_sha256": "4f1571569ebdf98621bbd29da45ba84ab37b4f1f1033aacf822dd5b3f40358fe",
+          "tape_sha256": "d15699f3943322d62c2f9a5c837ecb60e87c7a98fdf0c86175656750c2a42450"
+        },
+        {
+          "decoded_sha256": "5ee50c36db110b023faf412e05398402e25ed59776ef5ee9323339f8b1aa4fa5",
+          "item_id": "clue-middle-development",
+          "item_index": 1,
+          "item_projection": {
+            "block_allowance_bytes": 2144,
+            "coder_allowance_bytes": 37127,
+            "complete_bytes": 7468635,
+            "fixed_framing_bytes": 4096,
+            "payload_bytes": 7425244,
+            "stream_metadata_bytes": 24
+          },
+          "ledger": {
+            "modeled_binary_events": 386400012,
+            "modeled_loss_q24": 996385073767928,
+            "raw_literal_bytes": 1596,
+            "records": 250000
+          },
+          "segment_interval_bytes": 16777216,
+          "segments": [
+            {
+              "ledger": {
+                "modeled_binary_events": 96104135,
+                "modeled_loss_q24": 277079212845638,
+                "raw_literal_bytes": 1596,
+                "records": 55304
+              },
+              "records": 55304,
+              "source_bytes": 16777460
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 188271892,
+                "modeled_loss_q24": 515574506504829,
+                "raw_literal_bytes": 1596,
+                "records": 116224
+              },
+              "records": 116224,
+              "source_bytes": 33554438
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 280187012,
+                "modeled_loss_q24": 747818268832769,
+                "raw_literal_bytes": 1596,
+                "records": 177467
+              },
+              "records": 177467,
+              "source_bytes": 50331831
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 371429348,
+                "modeled_loss_q24": 953222469808134,
+                "raw_literal_bytes": 1596,
+                "records": 239986
+              },
+              "records": 239986,
+              "source_bytes": 67108941
+            }
+          ],
+          "source_sha256": "5ee50c36db110b023faf412e05398402e25ed59776ef5ee9323339f8b1aa4fa5",
+          "tape_sha256": "00ebe332428f928e7952e46c0487f049b74156a16f9e92389589aefb092b8599"
+        },
+        {
+          "decoded_sha256": "71091e9fa5d8fd20944e1bd5707f1c832470c56d4b662fc6ef3d34e9478eb739",
+          "item_id": "clue-late-development",
+          "item_index": 2,
+          "item_projection": {
+            "block_allowance_bytes": 2208,
+            "coder_allowance_bytes": 42271,
+            "complete_bytes": 8502625,
+            "fixed_framing_bytes": 4096,
+            "payload_bytes": 8454026,
+            "stream_metadata_bytes": 24
+          },
+          "ledger": {
+            "modeled_binary_events": 394427025,
+            "modeled_loss_q24": 1134399109920619,
+            "raw_literal_bytes": 2094,
+            "records": 250000
+          },
+          "segment_interval_bytes": 16777216,
+          "segments": [
+            {
+              "ledger": {
+                "modeled_binary_events": 89599105,
+                "modeled_loss_q24": 247326602919303,
+                "raw_literal_bytes": 2094,
+                "records": 63605
+              },
+              "records": 63605,
+              "source_bytes": 16777238
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 194634678,
+                "modeled_loss_q24": 592805213831513,
+                "raw_literal_bytes": 2094,
+                "records": 101981
+              },
+              "records": 101981,
+              "source_bytes": 33554870
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 284545147,
+                "modeled_loss_q24": 836317761968836,
+                "raw_literal_bytes": 2094,
+                "records": 164615
+              },
+              "records": 164615,
+              "source_bytes": 50331719
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 371614337,
+                "modeled_loss_q24": 1074695998360459,
+                "raw_literal_bytes": 2094,
+                "records": 232578
+              },
+              "records": 232578,
+              "source_bytes": 67109152
+            }
+          ],
+          "source_sha256": "71091e9fa5d8fd20944e1bd5707f1c832470c56d4b662fc6ef3d34e9478eb739",
+          "tape_sha256": "7fe6b102d5f388b57e14bee04b97389ac875ae86844ce1a22e584e4cdf57859d"
+        }
+      ]
+    },
+    {
+      "aggregate_gain_basis_points": -62432,
+      "aggregate_ledger": {
+        "modeled_binary_events": 425212390,
+        "modeled_loss_q24": 1654206403818745,
+        "raw_literal_bytes": 4507,
+        "records": 750000
+      },
+      "aggregate_projection": {
+        "block_allowance_bytes": 6272,
+        "coder_allowance_bytes": 61647,
+        "complete_bytes": 12401393,
+        "fixed_framing_bytes": 4096,
+        "payload_bytes": 12329306,
+        "stream_metadata_bytes": 72
+      },
+      "decides": false,
+      "event_limit_applies": false,
+      "id": 3,
+      "name": "m1-m2-m3",
+      "per_item": [
+        {
+          "decoded_sha256": "4f1571569ebdf98621bbd29da45ba84ab37b4f1f1033aacf822dd5b3f40358fe",
+          "item_id": "clue-early-development",
+          "item_index": 0,
+          "item_projection": {
+            "block_allowance_bytes": 1920,
+            "coder_allowance_bytes": 16190,
+            "complete_bytes": 3260097,
+            "fixed_framing_bytes": 4096,
+            "payload_bytes": 3237867,
+            "stream_metadata_bytes": 24
+          },
+          "ledger": {
+            "modeled_binary_events": 100360094,
+            "modeled_loss_q24": 434469451849172,
+            "raw_literal_bytes": 817,
+            "records": 250000
+          },
+          "segment_interval_bytes": 16777216,
+          "segments": [
+            {
+              "ledger": {
+                "modeled_binary_events": 15706255,
+                "modeled_loss_q24": 64901103436562,
+                "raw_literal_bytes": 817,
+                "records": 74301
+              },
+              "records": 74301,
+              "source_bytes": 16777397
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 47228865,
+                "modeled_loss_q24": 200323750168622,
+                "raw_literal_bytes": 817,
+                "records": 138557
+              },
+              "records": 138557,
+              "source_bytes": 33554623
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 86257627,
+                "modeled_loss_q24": 374242932841475,
+                "raw_literal_bytes": 817,
+                "records": 199164
+              },
+              "records": 199164,
+              "source_bytes": 50331818
+            }
+          ],
+          "source_sha256": "4f1571569ebdf98621bbd29da45ba84ab37b4f1f1033aacf822dd5b3f40358fe",
+          "tape_sha256": "deba35aa84e5a72f677f0c7c7fa3e7548f2948b8f3c49781cb8d0ef908959c9f"
+        },
+        {
+          "decoded_sha256": "5ee50c36db110b023faf412e05398402e25ed59776ef5ee9323339f8b1aa4fa5",
+          "item_id": "clue-middle-development",
+          "item_index": 1,
+          "item_projection": {
+            "block_allowance_bytes": 2144,
+            "coder_allowance_bytes": 14371,
+            "complete_bytes": 2894702,
+            "fixed_framing_bytes": 4096,
+            "payload_bytes": 2874067,
+            "stream_metadata_bytes": 24
+          },
+          "ledger": {
+            "modeled_binary_events": 116078538,
+            "modeled_loss_q24": 385536512321444,
+            "raw_literal_bytes": 1596,
+            "records": 250000
+          },
+          "segment_interval_bytes": 16777216,
+          "segments": [
+            {
+              "ledger": {
+                "modeled_binary_events": 41912096,
+                "modeled_loss_q24": 156192458223828,
+                "raw_literal_bytes": 1596,
+                "records": 55304
+              },
+              "records": 55304,
+              "source_bytes": 16777460
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 67548077,
+                "modeled_loss_q24": 242091149902023,
+                "raw_literal_bytes": 1596,
+                "records": 116224
+              },
+              "records": 116224,
+              "source_bytes": 33554438
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 92073926,
+                "modeled_loss_q24": 319559953780014,
+                "raw_literal_bytes": 1596,
+                "records": 177467
+              },
+              "records": 177467,
+              "source_bytes": 50331831
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 111606676,
+                "modeled_loss_q24": 368366652819709,
+                "raw_literal_bytes": 1596,
+                "records": 239986
+              },
+              "records": 239986,
+              "source_bytes": 67108941
+            }
+          ],
+          "source_sha256": "5ee50c36db110b023faf412e05398402e25ed59776ef5ee9323339f8b1aa4fa5",
+          "tape_sha256": "88ff8610fc03604078259556359ef00b2d1b3574fed7217bac5512a599361545"
+        },
+        {
+          "decoded_sha256": "71091e9fa5d8fd20944e1bd5707f1c832470c56d4b662fc6ef3d34e9478eb739",
+          "item_id": "clue-late-development",
+          "item_index": 2,
+          "item_projection": {
+            "block_allowance_bytes": 2208,
+            "coder_allowance_bytes": 31087,
+            "complete_bytes": 6254787,
+            "fixed_framing_bytes": 4096,
+            "payload_bytes": 6217372,
+            "stream_metadata_bytes": 24
+          },
+          "ledger": {
+            "modeled_binary_events": 208773758,
+            "modeled_loss_q24": 834200439648129,
+            "raw_literal_bytes": 2094,
+            "records": 250000
+          },
+          "segment_interval_bytes": 16777216,
+          "segments": [
+            {
+              "ledger": {
+                "modeled_binary_events": 38718386,
+                "modeled_loss_q24": 162938660883843,
+                "raw_literal_bytes": 2094,
+                "records": 63605
+              },
+              "records": 63605,
+              "source_bytes": 16777238
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 124852920,
+                "modeled_loss_q24": 494020103356903,
+                "raw_literal_bytes": 2094,
+                "records": 101981
+              },
+              "records": 101981,
+              "source_bytes": 33554870
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 165712323,
+                "modeled_loss_q24": 656263944991957,
+                "raw_literal_bytes": 2094,
+                "records": 164615
+              },
+              "records": 164615,
+              "source_bytes": 50331719
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 199290449,
+                "modeled_loss_q24": 795199832419493,
+                "raw_literal_bytes": 2094,
+                "records": 232578
+              },
+              "records": 232578,
+              "source_bytes": 67109152
+            }
+          ],
+          "source_sha256": "71091e9fa5d8fd20944e1bd5707f1c832470c56d4b662fc6ef3d34e9478eb739",
+          "tape_sha256": "4eba7b39ad05805dcfcd6193dccd94dac29a99a7d630d21ea6bd74c9767f60fd"
+        }
+      ]
+    },
+    {
+      "aggregate_gain_basis_points": -463908,
+      "aggregate_ledger": {
+        "modeled_binary_events": 209774775,
+        "modeled_loss_q24": 1334585784749039,
+        "raw_literal_bytes": 70782579,
+        "records": 750000
+      },
+      "aggregate_projection": {
+        "block_allowance_bytes": 6272,
+        "coder_allowance_bytes": 403631,
+        "complete_bytes": 81140089,
+        "fixed_framing_bytes": 4096,
+        "payload_bytes": 80726018,
+        "stream_metadata_bytes": 72
+      },
+      "decides": false,
+      "event_limit_applies": false,
+      "id": 4,
+      "name": "m1-m2-m4",
+      "per_item": [
+        {
+          "decoded_sha256": "4f1571569ebdf98621bbd29da45ba84ab37b4f1f1033aacf822dd5b3f40358fe",
+          "item_id": "clue-early-development",
+          "item_index": 0,
+          "item_projection": {
+            "block_allowance_bytes": 1920,
+            "coder_allowance_bytes": 130159,
+            "complete_bytes": 26167981,
+            "fixed_framing_bytes": 4096,
+            "payload_bytes": 26031782,
+            "stream_metadata_bytes": 24
+          },
+          "ledger": {
+            "modeled_binary_events": 55740152,
+            "modeled_loss_q24": 382602823321680,
+            "raw_literal_bytes": 23181168,
+            "records": 250000
+          },
+          "segment_interval_bytes": 16777216,
+          "segments": [
+            {
+              "ledger": {
+                "modeled_binary_events": 13319696,
+                "modeled_loss_q24": 83712298012341,
+                "raw_literal_bytes": 6403705,
+                "records": 74301
+              },
+              "records": 74301,
+              "source_bytes": 16777397
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 29359453,
+                "modeled_loss_q24": 197481817675528,
+                "raw_literal_bytes": 12508244,
+                "records": 138557
+              },
+              "records": 138557,
+              "source_bytes": 33554623
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 45732999,
+                "modeled_loss_q24": 315292925931705,
+                "raw_literal_bytes": 18706622,
+                "records": 199164
+              },
+              "records": 199164,
+              "source_bytes": 50331818
+            }
+          ],
+          "source_sha256": "4f1571569ebdf98621bbd29da45ba84ab37b4f1f1033aacf822dd5b3f40358fe",
+          "tape_sha256": "1aac6658fd9ed67fd3453c27d5cb0ce4ed14d1cf2d55b19159e6185cfce56daf"
+        },
+        {
+          "decoded_sha256": "5ee50c36db110b023faf412e05398402e25ed59776ef5ee9323339f8b1aa4fa5",
+          "item_id": "clue-middle-development",
+          "item_index": 1,
+          "item_projection": {
+            "block_allowance_bytes": 2144,
+            "coder_allowance_bytes": 139678,
+            "complete_bytes": 28081351,
+            "fixed_framing_bytes": 4096,
+            "payload_bytes": 27935409,
+            "stream_metadata_bytes": 24
+          },
+          "ledger": {
+            "modeled_binary_events": 75464870,
+            "modeled_loss_q24": 438134453928423,
+            "raw_literal_bytes": 24671052,
+            "records": 250000
+          },
+          "segment_interval_bytes": 16777216,
+          "segments": [
+            {
+              "ledger": {
+                "modeled_binary_events": 17747927,
+                "modeled_loss_q24": 107550429834487,
+                "raw_literal_bytes": 6351173,
+                "records": 55304
+              },
+              "records": 55304,
+              "source_bytes": 16777460
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 36019171,
+                "modeled_loss_q24": 214559782058797,
+                "raw_literal_bytes": 12167098,
+                "records": 116224
+              },
+              "records": 116224,
+              "source_bytes": 33554438
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 54199865,
+                "modeled_loss_q24": 320805730429878,
+                "raw_literal_bytes": 17985474,
+                "records": 177467
+              },
+              "records": 177467,
+              "source_bytes": 50331831
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 72543168,
+                "modeled_loss_q24": 419556671179215,
+                "raw_literal_bytes": 23711839,
+                "records": 239986
+              },
+              "records": 239986,
+              "source_bytes": 67108941
+            }
+          ],
+          "source_sha256": "5ee50c36db110b023faf412e05398402e25ed59776ef5ee9323339f8b1aa4fa5",
+          "tape_sha256": "72a272ba762e79aabc2f273c59f03b90fc09536b2b5b7804b334185e1bf22a5c"
+        },
+        {
+          "decoded_sha256": "71091e9fa5d8fd20944e1bd5707f1c832470c56d4b662fc6ef3d34e9478eb739",
+          "item_id": "clue-late-development",
+          "item_index": 2,
+          "item_projection": {
+            "block_allowance_bytes": 2208,
+            "coder_allowance_bytes": 133795,
+            "complete_bytes": 26898952,
+            "fixed_framing_bytes": 4096,
+            "payload_bytes": 26758829,
+            "stream_metadata_bytes": 24
+          },
+          "ledger": {
+            "modeled_binary_events": 78569753,
+            "modeled_loss_q24": 513848507498936,
+            "raw_literal_bytes": 22930359,
+            "records": 250000
+          },
+          "segment_interval_bytes": 16777216,
+          "segments": [
+            {
+              "ledger": {
+                "modeled_binary_events": 18683768,
+                "modeled_loss_q24": 117182171560316,
+                "raw_literal_bytes": 5077290,
+                "records": 63605
+              },
+              "records": 63605,
+              "source_bytes": 16777238
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 36744969,
+                "modeled_loss_q24": 247130484863713,
+                "raw_literal_bytes": 11566164,
+                "records": 101981
+              },
+              "records": 101981,
+              "source_bytes": 33554870
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 55215405,
+                "modeled_loss_q24": 365078810683196,
+                "raw_literal_bytes": 16693002,
+                "records": 164615
+              },
+              "records": 164615,
+              "source_bytes": 50331719
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 73744663,
+                "modeled_loss_q24": 483498674531527,
+                "raw_literal_bytes": 21650058,
+                "records": 232578
+              },
+              "records": 232578,
+              "source_bytes": 67109152
+            }
+          ],
+          "source_sha256": "71091e9fa5d8fd20944e1bd5707f1c832470c56d4b662fc6ef3d34e9478eb739",
+          "tape_sha256": "25b12cce35069745f4d1905f0cc6aeb39fa58e50c3bcc56043b480d774dd0cc9"
+        }
+      ]
+    },
+    {
+      "aggregate_gain_basis_points": -85189,
+      "aggregate_ledger": {
+        "modeled_binary_events": 1102448741,
+        "modeled_loss_q24": 2174553918198909,
+        "raw_literal_bytes": 4507,
+        "records": 750000
+      },
+      "aggregate_projection": {
+        "block_allowance_bytes": 6272,
+        "coder_allowance_bytes": 81031,
+        "complete_bytes": 16297668,
+        "fixed_framing_bytes": 4096,
+        "payload_bytes": 16206197,
+        "stream_metadata_bytes": 72
+      },
+      "decides": false,
+      "event_limit_applies": false,
+      "id": 5,
+      "name": "m1-m2-m5",
+      "per_item": [
+        {
+          "decoded_sha256": "4f1571569ebdf98621bbd29da45ba84ab37b4f1f1033aacf822dd5b3f40358fe",
+          "item_id": "clue-early-development",
+          "item_index": 0,
+          "item_projection": {
+            "block_allowance_bytes": 1920,
+            "coder_allowance_bytes": 27692,
+            "complete_bytes": 5572022,
+            "fixed_framing_bytes": 4096,
+            "payload_bytes": 5538290,
+            "stream_metadata_bytes": 24
+          },
+          "ledger": {
+            "modeled_binary_events": 321621704,
+            "modeled_loss_q24": 743226965368649,
+            "raw_literal_bytes": 817,
+            "records": 250000
+          },
+          "segment_interval_bytes": 16777216,
+          "segments": [
+            {
+              "ledger": {
+                "modeled_binary_events": 81739489,
+                "modeled_loss_q24": 169332990050684,
+                "raw_literal_bytes": 817,
+                "records": 74301
+              },
+              "records": 74301,
+              "source_bytes": 16777397
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 170412487,
+                "modeled_loss_q24": 384366696237573,
+                "raw_literal_bytes": 817,
+                "records": 138557
+              },
+              "records": 138557,
+              "source_bytes": 33554623
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 262359095,
+                "modeled_loss_q24": 624980523975585,
+                "raw_literal_bytes": 817,
+                "records": 199164
+              },
+              "records": 199164,
+              "source_bytes": 50331818
+            }
+          ],
+          "source_sha256": "4f1571569ebdf98621bbd29da45ba84ab37b4f1f1033aacf822dd5b3f40358fe",
+          "tape_sha256": "fc1ee49dabfe43207d5358a175988972ec3a4106c0587a5942b4bba130b2c19b"
+        },
+        {
+          "decoded_sha256": "5ee50c36db110b023faf412e05398402e25ed59776ef5ee9323339f8b1aa4fa5",
+          "item_id": "clue-middle-development",
+          "item_index": 1,
+          "item_projection": {
+            "block_allowance_bytes": 2144,
+            "coder_allowance_bytes": 22801,
+            "complete_bytes": 4589230,
+            "fixed_framing_bytes": 4096,
+            "payload_bytes": 4560165,
+            "stream_metadata_bytes": 24
+          },
+          "ledger": {
+            "modeled_binary_events": 386400012,
+            "modeled_loss_q24": 611840668236760,
+            "raw_literal_bytes": 1596,
+            "records": 250000
+          },
+          "segment_interval_bytes": 16777216,
+          "segments": [
+            {
+              "ledger": {
+                "modeled_binary_events": 96104135,
+                "modeled_loss_q24": 197690232489121,
+                "raw_literal_bytes": 1596,
+                "records": 55304
+              },
+              "records": 55304,
+              "source_bytes": 16777460
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 188271892,
+                "modeled_loss_q24": 349717038178520,
+                "raw_literal_bytes": 1596,
+                "records": 116224
+              },
+              "records": 116224,
+              "source_bytes": 33554438
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 280187012,
+                "modeled_loss_q24": 488562954467972,
+                "raw_literal_bytes": 1596,
+                "records": 177467
+              },
+              "records": 177467,
+              "source_bytes": 50331831
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 371429348,
+                "modeled_loss_q24": 582358149714880,
+                "raw_literal_bytes": 1596,
+                "records": 239986
+              },
+              "records": 239986,
+              "source_bytes": 67108941
+            }
+          ],
+          "source_sha256": "5ee50c36db110b023faf412e05398402e25ed59776ef5ee9323339f8b1aa4fa5",
+          "tape_sha256": "5f392754da9de6bc1ef645a7be33f2b62d0d49f4e81c79122f3b59bb2c1063fd"
+        },
+        {
+          "decoded_sha256": "71091e9fa5d8fd20944e1bd5707f1c832470c56d4b662fc6ef3d34e9478eb739",
+          "item_id": "clue-late-development",
+          "item_index": 2,
+          "item_projection": {
+            "block_allowance_bytes": 2208,
+            "coder_allowance_bytes": 30539,
+            "complete_bytes": 6144610,
+            "fixed_framing_bytes": 4096,
+            "payload_bytes": 6107743,
+            "stream_metadata_bytes": 24
+          },
+          "ledger": {
+            "modeled_binary_events": 394427025,
+            "modeled_loss_q24": 819486284593500,
+            "raw_literal_bytes": 2094,
+            "records": 250000
+          },
+          "segment_interval_bytes": 16777216,
+          "segments": [
+            {
+              "ledger": {
+                "modeled_binary_events": 89599105,
+                "modeled_loss_q24": 202947257114863,
+                "raw_literal_bytes": 2094,
+                "records": 63605
+              },
+              "records": 63605,
+              "source_bytes": 16777238
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 194634678,
+                "modeled_loss_q24": 446673103560561,
+                "raw_literal_bytes": 2094,
+                "records": 101981
+              },
+              "records": 101981,
+              "source_bytes": 33554870
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 284545147,
+                "modeled_loss_q24": 611889511264925,
+                "raw_literal_bytes": 2094,
+                "records": 164615
+              },
+              "records": 164615,
+              "source_bytes": 50331719
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 371614337,
+                "modeled_loss_q24": 778596325484464,
+                "raw_literal_bytes": 2094,
+                "records": 232578
+              },
+              "records": 232578,
+              "source_bytes": 67109152
+            }
+          ],
+          "source_sha256": "71091e9fa5d8fd20944e1bd5707f1c832470c56d4b662fc6ef3d34e9478eb739",
+          "tape_sha256": "94a1cb7e612a7803aed6530d05ea5ef5f8eeb6d1e669622a7a8abb871fa1972e"
+        }
+      ]
+    },
+    {
+      "aggregate_gain_basis_points": -146944,
+      "aggregate_ledger": {
+        "modeled_binary_events": 123096235,
+        "modeled_loss_q24": 573583516020655,
+        "raw_literal_bytes": 22453405,
+        "records": 750000
+      },
+      "aggregate_projection": {
+        "block_allowance_bytes": 6272,
+        "coder_allowance_bytes": 133635,
+        "complete_bytes": 26871011,
+        "fixed_framing_bytes": 4096,
+        "payload_bytes": 26726936,
+        "stream_metadata_bytes": 72
+      },
+      "decides": true,
+      "event_limit_applies": true,
+      "id": 6,
+      "name": "full",
+      "per_item": [
+        {
+          "decoded_sha256": "4f1571569ebdf98621bbd29da45ba84ab37b4f1f1033aacf822dd5b3f40358fe",
+          "item_id": "clue-early-development",
+          "item_index": 0,
+          "item_projection": {
+            "block_allowance_bytes": 1920,
+            "coder_allowance_bytes": 29970,
+            "complete_bytes": 6029851,
+            "fixed_framing_bytes": 4096,
+            "payload_bytes": 5993841,
+            "stream_metadata_bytes": 24
+          },
+          "ledger": {
+            "modeled_binary_events": 36456656,
+            "modeled_loss_q24": 176041556559211,
+            "raw_literal_bytes": 4682229,
+            "records": 250000
+          },
+          "segment_interval_bytes": 16777216,
+          "segments": [
+            {
+              "ledger": {
+                "modeled_binary_events": 8568524,
+                "modeled_loss_q24": 33635571237047,
+                "raw_literal_bytes": 544342,
+                "records": 74301
+              },
+              "records": 74301,
+              "source_bytes": 16777397
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 19006724,
+                "modeled_loss_q24": 88016697919756,
+                "raw_literal_bytes": 2095394,
+                "records": 138557
+              },
+              "records": 138557,
+              "source_bytes": 33554623
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 30047180,
+                "modeled_loss_q24": 147892283184629,
+                "raw_literal_bytes": 4113755,
+                "records": 199164
+              },
+              "records": 199164,
+              "source_bytes": 50331818
+            }
+          ],
+          "source_sha256": "4f1571569ebdf98621bbd29da45ba84ab37b4f1f1033aacf822dd5b3f40358fe",
+          "tape_sha256": "0a7174c180fe09b7943c923b989edf37227338b8d90ef8826f40bf390bfb3114"
+        },
+        {
+          "decoded_sha256": "5ee50c36db110b023faf412e05398402e25ed59776ef5ee9323339f8b1aa4fa5",
+          "item_id": "clue-middle-development",
+          "item_index": 1,
+          "item_projection": {
+            "block_allowance_bytes": 2144,
+            "coder_allowance_bytes": 35115,
+            "complete_bytes": 7064218,
+            "fixed_framing_bytes": 4096,
+            "payload_bytes": 7022839,
+            "stream_metadata_bytes": 24
+          },
+          "ledger": {
+            "modeled_binary_events": 36527977,
+            "modeled_loss_q24": 141576089501546,
+            "raw_literal_bytes": 5968014,
+            "records": 250000
+          },
+          "segment_interval_bytes": 16777216,
+          "segments": [
+            {
+              "ledger": {
+                "modeled_binary_events": 10032185,
+                "modeled_loss_q24": 44815387414097,
+                "raw_literal_bytes": 2585027,
+                "records": 55304
+              },
+              "records": 55304,
+              "source_bytes": 16777460
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 18793097,
+                "modeled_loss_q24": 79334600401812,
+                "raw_literal_bytes": 3778672,
+                "records": 116224
+              },
+              "records": 116224,
+              "source_bytes": 33554438
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 27261129,
+                "modeled_loss_q24": 111988599497559,
+                "raw_literal_bytes": 4939846,
+                "records": 177467
+              },
+              "records": 177467,
+              "source_bytes": 50331831
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 35072537,
+                "modeled_loss_q24": 134853987159720,
+                "raw_literal_bytes": 5745717,
+                "records": 239986
+              },
+              "records": 239986,
+              "source_bytes": 67108941
+            }
+          ],
+          "source_sha256": "5ee50c36db110b023faf412e05398402e25ed59776ef5ee9323339f8b1aa4fa5",
+          "tape_sha256": "146a84cdca1d6aa6d75a7bf3449228c9a0bf62a4f8c86aa07e09f65f37b9068b"
+        },
+        {
+          "decoded_sha256": "71091e9fa5d8fd20944e1bd5707f1c832470c56d4b662fc6ef3d34e9478eb739",
+          "item_id": "clue-late-development",
+          "item_index": 2,
+          "item_projection": {
+            "block_allowance_bytes": 2208,
+            "coder_allowance_bytes": 68552,
+            "complete_bytes": 13785137,
+            "fixed_framing_bytes": 4096,
+            "payload_bytes": 13710257,
+            "stream_metadata_bytes": 24
+          },
+          "ledger": {
+            "modeled_binary_events": 50111602,
+            "modeled_loss_q24": 255965869959898,
+            "raw_literal_bytes": 11803162,
+            "records": 250000
+          },
+          "segment_interval_bytes": 16777216,
+          "segments": [
+            {
+              "ledger": {
+                "modeled_binary_events": 10836189,
+                "modeled_loss_q24": 54229235153472,
+                "raw_literal_bytes": 2071800,
+                "records": 63605
+              },
+              "records": 63605,
+              "source_bytes": 16777238
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 26009628,
+                "modeled_loss_q24": 139540779446208,
+                "raw_literal_bytes": 7352623,
+                "records": 101981
+              },
+              "records": 101981,
+              "source_bytes": 33554870
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 36926550,
+                "modeled_loss_q24": 192080225841976,
+                "raw_literal_bytes": 9543408,
+                "records": 164615
+              },
+              "records": 164615,
+              "source_bytes": 50331719
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 47348114,
+                "modeled_loss_q24": 242827975589119,
+                "raw_literal_bytes": 11303304,
+                "records": 232578
+              },
+              "records": 232578,
+              "source_bytes": 67109152
+            }
+          ],
+          "source_sha256": "71091e9fa5d8fd20944e1bd5707f1c832470c56d4b662fc6ef3d34e9478eb739",
+          "tape_sha256": "17bcbf66e99492aefd279f287a43f25a922f0ef9f2312abc908a54dfc499f6ac"
+        }
+      ]
+    },
+    {
+      "aggregate_gain_basis_points": -460380,
+      "aggregate_ledger": {
+        "modeled_binary_events": 209774775,
+        "modeled_loss_q24": 1253902950868784,
+        "raw_literal_bytes": 70782579,
+        "records": 750000
+      },
+      "aggregate_projection": {
+        "block_allowance_bytes": 6272,
+        "coder_allowance_bytes": 400625,
+        "complete_bytes": 80535949,
+        "fixed_framing_bytes": 4096,
+        "payload_bytes": 80124884,
+        "stream_metadata_bytes": 72
+      },
+      "decides": false,
+      "event_limit_applies": false,
+      "id": 7,
+      "name": "full-minus-m3",
+      "per_item": [
+        {
+          "decoded_sha256": "4f1571569ebdf98621bbd29da45ba84ab37b4f1f1033aacf822dd5b3f40358fe",
+          "item_id": "clue-early-development",
+          "item_index": 0,
+          "item_projection": {
+            "block_allowance_bytes": 1920,
+            "coder_allowance_bytes": 129795,
+            "complete_bytes": 26094823,
+            "fixed_framing_bytes": 4096,
+            "payload_bytes": 25958988,
+            "stream_metadata_bytes": 24
+          },
+          "ledger": {
+            "modeled_binary_events": 55740152,
+            "modeled_loss_q24": 372832615819392,
+            "raw_literal_bytes": 23181168,
+            "records": 250000
+          },
+          "segment_interval_bytes": 16777216,
+          "segments": [
+            {
+              "ledger": {
+                "modeled_binary_events": 13319696,
+                "modeled_loss_q24": 82820348176299,
+                "raw_literal_bytes": 6403705,
+                "records": 74301
+              },
+              "records": 74301,
+              "source_bytes": 16777397
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 29359453,
+                "modeled_loss_q24": 193508805040261,
+                "raw_literal_bytes": 12508244,
+                "records": 138557
+              },
+              "records": 138557,
+              "source_bytes": 33554623
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 45732999,
+                "modeled_loss_q24": 307069863519662,
+                "raw_literal_bytes": 18706622,
+                "records": 199164
+              },
+              "records": 199164,
+              "source_bytes": 50331818
+            }
+          ],
+          "source_sha256": "4f1571569ebdf98621bbd29da45ba84ab37b4f1f1033aacf822dd5b3f40358fe",
+          "tape_sha256": "81331dcada00a94bffac8f2ac90bcbd444ac6707cd17289193bf16c2b0c54b1e"
+        },
+        {
+          "decoded_sha256": "5ee50c36db110b023faf412e05398402e25ed59776ef5ee9323339f8b1aa4fa5",
+          "item_id": "clue-middle-development",
+          "item_index": 1,
+          "item_projection": {
+            "block_allowance_bytes": 2144,
+            "coder_allowance_bytes": 138326,
+            "complete_bytes": 27809721,
+            "fixed_framing_bytes": 4096,
+            "payload_bytes": 27665131,
+            "stream_metadata_bytes": 24
+          },
+          "ledger": {
+            "modeled_binary_events": 75464870,
+            "modeled_loss_q24": 401858364361552,
+            "raw_literal_bytes": 24671052,
+            "records": 250000
+          },
+          "segment_interval_bytes": 16777216,
+          "segments": [
+            {
+              "ledger": {
+                "modeled_binary_events": 17747927,
+                "modeled_loss_q24": 100311434807640,
+                "raw_literal_bytes": 6351173,
+                "records": 55304
+              },
+              "records": 55304,
+              "source_bytes": 16777460
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 36019171,
+                "modeled_loss_q24": 198821067470304,
+                "raw_literal_bytes": 12167098,
+                "records": 116224
+              },
+              "records": 116224,
+              "source_bytes": 33554438
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 54199865,
+                "modeled_loss_q24": 296255491925338,
+                "raw_literal_bytes": 17985474,
+                "records": 177467
+              },
+              "records": 177467,
+              "source_bytes": 50331831
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 72543168,
+                "modeled_loss_q24": 384476373119863,
+                "raw_literal_bytes": 23711839,
+                "records": 239986
+              },
+              "records": 239986,
+              "source_bytes": 67108941
+            }
+          ],
+          "source_sha256": "5ee50c36db110b023faf412e05398402e25ed59776ef5ee9323339f8b1aa4fa5",
+          "tape_sha256": "424e87bb5f7898609d7b69bb556e8d228bca44c9dc17c2e8af4adf962c788e15"
+        },
+        {
+          "decoded_sha256": "71091e9fa5d8fd20944e1bd5707f1c832470c56d4b662fc6ef3d34e9478eb739",
+          "item_id": "clue-late-development",
+          "item_index": 2,
+          "item_projection": {
+            "block_allowance_bytes": 2208,
+            "coder_allowance_bytes": 132504,
+            "complete_bytes": 26639599,
+            "fixed_framing_bytes": 4096,
+            "payload_bytes": 26500767,
+            "stream_metadata_bytes": 24
+          },
+          "ledger": {
+            "modeled_binary_events": 78569753,
+            "modeled_loss_q24": 479211970687840,
+            "raw_literal_bytes": 22930359,
+            "records": 250000
+          },
+          "segment_interval_bytes": 16777216,
+          "segments": [
+            {
+              "ledger": {
+                "modeled_binary_events": 18683768,
+                "modeled_loss_q24": 111336497316855,
+                "raw_literal_bytes": 5077290,
+                "records": 63605
+              },
+              "records": 63605,
+              "source_bytes": 16777238
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 36744969,
+                "modeled_loss_q24": 230022481433980,
+                "raw_literal_bytes": 11566164,
+                "records": 101981
+              },
+              "records": 101981,
+              "source_bytes": 33554870
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 55215405,
+                "modeled_loss_q24": 339978599917752,
+                "raw_literal_bytes": 16693002,
+                "records": 164615
+              },
+              "records": 164615,
+              "source_bytes": 50331719
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 73744663,
+                "modeled_loss_q24": 450934139142724,
+                "raw_literal_bytes": 21650058,
+                "records": 232578
+              },
+              "records": 232578,
+              "source_bytes": 67109152
+            }
+          ],
+          "source_sha256": "71091e9fa5d8fd20944e1bd5707f1c832470c56d4b662fc6ef3d34e9478eb739",
+          "tape_sha256": "b84fbef486966f8eb34497c4d23ac3c0f2d3f7f9ae775313dbbb6b8a812fb2b8"
+        }
+      ]
+    },
+    {
+      "aggregate_gain_basis_points": -50426,
+      "aggregate_ledger": {
+        "modeled_binary_events": 425212390,
+        "modeled_loss_q24": 1379676131170493,
+        "raw_literal_bytes": 4507,
+        "records": 750000
+      },
+      "aggregate_projection": {
+        "block_allowance_bytes": 6272,
+        "coder_allowance_bytes": 51420,
+        "complete_bytes": 10345756,
+        "fixed_framing_bytes": 4096,
+        "payload_bytes": 10283896,
+        "stream_metadata_bytes": 72
+      },
+      "decides": false,
+      "event_limit_applies": false,
+      "id": 8,
+      "name": "full-minus-m4",
+      "per_item": [
+        {
+          "decoded_sha256": "4f1571569ebdf98621bbd29da45ba84ab37b4f1f1033aacf822dd5b3f40358fe",
+          "item_id": "clue-early-development",
+          "item_index": 0,
+          "item_projection": {
+            "block_allowance_bytes": 1920,
+            "coder_allowance_bytes": 15049,
+            "complete_bytes": 3030807,
+            "fixed_framing_bytes": 4096,
+            "payload_bytes": 3009718,
+            "stream_metadata_bytes": 24
+          },
+          "ledger": {
+            "modeled_binary_events": 100360094,
+            "modeled_loss_q24": 403847795253615,
+            "raw_literal_bytes": 817,
+            "records": 250000
+          },
+          "segment_interval_bytes": 16777216,
+          "segments": [
+            {
+              "ledger": {
+                "modeled_binary_events": 15706255,
+                "modeled_loss_q24": 71240010378063,
+                "raw_literal_bytes": 817,
+                "records": 74301
+              },
+              "records": 74301,
+              "source_bytes": 16777397
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 47228865,
+                "modeled_loss_q24": 197059208325700,
+                "raw_literal_bytes": 817,
+                "records": 138557
+              },
+              "records": 138557,
+              "source_bytes": 33554623
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 86257627,
+                "modeled_loss_q24": 349849732230509,
+                "raw_literal_bytes": 817,
+                "records": 199164
+              },
+              "records": 199164,
+              "source_bytes": 50331818
+            }
+          ],
+          "source_sha256": "4f1571569ebdf98621bbd29da45ba84ab37b4f1f1033aacf822dd5b3f40358fe",
+          "tape_sha256": "217185cc53cff0616a0a872187198f014fb4c45939feae848681c361d1921108"
+        },
+        {
+          "decoded_sha256": "5ee50c36db110b023faf412e05398402e25ed59776ef5ee9323339f8b1aa4fa5",
+          "item_id": "clue-middle-development",
+          "item_index": 1,
+          "item_projection": {
+            "block_allowance_bytes": 2144,
+            "coder_allowance_bytes": 11153,
+            "complete_bytes": 2247998,
+            "fixed_framing_bytes": 4096,
+            "payload_bytes": 2230581,
+            "stream_metadata_bytes": 24
+          },
+          "ledger": {
+            "modeled_binary_events": 116078538,
+            "modeled_loss_q24": 299169275738482,
+            "raw_literal_bytes": 1596,
+            "records": 250000
+          },
+          "segment_interval_bytes": 16777216,
+          "segments": [
+            {
+              "ledger": {
+                "modeled_binary_events": 41912096,
+                "modeled_loss_q24": 126425757750878,
+                "raw_literal_bytes": 1596,
+                "records": 55304
+              },
+              "records": 55304,
+              "source_bytes": 16777460
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 67548077,
+                "modeled_loss_q24": 196835549174151,
+                "raw_literal_bytes": 1596,
+                "records": 116224
+              },
+              "records": 116224,
+              "source_bytes": 33554438
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 92073926,
+                "modeled_loss_q24": 256349891781640,
+                "raw_literal_bytes": 1596,
+                "records": 177467
+              },
+              "records": 177467,
+              "source_bytes": 50331831
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 111606676,
+                "modeled_loss_q24": 284590886816789,
+                "raw_literal_bytes": 1596,
+                "records": 239986
+              },
+              "records": 239986,
+              "source_bytes": 67108941
+            }
+          ],
+          "source_sha256": "5ee50c36db110b023faf412e05398402e25ed59776ef5ee9323339f8b1aa4fa5",
+          "tape_sha256": "2c5d65c9459c2315bbfc90410b1d98677b789186c537977e2e579776a21f02ae"
+        },
+        {
+          "decoded_sha256": "71091e9fa5d8fd20944e1bd5707f1c832470c56d4b662fc6ef3d34e9478eb739",
+          "item_id": "clue-late-development",
+          "item_index": 2,
+          "item_projection": {
+            "block_allowance_bytes": 2208,
+            "coder_allowance_bytes": 25218,
+            "complete_bytes": 5075143,
+            "fixed_framing_bytes": 4096,
+            "payload_bytes": 5043597,
+            "stream_metadata_bytes": 24
+          },
+          "ledger": {
+            "modeled_binary_events": 208773758,
+            "modeled_loss_q24": 676659060178396,
+            "raw_literal_bytes": 2094,
+            "records": 250000
+          },
+          "segment_interval_bytes": 16777216,
+          "segments": [
+            {
+              "ledger": {
+                "modeled_binary_events": 38718386,
+                "modeled_loss_q24": 153745811756112,
+                "raw_literal_bytes": 2094,
+                "records": 63605
+              },
+              "records": 63605,
+              "source_bytes": 16777238
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 124852920,
+                "modeled_loss_q24": 394430993123540,
+                "raw_literal_bytes": 2094,
+                "records": 101981
+              },
+              "records": 101981,
+              "source_bytes": 33554870
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 165712323,
+                "modeled_loss_q24": 523651697561225,
+                "raw_literal_bytes": 2094,
+                "records": 164615
+              },
+              "records": 164615,
+              "source_bytes": 50331719
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 199290449,
+                "modeled_loss_q24": 643812360235575,
+                "raw_literal_bytes": 2094,
+                "records": 232578
+              },
+              "records": 232578,
+              "source_bytes": 67109152
+            }
+          ],
+          "source_sha256": "71091e9fa5d8fd20944e1bd5707f1c832470c56d4b662fc6ef3d34e9478eb739",
+          "tape_sha256": "7b4b45a57190fbb8343b2be7f61f0864401bb8bbf038a1e2c4c40245a643ebfe"
+        }
+      ]
+    },
+    {
+      "aggregate_gain_basis_points": -148573,
+      "aggregate_ledger": {
+        "modeled_binary_events": 123096235,
+        "modeled_loss_q24": 610834390583938,
+        "raw_literal_bytes": 22453405,
+        "records": 750000
+      },
+      "aggregate_projection": {
+        "block_allowance_bytes": 6272,
+        "coder_allowance_bytes": 135023,
+        "complete_bytes": 27149939,
+        "fixed_framing_bytes": 4096,
+        "payload_bytes": 27004476,
+        "stream_metadata_bytes": 72
+      },
+      "decides": false,
+      "event_limit_applies": false,
+      "id": 9,
+      "name": "full-minus-m5",
+      "per_item": [
+        {
+          "decoded_sha256": "4f1571569ebdf98621bbd29da45ba84ab37b4f1f1033aacf822dd5b3f40358fe",
+          "item_id": "clue-early-development",
+          "item_index": 0,
+          "item_projection": {
+            "block_allowance_bytes": 1920,
+            "coder_allowance_bytes": 30218,
+            "complete_bytes": 6079662,
+            "fixed_framing_bytes": 4096,
+            "payload_bytes": 6043404,
+            "stream_metadata_bytes": 24
+          },
+          "ledger": {
+            "modeled_binary_events": 36456656,
+            "modeled_loss_q24": 182693770329196,
+            "raw_literal_bytes": 4682229,
+            "records": 250000
+          },
+          "segment_interval_bytes": 16777216,
+          "segments": [
+            {
+              "ledger": {
+                "modeled_binary_events": 8568524,
+                "modeled_loss_q24": 33581193205298,
+                "raw_literal_bytes": 544342,
+                "records": 74301
+              },
+              "records": 74301,
+              "source_bytes": 16777397
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 19006724,
+                "modeled_loss_q24": 89888128167270,
+                "raw_literal_bytes": 2095394,
+                "records": 138557
+              },
+              "records": 138557,
+              "source_bytes": 33554623
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 30047180,
+                "modeled_loss_q24": 153480202127732,
+                "raw_literal_bytes": 4113755,
+                "records": 199164
+              },
+              "records": 199164,
+              "source_bytes": 50331818
+            }
+          ],
+          "source_sha256": "4f1571569ebdf98621bbd29da45ba84ab37b4f1f1033aacf822dd5b3f40358fe",
+          "tape_sha256": "77643b2bbf17f05b1e0aeb3624a373067ab81d2b1d5c6dda188efa93119f23df"
+        },
+        {
+          "decoded_sha256": "5ee50c36db110b023faf412e05398402e25ed59776ef5ee9323339f8b1aa4fa5",
+          "item_id": "clue-middle-development",
+          "item_index": 1,
+          "item_projection": {
+            "block_allowance_bytes": 2144,
+            "coder_allowance_bytes": 35499,
+            "complete_bytes": 7141365,
+            "fixed_framing_bytes": 4096,
+            "payload_bytes": 7099602,
+            "stream_metadata_bytes": 24
+          },
+          "ledger": {
+            "modeled_binary_events": 36527977,
+            "modeled_loss_q24": 151879123814665,
+            "raw_literal_bytes": 5968014,
+            "records": 250000
+          },
+          "segment_interval_bytes": 16777216,
+          "segments": [
+            {
+              "ledger": {
+                "modeled_binary_events": 10032185,
+                "modeled_loss_q24": 48069056990464,
+                "raw_literal_bytes": 2585027,
+                "records": 55304
+              },
+              "records": 55304,
+              "source_bytes": 16777460
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 18793097,
+                "modeled_loss_q24": 84852002937013,
+                "raw_literal_bytes": 3778672,
+                "records": 116224
+              },
+              "records": 116224,
+              "source_bytes": 33554438
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 27261129,
+                "modeled_loss_q24": 119493941422585,
+                "raw_literal_bytes": 4939846,
+                "records": 177467
+              },
+              "records": 177467,
+              "source_bytes": 50331831
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 35072537,
+                "modeled_loss_q24": 144855592761642,
+                "raw_literal_bytes": 5745717,
+                "records": 239986
+              },
+              "records": 239986,
+              "source_bytes": 67108941
+            }
+          ],
+          "source_sha256": "5ee50c36db110b023faf412e05398402e25ed59776ef5ee9323339f8b1aa4fa5",
+          "tape_sha256": "15e17843a4540bf883da710dbe5bab8a73918635e8241275fdd02ce808c0feca"
+        },
+        {
+          "decoded_sha256": "71091e9fa5d8fd20944e1bd5707f1c832470c56d4b662fc6ef3d34e9478eb739",
+          "item_id": "clue-late-development",
+          "item_index": 2,
+          "item_projection": {
+            "block_allowance_bytes": 2208,
+            "coder_allowance_bytes": 69308,
+            "complete_bytes": 13937107,
+            "fixed_framing_bytes": 4096,
+            "payload_bytes": 13861471,
+            "stream_metadata_bytes": 24
+          },
+          "ledger": {
+            "modeled_binary_events": 50111602,
+            "modeled_loss_q24": 276261496440077,
+            "raw_literal_bytes": 11803162,
+            "records": 250000
+          },
+          "segment_interval_bytes": 16777216,
+          "segments": [
+            {
+              "ledger": {
+                "modeled_binary_events": 10836189,
+                "modeled_loss_q24": 56296064023674,
+                "raw_literal_bytes": 2071800,
+                "records": 63605
+              },
+              "records": 63605,
+              "source_bytes": 16777238
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 26009628,
+                "modeled_loss_q24": 151444456251477,
+                "raw_literal_bytes": 7352623,
+                "records": 101981
+              },
+              "records": 101981,
+              "source_bytes": 33554870
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 36926550,
+                "modeled_loss_q24": 208664260359212,
+                "raw_literal_bytes": 9543408,
+                "records": 164615
+              },
+              "records": 164615,
+              "source_bytes": 50331719
+            },
+            {
+              "ledger": {
+                "modeled_binary_events": 47348114,
+                "modeled_loss_q24": 262129080208606,
+                "raw_literal_bytes": 11303304,
+                "records": 232578
+              },
+              "records": 232578,
+              "source_bytes": 67109152
+            }
+          ],
+          "source_sha256": "71091e9fa5d8fd20944e1bd5707f1c832470c56d4b662fc6ef3d34e9478eb739",
+          "tape_sha256": "357400d04540838e4c93a0a716efe02216d5f765a9b456308e6eda7c33f21c0c"
+        }
+      ]
+    }
+  ],
+  "bindings": {
+    "base_constants_manifest_sha256": "fdb2aeb93e2cc699073c859d6b520e5a3c19164fc13a71c2045123732a77761e",
+    "config_sha256": "254a21e6a26776fb9a96242dd53a78dbf1edcc94bc800037d544f400cc9442e3",
+    "constants_manifest_profile": "base",
+    "constants_manifest_sha256": "fdb2aeb93e2cc699073c859d6b520e5a3c19164fc13a71c2045123732a77761e",
+    "protocol_sha256": "dbc2fa3cf8906f972273a6bad59e6ca9a68aa2e11000987ae1ee756bef970dc2",
+    "refined_constants_manifest_sha256": "f7e7e044fa00aae0fc6676621307ee7c612896b64777a6ba636a074471bf47b4"
+  },
+  "claim_ceiling": "Predeclared development-only model screen. It is not an exact codec result, candidate score, unseen validation, private holdout, product benchmark, independent reproduction, or state-of-the-art evidence.",
+  "evidence_stage": "development_only_prequential_screen",
+  "gates": {
+    "advance_minimum_gain_basis_points": 1500,
+    "advance_minimum_gain_satisfied": false,
+    "attribution": {
+      "m1_bytes": {
+        "bytes": 0,
+        "exact_build_threshold_met": false,
+        "report_threshold_met": false
+      },
+      "m2_bytes": {
+        "bytes": 2982072,
+        "exact_build_threshold_met": true,
+        "report_threshold_met": true
+      },
+      "m3_bytes": {
+        "bytes": 53664938,
+        "exact_build_threshold_met": true,
+        "report_threshold_met": true
+      },
+      "m4_bytes": {
+        "bytes": 0,
+        "exact_build_threshold_met": false,
+        "report_threshold_met": false
+      },
+      "m5_bytes": {
+        "bytes": 278928,
+        "exact_build_threshold_met": true,
+        "report_threshold_met": true
+      }
+    },
+    "decision": "kill",
+    "event_gate": {
+      "aggregate": false,
+      "passes": false,
+      "per_item": [
+        false,
+        false,
+        false
+      ]
+    },
+    "full_arm_complete_bytes": 26871011,
+    "full_arm_gain_basis_points": -146944,
+    "full_minus_m4_quarantine": {
+      "gain_basis_points": -50426,
+      "minimum_gain_basis_points": 700,
+      "passes": false,
+      "vocabulary_carried": true
+    },
+    "per_item_rule": {
+      "items": [
+        {
+          "complete_bytes": 6029851,
+          "item_id": "clue-early-development",
+          "kanzi_reference_bytes": 630525,
+          "within_reference": false
+        },
+        {
+          "complete_bytes": 7064218,
+          "item_id": "clue-middle-development",
+          "kanzi_reference_bytes": 438522,
+          "within_reference": false
+        },
+        {
+          "complete_bytes": 13785137,
+          "item_id": "clue-late-development",
+          "kanzi_reference_bytes": 643208,
+          "within_reference": false
+        }
+      ],
+      "passes": false
+    }
+  },
+  "items": [
+    {
+      "id": "clue-early-development",
+      "index": 0,
+      "kanzi_single_item_axe1o_bytes": 630525,
+      "source_bytes": 62267473,
+      "source_sha256": "4f1571569ebdf98621bbd29da45ba84ab37b4f1f1033aacf822dd5b3f40358fe"
+    },
+    {
+      "id": "clue-middle-development",
+      "index": 1,
+      "kanzi_single_item_axe1o_bytes": 438522,
+      "source_bytes": 69847327,
+      "source_sha256": "5ee50c36db110b023faf412e05398402e25ed59776ef5ee9323339f8b1aa4fa5"
+    },
+    {
+      "id": "clue-late-development",
+      "index": 2,
+      "kanzi_single_item_axe1o_bytes": 643208,
+      "source_bytes": 71463332,
+      "source_sha256": "71091e9fa5d8fd20944e1bd5707f1c832470c56d4b662fc6ef3d34e9478eb739"
+    }
+  ],
+  "name": "axiom-json-log-native-screen-s0-v1",
+  "profile": "base",
+  "schema_version": 1,
+  "segment_interval_bytes": 16777216,
+  "sse_bucket_bits": 17
+}
