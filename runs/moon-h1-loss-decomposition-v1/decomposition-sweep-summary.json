@@ -1,0 +1,23 @@
+{
+  "budget": {
+    "cap": 160,
+    "consumed_after": 40,
+    "consumed_before": 38
+  },
+  "evidence_stage": "development_only_prescreen",
+  "runs": [
+    {
+      "exit_code": 0,
+      "report_path": "/Users/guts/Documents/axiom-moonshot-corpora/decomp-cycle-h1/gharchive-2026-05-15-14-s24__h1-loss-decomposition.report.json",
+      "snapshot": "gharchive-2026-05-15-14-s24",
+      "status": "measured"
+    },
+    {
+      "exit_code": 0,
+      "report_path": "/Users/guts/Documents/axiom-moonshot-corpora/decomp-cycle-h1/gharchive-2026-06-15-14-s24__h1-loss-decomposition.report.json",
+      "snapshot": "gharchive-2026-06-15-14-s24",
+      "status": "measured"
+    }
+  ],
+  "schema": "moon-h1-decomposition-sweep-v1"
+}
