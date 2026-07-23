@@ -1,0 +1,26 @@
+{
+  "schema": "clean-rss-measurement-v1",
+  "command": [
+    "/private/tmp/claude-501/-Users-guts/514131ce-ff40-4387-bb10-e42d7e7af2ff/scratchpad/c3-freeze-wt/native/target/release/clab-moon-kernel",
+    "encode",
+    "--arm",
+    "c3-live-adaptation",
+    "--item-index",
+    "1",
+    "--input",
+    "/Users/guts/Documents/axiom-moonshot-corpora/slices/gharchive-2026-06-15-14-s24.ndjson",
+    "--tape-out",
+    "/Users/guts/Documents/axiom-moonshot-corpora/sweep-cycle2-c3/gharchive-2026-06-15-14-s24__c3-live-adaptation.tape",
+    "--receipt-out",
+    "/Users/guts/Documents/axiom-moonshot-corpora/sweep-cycle2-c3/gharchive-2026-06-15-14-s24__c3-live-adaptation.kernel-receipt.json",
+    "--force"
+  ],
+  "exit_code": 0,
+  "platform": "darwin",
+  "maxrss_raw": 295731200,
+  "maxrss_bytes": 295731200,
+  "shim_maxrss_bytes": 18513920,
+  "wall_ns": 245661841542,
+  "user_seconds": 236.260983,
+  "system_seconds": 1.5582989999999999
+}

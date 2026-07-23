@@ -1,0 +1,21 @@
+{
+  "schema": "clab-moon-kernel-encode-receipt-v1",
+  "kernel_version": "0.1.0",
+  "evidence_stage": "development_only_prescreen",
+  "arm": "c3-live-adaptation",
+  "arm_id": 104,
+  "item_index": 1,
+  "source_bytes": 25165414,
+  "source_sha256": "05220440b98e0adfc933ce0b6f838a6bed37d35118e4bb4f02075d7e34e50f79",
+  "tape_bytes": 28311145,
+  "tape_sha256": "b9f38c4f938683f1d838522fb250c6f1fad000fad4cded1cdff08f2043f03ef2",
+  "sse_bucket_bits": 17,
+  "declared_model_state_bytes": 126238720,
+  "ledger": {"records": 35854, "modeled_binary_events": 226488727, "modeled_loss_q24": 499557586534748, "raw_literal_bytes": 0},
+  "item_projection": {"payload_bytes": 3721995, "coder_allowance_bytes": 18610, "block_allowance_bytes": 768, "stream_metadata_bytes": 24, "fixed_framing_bytes": 4096, "complete_bytes": 3745493},
+  "quarter_diagnostics_q24_scale": 16777216,
+  "quarter_diagnostics": [{"cumulative_source_bytes": 6291354, "delta_source_bytes": 6291354, "delta_modeled_binary_events": 56622186, "delta_modeled_loss_q24": 131074888332793}, {"cumulative_source_bytes": 12582707, "delta_source_bytes": 6291353, "delta_modeled_binary_events": 56622177, "delta_modeled_loss_q24": 122781301920216}, {"cumulative_source_bytes": 18874061, "delta_source_bytes": 6291354, "delta_modeled_binary_events": 56622186, "delta_modeled_loss_q24": 123398495930916}, {"cumulative_source_bytes": 25165414, "delta_source_bytes": 6291353, "delta_modeled_binary_events": 56622178, "delta_modeled_loss_q24": 122302900350823}],
+  "predicted_kill_criterion": "Kill if C3 complete bytes are at least 0.97x H1 complete bytes on both public snapshots, OR any exactness, identity, ledger, unaccounted-state, 600-second wall, or 512 MiB decode-RSS gate fails.",
+  "decoded_sha256": "05220440b98e0adfc933ce0b6f838a6bed37d35118e4bb4f02075d7e34e50f79",
+  "decode_matches_source": true
+}

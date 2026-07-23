@@ -1,0 +1,25 @@
+{
+  "budget": {
+    "cap": 160,
+    "consumed_after": 38,
+    "consumed_before": 36
+  },
+  "config_sha256": "547852d0caf9c51df79704d5155d20f3e1de4eee79c8fd4d6b42797af9ca7249",
+  "evidence_stage": "development_only_prescreen",
+  "references_sha256": "5fb1a001b44e5652c5be19f9eead6167f29ce53084c791c3ab982a1fc750e07f",
+  "runs": [
+    {
+      "arm": "c3-live-adaptation",
+      "receipt_path": "/Users/guts/Documents/axiom-moonshot-corpora/sweep-cycle2-c3/gharchive-2026-05-15-14-s24__c3-live-adaptation.receipt.json",
+      "snapshot": "gharchive-2026-05-15-14-s24",
+      "status": "measured"
+    },
+    {
+      "arm": "c3-live-adaptation",
+      "receipt_path": "/Users/guts/Documents/axiom-moonshot-corpora/sweep-cycle2-c3/gharchive-2026-06-15-14-s24__c3-live-adaptation.receipt.json",
+      "snapshot": "gharchive-2026-06-15-14-s24",
+      "status": "measured"
+    }
+  ],
+  "schema": "moon-prescreen-sweep-v1"
+}
