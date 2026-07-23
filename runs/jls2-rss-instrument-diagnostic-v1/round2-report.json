@@ -1,0 +1,79 @@
+{
+  "schema": "jls2-rss-arena-experiment-v2",
+  "purpose": "Diagnostic allocator/affinity RSS matrix for the JLS2 native decoder on synthetic data. Not a gate measurement, not corpus evidence, and not a compression-quality claim.",
+  "platform": "linux",
+  "cpu_count": 4,
+  "source_bytes": 200000000,
+  "source_sha256": "28081a7e678152f7be39682aee09b5240862ae91321c4975aef2319198aa3049",
+  "artifact_bytes": 199920,
+  "artifact_sha256": "a755bd70bcf785184228e5c6bbb2c21840fc2419f775afeeaab876b40306486a",
+  "binary_sha256": "65760fee6d467190690fe31b632a6ed73b0457e0b1b9898a530377d0a3419006",
+  "cells": [
+    {
+      "malloc_arena_max": null,
+      "malloc_mmap_threshold": null,
+      "cpu_limit": null,
+      "peak_rss_raw": 677148,
+      "peak_rss_bytes": 693399552,
+      "peak_rss_mib": 661.3,
+      "wall_seconds": 1.22,
+      "decoded_sha256": "28081a7e678152f7be39682aee09b5240862ae91321c4975aef2319198aa3049",
+      "decode_matches_source": true
+    },
+    {
+      "malloc_arena_max": null,
+      "malloc_mmap_threshold": null,
+      "cpu_limit": 3,
+      "peak_rss_raw": 474936,
+      "peak_rss_bytes": 486334464,
+      "peak_rss_mib": 463.8,
+      "wall_seconds": 1.05,
+      "decoded_sha256": "28081a7e678152f7be39682aee09b5240862ae91321c4975aef2319198aa3049",
+      "decode_matches_source": true
+    },
+    {
+      "malloc_arena_max": null,
+      "malloc_mmap_threshold": "131072",
+      "cpu_limit": null,
+      "peak_rss_raw": 677148,
+      "peak_rss_bytes": 693399552,
+      "peak_rss_mib": 661.3,
+      "wall_seconds": 1.25,
+      "decoded_sha256": "28081a7e678152f7be39682aee09b5240862ae91321c4975aef2319198aa3049",
+      "decode_matches_source": true
+    },
+    {
+      "malloc_arena_max": null,
+      "malloc_mmap_threshold": "131072",
+      "cpu_limit": 3,
+      "peak_rss_raw": 474936,
+      "peak_rss_bytes": 486334464,
+      "peak_rss_mib": 463.8,
+      "wall_seconds": 1.08,
+      "decoded_sha256": "28081a7e678152f7be39682aee09b5240862ae91321c4975aef2319198aa3049",
+      "decode_matches_source": true
+    },
+    {
+      "malloc_arena_max": null,
+      "malloc_mmap_threshold": "131072",
+      "cpu_limit": 1,
+      "peak_rss_raw": 474936,
+      "peak_rss_bytes": 486334464,
+      "peak_rss_mib": 463.8,
+      "wall_seconds": 0.84,
+      "decoded_sha256": "28081a7e678152f7be39682aee09b5240862ae91321c4975aef2319198aa3049",
+      "decode_matches_source": true
+    },
+    {
+      "malloc_arena_max": "2",
+      "malloc_mmap_threshold": "131072",
+      "cpu_limit": null,
+      "peak_rss_raw": 677148,
+      "peak_rss_bytes": 693399552,
+      "peak_rss_mib": 661.3,
+      "wall_seconds": 1.26,
+      "decoded_sha256": "28081a7e678152f7be39682aee09b5240862ae91321c4975aef2319198aa3049",
+      "decode_matches_source": true
+    }
+  ]
+}

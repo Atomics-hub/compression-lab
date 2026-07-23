@@ -1,0 +1,145 @@
+{
+  "schema": "jls2-rss-arena-experiment-v4",
+  "jemalloc_path": "/usr/lib/x86_64-linux-gnu/libjemalloc.so.2",
+  "purpose": "Diagnostic allocator/THP/affinity RSS matrix for the JLS2 native decoder on synthetic data. Not a gate measurement, not corpus evidence, and not a compression-quality claim.",
+  "platform": "linux",
+  "cpu_count": 4,
+  "glibc_version": "ldd (Ubuntu GLIBC 2.35-0ubuntu3.13) 2.35",
+  "thp_enabled_host": "[always] madvise never",
+  "thp_defrag_host": "always defer defer+madvise [madvise] never",
+  "source_bytes": 200000000,
+  "source_sha256": "28081a7e678152f7be39682aee09b5240862ae91321c4975aef2319198aa3049",
+  "artifact_bytes": 199920,
+  "artifact_sha256": "a755bd70bcf785184228e5c6bbb2c21840fc2419f775afeeaab876b40306486a",
+  "binary_sha256": "65760fee6d467190690fe31b632a6ed73b0457e0b1b9898a530377d0a3419006",
+  "cells": [
+    {
+      "label": "baseline-all",
+      "env": {},
+      "output_path": "/home/runner/work/_temp/arena-work/decoded.jsonl",
+      "cpu_limit": null,
+      "thp_mode_requested": "keep",
+      "thp_enabled_at_run": "always",
+      "straced": false,
+      "peak_rss_raw": 695960,
+      "peak_rss_bytes": 712663040,
+      "peak_rss_mib": 679.6,
+      "wall_seconds": 1.24,
+      "decoded_sha256": "28081a7e678152f7be39682aee09b5240862ae91321c4975aef2319198aa3049",
+      "decode_matches_source": true
+    },
+    {
+      "label": "baseline-cpus3",
+      "env": {},
+      "output_path": "/home/runner/work/_temp/arena-work/decoded.jsonl",
+      "cpu_limit": 3,
+      "thp_mode_requested": "keep",
+      "thp_enabled_at_run": "always",
+      "straced": false,
+      "peak_rss_raw": 496172,
+      "peak_rss_bytes": 508080128,
+      "peak_rss_mib": 484.5,
+      "wall_seconds": 1.04,
+      "decoded_sha256": "28081a7e678152f7be39682aee09b5240862ae91321c4975aef2319198aa3049",
+      "decode_matches_source": true
+    },
+    {
+      "label": "mmap-threshold-1-all",
+      "env": {
+        "MALLOC_MMAP_THRESHOLD_": "1"
+      },
+      "output_path": "/home/runner/work/_temp/arena-work/decoded.jsonl",
+      "cpu_limit": null,
+      "thp_mode_requested": "keep",
+      "thp_enabled_at_run": "always",
+      "straced": false,
+      "peak_rss_raw": 695960,
+      "peak_rss_bytes": 712663040,
+      "peak_rss_mib": 679.6,
+      "wall_seconds": 1.39,
+      "decoded_sha256": "28081a7e678152f7be39682aee09b5240862ae91321c4975aef2319198aa3049",
+      "decode_matches_source": true
+    },
+    {
+      "label": "trim-0-all",
+      "env": {
+        "MALLOC_TRIM_THRESHOLD_": "0"
+      },
+      "output_path": "/home/runner/work/_temp/arena-work/decoded.jsonl",
+      "cpu_limit": null,
+      "thp_mode_requested": "keep",
+      "thp_enabled_at_run": "always",
+      "straced": false,
+      "peak_rss_raw": 695960,
+      "peak_rss_bytes": 712663040,
+      "peak_rss_mib": 679.6,
+      "wall_seconds": 1.25,
+      "decoded_sha256": "28081a7e678152f7be39682aee09b5240862ae91321c4975aef2319198aa3049",
+      "decode_matches_source": true
+    },
+    {
+      "label": "jemalloc-all",
+      "env": {
+        "LD_PRELOAD": "/usr/lib/x86_64-linux-gnu/libjemalloc.so.2"
+      },
+      "output_path": "/home/runner/work/_temp/arena-work/decoded.jsonl",
+      "cpu_limit": null,
+      "thp_mode_requested": "keep",
+      "thp_enabled_at_run": "always",
+      "straced": false,
+      "peak_rss_raw": 695960,
+      "peak_rss_bytes": 712663040,
+      "peak_rss_mib": 679.6,
+      "wall_seconds": 1.26,
+      "decoded_sha256": "28081a7e678152f7be39682aee09b5240862ae91321c4975aef2319198aa3049",
+      "decode_matches_source": true
+    },
+    {
+      "label": "jemalloc-cpus3",
+      "env": {
+        "LD_PRELOAD": "/usr/lib/x86_64-linux-gnu/libjemalloc.so.2"
+      },
+      "output_path": "/home/runner/work/_temp/arena-work/decoded.jsonl",
+      "cpu_limit": 3,
+      "thp_mode_requested": "keep",
+      "thp_enabled_at_run": "always",
+      "straced": false,
+      "peak_rss_raw": 496176,
+      "peak_rss_bytes": 508084224,
+      "peak_rss_mib": 484.5,
+      "wall_seconds": 1.11,
+      "decoded_sha256": "28081a7e678152f7be39682aee09b5240862ae91321c4975aef2319198aa3049",
+      "decode_matches_source": true
+    },
+    {
+      "label": "output-shm-all",
+      "env": {},
+      "output_path": "/dev/shm/clab-arena-decoded.jsonl",
+      "cpu_limit": null,
+      "thp_mode_requested": "keep",
+      "thp_enabled_at_run": "always",
+      "straced": false,
+      "peak_rss_raw": 695960,
+      "peak_rss_bytes": 712663040,
+      "peak_rss_mib": 679.6,
+      "wall_seconds": 1.17,
+      "decoded_sha256": "28081a7e678152f7be39682aee09b5240862ae91321c4975aef2319198aa3049",
+      "decode_matches_source": true
+    },
+    {
+      "label": "strace-all",
+      "env": {},
+      "output_path": "/home/runner/work/_temp/arena-work/decoded.jsonl",
+      "cpu_limit": null,
+      "thp_mode_requested": "keep",
+      "thp_enabled_at_run": "always",
+      "straced": true,
+      "peak_rss_raw": 695960,
+      "peak_rss_bytes": 712663040,
+      "peak_rss_mib": 679.6,
+      "wall_seconds": 1.34,
+      "decoded_sha256": "28081a7e678152f7be39682aee09b5240862ae91321c4975aef2319198aa3049",
+      "decode_matches_source": true
+    }
+  ]
+}
