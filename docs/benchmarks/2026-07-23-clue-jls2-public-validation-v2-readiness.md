@@ -71,3 +71,19 @@ One acquisition and one scored attempt. Every failed or interrupted attempt is
 retained. No candidate, range, runner, baseline, parameter, instrument,
 threshold, evaluator, verifier, chart rule, or claim ceiling changes after
 acquisition.
+
+## Dispatch attempt log
+
+- **Attempt 1 — 2026-07-23, run `30053212896`: FAILED PRE-ACQUISITION, fail-closed.**
+  The dispatch stopped at the "Verify frozen source and harness" step, before any
+  acquisition. The workflow installed the linter through the open `.[dev]`
+  constraint, which resolved `ruff 0.16.0`, and 0.16.0's new `TRY004` rule (plus
+  import-ordering changes) flagged the frozen v2 scripts. No CLUE data was
+  acquired, listed, or hashed, and the one-acquisition/one-score counters were
+  **not** consumed — the one-way door was never entered. Remedied by pinning the
+  harness lint to `ruff==0.15.22` (matching CI); the v2 scripts are unchanged and
+  are clean under 0.15.22. Because the workflow is a locked path, changing it
+  pre-acquisition invalidates the readiness lock keyed to `60483da`; the lock is
+  re-issued against the new merge commit in a separate follow-up commit. The
+  one-acquisition/one-score rule binds post-acquisition, which this attempt never
+  reached.
