@@ -9,6 +9,7 @@
 
 pub mod h1;
 pub mod h6;
+pub mod h9;
 pub mod mixer;
 pub mod reuse;
 pub mod table;
@@ -20,6 +21,10 @@ pub use h1::{
 pub use h6::{
     decode_h6_item, decode_h6_item_with_bits, encode_h6_item, encode_h6_item_with_bits,
     h6_declared_state_bytes, H6Error, H6_ARM_ID, H6_DECISION_BUCKETS, H6_DECISION_STATE_BYTES,
+};
+pub use h9::{
+    decode_h9_item, decode_h9_item_with_bits, encode_h9_item, encode_h9_item_with_bits,
+    h9_declared_state_bytes, H9Error, H9_ARM_ID, H9_RULE_BUDGET, H9_SYMBOL_ALPHABET,
 };
 pub use mixer::{MoonMixer, MOON_MIXER_BUCKETS, MOON_MIXER_INPUTS, MOON_MIXER_WEIGHT_BYTES};
 pub use reuse::{LineCache, ReferenceCoder, REFERENCE_TREE_BYTES, REFERENCE_TREE_NODES};
