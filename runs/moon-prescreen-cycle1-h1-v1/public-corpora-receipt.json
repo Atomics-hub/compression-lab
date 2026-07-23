@@ -1,0 +1,37 @@
+{
+  "allowed_hosts": [
+    "data.gharchive.org"
+  ],
+  "denylist_tokens": [
+    "zenodo",
+    "ait-lds",
+    "ait_lds",
+    "landauer"
+  ],
+  "items": [
+    {
+      "compressed_bytes": 12202185,
+      "compressed_path": "/Users/guts/Documents/axiom-moonshot-corpora/gharchive-2026-05-15-14.json.gz",
+      "compressed_sha256": "40382d8e0fffe398e91880e8b3334f5ef9820ff01ee70d72280087559f1ab48e",
+      "decompressed_bytes": 60814441,
+      "decompressed_path": "/Users/guts/Documents/axiom-moonshot-corpora/gharchive-2026-05-15-14.ndjson",
+      "decompressed_sha256": "747214a6416c119a21d112ae37550049cac88536f9f190afe22c126338b7d32d",
+      "hour": "2026-05-15-14",
+      "kind": "gharchive-hour",
+      "url": "https://data.gharchive.org/2026-05-15-14.json.gz"
+    },
+    {
+      "compressed_bytes": 21830838,
+      "compressed_path": "/Users/guts/Documents/axiom-moonshot-corpora/gharchive-2026-06-15-14.json.gz",
+      "compressed_sha256": "f71d50a34555069ad28d12c87add11ce8debcf226595314c813e5589d0ce4fd8",
+      "decompressed_bytes": 108023156,
+      "decompressed_path": "/Users/guts/Documents/axiom-moonshot-corpora/gharchive-2026-06-15-14.ndjson",
+      "decompressed_sha256": "aebc9ec26671c0c9ba73aae3516e08e44538bf65354204adfc26cc67dcc28fbd",
+      "hour": "2026-06-15-14",
+      "kind": "gharchive-hour",
+      "url": "https://data.gharchive.org/2026-06-15-14.json.gz"
+    }
+  ],
+  "schema": "moon-public-corpora-receipt-v1",
+  "tool_version": "moon-fetch-public-corpora-v1"
+}
