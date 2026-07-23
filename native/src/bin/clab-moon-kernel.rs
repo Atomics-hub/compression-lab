@@ -37,6 +37,9 @@ const EVIDENCE_STAGE: &str = "development_only_prescreen";
 // every receipt so the eventual kill/nominate report is mechanical. Data
 // strings, not claims: no candidate, SOTA, exact-codec, or ratio assertion.
 const H1_KILL_CRITERION: &str = "Kill if projected complete bytes exceed 1.10x local zpaq -m5 -B16 on at least two public snapshots at <=256 MiB declared state, OR peak decode RSS exceeds 512 MiB.";
+// The draft wrote this baseline as "max(H1-alone, H5/M3-alone)"; helm deferred
+// H5, so M3 is the cycle-1 reuse baseline and the line names M3 alone. This is
+// the intentional recorded simplification, not a drift.
 const H6_KILL_CRITERION: &str =
     "Kill if the hybrid does not beat max(H1-alone, M3-alone) by >= 3% on the public set.";
 
@@ -794,7 +797,7 @@ mod tests {
         assert_eq!(receipt_field(&receipt, "decode_matches_source"), "true");
         assert_eq!(
             receipt_field(&receipt, "declared_model_state_bytes"),
-            "129517566"
+            "148654078"
         );
         assert!(receipt.contains("beat max(H1-alone, M3-alone) by >= 3%"));
 

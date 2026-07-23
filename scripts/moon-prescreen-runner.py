@@ -60,6 +60,9 @@ KILL_LINES = {
         "least two public snapshots at <=256 MiB declared state, OR peak decode "
         "RSS exceeds 512 MiB."
     ),
+    # The draft wrote this baseline as "max(H1-alone, H5/M3-alone)"; helm
+    # deferred H5, so M3 is the cycle-1 reuse baseline and the line names M3
+    # alone. Intentional recorded simplification, not a drift.
     "h6-hybrid": (
         "Kill if the hybrid does not beat max(H1-alone, M3-alone) by >= 3% on the "
         "public set."

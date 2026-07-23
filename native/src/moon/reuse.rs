@@ -51,7 +51,10 @@ struct LineSlot {
 /// always compares complete line bytes, in ascending slot order.
 pub struct LineCache {
     slots: Box<[LineSlot]>,
-    index: HashMap<u64, Vec<u32>>,
+    // Acceleration index only: maps a line hash to its candidate slots in
+    // ascending order. Semantics are defined purely by the slots array. The
+    // u16 candidate width matches s0 m3's `SessionStore` exactly.
+    index: HashMap<u64, Vec<u16>>,
     hand: usize,
 }
 
@@ -120,21 +123,27 @@ impl LineCache {
         }) {
             return;
         }
-        let target = self.next_victim();
+        let Some(slot) = u16::try_from(self.next_victim()).ok() else {
+            return;
+        };
+        let target = usize::from(slot);
         self.evict(target);
         self.slots[target] = LineSlot {
             hash,
             bytes: Some(line.to_vec().into_boxed_slice()),
             referenced: false,
         };
-        let slot = target as u32;
         let candidates = self.index.entry(hash).or_default();
         let position = candidates.partition_point(|&existing| existing < slot);
         candidates.insert(position, slot);
     }
 
+    /// Frozen CLOCK transition, same shape as s0 m3's `next_victim`: inspect
+    /// the hand; claim an empty or zero-ref slot, otherwise clear its ref bit
+    /// and advance. The hand moves only here, during insertion. The bounded
+    /// scan always finds a victim within two sweeps of a non-empty table; the
+    /// post-loop return is unreachable there.
     fn next_victim(&mut self) -> usize {
-        // Bounded scan: the CLOCK always finds a victim within two sweeps.
         for _ in 0..=self.slots.len() * 2 {
             let slot = self.hand;
             self.hand = (self.hand + 1) % self.slots.len();
@@ -144,7 +153,6 @@ impl LineCache {
             }
             candidate.referenced = false;
         }
-        // Unreachable for a non-empty table; fall back to the hand deterministically.
         self.hand
     }
 
@@ -154,9 +162,10 @@ impl LineCache {
         };
         let hash = self.slots[slot].hash;
         if let Some(candidates) = self.index.get_mut(&hash) {
-            let slot = slot as u32;
-            if let Some(position) = candidates.iter().position(|&candidate| candidate == slot) {
-                candidates.remove(position);
+            if let Ok(slot) = u16::try_from(slot) {
+                if let Some(position) = candidates.iter().position(|&candidate| candidate == slot) {
+                    candidates.remove(position);
+                }
             }
             if candidates.is_empty() {
                 self.index.remove(&hash);
