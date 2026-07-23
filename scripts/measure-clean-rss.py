@@ -44,15 +44,28 @@ def rss_raw_to_bytes(raw: int) -> int:
     return raw * 1024
 
 
-def run_shim(report_path: str, command: list[str]) -> int:
+def shim_peak_bytes() -> int:
+    # getrusage(RUSAGE_SELF) is unusable here: on Linux it reports the
+    # execve-folded watermark inherited from whatever large process spawned
+    # this shim - the exact artifact the diagnostic proved. VmHWM tracks
+    # only the post-exec address space, which is the shim's real footprint
+    # and therefore the real bias floor of the child measurement below.
+    status = Path("/proc/self/status")
+    if status.is_file():
+        for line in status.read_text(encoding="utf-8").splitlines():
+            if line.startswith("VmHWM:"):
+                return int(line.split()[1]) * 1024
     import resource
 
+    return rss_raw_to_bytes(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+
+
+def run_shim(report_path: str, command: list[str]) -> int:
     started = time.perf_counter_ns()
     process = subprocess.Popen(command)
     _, wait_status, usage = os.wait4(process.pid, 0)
     wall_ns = time.perf_counter_ns() - started
     exit_code = os.waitstatus_to_exitcode(wait_status)
-    shim_raw = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
     report = {
         "schema": "clean-rss-measurement-v1",
         "command": command,
@@ -60,7 +73,7 @@ def run_shim(report_path: str, command: list[str]) -> int:
         "platform": sys.platform,
         "maxrss_raw": usage.ru_maxrss,
         "maxrss_bytes": rss_raw_to_bytes(usage.ru_maxrss),
-        "shim_maxrss_bytes": rss_raw_to_bytes(shim_raw),
+        "shim_maxrss_bytes": shim_peak_bytes(),
         "wall_ns": wall_ns,
         "user_seconds": usage.ru_utime,
         "system_seconds": usage.ru_stime,
