@@ -1,0 +1,37 @@
+{
+  "budget": {
+    "cap": 160,
+    "consumed_after": 25,
+    "consumed_before": 21
+  },
+  "config_sha256": "7d3426a3ee6a862521881e2d2eb4a4ef2340aeb242846301df95d1468c6aebe5",
+  "evidence_stage": "development_only_prescreen",
+  "references_sha256": "250cf38d24db8e58b5ee90881185c90e41fec4b30c4e3931ee35e339d098f0fd",
+  "runs": [
+    {
+      "arm": "h9-grammar",
+      "receipt_path": "/Users/guts/Documents/axiom-moonshot-corpora/sweep-cycle1-h9/gharchive-2026-05-15-14-s12__h9-grammar.receipt.json",
+      "snapshot": "gharchive-2026-05-15-14-s12",
+      "status": "killed_by_budget"
+    },
+    {
+      "arm": "h9-grammar",
+      "receipt_path": "/Users/guts/Documents/axiom-moonshot-corpora/sweep-cycle1-h9/gharchive-2026-06-15-14-s12__h9-grammar.receipt.json",
+      "snapshot": "gharchive-2026-06-15-14-s12",
+      "status": "killed_by_budget"
+    },
+    {
+      "arm": "h9-grammar",
+      "receipt_path": "/Users/guts/Documents/axiom-moonshot-corpora/sweep-cycle1-h9/moon-syn-high-dup-s12__h9-grammar.receipt.json",
+      "snapshot": "moon-syn-high-dup-s12",
+      "status": "killed_by_budget"
+    },
+    {
+      "arm": "h9-grammar",
+      "receipt_path": "/Users/guts/Documents/axiom-moonshot-corpora/sweep-cycle1-h9/moon-syn-many-templates-s12__h9-grammar.receipt.json",
+      "snapshot": "moon-syn-many-templates-s12",
+      "status": "killed_by_budget"
+    }
+  ],
+  "schema": "moon-prescreen-sweep-v1"
+}
