@@ -29,21 +29,26 @@ jobs:
         run: cargo build --release --locked --bin clab-jls2
         working-directory: native
 
-      - name: Run the arena/affinity matrix
+      - name: Ensure strace is available
+        run: which strace || sudo apt-get update && sudo apt-get install -y strace
+
+      - name: Run the allocator/THP/affinity matrix
         run: |
           python scripts/experiment-jls2-rss-arena.py \
             --work-dir "$RUNNER_TEMP/arena-work" \
             --output "$RUNNER_TEMP/arena-report.json"
           cp "$RUNNER_TEMP/arena-report.json" arena-report.json
+          gzip -9 -c "$RUNNER_TEMP/arena-work/strace-memory.log" > strace-memory.log.gz
           python - <<'EOF'
           import json
           report = json.load(open("arena-report.json"))
-          print(f"cpu_count={report['cpu_count']} source={report['source_bytes']:,}B artifact={report['artifact_bytes']:,}B")
+          print(f"cpu_count={report['cpu_count']} glibc={report['glibc_version']}")
+          print(f"thp_host={report['thp_enabled_host']}")
           for cell in report["cells"]:
               print(
-                  f"arena={str(cell['malloc_arena_max'] or 'unset'):>5}"
-                  f" mmap={str(cell['malloc_mmap_threshold'] or 'unset'):>6}"
+                  f"{cell['label']:>20}"
                   f" cpus={str(cell['cpu_limit'] or 'all'):>3}"
+                  f" thp={str(cell['thp_enabled_at_run'] or 'n/a'):>7}"
                   f" peak={cell['peak_rss_mib']:>8} MiB"
                   f" wall={cell['wall_seconds']}s"
               )
@@ -52,6 +57,8 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: jls2-rss-arena-report-${{ github.run_id }}
-          path: arena-report.json
+          path: |
+            arena-report.json
+            strace-memory.log.gz
           if-no-files-found: error
           retention-days: 30

@@ -2,26 +2,33 @@
 
 The frozen public-validation gate measured the native decoder at 621.3 MiB
 peak RSS on Linux, yet only ~50-100 MB of that is source-visible decoded data.
+
 Round 1 (run 29979759484) refuted the MALLOC_ARENA_MAX hypothesis (no effect)
 and measured a bit-identical 448.8 MiB floor at 1-3 CPUs with a +214.5 MiB
 step at 4 CPUs. A counting-allocator instrumentation of the same decode
 measured true peak live bytes at exactly workers x 16 MiB (segment size), so
-nearly all of the Linux RSS is glibc retention of freed segment buffers, not
-live data. The refined hypothesis: glibc's dynamic M_MMAP_THRESHOLD
-adaptation moves the 16 MiB segment buffers from mmap onto arena heaps after
-the first frees, and freed arena memory is never returned to the OS while
-the decode is still running, so ru_maxrss ratchets to the total churn.
+nearly all of the Linux RSS is retention of freed memory, not live data.
 
-Round 2 pins the threshold with MALLOC_MMAP_THRESHOLD_ (the trailing
-underscore is glibc's tunable spelling), which also disables the dynamic
-adaptation, so every segment-sized buffer stays mmap-backed and every free
-returns to the OS immediately. Expected result if the hypothesis holds:
-peak RSS collapses to roughly live bytes at every CPU count.
+Round 2 (run 29980499529) refuted the glibc dynamic-M_MMAP_THRESHOLD
+hypothesis: pinning MALLOC_MMAP_THRESHOLD_=131072 changed nothing (661.3 MiB
+at full parallelism, 463.8 MiB at <=3 CPUs, byte-identical to the unpinned
+cells). The same binary logic peaks at ~130 MiB on macOS with real file
+output, so the excess is Linux-environment-specific but not explained by the
+two classic glibc malloc tunables.
+
+Round 3 discriminates the remaining suspects:
+- GLIBC_TUNABLES spellings of the same tunables, in case the legacy
+  MALLOC_* environment variables were silently ignored;
+- transparent hugepages (Azure/GitHub runners commonly set THP=always,
+  which can inflate resident anonymous mappings), flipped per cell via
+  sysfs with the runner's passwordless sudo;
+- a raw mmap/munmap/brk/madvise syscall capture (strace) of one decode so
+  the mapping sizes and lifetimes are ground truth rather than inference.
 
 Diagnostic only: synthetic data, no licensed corpus paths, no product change,
 and every cell must reproduce the source bytes exactly or the experiment
 fails. Results say nothing about compression quality; they measure allocator
-behavior on this decoder.
+and kernel memory behavior on this decoder.
 """
 
 from __future__ import annotations
@@ -30,6 +37,7 @@ import argparse
 import hashlib
 import json
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -37,16 +45,34 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
-# (MALLOC_ARENA_MAX, MALLOC_MMAP_THRESHOLD_, cpu_limit) per cell. The first
-# two cells replay the round-1 baseline anchors; the rest test the pinned
-# mmap threshold at full and reduced parallelism, plus one combined cell.
-CELLS: tuple[tuple[str | None, str | None, int | None], ...] = (
-    (None, None, None),
-    (None, None, 3),
-    (None, "131072", None),
-    (None, "131072", 3),
-    (None, "131072", 1),
-    ("2", "131072", None),
+THP_ENABLED_PATH = Path("/sys/kernel/mm/transparent_hugepage/enabled")
+THP_DEFRAG_PATH = Path("/sys/kernel/mm/transparent_hugepage/defrag")
+
+# Each cell: label, extra environment, cpu_limit, thp mode ("keep" leaves the
+# host setting untouched), and whether to capture an mmap/brk syscall trace.
+CELLS: tuple[dict[str, object], ...] = (
+    {"label": "baseline-all", "env": {}, "cpus": None, "thp": "keep"},
+    {"label": "baseline-cpus3", "env": {}, "cpus": 3, "thp": "keep"},
+    {
+        "label": "glibc-tunables-all",
+        "env": {
+            "GLIBC_TUNABLES": (
+                "glibc.malloc.mmap_threshold=131072:glibc.malloc.arena_max=2"
+            )
+        },
+        "cpus": None,
+        "thp": "keep",
+    },
+    {"label": "thp-never-all", "env": {}, "cpus": None, "thp": "never"},
+    {"label": "thp-never-cpus3", "env": {}, "cpus": 3, "thp": "never"},
+    {"label": "thp-restored-all", "env": {}, "cpus": None, "thp": "restore"},
+    {
+        "label": "strace-all",
+        "env": {},
+        "cpus": None,
+        "thp": "restore",
+        "strace": True,
+    },
 )
 
 
@@ -79,23 +105,66 @@ def build_synthetic_source(path: Path, target_bytes: int) -> None:
             record_index += 1
 
 
+def read_thp(path: Path) -> str | None:
+    try:
+        return path.read_text(encoding="utf-8").strip()
+    except OSError:
+        return None
+
+
+def selected_thp(setting: str | None) -> str | None:
+    if setting is None:
+        return None
+    for token in setting.split():
+        if token.startswith("[") and token.endswith("]"):
+            return token[1:-1]
+    return None
+
+
+def write_thp(mode: str) -> None:
+    completed = subprocess.run(
+        ["sudo", "tee", str(THP_ENABLED_PATH)],
+        input=mode.encode(),
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if completed.returncode != 0:
+        raise SystemExit(
+            "cannot set transparent_hugepage/enabled to"
+            f" {mode!r}: {completed.stderr.decode(errors='replace').strip()}"
+        )
+
+
+def glibc_version() -> str | None:
+    try:
+        completed = subprocess.run(
+            ["ldd", "--version"],
+            capture_output=True,
+            check=False,
+        )
+    except OSError:
+        return None
+    first_line = completed.stdout.decode(errors="replace").splitlines()
+    return first_line[0] if first_line else None
+
+
 def decode_cell(
     binary: Path,
     artifact: Path,
     output: Path,
-    arena: str | None,
-    mmap_threshold: str | None,
-    cpu_limit: int | None,
+    cell: dict[str, object],
+    strace_log: Path | None,
 ) -> dict[str, object]:
     if output.exists():
         output.unlink()
     environment = dict(os.environ)
-    environment.pop("MALLOC_ARENA_MAX", None)
-    environment.pop("MALLOC_MMAP_THRESHOLD_", None)
-    if arena is not None:
-        environment["MALLOC_ARENA_MAX"] = arena
-    if mmap_threshold is not None:
-        environment["MALLOC_MMAP_THRESHOLD_"] = mmap_threshold
+    for variable in ("MALLOC_ARENA_MAX", "MALLOC_MMAP_THRESHOLD_", "GLIBC_TUNABLES"):
+        environment.pop(variable, None)
+    extra_env = cell["env"]
+    assert isinstance(extra_env, dict)
+    environment.update(extra_env)
+    cpu_limit = cell["cpus"]
 
     # Linux-only interfaces, resolved dynamically so type checking stays
     # clean on the non-Linux CI hosts that never run this experiment.
@@ -104,10 +173,24 @@ def decode_cell(
 
     def limit_affinity() -> None:
         if cpu_limit is not None:
+            assert isinstance(cpu_limit, int)
             set_affinity(0, set(range(cpu_limit)))
 
+    command = [str(binary), "decompress", str(artifact), "-o", str(output)]
+    if strace_log is not None:
+        strace = shutil.which("strace")
+        if strace is None:
+            raise SystemExit("strace cell requested but strace is not installed")
+        command = [
+            strace,
+            "-f",
+            "-e",
+            "trace=mmap,munmap,mremap,brk,madvise",
+            "-o",
+            str(strace_log),
+        ] + command
     process = subprocess.Popen(
-        [str(binary), "decompress", str(artifact), "-o", str(output)],
+        command,
         env=environment,
         preexec_fn=limit_affinity if cpu_limit is not None else None,
         stdout=subprocess.DEVNULL,
@@ -116,16 +199,16 @@ def decode_cell(
     _, status, usage = wait4(process.pid, 0)
     stderr = process.stderr.read().decode(errors="replace") if process.stderr else ""
     if os.waitstatus_to_exitcode(status) != 0:
-        raise SystemExit(
-            f"decode failed (arena={arena}, mmap={mmap_threshold},"
-            f" cpus={cpu_limit}): {stderr.strip()}"
-        )
+        raise SystemExit(f"decode failed ({cell['label']}): {stderr.strip()}")
     peak_raw = usage.ru_maxrss
     peak_bytes = peak_raw * 1024
     return {
-        "malloc_arena_max": arena,
-        "malloc_mmap_threshold": mmap_threshold,
+        "label": cell["label"],
+        "env": extra_env,
         "cpu_limit": cpu_limit,
+        "thp_mode_requested": cell["thp"],
+        "thp_enabled_at_run": selected_thp(read_thp(THP_ENABLED_PATH)),
+        "straced": strace_log is not None,
         "peak_rss_raw": peak_raw,
         "peak_rss_bytes": peak_bytes,
         "peak_rss_mib": round(peak_bytes / 1048576, 1),
@@ -144,8 +227,8 @@ def main() -> int:
 
     if sys.platform != "linux":
         raise SystemExit(
-            "this experiment is Linux-only: the arena hypothesis is "
-            "glibc-specific and non-Linux results do not transfer to the gate"
+            "this experiment is Linux-only: the retention behavior is "
+            "Linux-specific and non-Linux results do not transfer to the gate"
         )
 
     work = arguments.work_dir
@@ -164,40 +247,57 @@ def main() -> int:
     artifact = work / "synthetic.jls2"
     compress_file(source, artifact)
 
+    thp_enabled_original = read_thp(THP_ENABLED_PATH)
+    thp_selected_original = selected_thp(thp_enabled_original)
+
     cells = []
-    for arena, mmap_threshold, cpu_limit in CELLS:
-        cell = decode_cell(
-            binary,
-            artifact,
-            work / "decoded.jsonl",
-            arena,
-            mmap_threshold,
-            cpu_limit,
-        )
-        if cell["decoded_sha256"] != source_sha:
-            raise SystemExit(
-                f"decode mismatch (arena={arena}, mmap={mmap_threshold},"
-                f" cpus={cpu_limit}): decoded bytes differ from the source"
+    try:
+        for cell in CELLS:
+            thp_mode = cell["thp"]
+            if thp_mode == "never":
+                write_thp("never")
+            elif thp_mode == "restore":
+                if thp_selected_original is not None:
+                    write_thp(thp_selected_original)
+            elif thp_mode != "keep":
+                raise SystemExit(f"unknown thp mode: {thp_mode!r}")
+            strace_log = work / "strace-memory.log" if cell.get("strace") else None
+            result = decode_cell(
+                binary, artifact, work / "decoded.jsonl", cell, strace_log
             )
-        cell["decode_matches_source"] = True
-        cells.append(cell)
-        print(
-            f"arena={arena or 'unset':>5} "
-            f"mmap={mmap_threshold or 'unset':>6} "
-            f"cpus={cpu_limit or 'all':>3} "
-            f"peak={cell['peak_rss_mib']:>8} MiB",
-            flush=True,
-        )
+            if result["decoded_sha256"] != source_sha:
+                raise SystemExit(
+                    f"decode mismatch ({cell['label']}):"
+                    " decoded bytes differ from the source"
+                )
+            result["decode_matches_source"] = True
+            cells.append(result)
+            print(
+                f"{str(cell['label']):>20} "
+                f"cpus={str(cell['cpus'] or 'all'):>3} "
+                f"thp={result['thp_enabled_at_run'] or 'n/a':>7} "
+                f"peak={result['peak_rss_mib']:>8} MiB",
+                flush=True,
+            )
+    finally:
+        if (
+            thp_selected_original is not None
+            and read_thp(THP_ENABLED_PATH) != thp_enabled_original
+        ):
+            write_thp(thp_selected_original)
 
     report = {
-        "schema": "jls2-rss-arena-experiment-v2",
+        "schema": "jls2-rss-arena-experiment-v3",
         "purpose": (
-            "Diagnostic allocator/affinity RSS matrix for the JLS2 native "
+            "Diagnostic allocator/THP/affinity RSS matrix for the JLS2 native "
             "decoder on synthetic data. Not a gate measurement, not corpus "
             "evidence, and not a compression-quality claim."
         ),
         "platform": sys.platform,
         "cpu_count": os.cpu_count(),
+        "glibc_version": glibc_version(),
+        "thp_enabled_host": thp_enabled_original,
+        "thp_defrag_host": read_thp(THP_DEFRAG_PATH),
         "source_bytes": arguments.source_bytes,
         "source_sha256": source_sha,
         "artifact_bytes": artifact.stat().st_size,
