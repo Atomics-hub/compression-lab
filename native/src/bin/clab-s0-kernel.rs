@@ -13,8 +13,8 @@
 pub mod s0;
 
 use s0::{
-    decode_arm_item, encode_arm_item, Arm, Ledger, LossTable, SegmentSnapshot, Tape, ARMS,
-    SEGMENT_BYTES,
+    decode_arm_item_with_bits, encode_arm_item_with_bits, Arm, Ledger, LossTable, SegmentSnapshot,
+    Tape, ARMS, SEGMENT_BYTES, SSE_BASE_BUCKET_BITS, SSE_REFINED_BUCKET_BITS,
 };
 use sha2::{Digest, Sha256};
 use std::env;
@@ -30,11 +30,13 @@ Usage:
   clab-s0-kernel arms
   clab-s0-kernel encode --arm NAME --item-index N --input PATH
                         --tape-out PATH --receipt-out PATH
-                        [--segment-bytes N] [--no-segments] [--force]
+                        [--segment-bytes N] [--no-segments]
+                        [--sse-bucket-bits 17|18] [--force]
   clab-s0-kernel decode --arm NAME --item-index N --tape PATH
                         --records N --modeled-binary-events N
                         --modeled-loss-q24 N --raw-literal-bytes N
-                        --output PATH --receipt-out PATH [--force]
+                        --output PATH --receipt-out PATH
+                        [--sse-bucket-bits 17|18] [--force]
   clab-s0-kernel --help
   clab-s0-kernel --version
 ";
@@ -169,6 +171,24 @@ fn parse_number<T: std::str::FromStr>(name: &str, value: &str) -> Result<T, Comm
         .map_err(|_| usage(format!("invalid --{name}: {value}")))
 }
 
+/// Selects the capacity profile's SSE table size. Only the base (17) and the
+/// single predeclared refined (18) bucket-bit counts are accepted; the default
+/// is the base profile so an omitted flag reproduces the frozen base run.
+fn parse_sse_bucket_bits(options: &Options) -> Result<u32, CommandError> {
+    match options.take_optional("sse-bucket-bits") {
+        None => Ok(SSE_BASE_BUCKET_BITS),
+        Some(value) => {
+            let bits: u32 = parse_number("sse-bucket-bits", value)?;
+            if bits != SSE_BASE_BUCKET_BITS && bits != SSE_REFINED_BUCKET_BITS {
+                return Err(usage(format!(
+                    "--sse-bucket-bits must be {SSE_BASE_BUCKET_BITS} or {SSE_REFINED_BUCKET_BITS}: {bits}"
+                )));
+            }
+            Ok(bits)
+        }
+    }
+}
+
 fn read_bytes(path: &str) -> Result<Vec<u8>, CommandError> {
     fs::read(path).map_err(|error| failure(format!("cannot read {path}: {error}")))
 }
@@ -281,6 +301,7 @@ fn encode_command(arguments: &[&str]) -> Result<(), CommandError> {
             "tape-out",
             "receipt-out",
             "segment-bytes",
+            "sse-bucket-bits",
         ],
     )?;
     let arm = parse_arm(options.take("arm")?)?;
@@ -288,6 +309,7 @@ fn encode_command(arguments: &[&str]) -> Result<(), CommandError> {
     let input = options.take("input")?;
     let tape_out = options.take("tape-out")?;
     let receipt_out = options.take("receipt-out")?;
+    let sse_bucket_bits = parse_sse_bucket_bits(&options)?;
     let segment_bytes = match (options.no_segments, options.take_optional("segment-bytes")) {
         (true, Some(_)) => {
             return Err(usage("--segment-bytes conflicts with --no-segments"));
@@ -305,9 +327,15 @@ fn encode_command(arguments: &[&str]) -> Result<(), CommandError> {
 
     let source = read_bytes(input)?;
     let table = LossTable::generate();
-    let (tape, ledger, snapshots) =
-        encode_arm_item(arm, &source, &table, item_index, segment_bytes)
-            .map_err(|error| failure(format!("encode failed: {error}")))?;
+    let (tape, ledger, snapshots) = encode_arm_item_with_bits(
+        arm,
+        &source,
+        &table,
+        item_index,
+        segment_bytes,
+        sse_bucket_bits,
+    )
+    .map_err(|error| failure(format!("encode failed: {error}")))?;
     let tape_bytes = tape.to_bytes();
     write_output(tape_out, &tape_bytes, options.force)?;
     let mut written_tape = WrittenOutput::pending(tape_out);
@@ -318,15 +346,16 @@ fn encode_command(arguments: &[&str]) -> Result<(), CommandError> {
     let written = read_bytes(tape_out)?;
     let reread = Tape::from_bytes(&written)
         .map_err(|error| failure(format!("written tape failed to parse: {error}")))?;
-    let decoded = decode_arm_item(arm, &reread, ledger, &table, item_index)
-        .map_err(|error| failure(format!("confirmation decode failed: {error}")))?;
+    let decoded =
+        decode_arm_item_with_bits(arm, &reread, ledger, &table, item_index, sse_bucket_bits)
+            .map_err(|error| failure(format!("confirmation decode failed: {error}")))?;
     if decoded != source {
         return Err(failure("confirmation decode did not reproduce the source"));
     }
 
     let source_bytes = source.len() as u64;
     let receipt = format!(
-        "{{\n  \"schema\": \"clab-s0-kernel-encode-receipt-v1\",\n  \"kernel_version\": \"{VERSION}\",\n  \"arm\": \"{}\",\n  \"arm_id\": {},\n  \"item_index\": {},\n  \"source_bytes\": {},\n  \"source_sha256\": \"{}\",\n  \"tape_bytes\": {},\n  \"tape_sha256\": \"{}\",\n  \"segment_interval_bytes\": {},\n  \"ledger\": {},\n  \"event_limit_applies\": {},\n  \"event_limit_passes\": {},\n  \"item_projection\": {},\n  \"decoded_sha256\": \"{}\",\n  \"decode_matches_source\": true,\n  \"segments\": {}\n}}\n",
+        "{{\n  \"schema\": \"clab-s0-kernel-encode-receipt-v1\",\n  \"kernel_version\": \"{VERSION}\",\n  \"arm\": \"{}\",\n  \"arm_id\": {},\n  \"item_index\": {},\n  \"source_bytes\": {},\n  \"source_sha256\": \"{}\",\n  \"tape_bytes\": {},\n  \"tape_sha256\": \"{}\",\n  \"segment_interval_bytes\": {},\n  \"sse_bucket_bits\": {},\n  \"ledger\": {},\n  \"event_limit_applies\": {},\n  \"event_limit_passes\": {},\n  \"item_projection\": {},\n  \"decoded_sha256\": \"{}\",\n  \"decode_matches_source\": true,\n  \"segments\": {}\n}}\n",
         arm.name(),
         arm.id(),
         item_index,
@@ -335,6 +364,7 @@ fn encode_command(arguments: &[&str]) -> Result<(), CommandError> {
         tape_bytes.len(),
         sha256_hex(&tape_bytes),
         segment_bytes.map_or("null".to_owned(), |value| value.to_string()),
+        sse_bucket_bits,
         ledger_json(ledger),
         arm.event_limit_applies(),
         ledger.event_limit_passes(),
@@ -360,6 +390,7 @@ fn decode_command(arguments: &[&str]) -> Result<(), CommandError> {
             "raw-literal-bytes",
             "output",
             "receipt-out",
+            "sse-bucket-bits",
         ],
     )?;
     if options.no_segments {
@@ -370,6 +401,7 @@ fn decode_command(arguments: &[&str]) -> Result<(), CommandError> {
     let tape_path = options.take("tape")?;
     let output = options.take("output")?;
     let receipt_out = options.take("receipt-out")?;
+    let sse_bucket_bits = parse_sse_bucket_bits(&options)?;
     let expected_ledger = Ledger {
         records: parse_number("records", options.take("records")?)?,
         modeled_binary_events: parse_number(
@@ -384,18 +416,26 @@ fn decode_command(arguments: &[&str]) -> Result<(), CommandError> {
     let tape = Tape::from_bytes(&tape_bytes)
         .map_err(|error| failure(format!("tape failed to parse: {error}")))?;
     let table = LossTable::generate();
-    let decoded = decode_arm_item(arm, &tape, expected_ledger, &table, item_index)
-        .map_err(|error| failure(format!("decode failed: {error}")))?;
+    let decoded = decode_arm_item_with_bits(
+        arm,
+        &tape,
+        expected_ledger,
+        &table,
+        item_index,
+        sse_bucket_bits,
+    )
+    .map_err(|error| failure(format!("decode failed: {error}")))?;
     write_output(output, &decoded, options.force)?;
     let mut written_output = WrittenOutput::pending(output);
 
     let receipt = format!(
-        "{{\n  \"schema\": \"clab-s0-kernel-decode-receipt-v1\",\n  \"kernel_version\": \"{VERSION}\",\n  \"arm\": \"{}\",\n  \"arm_id\": {},\n  \"item_index\": {},\n  \"tape_bytes\": {},\n  \"tape_sha256\": \"{}\",\n  \"ledger\": {},\n  \"decoded_bytes\": {},\n  \"decoded_sha256\": \"{}\"\n}}\n",
+        "{{\n  \"schema\": \"clab-s0-kernel-decode-receipt-v1\",\n  \"kernel_version\": \"{VERSION}\",\n  \"arm\": \"{}\",\n  \"arm_id\": {},\n  \"item_index\": {},\n  \"tape_bytes\": {},\n  \"tape_sha256\": \"{}\",\n  \"sse_bucket_bits\": {},\n  \"ledger\": {},\n  \"decoded_bytes\": {},\n  \"decoded_sha256\": \"{}\"\n}}\n",
         arm.name(),
         arm.id(),
         item_index,
         tape_bytes.len(),
         sha256_hex(&tape_bytes),
+        sse_bucket_bits,
         ledger_json(expected_ledger),
         decoded.len(),
         sha256_hex(&decoded),
@@ -719,6 +759,182 @@ mod tests {
                 arm.name()
             );
         }
+    }
+
+    // A corpus large enough to force an SSE 17-bit bucket collision that the
+    // 18th bit resolves, so the refined profile actually moves the mixer loss.
+    fn diverging_corpus() -> Vec<u8> {
+        let mut source = Vec::new();
+        for index in 0..1_500_u32 {
+            let mix = index.wrapping_mul(2_654_435_761);
+            source.extend_from_slice(
+                format!(
+                    "{{\"id\":{},\"ts\":\"2026-07-22T{:02}:{:02}:{:02}Z\",\"session\":\"s{}\",\"path\":\"/api/v/{}/resource/{}\",\"tag\":\"{:08x}\",\"status\":{}}}\n",
+                    100_000 + index,
+                    index % 24,
+                    index % 60,
+                    (index * 7) % 60,
+                    index % 997,
+                    index % 733,
+                    index % 521,
+                    mix,
+                    200 + (index % 5)
+                )
+                .as_bytes(),
+            );
+        }
+        source.extend_from_slice(b"{ bad }\n");
+        source
+    }
+
+    fn encode_with_bits(scratch: &Scratch, arm: &str, bits: Option<&str>) -> String {
+        let tape = scratch.path(&format!("{arm}-{bits:?}.tape"));
+        let receipt_path = scratch.path(&format!("{arm}-{bits:?}.receipt.json"));
+        let mut command = vec![
+            "--arm",
+            arm,
+            "--item-index",
+            "0",
+            "--input",
+            "PLACEHOLDER",
+            "--tape-out",
+            "PLACEHOLDER",
+            "--receipt-out",
+            "PLACEHOLDER",
+            "--segment-bytes",
+            "256",
+        ];
+        let input = scratch.path("item.ndjson");
+        command[5] = &input;
+        command[7] = &tape;
+        command[9] = &receipt_path;
+        let bits_owned;
+        if let Some(value) = bits {
+            bits_owned = value.to_owned();
+            command.push("--sse-bucket-bits");
+            command.push(&bits_owned);
+        }
+        unwrap_message(encode_command(&command));
+        fs::read_to_string(&receipt_path).unwrap()
+    }
+
+    #[test]
+    fn default_sse_bucket_bits_are_seventeen_and_recorded() {
+        let scratch = Scratch::new();
+        fs::write(scratch.path("item.ndjson"), corpus()).unwrap();
+        let receipt = encode_with_bits(&scratch, "full", None);
+        assert_eq!(receipt_field(&receipt, "sse_bucket_bits"), "17");
+        // The default omits the flag; an explicit 17 must be byte-identical.
+        let explicit = encode_with_bits(&scratch, "full", Some("17"));
+        assert_eq!(receipt, explicit);
+    }
+
+    #[test]
+    fn refined_bits_hold_the_tape_and_move_only_mixer_loss() {
+        let scratch = Scratch::new();
+        fs::write(scratch.path("item.ndjson"), diverging_corpus()).unwrap();
+        // A mixer arm: refined bits keep the tape SHA but change the loss.
+        let base = encode_with_bits(&scratch, "full", Some("17"));
+        let refined = encode_with_bits(&scratch, "full", Some("18"));
+        assert_eq!(receipt_field(&refined, "sse_bucket_bits"), "18");
+        assert_eq!(
+            receipt_field(&base, "tape_sha256"),
+            receipt_field(&refined, "tape_sha256")
+        );
+        assert_ne!(
+            receipt_field(&base, "modeled_loss_q24"),
+            receipt_field(&refined, "modeled_loss_q24")
+        );
+        // A non-mixer arm ignores the flag entirely: identical receipt except
+        // the recorded sse_bucket_bits field.
+        let raw_base = encode_with_bits(&scratch, "m1-m2", Some("17"));
+        let raw_refined = encode_with_bits(&scratch, "m1-m2", Some("18"));
+        assert_eq!(
+            receipt_field(&raw_base, "modeled_loss_q24"),
+            receipt_field(&raw_refined, "modeled_loss_q24")
+        );
+        assert_eq!(
+            raw_base.replace("\"sse_bucket_bits\": 17", "\"sse_bucket_bits\": 18"),
+            raw_refined
+        );
+    }
+
+    #[test]
+    fn decode_under_the_wrong_bits_fails_the_ledger_on_a_mixer_arm() {
+        let scratch = Scratch::new();
+        fs::write(scratch.path("item.ndjson"), diverging_corpus()).unwrap();
+        unwrap_message(encode_command(&[
+            "--arm",
+            "full",
+            "--item-index",
+            "0",
+            "--input",
+            &scratch.path("item.ndjson"),
+            "--tape-out",
+            &scratch.path("item.tape"),
+            "--receipt-out",
+            &scratch.path("receipt.json"),
+            "--sse-bucket-bits",
+            "18",
+        ]));
+        let receipt = fs::read_to_string(scratch.path("receipt.json")).unwrap();
+        let decode_args = |bits: &str, out: &str, rcpt: &str| {
+            decode_command(&[
+                "--arm",
+                "full",
+                "--item-index",
+                "0",
+                "--tape",
+                &scratch.path("item.tape"),
+                "--records",
+                receipt_field(&receipt, "records"),
+                "--modeled-binary-events",
+                receipt_field(&receipt, "modeled_binary_events"),
+                "--modeled-loss-q24",
+                receipt_field(&receipt, "modeled_loss_q24"),
+                "--raw-literal-bytes",
+                receipt_field(&receipt, "raw_literal_bytes"),
+                "--output",
+                &scratch.path(out),
+                "--receipt-out",
+                &scratch.path(rcpt),
+                "--sse-bucket-bits",
+                bits,
+            ])
+        };
+        // Matching bits reproduce the source; the base bits reproduce a
+        // different loss and fail the ledger equality.
+        unwrap_message(decode_args("18", "ok.out", "ok.receipt.json"));
+        assert!(matches!(
+            decode_args("17", "bad.out", "bad.receipt.json"),
+            Err(CommandError::Failure(_))
+        ));
+        assert!(!Path::new(&scratch.path("bad.out")).exists());
+    }
+
+    #[test]
+    fn an_out_of_range_bucket_bit_count_is_a_usage_error() {
+        let scratch = Scratch::new();
+        let bad = |bits: &str| {
+            encode_command(&[
+                "--arm",
+                "full",
+                "--item-index",
+                "0",
+                "--input",
+                &scratch.path("item.ndjson"),
+                "--tape-out",
+                &scratch.path("item.tape"),
+                "--receipt-out",
+                &scratch.path("receipt.json"),
+                "--sse-bucket-bits",
+                bits,
+            ])
+        };
+        // Rejected before the input is ever read.
+        assert!(matches!(bad("16"), Err(CommandError::Usage(_))));
+        assert!(matches!(bad("19"), Err(CommandError::Usage(_))));
+        assert!(!Path::new(&scratch.path("item.tape")).exists());
     }
 
     #[test]
