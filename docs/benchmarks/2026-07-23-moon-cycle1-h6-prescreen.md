@@ -65,3 +65,43 @@ the repetition this arm provably could not reach.
 
 H8 (frozen offline mixer weights) and H9 (bounded grammar compression),
 then the cycle kill/nominate report over all funded arms.
+
+## Deviation record: the two H6 sweeps (runs 8–14 and 15–21)
+
+H6 was measured twice. Runs **8–14** were the *first* H6 sweep; runs
+**15–21** (the seven receipts published above as
+`runs/moon-prescreen-cycle1-h6-v1/`) are the corrected re-run. Both sets are
+retained. The superseded first sweep is published additively — receipts, RSS
+reports, sweep-summary, and a `SHA256SUMS` — under
+`runs/moon-prescreen-cycle1-h6-v1/superseded-runs-8-14/`; no tapes are kept.
+
+**Why superseded.** The first sweep **under-declared the arm's mutable model
+state**. It reported `declared_model_state_bytes = 129,517,566`; the corrected
+figure is `148,654,078` (the ~141.8 MiB quoted under *Arm*). The correction
+adds the reuse layer's **dedicated mixer** — which H6 runs fully disjoint from
+the H1 floor mixer, so it is separately-held mutable state that must be charged.
+The 19,136,512-byte delta is exactly one M5 mixer's declared state:
+`MIXER_BUCKETS · MIXER_ENTRY_BYTES + (1 << SSE_BASE_BUCKET_BITS) · SSE_NODES · 2`
+= `2^20 · 10 + 2^17 · 33 · 2` = `10,485,760 + 8,650,752` =
+`19,136,512` bytes. (`native/src/moon/h6.rs` `h6_declared_state_bytes` sums the
+floor plus `reuse_mixer_bytes + reuse_sse_bytes`; the corrected total is
+regression-pinned at `148,654,078` in
+`declared_state_accounts_for_floor_cache_reference_and_decisions`.) The single
+committed touch of `h6.rs` (PR #82, `0baf774`) already carries the corrected
+formula, so the fix was made in-flight between the two sweeps and is not a
+separate commit; the mechanism above is reconstructed arithmetically from the
+h6 constants and matches the observed delta exactly.
+
+**Why the measurements are unaffected.** `declared_model_state_bytes` is a
+declared accounting quantity; it does not enter the coder. Every compression
+measurement is **byte-identical** across the two sweeps: same tape bytes and
+tape SHA-256, same `projected_complete_bytes`, same ratios per snapshot. Only
+the declared state and the trivially process-dependent `peak_rss`/`wall_seconds`
+differ (separate processes). The results table and the reading above are
+therefore unchanged by the correction.
+
+**Budget.** Both sweeps consumed real budget: 7 runs each, 14 H6 runs total.
+That honest count is why the cycle report attributes **14 of the 36** cycle-1
+runs to H6 even though only seven H6 receipts are the published record. The
+absent run indices 8–14 in the public sequence (1–7 H1, 15–21 H6, 22–29 H9,
+30–36 H8) are exactly this superseded first sweep, now published here.

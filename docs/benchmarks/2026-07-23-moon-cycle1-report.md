@@ -56,10 +56,13 @@ unreached by any bounded-memory arm this cycle.
 - **Disposition:** **KILLED.** Per the audit P2-A caveat, the ~12–14% loss is
   bounded, jointly attributed to freezing the weights *and* removing M5's
   secondary recalibration — not a pure weight-freezing measurement. But the
-  train→eval gap is only ~0.9 points, which is attribution-clean: the loss is
-  nearly identical seen vs unseen, so month-to-month transfer is not the
-  dominant cost — live per-stream adaptivity is. **Consequence: the H2
-  distillation family stays UNFUNDED for cycle 2.**
+  train→eval gap is only ~0.9 points, which is attribution-clean: this
+  frozen-mixer design lost by a similar margin on both tested months, so
+  month-to-month transfer is not what drives its loss — enough to leave H2
+  unfunded. Live per-stream adaptivity is the leading explanation for the
+  residual loss, though on two months against one frozen design it is not a
+  universal result. **Consequence: the H2 distillation family stays UNFUNDED
+  for cycle 2.**
 
 ### H6 — whole-line reuse hybrid (floor + m3-style value reuse)
 
@@ -98,6 +101,11 @@ unreached by any bounded-memory arm this cycle.
 | H9 | 8 | 29 |
 | H8 | 7 | 36 |
 
+H6's 14 runs are two 7-run sweeps: the corrected published sweep (runs 15–21)
+plus a superseded first sweep (runs 8–14) that under-declared model state and is
+retained at `runs/moon-prescreen-cycle1-h6-v1/superseded-runs-8-14/` — see the
+deviation record in the H6 prescreen doc.
+
 **36 of 160** cycle runs consumed. 124 runs remain unspent; they are not
 carried as credit — a cycle-2 slate would preregister its own budget.
 
@@ -106,10 +114,12 @@ carried as credit — a cycle-2 slate would preregister its own budget.
 Stated conservatively; each is grounded in a published sweep above, not in a
 counted screen.
 
-1. **Per-stream adaptivity is where the value lives.** H8 shows static offline
-   mixing loses ~12–14% and that the loss is nearly the same on seen and unseen
-   months — so the cost is live adaptivity, not cross-month transfer. Freezing
-   the mixer to distill it away is not promising on this data.
+1. **Per-stream adaptivity is the leading explanation for the mixing value.**
+   H8 shows this frozen-mixer design (which also removed M5's secondary
+   recalibration) loses ~12–14% and by a similar margin on both tested months —
+   so the cost is not cross-month transfer, and live adaptivity is the leading
+   explanation rather than an established universal result. Freezing the mixer
+   to distill it away is not promising on this data.
 2. **Whole-line reuse is dead; static mixtures are dead.** H6 shows exact
    whole-line caching buys nothing on realistic logs (loses to the floor on
    both public snapshots); H8 shows a static weight mixture cannot recover the
