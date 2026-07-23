@@ -134,6 +134,21 @@ Windows now runs all native tests except those two named skips.
   adaptation, C1 match model, C2 pooled value reuse, C5 BWT; C4 is
   precheck-gated and C6 requires C1+C2 survival. C3 implementation is the
   immediate task. No development, validation, or holdout access is authorized.
+- **C3 (live adaptation) — KILLED at prescreen 2026-07-23.** Preregistered
+  two-snapshot AND kill line (integer `C3·100 >= H1·97` on both public
+  snapshots; manifest `config/moon-c3-public-prescreen-v1.json` merged in PR #95
+  before execution). C3/H1 = 1.0654 and 1.0648 — ~6.5% larger than the H1 floor
+  on both snapshots, so `c3_ratio_gate_kills` → True. All operational gates
+  clean: exact redecode, ~295.7 MiB peak RSS, 211.9/245.7 s walls, and the
+  synthetic precheck passed (PR #94); the kill is a ratio kill on real data.
+  C3 changed only counter dynamics (fast-cold/slow-warm EWMA) plus a neutral
+  APM chain over H1's identical contexts/grammar. Leading explanation (one
+  frozen design, two snapshots): faster live adaptation over the same context
+  set miscalibrates rather than helps — the live-adaptivity signal is not about
+  update speed; richer context/expert structure (C1/C2/C6) remains the live
+  test. Evidence `runs/moon-cycle2-c3-prescreen-v1/`, chart
+  `docs/benchmarks/2026-07-23-moon-cycle2-c3-prescreen.md`; 38 of 160 cycle runs
+  used.
 - **H9 (bounded grammar) — KILLED at prescreen 2026-07-23.** Naive offline
   Re-Pair (worst case O(rule_budget x n)) does not terminate inside the
   600 s per-run budget at prescreen scale on realistic NDJSON: 8 of 8 runs
