@@ -1,0 +1,14 @@
+{
+  "schema": "clab-moon-h8-train-receipt-v1",
+  "trainer_version": "0.1.0",
+  "evidence_stage": "development_only_prescreen",
+  "procedure_version": 1,
+  "train_month": "A",
+  "source_bytes": 25165377,
+  "source_sha256": "a6873fdebc69a79c1cad8e7b4b52c8d207c5e7f5fa5ed1df3ec4117d920802b4",
+  "weight_count": 129,
+  "weight_file_bytes": 536,
+  "weight_file_sha256": "ad0d73cdfcac3e376731852eaf99b1c146a933e9f8efbdd49743bf7b538c908e",
+  "determinism": "single deterministic integer pass; identical source bytes yield a byte-identical weight file",
+  "reads": "month-A slice only; no month-B, no corpora, no network"
+}

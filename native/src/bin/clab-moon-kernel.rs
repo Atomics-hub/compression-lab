@@ -23,6 +23,9 @@ use moon::h1::{
 use moon::h6::{
     decode_h6_item_with_bits, encode_h6_item_with_bits, h6_declared_state_bytes, H6_ARM_ID,
 };
+use moon::h8::{
+    decode_h8_item_with_bits, encode_h8_item_with_bits, h8_declared_state_bytes, H8_ARM_ID,
+};
 use s0::{Ledger, LossTable, Tape, SSE_BASE_BUCKET_BITS, SSE_REFINED_BUCKET_BITS};
 use sha2::{Digest, Sha256};
 use std::env;
@@ -42,6 +45,11 @@ const H1_KILL_CRITERION: &str = "Kill if projected complete bytes exceed 1.10x l
 // the intentional recorded simplification, not a drift.
 const H6_KILL_CRITERION: &str =
     "Kill if the hybrid does not beat max(H1-alone, M3-alone) by >= 3% on the public set.";
+// Draft cycle-1 §2-H8 ("Kill if the frozen mixer loses to the adaptive mixer
+// by > 2% on the unseen month"), phrased mechanically like the other arms:
+// frozen-mixer bytes above 1.02x adaptive-H1 bytes on month B. Byte-identical
+// to the runner's KILL_LINES entry.
+const H8_KILL_CRITERION: &str = "Kill if frozen-mixer complete bytes exceed 1.02x adaptive H1 complete bytes on the unseen month.";
 
 /// The moon prescreen arms. Each wraps a moon arm's encode/decode, declared
 /// state, and preregistered kill line so the kernel dispatches uniformly.
@@ -49,15 +57,17 @@ const H6_KILL_CRITERION: &str =
 enum MoonArm {
     H1Floor,
     H6Hybrid,
+    H8StaticMixer,
 }
 
-const ARMS: [MoonArm; 2] = [MoonArm::H1Floor, MoonArm::H6Hybrid];
+const ARMS: [MoonArm; 3] = [MoonArm::H1Floor, MoonArm::H6Hybrid, MoonArm::H8StaticMixer];
 
 impl MoonArm {
     fn from_name(name: &str) -> Option<Self> {
         match name {
             "h1-floor" => Some(Self::H1Floor),
             "h6-hybrid" => Some(Self::H6Hybrid),
+            "h8-static-mixer" => Some(Self::H8StaticMixer),
             _ => None,
         }
     }
@@ -66,6 +76,7 @@ impl MoonArm {
         match self {
             Self::H1Floor => "h1-floor",
             Self::H6Hybrid => "h6-hybrid",
+            Self::H8StaticMixer => "h8-static-mixer",
         }
     }
 
@@ -73,6 +84,7 @@ impl MoonArm {
         match self {
             Self::H1Floor => H1_ARM_ID,
             Self::H6Hybrid => H6_ARM_ID,
+            Self::H8StaticMixer => H8_ARM_ID,
         }
     }
 
@@ -80,6 +92,7 @@ impl MoonArm {
         match self {
             Self::H1Floor => H1_KILL_CRITERION,
             Self::H6Hybrid => H6_KILL_CRITERION,
+            Self::H8StaticMixer => H8_KILL_CRITERION,
         }
     }
 
@@ -87,6 +100,7 @@ impl MoonArm {
         match self {
             Self::H1Floor => h1_declared_state_bytes(table, sse_bucket_bits),
             Self::H6Hybrid => h6_declared_state_bytes(table, sse_bucket_bits),
+            Self::H8StaticMixer => h8_declared_state_bytes(table, sse_bucket_bits),
         }
     }
 
@@ -102,6 +116,10 @@ impl MoonArm {
                 .map_err(|error| error.to_string()),
             Self::H6Hybrid => encode_h6_item_with_bits(source, table, item_index, sse_bucket_bits)
                 .map_err(|error| error.to_string()),
+            Self::H8StaticMixer => {
+                encode_h8_item_with_bits(source, table, item_index, sse_bucket_bits)
+                    .map_err(|error| error.to_string())
+            }
         }
     }
 
@@ -122,6 +140,10 @@ impl MoonArm {
                 decode_h6_item_with_bits(tape, expected_ledger, table, item_index, sse_bucket_bits)
                     .map_err(|error| error.to_string())
             }
+            Self::H8StaticMixer => {
+                decode_h8_item_with_bits(tape, expected_ledger, table, item_index, sse_bucket_bits)
+                    .map_err(|error| error.to_string())
+            }
         }
     }
 }
@@ -130,10 +152,10 @@ const HELP: &str = "clab-moon-kernel — moonshot cycle-1 prescreen accounting k
 
 Usage:
   clab-moon-kernel arms
-  clab-moon-kernel encode --arm h1-floor|h6-hybrid --item-index N --input PATH
+  clab-moon-kernel encode --arm h1-floor|h6-hybrid|h8-static-mixer --item-index N --input PATH
                           --tape-out PATH --receipt-out PATH
                           [--sse-bucket-bits 17|18] [--force]
-  clab-moon-kernel decode --arm h1-floor|h6-hybrid --item-index N --tape PATH
+  clab-moon-kernel decode --arm h1-floor|h6-hybrid|h8-static-mixer --item-index N --tape PATH
                           --records N --modeled-binary-events N
                           --modeled-loss-q24 N --raw-literal-bytes N
                           --output PATH --receipt-out PATH
@@ -826,10 +848,67 @@ mod tests {
     }
 
     #[test]
-    fn arms_lists_both_moon_arms() {
+    fn the_h8_arm_encodes_decodes_and_reports_its_own_state_and_kill_line() {
+        let scratch = Scratch::new();
+        let source = corpus();
+        fs::write(scratch.path("item.ndjson"), &source).unwrap();
+        let receipt_path = scratch.path("h8.receipt.json");
+        unwrap_message(encode_command(&[
+            "--arm",
+            "h8-static-mixer",
+            "--item-index",
+            "5",
+            "--input",
+            &scratch.path("item.ndjson"),
+            "--tape-out",
+            &scratch.path("h8.tape"),
+            "--receipt-out",
+            &receipt_path,
+        ]));
+        let receipt = fs::read_to_string(&receipt_path).unwrap();
+        assert_eq!(receipt_field(&receipt, "arm"), "h8-static-mixer");
+        assert_eq!(receipt_field(&receipt, "arm_id"), "103");
+        assert_eq!(receipt_field(&receipt, "decode_matches_source"), "true");
+        assert_eq!(
+            receipt_field(&receipt, "declared_model_state_bytes"),
+            "109314564"
+        );
+        assert!(receipt.contains("exceed 1.02x adaptive H1 complete bytes on the unseen month"));
+
+        let output = scratch.path("h8.decoded");
+        unwrap_message(decode_command(&[
+            "--arm",
+            "h8-static-mixer",
+            "--item-index",
+            "5",
+            "--tape",
+            &scratch.path("h8.tape"),
+            "--records",
+            receipt_field(&receipt, "records"),
+            "--modeled-binary-events",
+            receipt_field(&receipt, "modeled_binary_events"),
+            "--modeled-loss-q24",
+            receipt_field(&receipt, "modeled_loss_q24"),
+            "--raw-literal-bytes",
+            receipt_field(&receipt, "raw_literal_bytes"),
+            "--output",
+            &output,
+            "--receipt-out",
+            &scratch.path("h8.decode-receipt.json"),
+        ]));
+        assert_eq!(fs::read(&output).unwrap(), source);
+    }
+
+    #[test]
+    fn arms_lists_all_moon_arms() {
         assert_eq!(MoonArm::from_name("h1-floor").map(MoonArm::id), Some(100));
         assert_eq!(MoonArm::from_name("h6-hybrid").map(MoonArm::id), Some(101));
+        assert_eq!(
+            MoonArm::from_name("h8-static-mixer").map(MoonArm::id),
+            Some(103)
+        );
         assert!(MoonArm::from_name("nope").is_none());
+        assert_eq!(ARMS.len(), 3);
     }
 
     #[test]
