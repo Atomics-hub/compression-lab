@@ -105,6 +105,33 @@ class JLS2NativeDecoderTests(unittest.TestCase):
                 self.assertEqual(restored, source)
                 self.assertEqual(partials, [])
 
+    def test_multi_segment_columnar_round_trips_identically_and_deterministically(
+        self,
+    ) -> None:
+        source = b"".join(
+            (
+                f'{{"id":{index},"service":"api-{index % 6}",'
+                f'"status":{200 + index % 5},"region":"r{index % 12}",'
+                f'"latency":{index * 31 % 9973},"message":"request served"}}\n'
+            ).encode()
+            for index in range(60_000)
+        )
+        encoded, _ = compress(source, segment_size=256 * 1024)
+        segment_count = STREAM_HEADER.unpack_from(encoded)[-1]
+        self.assertGreater(segment_count, 1)
+
+        completed, restored, partials = self.run_decoder(encoded)
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        self.assertEqual(restored, source)
+        self.assertEqual(partials, [])
+
+        repeat, restored_again, _ = self.run_decoder(encoded, force=True)
+        self.assertEqual(repeat.returncode, 0, repeat.stderr)
+        self.assertEqual(
+            hashlib.sha256(restored_again or b"").hexdigest(),
+            hashlib.sha256(restored or b"").hexdigest(),
+        )
+
     def test_refuses_overwrite_then_replaces_only_with_force(self) -> None:
         source = b'{"ok":true}\n' * 1000
         encoded, _ = compress(source, segment_size=4096)

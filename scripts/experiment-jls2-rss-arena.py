@@ -27,8 +27,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
-ARENA_VALUES: tuple[str | None, ...] = (None, "8", "2", "1")
-CPU_LIMITS: tuple[int | None, ...] = (None, 2)
+ARENA_VALUES: tuple[str | None, ...] = (None, "2")
+CPU_LIMITS: tuple[int | None, ...] = (None, 3, 2, 1)
 
 
 def sha256_file(path: Path) -> str:
