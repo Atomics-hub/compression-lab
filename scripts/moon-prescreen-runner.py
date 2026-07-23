@@ -47,6 +47,15 @@ EVIDENCE_STAGE = "development_only_prescreen"
 RUN_BUDGET_CAP = 160
 PEAK_RSS_LIMIT_BYTES = 512 * 1024 * 1024
 WALL_LIMIT_SECONDS = 600.0
+C3_KILL_NUMERATOR = 97
+C3_KILL_DENOMINATOR = 100
+ARM_IDS = {
+    "h1-floor": 100,
+    "h6-hybrid": 101,
+    "h9-grammar": 102,
+    "h8-static-mixer": 103,
+    "c3-live-adaptation": 104,
+}
 # Grace beyond the wall limit before the wrapper subprocess is force-killed.
 WALL_TIMEOUT_GRACE_SECONDS = 30.0
 
@@ -55,6 +64,11 @@ WALL_TIMEOUT_GRACE_SECONDS = 30.0
 # data strings, not decisions: the runner computes ratios but never claims a
 # kill or a nomination.
 KILL_LINES = {
+    "c3-live-adaptation": (
+        "Kill if C3 complete bytes are at least 0.97x H1 complete bytes on both "
+        "public snapshots, OR any exactness, identity, ledger, unaccounted-state, "
+        "600-second wall, or 512 MiB decode-RSS gate fails."
+    ),
     "h1-floor": (
         "Kill if projected complete bytes exceed 1.10x local zpaq -m5 -B16 on at "
         "least two public snapshots at <=256 MiB declared state, OR peak decode "
@@ -378,6 +392,98 @@ def _ratio(numerator: Optional[int], denominator: Any) -> Optional[float]:
     return numerator / denominator
 
 
+def c3_snapshot_crosses_ratio_kill(c3_bytes: int, h1_bytes: int) -> bool:
+    """Exact C3 `>= 0.97 * H1` comparison; equality crosses the line."""
+    if c3_bytes < 0 or h1_bytes <= 0:
+        raise ValueError("C3/H1 complete bytes must be positive")
+    return (
+        c3_bytes * C3_KILL_DENOMINATOR
+        >= h1_bytes * C3_KILL_NUMERATOR
+    )
+
+
+def c3_ratio_gate_kills(snapshots: dict[str, tuple[int, int]]) -> bool:
+    """Apply the binding two-snapshot AND rule to `(C3, H1)` byte pairs."""
+    if len(snapshots) != 2:
+        raise ValueError("C3 ratio gate requires exactly two distinct snapshots")
+    return all(
+        c3_snapshot_crosses_ratio_kill(c3_bytes, h1_bytes)
+        for c3_bytes, h1_bytes in snapshots.values()
+    )
+
+
+def validate_kernel_receipt(
+    receipt: dict,
+    arm: str,
+    item_index: int,
+    reference_entry: dict,
+) -> Optional[str]:
+    """Return a stable invalidity reason, or None for a bound exact receipt."""
+    expected = {
+        "schema": "clab-moon-kernel-encode-receipt-v1",
+        "evidence_stage": EVIDENCE_STAGE,
+        "arm": arm,
+        "arm_id": ARM_IDS[arm],
+        "item_index": item_index,
+        "source_bytes": reference_entry["source_bytes"],
+        "source_sha256": reference_entry["source_sha256"],
+        "decoded_sha256": reference_entry["source_sha256"],
+        "decode_matches_source": True,
+        "predicted_kill_criterion": KILL_LINES[arm],
+    }
+    for field, value in expected.items():
+        if receipt.get(field) != value:
+            return f"kernel_receipt_{field}_mismatch"
+    projection = receipt.get("item_projection")
+    ledger = receipt.get("ledger")
+    if not isinstance(projection, dict) or not isinstance(
+        projection.get("complete_bytes"), int
+    ):
+        return "kernel_receipt_projection_invalid"
+    if not isinstance(ledger, dict):
+        return "kernel_receipt_ledger_invalid"
+    for field in ("modeled_binary_events", "modeled_loss_q24"):
+        if not isinstance(ledger.get(field), int) or ledger[field] < 0:
+            return f"kernel_receipt_ledger_{field}_invalid"
+    if not isinstance(receipt.get("declared_model_state_bytes"), int):
+        return "kernel_receipt_declared_state_invalid"
+
+    quarters = receipt.get("quarter_diagnostics")
+    if arm != "c3-live-adaptation":
+        return None
+    if receipt.get("quarter_diagnostics_q24_scale") != 1 << 24:
+        return "kernel_receipt_quarter_scale_invalid"
+    if not isinstance(quarters, list) or len(quarters) != 4:
+        return "kernel_receipt_quarters_invalid"
+    total_bytes = total_events = total_loss = 0
+    previous_cumulative = 0
+    for quarter in quarters:
+        if not isinstance(quarter, dict):
+            return "kernel_receipt_quarter_row_invalid"
+        delta_bytes = quarter.get("delta_source_bytes")
+        delta_events = quarter.get("delta_modeled_binary_events")
+        delta_loss = quarter.get("delta_modeled_loss_q24")
+        cumulative = quarter.get("cumulative_source_bytes")
+        values = (delta_bytes, delta_events, delta_loss, cumulative)
+        if not all(isinstance(value, int) for value in values):
+            return "kernel_receipt_quarter_value_invalid"
+        if delta_bytes <= 0 or delta_events < 0 or delta_loss < 0:
+            return "kernel_receipt_quarter_delta_invalid"
+        total_bytes += delta_bytes
+        total_events += delta_events
+        total_loss += delta_loss
+        if cumulative != total_bytes or cumulative <= previous_cumulative:
+            return "kernel_receipt_quarter_cumulative_invalid"
+        previous_cumulative = cumulative
+    if total_bytes != reference_entry["source_bytes"]:
+        return "kernel_receipt_quarter_source_total_mismatch"
+    if total_events != ledger["modeled_binary_events"]:
+        return "kernel_receipt_quarter_event_total_mismatch"
+    if total_loss != ledger["modeled_loss_q24"]:
+        return "kernel_receipt_quarter_loss_total_mismatch"
+    return None
+
+
 def assemble_receipt(
     references: References,
     snapshot_name: str,
@@ -386,19 +492,29 @@ def assemble_receipt(
     report: dict,
     kernel_receipt: Optional[dict],
     run_index: int,
+    item_index: int,
 ) -> dict:
     """Build one run receipt (the cycle-1 draft metric tuple plus pins and the
     echoed kill line). Pure: no I/O, deterministic from its inputs."""
     status, kill_reason = classify_run(report, kernel_receipt)
+    if kernel_receipt is not None:
+        invalid_reason = validate_kernel_receipt(
+            kernel_receipt, arm, item_index, reference_entry
+        )
+        if invalid_reason is not None:
+            status = "invalid"
+            kill_reason = invalid_reason
 
     complete_bytes = None
     decode_matches = None
     declared_state = None
+    quarter_diagnostics = None
     if kernel_receipt is not None:
         projection = kernel_receipt.get("item_projection", {})
         complete_bytes = projection.get("complete_bytes")
         decode_matches = kernel_receipt.get("decode_matches_source")
         declared_state = kernel_receipt.get("declared_model_state_bytes")
+        quarter_diagnostics = kernel_receipt.get("quarter_diagnostics")
 
     wall_ns = report.get("wall_ns")
     wall_seconds = None if wall_ns is None else wall_ns / 1e9
@@ -422,6 +538,7 @@ def assemble_receipt(
         "wall_seconds": wall_seconds,
         "decode_matches": decode_matches,
         "declared_model_state_bytes": declared_state,
+        "quarter_diagnostics": quarter_diagnostics,
         "predicted_kill_criterion": KILL_LINES[arm],
         "references": {
             "snapshot_source_bytes": reference_entry["source_bytes"],
@@ -501,6 +618,7 @@ def sweep(
                 report,
                 kernel_receipt,
                 run_index=consumed,
+                item_index=snapshot["item_index"],
             )
             receipt_path = config.output_dir / f"{name}__{arm}.receipt.json"
             receipt_path.write_text(

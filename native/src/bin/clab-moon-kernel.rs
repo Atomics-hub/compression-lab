@@ -17,6 +17,10 @@ pub mod s0;
 #[path = "../moon/mod.rs"]
 pub mod moon;
 
+use moon::c3::{
+    c3_declared_state_bytes, decode_c3_item_with_bits, encode_c3_item_with_bits_and_quarters,
+    C3QuarterSnapshot, C3_ARM_ID,
+};
 use moon::h1::{
     decode_h1_item_with_bits, encode_h1_item_with_bits, h1_declared_state_bytes, H1_ARM_ID,
 };
@@ -56,18 +60,21 @@ const H8_KILL_CRITERION: &str = "Kill if frozen-mixer complete bytes exceed 1.02
 // H9 kill line, verbatim from draft cycle-1 §2-H9.
 const H9_KILL_CRITERION: &str =
     "Kill if bounded-grammar size > 1.3x local ZPAQ-16MiB on the public set.";
+const C3_KILL_CRITERION: &str = "Kill if C3 complete bytes are at least 0.97x H1 complete bytes on both public snapshots, OR any exactness, identity, ledger, unaccounted-state, 600-second wall, or 512 MiB decode-RSS gate fails.";
 
 /// The moon prescreen arms. Each wraps a moon arm's encode/decode, declared
 /// state, and preregistered kill line so the kernel dispatches uniformly.
 #[derive(Clone, Copy)]
 enum MoonArm {
+    C3LiveAdaptation,
     H1Floor,
     H6Hybrid,
     H8StaticMixer,
     H9Grammar,
 }
 
-const ARMS: [MoonArm; 4] = [
+const ARMS: [MoonArm; 5] = [
+    MoonArm::C3LiveAdaptation,
     MoonArm::H1Floor,
     MoonArm::H6Hybrid,
     MoonArm::H8StaticMixer,
@@ -77,6 +84,7 @@ const ARMS: [MoonArm; 4] = [
 impl MoonArm {
     fn from_name(name: &str) -> Option<Self> {
         match name {
+            "c3-live-adaptation" => Some(Self::C3LiveAdaptation),
             "h1-floor" => Some(Self::H1Floor),
             "h6-hybrid" => Some(Self::H6Hybrid),
             "h8-static-mixer" => Some(Self::H8StaticMixer),
@@ -87,6 +95,7 @@ impl MoonArm {
 
     fn name(self) -> &'static str {
         match self {
+            Self::C3LiveAdaptation => "c3-live-adaptation",
             Self::H1Floor => "h1-floor",
             Self::H6Hybrid => "h6-hybrid",
             Self::H8StaticMixer => "h8-static-mixer",
@@ -96,6 +105,7 @@ impl MoonArm {
 
     fn id(self) -> u8 {
         match self {
+            Self::C3LiveAdaptation => C3_ARM_ID,
             Self::H1Floor => H1_ARM_ID,
             Self::H6Hybrid => H6_ARM_ID,
             Self::H8StaticMixer => H8_ARM_ID,
@@ -105,6 +115,7 @@ impl MoonArm {
 
     fn kill_criterion(self) -> &'static str {
         match self {
+            Self::C3LiveAdaptation => C3_KILL_CRITERION,
             Self::H1Floor => H1_KILL_CRITERION,
             Self::H6Hybrid => H6_KILL_CRITERION,
             Self::H8StaticMixer => H8_KILL_CRITERION,
@@ -114,6 +125,7 @@ impl MoonArm {
 
     fn declared_state_bytes(self, table: &LossTable, sse_bucket_bits: u32) -> usize {
         match self {
+            Self::C3LiveAdaptation => c3_declared_state_bytes(table, sse_bucket_bits),
             Self::H1Floor => h1_declared_state_bytes(table, sse_bucket_bits),
             Self::H6Hybrid => h6_declared_state_bytes(table, sse_bucket_bits),
             Self::H8StaticMixer => h8_declared_state_bytes(table, sse_bucket_bits),
@@ -127,17 +139,26 @@ impl MoonArm {
         table: &LossTable,
         item_index: u8,
         sse_bucket_bits: u32,
-    ) -> Result<(Tape, Ledger), String> {
+    ) -> Result<(Tape, Ledger, Option<[C3QuarterSnapshot; 4]>), String> {
         match self {
+            Self::C3LiveAdaptation => {
+                encode_c3_item_with_bits_and_quarters(source, table, item_index, sse_bucket_bits)
+                    .map(|(tape, ledger, quarters)| (tape, ledger, Some(quarters)))
+                    .map_err(|error| error.to_string())
+            }
             Self::H1Floor => encode_h1_item_with_bits(source, table, item_index, sse_bucket_bits)
+                .map(|(tape, ledger)| (tape, ledger, None))
                 .map_err(|error| error.to_string()),
             Self::H6Hybrid => encode_h6_item_with_bits(source, table, item_index, sse_bucket_bits)
+                .map(|(tape, ledger)| (tape, ledger, None))
                 .map_err(|error| error.to_string()),
             Self::H8StaticMixer => {
                 encode_h8_item_with_bits(source, table, item_index, sse_bucket_bits)
+                    .map(|(tape, ledger)| (tape, ledger, None))
                     .map_err(|error| error.to_string())
             }
             Self::H9Grammar => encode_h9_item_with_bits(source, table, item_index, sse_bucket_bits)
+                .map(|(tape, ledger)| (tape, ledger, None))
                 .map_err(|error| error.to_string()),
         }
     }
@@ -151,6 +172,10 @@ impl MoonArm {
         sse_bucket_bits: u32,
     ) -> Result<Vec<u8>, String> {
         match self {
+            Self::C3LiveAdaptation => {
+                decode_c3_item_with_bits(tape, expected_ledger, table, item_index, sse_bucket_bits)
+                    .map_err(|error| error.to_string())
+            }
             Self::H1Floor => {
                 decode_h1_item_with_bits(tape, expected_ledger, table, item_index, sse_bucket_bits)
                     .map_err(|error| error.to_string())
@@ -175,10 +200,10 @@ const HELP: &str = "clab-moon-kernel — moonshot cycle-1 prescreen accounting k
 
 Usage:
   clab-moon-kernel arms
-  clab-moon-kernel encode --arm h1-floor|h6-hybrid|h8-static-mixer|h9-grammar --item-index N --input PATH
+  clab-moon-kernel encode --arm c3-live-adaptation|h1-floor|h6-hybrid|h8-static-mixer|h9-grammar --item-index N --input PATH
                           --tape-out PATH --receipt-out PATH
                           [--sse-bucket-bits 17|18] [--force]
-  clab-moon-kernel decode --arm h1-floor|h6-hybrid|h8-static-mixer|h9-grammar --item-index N --tape PATH
+  clab-moon-kernel decode --arm c3-live-adaptation|h1-floor|h6-hybrid|h8-static-mixer|h9-grammar --item-index N --tape PATH
                           --records N --modeled-binary-events N
                           --modeled-loss-q24 N --raw-literal-bytes N
                           --output PATH --receipt-out PATH
@@ -413,6 +438,29 @@ fn projection_json(ledger: Ledger, source_bytes: u64) -> Result<String, CommandE
     ))
 }
 
+fn quarter_json(quarters: Option<[C3QuarterSnapshot; 4]>) -> String {
+    let Some(quarters) = quarters else {
+        return "null".to_owned();
+    };
+    let mut previous_bytes = 0_u64;
+    let mut previous_events = 0_u64;
+    let mut previous_loss = 0_u64;
+    let rows = quarters.map(|quarter| {
+        let row = format!(
+            "{{\"cumulative_source_bytes\": {}, \"delta_source_bytes\": {}, \"delta_modeled_binary_events\": {}, \"delta_modeled_loss_q24\": {}}}",
+            quarter.source_bytes,
+            quarter.source_bytes - previous_bytes,
+            quarter.modeled_binary_events - previous_events,
+            quarter.modeled_loss_q24 - previous_loss,
+        );
+        previous_bytes = quarter.source_bytes;
+        previous_events = quarter.modeled_binary_events;
+        previous_loss = quarter.modeled_loss_q24;
+        row
+    });
+    format!("[{}]", rows.join(", "))
+}
+
 fn encode_command(arguments: &[&str]) -> Result<(), CommandError> {
     let options = parse_options(
         arguments,
@@ -434,7 +482,7 @@ fn encode_command(arguments: &[&str]) -> Result<(), CommandError> {
 
     let source = read_bytes(input)?;
     let table = LossTable::generate();
-    let (tape, ledger) = arm
+    let (tape, ledger, quarters) = arm
         .encode(&source, &table, item_index, sse_bucket_bits)
         .map_err(|error| failure(format!("encode failed: {error}")))?;
     let tape_bytes = tape.to_bytes();
@@ -457,7 +505,7 @@ fn encode_command(arguments: &[&str]) -> Result<(), CommandError> {
     let source_bytes = source.len() as u64;
     let declared_state_bytes = arm.declared_state_bytes(&table, sse_bucket_bits);
     let receipt = format!(
-        "{{\n  \"schema\": \"clab-moon-kernel-encode-receipt-v1\",\n  \"kernel_version\": \"{VERSION}\",\n  \"evidence_stage\": \"{EVIDENCE_STAGE}\",\n  \"arm\": \"{}\",\n  \"arm_id\": {},\n  \"item_index\": {item_index},\n  \"source_bytes\": {source_bytes},\n  \"source_sha256\": \"{}\",\n  \"tape_bytes\": {},\n  \"tape_sha256\": \"{}\",\n  \"sse_bucket_bits\": {sse_bucket_bits},\n  \"declared_model_state_bytes\": {declared_state_bytes},\n  \"ledger\": {},\n  \"item_projection\": {},\n  \"predicted_kill_criterion\": \"{}\",\n  \"decoded_sha256\": \"{}\",\n  \"decode_matches_source\": true\n}}\n",
+        "{{\n  \"schema\": \"clab-moon-kernel-encode-receipt-v1\",\n  \"kernel_version\": \"{VERSION}\",\n  \"evidence_stage\": \"{EVIDENCE_STAGE}\",\n  \"arm\": \"{}\",\n  \"arm_id\": {},\n  \"item_index\": {item_index},\n  \"source_bytes\": {source_bytes},\n  \"source_sha256\": \"{}\",\n  \"tape_bytes\": {},\n  \"tape_sha256\": \"{}\",\n  \"sse_bucket_bits\": {sse_bucket_bits},\n  \"declared_model_state_bytes\": {declared_state_bytes},\n  \"ledger\": {},\n  \"item_projection\": {},\n  \"quarter_diagnostics_q24_scale\": 16777216,\n  \"quarter_diagnostics\": {},\n  \"predicted_kill_criterion\": \"{}\",\n  \"decoded_sha256\": \"{}\",\n  \"decode_matches_source\": true\n}}\n",
         arm.name(),
         arm.id(),
         sha256_hex(&source),
@@ -465,6 +513,7 @@ fn encode_command(arguments: &[&str]) -> Result<(), CommandError> {
         sha256_hex(&tape_bytes),
         ledger_json(ledger),
         projection_json(ledger, source_bytes)?,
+        quarter_json(quarters),
         arm.kill_criterion(),
         sha256_hex(&decoded),
     );
@@ -978,7 +1027,63 @@ mod tests {
     }
 
     #[test]
+    fn c3_encodes_decodes_and_binds_state_and_kill_line() {
+        let scratch = Scratch::new();
+        let source = corpus();
+        fs::write(scratch.path("item.ndjson"), &source).unwrap();
+        let receipt_path = scratch.path("c3.receipt.json");
+        unwrap_message(encode_command(&[
+            "--arm",
+            "c3-live-adaptation",
+            "--item-index",
+            "7",
+            "--input",
+            &scratch.path("item.ndjson"),
+            "--tape-out",
+            &scratch.path("c3.tape"),
+            "--receipt-out",
+            &receipt_path,
+        ]));
+        let receipt = fs::read_to_string(&receipt_path).unwrap();
+        assert_eq!(receipt_field(&receipt, "arm"), "c3-live-adaptation");
+        assert_eq!(receipt_field(&receipt, "arm_id"), "104");
+        assert_eq!(receipt_field(&receipt, "decode_matches_source"), "true");
+        assert_eq!(
+            receipt_field(&receipt, "declared_model_state_bytes"),
+            "126238720"
+        );
+        assert!(receipt.contains(C3_KILL_CRITERION));
+
+        let output = scratch.path("c3.decoded");
+        unwrap_message(decode_command(&[
+            "--arm",
+            "c3-live-adaptation",
+            "--item-index",
+            "7",
+            "--tape",
+            &scratch.path("c3.tape"),
+            "--records",
+            receipt_field(&receipt, "records"),
+            "--modeled-binary-events",
+            receipt_field(&receipt, "modeled_binary_events"),
+            "--modeled-loss-q24",
+            receipt_field(&receipt, "modeled_loss_q24"),
+            "--raw-literal-bytes",
+            receipt_field(&receipt, "raw_literal_bytes"),
+            "--output",
+            &output,
+            "--receipt-out",
+            &scratch.path("c3.decode-receipt.json"),
+        ]));
+        assert_eq!(fs::read(&output).unwrap(), source);
+    }
+
+    #[test]
     fn arms_lists_every_moon_arm() {
+        assert_eq!(
+            MoonArm::from_name("c3-live-adaptation").map(MoonArm::id),
+            Some(104)
+        );
         assert_eq!(MoonArm::from_name("h1-floor").map(MoonArm::id), Some(100));
         assert_eq!(MoonArm::from_name("h6-hybrid").map(MoonArm::id), Some(101));
         assert_eq!(
@@ -987,7 +1092,7 @@ mod tests {
         );
         assert_eq!(MoonArm::from_name("h9-grammar").map(MoonArm::id), Some(102));
         assert!(MoonArm::from_name("nope").is_none());
-        assert_eq!(ARMS.len(), 4);
+        assert_eq!(ARMS.len(), 5);
     }
 
     #[test]

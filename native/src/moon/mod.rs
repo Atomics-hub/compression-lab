@@ -7,6 +7,7 @@
 //! `development_only_prescreen` evidence ceiling: no candidate, SOTA,
 //! exact-codec, or ratio claims, and no licensed-item reads.
 
+pub mod c3;
 pub mod h1;
 pub mod h6;
 pub mod h8;
@@ -14,6 +15,12 @@ pub mod h9;
 pub mod mixer;
 pub mod reuse;
 pub mod table;
+
+pub use c3::{
+    c3_declared_state_bytes, decode_c3_item, decode_c3_item_with_bits, encode_c3_item,
+    encode_c3_item_with_bits, encode_c3_item_with_bits_and_quarters, C3Error, C3QuarterSnapshot,
+    C3_APM_STATE_BYTES, C3_ARM_ID, C3_BYTE_ORDERS, C3_CONTEXT_COUNT, C3_CONTEXT_TABLE_BYTES,
+};
 
 pub use h1::{
     decode_h1_item, decode_h1_item_with_bits, encode_h1_item, encode_h1_item_with_bits,
