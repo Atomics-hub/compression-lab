@@ -29,29 +29,27 @@ jobs:
         run: cargo build --release --locked --bin clab-jls2
         working-directory: native
 
-      - name: Ensure strace and jemalloc are available
-        run: |
-          which strace || { sudo apt-get update && sudo apt-get install -y strace; }
-          ls /usr/lib/x86_64-linux-gnu/libjemalloc.so* 2>/dev/null || { sudo apt-get update && sudo apt-get install -y libjemalloc2; }
+      - name: Ensure GNU time is available
+        run: test -x /usr/bin/time || { sudo apt-get update && sudo apt-get install -y time; }
 
-      - name: Run the allocator/THP/affinity matrix
+      - name: Run the RSS-instrument matrix
         run: |
           python scripts/experiment-jls2-rss-arena.py \
             --work-dir "$RUNNER_TEMP/arena-work" \
             --output "$RUNNER_TEMP/arena-report.json"
           cp "$RUNNER_TEMP/arena-report.json" arena-report.json
-          gzip -9 -c "$RUNNER_TEMP/arena-work/strace-memory.log" > strace-memory.log.gz
           python - <<'EOF'
           import json
           report = json.load(open("arena-report.json"))
           print(f"cpu_count={report['cpu_count']} glibc={report['glibc_version']}")
-          print(f"thp_host={report['thp_enabled_host']}")
           for cell in report["cells"]:
+              clean = cell.get("clean_peak_rss_mib")
               print(
-                  f"{cell['label']:>20}"
+                  f"{cell['label']:>18}"
                   f" cpus={str(cell['cpu_limit'] or 'all'):>3}"
-                  f" thp={str(cell['thp_enabled_at_run'] or 'n/a'):>7}"
-                  f" peak={cell['peak_rss_mib']:>8} MiB"
+                  f" artifact={cell['artifact']:>4}"
+                  f" wait4={cell['wait4_peak_rss_mib']:>8} MiB"
+                  f" clean={str(clean) + ' MiB' if clean is not None else 'n/a':>12}"
                   f" wall={cell['wall_seconds']}s"
               )
           EOF
@@ -59,8 +57,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: jls2-rss-arena-report-${{ github.run_id }}
-          path: |
-            arena-report.json
-            strace-memory.log.gz
+          path: arena-report.json
           if-no-files-found: error
           retention-days: 30

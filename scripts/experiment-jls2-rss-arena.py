@@ -26,16 +26,39 @@ trace. The measured floors sit at total lifetime allocation churn
 3 CPUs and even under strace, so the peak tracks cumulative churn that is
 never returned, not concurrency.
 
-Round 4 discriminates the mechanism decisively:
-- MALLOC_MMAP_THRESHOLD_=1 (extreme): if this changes nothing, the MALLOC_*
-  environment path is provably not reaching the allocator decision, because
-  at threshold 1 every allocation would be mmap-backed and freed to the OS;
-- MALLOC_TRIM_THRESHOLD_=0: forces aggressive trim on free;
-- LD_PRELOAD jemalloc (diagnostic only, never a product dependency): if RSS
-  collapses, glibc-malloc retention is proven by substitution;
-- output to /dev/shm vs the work directory: controls for any file-writeback
-  interaction with the resident accounting;
-- strace including mprotect, so arena-heap growth is finally visible.
+Round 4 (run 29981022229) refuted EVERY allocator hypothesis at once:
+LD_PRELOADed jemalloc, MALLOC_MMAP_THRESHOLD_=1, MALLOC_TRIM_THRESHOLD_=0,
+and a /dev/shm output were all byte-identical (679.6 MiB at full
+parallelism, 484.5 MiB at 3 CPUs). Substituting the entire allocator cannot
+produce a byte-identical peak unless the reported peak is not the
+decoder's memory at all. The mprotect-inclusive syscall trace settled it:
+the decoder maps ~203 MiB of anonymous read-write memory over its whole
+life, yet ru_maxrss reports 679.6 MiB — more than three times every page
+the process ever made writable.
+
+The remaining explanation is the measurement instrument. On Linux, a child
+spawned by fork() from a large parent starts with the parent's resident
+pages (copy-on-write) mapped, and at execve the kernel folds the pre-exec
+resident watermark into the accounting that wait4 later reports as
+ru_maxrss. The experiment's parent is a Python process that just built and
+compressed a 200 MB corpus. This also explains the fake "worker-count
+step": cells with an affinity limit use preexec_fn, which forces CPython
+down the plain-fork path (child inherits the parent's CURRENT resident
+size, ~484 MiB), while cells without preexec_fn allow the vfork fast path,
+which shares the parent's address space whose historical watermark is the
+parent's PEAK (~680 MiB, set during compression). The frozen product gate
+measures decoder RSS through the same pattern (a subprocess reaped from a
+large Python worker, plus getrusage(RUSAGE_CHILDREN)), so the frozen
+621.3 MiB reading is suspect for exactly the same reason.
+
+Round 5 proves the instrument artifact and measures the true decoder RSS:
+- tiny-artifact cells: decode a ~1 MB source. If ru_maxrss still reports
+  hundreds of MiB, the reading is the parent's footprint, proven.
+- GNU-time cells: /usr/bin/time -v execs the decoder from a tiny parent,
+  so its fork inheritance is negligible and its reading is clean. The
+  wait4 value for the same cell (measuring the tiny time process itself,
+  forked from fat Python) stays polluted — both are recorded so the
+  contrast is visible in one report.
 
 Diagnostic only: synthetic data, no licensed corpus paths, no product change,
 and every cell must reproduce the source bytes exactly or the experiment
@@ -49,7 +72,6 @@ import argparse
 import hashlib
 import json
 import os
-import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -57,64 +79,26 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
-THP_ENABLED_PATH = Path("/sys/kernel/mm/transparent_hugepage/enabled")
-THP_DEFRAG_PATH = Path("/sys/kernel/mm/transparent_hugepage/defrag")
+GNU_TIME = Path("/usr/bin/time")
 
-# Each cell: label, extra environment, cpu_limit, thp mode ("keep" leaves the
-# host setting untouched), optional tmpfs output, and whether to capture a
-# memory-syscall trace. The env value "JEMALLOC" is replaced at runtime with
-# an LD_PRELOAD path to the installed jemalloc shared library.
+# Each cell: label, cpu_limit, which artifact to decode ("main" is the
+# 200 MB-source artifact, "tiny" the ~1 MB-source control), and how to
+# measure ("wait4" reproduces the round-1..4 instrument; "gnutime" also
+# wraps the decoder in /usr/bin/time -v for a clean-parent reading).
 CELLS: tuple[dict[str, object], ...] = (
-    {"label": "baseline-all", "env": {}, "cpus": None, "thp": "keep"},
-    {"label": "baseline-cpus3", "env": {}, "cpus": 3, "thp": "keep"},
+    {"label": "baseline-all", "cpus": None, "artifact": "main", "measure": "wait4"},
+    {"label": "baseline-cpus3", "cpus": 3, "artifact": "main", "measure": "wait4"},
+    {"label": "gnutime-all", "cpus": None, "artifact": "main", "measure": "gnutime"},
+    {"label": "gnutime-cpus3", "cpus": 3, "artifact": "main", "measure": "gnutime"},
+    {"label": "tiny-all", "cpus": None, "artifact": "tiny", "measure": "wait4"},
+    {"label": "tiny-cpus3", "cpus": 3, "artifact": "tiny", "measure": "wait4"},
     {
-        "label": "mmap-threshold-1-all",
-        "env": {"MALLOC_MMAP_THRESHOLD_": "1"},
+        "label": "gnutime-tiny-all",
         "cpus": None,
-        "thp": "keep",
-    },
-    {
-        "label": "trim-0-all",
-        "env": {"MALLOC_TRIM_THRESHOLD_": "0"},
-        "cpus": None,
-        "thp": "keep",
-    },
-    {
-        "label": "jemalloc-all",
-        "env": {"LD_PRELOAD": "JEMALLOC"},
-        "cpus": None,
-        "thp": "keep",
-    },
-    {
-        "label": "jemalloc-cpus3",
-        "env": {"LD_PRELOAD": "JEMALLOC"},
-        "cpus": 3,
-        "thp": "keep",
-    },
-    {
-        "label": "output-shm-all",
-        "env": {},
-        "cpus": None,
-        "thp": "keep",
-        "output_shm": True,
-    },
-    {
-        "label": "strace-all",
-        "env": {},
-        "cpus": None,
-        "thp": "keep",
-        "strace": True,
+        "artifact": "tiny",
+        "measure": "gnutime",
     },
 )
-
-
-def find_jemalloc() -> str:
-    candidates = sorted(
-        Path("/usr/lib/x86_64-linux-gnu").glob("libjemalloc.so*")
-    ) + sorted(Path("/usr/lib").glob("libjemalloc.so*"))
-    if not candidates:
-        raise SystemExit("jemalloc cell requested but no libjemalloc.so* is installed")
-    return str(candidates[0])
 
 
 def sha256_file(path: Path) -> str:
@@ -146,37 +130,6 @@ def build_synthetic_source(path: Path, target_bytes: int) -> None:
             record_index += 1
 
 
-def read_thp(path: Path) -> str | None:
-    try:
-        return path.read_text(encoding="utf-8").strip()
-    except OSError:
-        return None
-
-
-def selected_thp(setting: str | None) -> str | None:
-    if setting is None:
-        return None
-    for token in setting.split():
-        if token.startswith("[") and token.endswith("]"):
-            return token[1:-1]
-    return None
-
-
-def write_thp(mode: str) -> None:
-    completed = subprocess.run(
-        ["sudo", "tee", str(THP_ENABLED_PATH)],
-        input=mode.encode(),
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.PIPE,
-        check=False,
-    )
-    if completed.returncode != 0:
-        raise SystemExit(
-            "cannot set transparent_hugepage/enabled to"
-            f" {mode!r}: {completed.stderr.decode(errors='replace').strip()}"
-        )
-
-
 def glibc_version() -> str | None:
     try:
         completed = subprocess.run(
@@ -190,12 +143,20 @@ def glibc_version() -> str | None:
     return first_line[0] if first_line else None
 
 
+def parse_gnu_time_maxrss(report: Path) -> int:
+    for line in report.read_text(encoding="utf-8", errors="replace").splitlines():
+        line = line.strip()
+        if line.startswith("Maximum resident set size (kbytes):"):
+            return int(line.rsplit(":", 1)[1].strip())
+    raise SystemExit(f"GNU time report has no max-RSS line: {report}")
+
+
 def decode_cell(
     binary: Path,
     artifact: Path,
     output: Path,
     cell: dict[str, object],
-    strace_log: Path | None,
+    time_report: Path | None,
 ) -> dict[str, object]:
     if output.exists():
         output.unlink()
@@ -208,13 +169,6 @@ def decode_cell(
         "LD_PRELOAD",
     ):
         environment.pop(variable, None)
-    extra_env = cell["env"]
-    assert isinstance(extra_env, dict)
-    resolved_env = {
-        key: find_jemalloc() if value == "JEMALLOC" else value
-        for key, value in extra_env.items()
-    }
-    environment.update(resolved_env)
     cpu_limit = cell["cpus"]
 
     # Linux-only interfaces, resolved dynamically so type checking stays
@@ -228,18 +182,11 @@ def decode_cell(
             set_affinity(0, set(range(cpu_limit)))
 
     command = [str(binary), "decompress", str(artifact), "-o", str(output)]
-    if strace_log is not None:
-        strace = shutil.which("strace")
-        if strace is None:
-            raise SystemExit("strace cell requested but strace is not installed")
-        command = [
-            strace,
-            "-f",
-            "-e",
-            "trace=mmap,munmap,mremap,mprotect,brk,madvise",
-            "-o",
-            str(strace_log),
-        ] + command
+    if time_report is not None:
+        if not GNU_TIME.is_file():
+            raise SystemExit("gnutime cell requested but /usr/bin/time is missing")
+        time_report.unlink(missing_ok=True)
+        command = [str(GNU_TIME), "-v", "-o", str(time_report)] + command
     process = subprocess.Popen(
         command,
         env=environment,
@@ -253,20 +200,24 @@ def decode_cell(
         raise SystemExit(f"decode failed ({cell['label']}): {stderr.strip()}")
     peak_raw = usage.ru_maxrss
     peak_bytes = peak_raw * 1024
-    return {
+    result: dict[str, object] = {
         "label": cell["label"],
-        "env": resolved_env,
-        "output_path": str(output),
         "cpu_limit": cpu_limit,
-        "thp_mode_requested": cell["thp"],
-        "thp_enabled_at_run": selected_thp(read_thp(THP_ENABLED_PATH)),
-        "straced": strace_log is not None,
-        "peak_rss_raw": peak_raw,
-        "peak_rss_bytes": peak_bytes,
-        "peak_rss_mib": round(peak_bytes / 1048576, 1),
+        "artifact": cell["artifact"],
+        "measure": cell["measure"],
+        "wait4_peak_rss_raw": peak_raw,
+        "wait4_peak_rss_bytes": peak_bytes,
+        "wait4_peak_rss_mib": round(peak_bytes / 1048576, 1),
         "wall_seconds": round(usage.ru_utime + usage.ru_stime, 2),
         "decoded_sha256": sha256_file(output),
     }
+    if time_report is not None:
+        clean_raw = parse_gnu_time_maxrss(time_report)
+        clean_bytes = clean_raw * 1024
+        result["clean_peak_rss_raw"] = clean_raw
+        result["clean_peak_rss_bytes"] = clean_bytes
+        result["clean_peak_rss_mib"] = round(clean_bytes / 1048576, 1)
+    return result
 
 
 def main() -> int:
@@ -289,76 +240,70 @@ def main() -> int:
     if not binary.is_file():
         raise SystemExit(f"decoder binary missing: {binary}")
 
-    source = work / "synthetic.jsonl"
-    build_synthetic_source(source, arguments.source_bytes)
-    source_sha = sha256_file(source)
-
     sys.path.insert(0, str(ROOT / "src"))
     from compresslab.json_log_codec import compress_file
 
-    artifact = work / "synthetic.jls2"
-    compress_file(source, artifact)
-
-    thp_enabled_original = read_thp(THP_ENABLED_PATH)
-    thp_selected_original = selected_thp(thp_enabled_original)
+    sources: dict[str, dict[str, object]] = {}
+    for name, size in (("main", arguments.source_bytes), ("tiny", 1_000_000)):
+        source = work / f"synthetic-{name}.jsonl"
+        build_synthetic_source(source, size)
+        artifact = work / f"synthetic-{name}.jls2"
+        compress_file(source, artifact)
+        sources[name] = {
+            "source_bytes": size,
+            "source_sha256": sha256_file(source),
+            "artifact_path": artifact,
+            "artifact_bytes": artifact.stat().st_size,
+            "artifact_sha256": sha256_file(artifact),
+        }
 
     cells = []
-    try:
-        for cell in CELLS:
-            thp_mode = cell["thp"]
-            if thp_mode == "never":
-                write_thp("never")
-            elif thp_mode == "restore":
-                if thp_selected_original is not None:
-                    write_thp(thp_selected_original)
-            elif thp_mode != "keep":
-                raise SystemExit(f"unknown thp mode: {thp_mode!r}")
-            strace_log = work / "strace-memory.log" if cell.get("strace") else None
-            if cell.get("output_shm"):
-                decoded_path = Path("/dev/shm") / "clab-arena-decoded.jsonl"
-            else:
-                decoded_path = work / "decoded.jsonl"
-            result = decode_cell(binary, artifact, decoded_path, cell, strace_log)
-            if cell.get("output_shm"):
-                decoded_path.unlink(missing_ok=True)
-            if result["decoded_sha256"] != source_sha:
-                raise SystemExit(
-                    f"decode mismatch ({cell['label']}):"
-                    " decoded bytes differ from the source"
-                )
-            result["decode_matches_source"] = True
-            cells.append(result)
-            print(
-                f"{str(cell['label']):>20} "
-                f"cpus={str(cell['cpus'] or 'all'):>3} "
-                f"thp={result['thp_enabled_at_run'] or 'n/a':>7} "
-                f"peak={result['peak_rss_mib']:>8} MiB",
-                flush=True,
+    for cell in CELLS:
+        info = sources[str(cell["artifact"])]
+        time_report = (
+            work / "gnu-time-report.txt" if cell["measure"] == "gnutime" else None
+        )
+        artifact_path = info["artifact_path"]
+        assert isinstance(artifact_path, Path)
+        result = decode_cell(
+            binary, artifact_path, work / "decoded.jsonl", cell, time_report
+        )
+        if result["decoded_sha256"] != info["source_sha256"]:
+            raise SystemExit(
+                f"decode mismatch ({cell['label']}):"
+                " decoded bytes differ from the source"
             )
-    finally:
-        if (
-            thp_selected_original is not None
-            and read_thp(THP_ENABLED_PATH) != thp_enabled_original
-        ):
-            write_thp(thp_selected_original)
+        result["decode_matches_source"] = True
+        cells.append(result)
+        clean = result.get("clean_peak_rss_mib")
+        print(
+            f"{str(cell['label']):>18} "
+            f"cpus={str(cell['cpus'] or 'all'):>3} "
+            f"artifact={cell['artifact']:>4} "
+            f"wait4={result['wait4_peak_rss_mib']:>7} MiB "
+            f"clean={clean if clean is not None else '   n/a':>7}"
+            f"{' MiB' if clean is not None else ''}",
+            flush=True,
+        )
 
     report = {
-        "schema": "jls2-rss-arena-experiment-v4",
-        "jemalloc_path": find_jemalloc(),
+        "schema": "jls2-rss-arena-experiment-v5",
         "purpose": (
-            "Diagnostic allocator/THP/affinity RSS matrix for the JLS2 native "
-            "decoder on synthetic data. Not a gate measurement, not corpus "
-            "evidence, and not a compression-quality claim."
+            "Diagnostic RSS-instrument matrix for the JLS2 native decoder on "
+            "synthetic data: wait4-from-a-large-parent versus GNU-time-from-a-"
+            "tiny-parent, on large and tiny artifacts. Not a gate measurement, "
+            "not corpus evidence, and not a compression-quality claim."
         ),
         "platform": sys.platform,
         "cpu_count": os.cpu_count(),
         "glibc_version": glibc_version(),
-        "thp_enabled_host": thp_enabled_original,
-        "thp_defrag_host": read_thp(THP_DEFRAG_PATH),
-        "source_bytes": arguments.source_bytes,
-        "source_sha256": source_sha,
-        "artifact_bytes": artifact.stat().st_size,
-        "artifact_sha256": sha256_file(artifact),
+        "sources": {
+            name: {
+                key: (str(value) if isinstance(value, Path) else value)
+                for key, value in info.items()
+            }
+            for name, info in sources.items()
+        },
         "binary_sha256": sha256_file(binary),
         "cells": cells,
     }
