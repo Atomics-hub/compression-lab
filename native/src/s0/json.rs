@@ -1,7 +1,7 @@
 use std::error::Error;
 use std::fmt::{Display, Formatter};
 
-const MAX_RECORD_BYTES: usize = 1_048_576;
+pub(super) const MAX_RECORD_BYTES: usize = 1_048_576;
 const MAX_DEPTH: usize = 32;
 const MAX_FIELDS: usize = 256;
 const MARKER: u8 = 0xff;

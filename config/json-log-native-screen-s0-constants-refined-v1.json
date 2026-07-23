@@ -1,0 +1,764 @@
+{
+  "schema_version": 1,
+  "name": "axiom-json-log-native-screen-s0-constants-v1",
+  "purpose": "Frozen enumeration of every S0 engine constant, context key, table size, hash, probability rule, mixer/SSE parameter, integer rounding rule, escape code, and stream grammar rule for the preregistered json-log-native-screen-s0-v1 development screen.",
+  "engine_source": {
+    "protocol_path": "docs/benchmarks/2026-07-21-json-log-native-screen-s0-protocol.md",
+    "protocol_sha256": "dbc2fa3cf8906f972273a6bad59e6ca9a68aa2e11000987ae1ee756bef970dc2",
+    "config_path": "config/json-log-native-screen-s0-v1.json",
+    "engine_module_root": "native/src/s0/mod.rs",
+    "kernel_cli": "native/src/bin/clab-s0-kernel.rs",
+    "event_layer_id": "s0-event-layer-v1",
+    "event_layer_version": 1
+  },
+  "arms": {
+    "count": 10,
+    "frozen_order": [
+      {
+        "index": 0,
+        "id": 0,
+        "name": "raw-o3",
+        "decides": false,
+        "event_limit_applies": false,
+        "mechanisms": [
+          "single raw byte stream order-3"
+        ]
+      },
+      {
+        "index": 1,
+        "id": 1,
+        "name": "m1-chassis",
+        "decides": false,
+        "event_limit_applies": false,
+        "mechanisms": [
+          "template and field demux",
+          "per-lane order-1/2"
+        ]
+      },
+      {
+        "index": 2,
+        "id": 2,
+        "name": "m1-m2",
+        "decides": false,
+        "event_limit_applies": false,
+        "mechanisms": [
+          "m1",
+          "id delta with escape",
+          "time delta by type with escape"
+        ]
+      },
+      {
+        "index": 3,
+        "id": 3,
+        "name": "m1-m2-m3",
+        "decides": false,
+        "event_limit_applies": false,
+        "mechanisms": [
+          "m1",
+          "m2",
+          "bounded session reference"
+        ]
+      },
+      {
+        "index": 4,
+        "id": 4,
+        "name": "m1-m2-m4",
+        "decides": false,
+        "event_limit_applies": false,
+        "mechanisms": [
+          "m1",
+          "m2",
+          "bounded online token dictionary"
+        ]
+      },
+      {
+        "index": 5,
+        "id": 5,
+        "name": "m1-m2-m5",
+        "decides": false,
+        "event_limit_applies": false,
+        "mechanisms": [
+          "m1",
+          "m2",
+          "fixed-point predictor mixing",
+          "one SSE stage"
+        ]
+      },
+      {
+        "index": 6,
+        "id": 6,
+        "name": "full",
+        "decides": true,
+        "event_limit_applies": true,
+        "mechanisms": [
+          "m1",
+          "m2",
+          "m3",
+          "m4",
+          "m5"
+        ]
+      },
+      {
+        "index": 7,
+        "id": 7,
+        "name": "full-minus-m3",
+        "decides": false,
+        "event_limit_applies": false,
+        "mechanisms": [
+          "m1",
+          "m2",
+          "m4",
+          "m5"
+        ]
+      },
+      {
+        "index": 8,
+        "id": 8,
+        "name": "full-minus-m4",
+        "decides": false,
+        "event_limit_applies": false,
+        "mechanisms": [
+          "m1",
+          "m2",
+          "m3",
+          "m5"
+        ]
+      },
+      {
+        "index": 9,
+        "id": 9,
+        "name": "full-minus-m5",
+        "decides": false,
+        "event_limit_applies": false,
+        "mechanisms": [
+          "m1",
+          "m2",
+          "m3",
+          "m4"
+        ]
+      }
+    ]
+  },
+  "items": {
+    "count": 3,
+    "process_order": "references.items order; all model/cache/dictionary/probability/segment state resets to the fixed empty initial state at every item boundary",
+    "list": [
+      {
+        "index": 0,
+        "id": "clue-early-development",
+        "source_bytes": 62267473,
+        "source_sha256": "4f1571569ebdf98621bbd29da45ba84ab37b4f1f1033aacf822dd5b3f40358fe"
+      },
+      {
+        "index": 1,
+        "id": "clue-middle-development",
+        "source_bytes": 69847327,
+        "source_sha256": "5ee50c36db110b023faf412e05398402e25ed59776ef5ee9323339f8b1aa4fa5"
+      },
+      {
+        "index": 2,
+        "id": "clue-late-development",
+        "source_bytes": 71463332,
+        "source_sha256": "71091e9fa5d8fd20944e1bd5707f1c832470c56d4b662fc6ef3d34e9478eb739"
+      }
+    ],
+    "per_item_kanzi_axe1o_reference_bytes": [
+      630525,
+      438522,
+      643208
+    ]
+  },
+  "context_layout": {
+    "probability_cell_bytes": 2,
+    "probability_cell_type": "u16 probability_of_one",
+    "bittree_min_alphabet": 2,
+    "bittree_max_alphabet": 65536,
+    "bittree_node_count_rule": "width = bits_needed(alphabet-1); nodes = 2^width - 1; symbol coded most-significant-bit-first down the tree",
+    "chassis_binary_contexts_m1_prefix": {
+      "MORE_CONTEXT": {
+        "base_index": 0,
+        "count": 1
+      },
+      "TERMINATED_CONTEXT": {
+        "base_index": 1,
+        "count": 1
+      },
+      "FALLBACK_MORE_CONTEXT": {
+        "base_index": 2,
+        "count": 1
+      },
+      "SAME_TEMPLATE_CONTEXT": {
+        "base_index": 3,
+        "count": 1
+      },
+      "VALUE_MANTISSA": {
+        "base_index": 4,
+        "count": 210
+      },
+      "M1_BINARY_CONTEXTS_total": 214
+    },
+    "chassis_tree_contexts_m1_prefix": {
+      "TYPE_TREE": {
+        "base_index": 0,
+        "count": 4,
+        "alphabet": 4
+      },
+      "SLOT_TREE": {
+        "base_index": 4,
+        "count": 1,
+        "alphabet": 4096
+      },
+      "VALUE_LENGTH_TREE": {
+        "base_index": 5,
+        "count": 4096,
+        "alphabet": 21
+      },
+      "VALUE_ORDER1_TREE": {
+        "base_index": 4101,
+        "count": 8192,
+        "alphabet": 256
+      },
+      "VALUE_ORDER2_TREE": {
+        "base_index": 12293,
+        "count": 8192,
+        "alphabet": 256
+      },
+      "M1_TREE_CONTEXTS_total": 20485
+    },
+    "shared_literal_length_contexts": {
+      "note": "Dedicated ContextStore members (not part of the binary bits[] array or trees[]); used only by literal() runs.",
+      "LENGTH_CLASS_TREE": {
+        "count": 1,
+        "alphabet": 21
+      },
+      "LENGTH_MANTISSA": {
+        "count": 210
+      }
+    },
+    "m2_binary_block": {
+      "relative_to": "M1_BINARY_CONTEXTS (214)",
+      "LANE_BUCKETS": 1024,
+      "ID_HIT": {
+        "base_index": 214,
+        "count": 1024
+      },
+      "ID_ZERO": {
+        "base_index": 1238,
+        "count": 1024
+      },
+      "ID_SIGN": {
+        "base_index": 2262,
+        "count": 1024
+      },
+      "ID_MANTISSA": {
+        "base_index": 3286,
+        "count": 2016
+      },
+      "TIME_HIT": {
+        "base_index": 5302,
+        "count": 1024
+      },
+      "TIME_ZERO": {
+        "base_index": 6326,
+        "count": 1024
+      },
+      "TIME_SIGN": {
+        "base_index": 7350,
+        "count": 1024
+      },
+      "TIME_MANTISSA": {
+        "base_index": 8374,
+        "count": 2346
+      },
+      "M2_BINARY_CONTEXTS_total": 10506,
+      "absolute_end_index": 10720
+    },
+    "m2_tree_block": {
+      "relative_to": "M1_TREE_CONTEXTS (20485)",
+      "ID_CLASS_TREE": {
+        "base_index": 20485,
+        "count": 1024,
+        "alphabet": 64
+      },
+      "TIME_CLASS_TREE": {
+        "base_index": 21509,
+        "count": 1024,
+        "alphabet": 69
+      },
+      "M2_TREE_CONTEXTS_total": 2048,
+      "absolute_end_index": 22533
+    },
+    "m3_binary_block": {
+      "LANE_BUCKETS": 1024,
+      "M3_HIT": {
+        "base_index": 10720,
+        "count": 1024
+      },
+      "M3_BINARY_CONTEXTS_total": 1024
+    },
+    "m3_tree_block": {
+      "REFERENCE_TREE": {
+        "base_index": 22533,
+        "count": 1,
+        "alphabet": 65536
+      },
+      "M3_TREE_CONTEXTS_total": 1
+    },
+    "m4_binary_block": {
+      "LANE_BUCKETS": 1024,
+      "TOKEN_HIT": {
+        "base_index": 11744,
+        "count": 1024
+      },
+      "CONTINUE": {
+        "base_index": 12768,
+        "count": 1024
+      },
+      "M4_BINARY_CONTEXTS_total": 2048
+    },
+    "m4_tree_block": {
+      "TOKEN_HIGH_TREE": {
+        "base_index": 22534,
+        "count": 1,
+        "alphabet": 512
+      },
+      "TOKEN_LOW_TREE": {
+        "base_index": 22535,
+        "count": 1,
+        "alphabet": 512
+      },
+      "M4_TREE_CONTEXTS_total": 2,
+      "token_split": 512,
+      "token_split_product": 262144
+    },
+    "chassis_full_arm_totals": {
+      "binary_contexts": 13792,
+      "tree_contexts": 22536,
+      "note": "Every arm that reaches M4 (full and leave-one-out arms) allocates the identical M1+M2+M3+M4 context space so every absolute context index is arm-invariant; unused blocks never charge events. m1-m2-m3 arm allocates only through the M3 block."
+    },
+    "block_allocation_by_arm": {
+      "raw-o3": [
+        "own_raw_context_space"
+      ],
+      "m1-chassis": [
+        "m1_prefix"
+      ],
+      "m1-m2": [
+        "m1_prefix",
+        "m2_block"
+      ],
+      "m1-m2-m3": [
+        "m1_prefix",
+        "m2_block",
+        "m3_block"
+      ],
+      "m1-m2-m4": [
+        "m1_prefix",
+        "m2_block",
+        "m3_block",
+        "m4_block"
+      ],
+      "m1-m2-m5": [
+        "m1_prefix",
+        "m2_block"
+      ],
+      "full": [
+        "m1_prefix",
+        "m2_block",
+        "m3_block",
+        "m4_block"
+      ],
+      "full-minus-m3": [
+        "m1_prefix",
+        "m2_block",
+        "m3_block",
+        "m4_block"
+      ],
+      "full-minus-m4": [
+        "m1_prefix",
+        "m2_block",
+        "m3_block",
+        "m4_block"
+      ],
+      "full-minus-m5": [
+        "m1_prefix",
+        "m2_block",
+        "m3_block",
+        "m4_block"
+      ],
+      "note_m1m2m4_and_full": "m1-m2-m4 and every full/leave-one-out arm allocate the M3 block even when M3 is not in the mechanism chain, to keep absolute indices arm-invariant.",
+      "note_m1m2m5": "m1-m2-m5 uses the m2 context space only (m2_contexts) plus the M5 estimator, which is separate from the context store."
+    },
+    "raw_o3_own_context_space": {
+      "note": "Separate ContextStore, not the chassis layout.",
+      "MORE_CONTEXT": {
+        "base_index": 0,
+        "count": 1
+      },
+      "RAW_BINARY_CONTEXTS_total": 1,
+      "ORDER3_TREES": {
+        "base_index": 0,
+        "count": 262144,
+        "alphabet": 256,
+        "count_rule": "1 << 18"
+      },
+      "context_selection": "order3_tree(history[3]) = fnv1a64_extend(fnv1a64(b\"s0-raw-o3\"), &history) as usize & (262144 - 1); history is the previous three decoded bytes, initial [0,0,0]"
+    }
+  },
+  "table_sizes_and_memory": {
+    "template_store": {
+      "slots": 4096,
+      "arena_bytes_limit": 4194304,
+      "arena_bytes_rule": "4 * 1048576",
+      "max_cacheable_skeleton_bytes": 65536,
+      "declared_slot_bytes": 64,
+      "declared_state_bytes": 4456448,
+      "declared_state_rule": "arena_limit + slots * declared_slot_bytes"
+    },
+    "m2_lane_state": {
+      "slots": 4096,
+      "lanes_per_slot": 64,
+      "lane_state_bytes": 32,
+      "declared_state_bytes": 8388608,
+      "declared_state_rule": "TEMPLATE_SLOTS * M2_LANES_PER_SLOT * M2_LANE_STATE_BYTES"
+    },
+    "m3_session": {
+      "session_slots": 65536,
+      "slot_value_bytes_maximum": 128,
+      "declared_slot_bytes": 144,
+      "declared_state_bytes": 9437184,
+      "declared_state_rule": "M3_SESSION_SLOTS * (M3_SLOT_VALUE_BYTES + 16)"
+    },
+    "m4_token": {
+      "token_slots": 262144,
+      "token_bytes_minimum": 8,
+      "token_bytes_maximum": 32,
+      "token_arena_bytes": 25165824,
+      "declared_slot_bytes": 16,
+      "declared_state_bytes": 29360128,
+      "declared_state_rule": "M4_TOKEN_ARENA_BYTES + M4_TOKEN_SLOTS * M4_DECLARED_SLOT_BYTES"
+    },
+    "declared_ceilings": {
+      "context_table_bytes_maximum": 251658240,
+      "mixer_table_bytes_maximum": 16777216,
+      "sse_table_bytes_maximum": 25165824,
+      "total_model_state_bytes_maximum": 402653184,
+      "note": "These are declared/compile-time-asserted ceilings; the engine does not sum resident bytes at runtime and enforce this total. See notes for the per-component compile assertions."
+    },
+    "mixer_table_actual_bytes": 10485760,
+    "mixer_table_actual_rule": "MIXER_BUCKETS(1048576) * MIXER_ENTRY_BYTES(10)",
+    "sse_table_actual_bytes_base": 8650752,
+    "sse_table_actual_rule_base": "(1 << SSE_BASE_BUCKET_BITS=17) * SSE_NODES(33) * 2",
+    "raw_o3_tree_bank_bytes": 133693440,
+    "raw_o3_tree_bank_rule": "RAW_ORDER3_TREES(262144) * 255 nodes * 2 bytes; compile-asserted <= 192 MiB"
+  },
+  "probability_model": {
+    "initial_probability_of_one": 32768,
+    "min_probability": 64,
+    "max_probability": 65472,
+    "probability_scale": 65536,
+    "rate_shift": 5,
+    "update_rule": "p1' = clamp(p1 + ((target - p1) >> rate_shift), MIN_PROBABILITY, MAX_PROBABILITY); target = 65536 if bit else 0; charge happens before update",
+    "observed_probability_rule": "P(observed bit) = p1 if bit else 65536 - p1",
+    "loss_table": {
+      "length": 65536,
+      "q24_bits": 24,
+      "index": "probability of the observed bit in [1, 65535]; get(0) is forbidden and rejected",
+      "value_rule": "loss_q24(q) = ((16 - exponent) << 24) - fractional_q24 where exponent = 31 - leading_zeros(q); fractional_q24 built by 24 rounds of repeated squaring of the normalized mantissa in Q63, appending a 1 bit whenever the square reaches 2^64 (then halving)",
+      "slot_zero_rule": "values[0] = values[1] (unused; kept equal to q=1 so the full-table digest is stable)",
+      "conservative_rounding": "truncated logarithm makes each charged loss conservative by less than one Q24 unit",
+      "sha256": "4684423d2b6feb82a598e925603811eb1b8d690027d4a05e20b219f13939c1de",
+      "sha256_method": "Sha256 over the 65536 u32 values in little-endian byte order (values[0]=loss_q24(1), values[q]=loss_q24(q) for q in 1..65536); 262144 bytes total. Digest recomputed independently outside the repo from the exact loss_q24 rule."
+    }
+  },
+  "mixer_and_sse": {
+    "m5_arm_id": 5,
+    "weight_fixed_point": "Q16",
+    "weight_one": 65536,
+    "weight_initial_base": 65536,
+    "weight_initial_adaptive": 0,
+    "weight_limit": 1048576,
+    "weight_clamp": "[-1048576, 1048576]",
+    "learn_shift": 34,
+    "gradient_step_rule": "delta = (error_q16 * stretch_q24) >> 34; error = (65536 if bit else 0) - mixed_probability",
+    "m5_rate_shift": 5,
+    "stretch_clamp_q24": 134217728,
+    "stretch_clamp_note": "+/- 8.0 in Q24 log2-odds (8 << 24)",
+    "sse_nodes": 33,
+    "mixer_bucket_bits": 20,
+    "mixer_buckets": 1048576,
+    "mixer_entry_bytes": 10,
+    "mixer_entry_layout": "4 bytes weight_base (i32) + 4 bytes weight_adaptive (i32) + 2 bytes adaptive probability (u16)",
+    "sse_base_bucket_bits": 17,
+    "sse_refined_bucket_bits": 18,
+    "sse_bucket_mask_rule": "(1 << sse_bucket_bits) - 1",
+    "stretch_table": {
+      "length": 65536,
+      "value_rule": "stretch(p) = loss(65536 - p) - loss(p) in Q24 log2-odds, derived exactly from the frozen loss table; stretch[0] = stretch[1]; stretch[32768] = 0; antisymmetric about p=32768",
+      "type": "i32"
+    },
+    "bucket_selection": {
+      "event_hash": "fnv1a64_extend(fnv1a64(b\"s0-m5-event\"), &id.to_le_bytes())",
+      "mixer_bucket": "hash & (MIXER_BUCKETS - 1)",
+      "sse_bucket": "(hash >> MIXER_BUCKET_BITS) & sse_bucket_mask"
+    },
+    "predict_rules": {
+      "stretch_input_clamp": "each stretch input clamped to [-STRETCH_CLAMP, STRETCH_CLAMP]",
+      "mixed_q24": "clamp((weight_base * stretch_base + weight_adaptive * stretch_adaptive) >> 16, -STRETCH_CLAMP, STRETCH_CLAMP)",
+      "mixed_probability": "squash(mixed_q24) via binary search for the smallest probability whose stretch >= target",
+      "sse_locate": "span = 2*STRETCH_CLAMP; offset = mixed_q24 + STRETCH_CLAMP; scaled = (offset * (SSE_NODES-1) << 16) / span; node = scaled >> 16; fraction = scaled & 0xffff; if node >= SSE_NODES-1 then node = SSE_NODES-2, fraction = 65536",
+      "sse_interpolated": "(low * (65536 - fraction) + high * fraction) >> 16, low/high = neighboring SSE node probabilities",
+      "final_probability": "clamp((3 * sse_interpolated + mixed_probability) / 4, MIN_PROBABILITY, MAX_PROBABILITY)",
+      "sse_update_cell": "base_cell + 1 if fraction >= 32768 else base_cell"
+    },
+    "update_rules": {
+      "weight_base": "clamp(weight_base + ((error * stretch_base) >> 34), -WEIGHT_LIMIT, WEIGHT_LIMIT)",
+      "weight_adaptive": "clamp(weight_adaptive + ((error * stretch_adaptive) >> 34), -WEIGHT_LIMIT, WEIGHT_LIMIT)",
+      "adaptive_probability": "Probability::update(bit, 5)",
+      "sse_cell": "Probability::update(bit, 5)"
+    },
+    "sse_bucket_bits_rule": "sse_bucket_bits = 17 when declared_ceilings.sse_table_bytes_maximum == 16777216 (table 8650752 bytes) and 18 when it == 25165824 (table 17301504 bytes); realized by M5Mixer::with_sse_bucket_bits. The mixer table never changes size (10485760 bytes <= 16777216 always)."
+  },
+  "prediction_mix_formulas": {
+    "m1_order1_order2_mean": {
+      "rule": "mixed_p1 = (p1_order1 + p1_order2) / 2 (integer floor); p0 = 65536 - mixed_p1; both order-1 and order-2 tree cells update after charging",
+      "rounding": "odd sums round one unit toward zero for p1",
+      "usage": "top-level JSON value bytes coded via mixed_symbol(order1_tree, order2_tree); order-1 context = previous byte, order-2 context = previous two bytes, both under the value's lane key"
+    },
+    "m5_final_mix": {
+      "rule": "final = clamp((3 * sse_interpolated + squash(mixer_mix)) / 4, MIN, MAX); integer division",
+      "note": "M5 changes only the charged probability, never a tape bit, grammar, or event count"
+    }
+  },
+  "hash_functions": {
+    "fnv1a64": {
+      "offset_basis": 14695981039346656037,
+      "prime": 1099511628211,
+      "byte_order": "per byte: hash = (hash XOR byte) * prime, wrapping u64; standard FNV-1a",
+      "fnv1a64_of_bytes": "fnv1a64_extend(offset_basis, bytes)"
+    },
+    "seeds": {
+      "s0-raw-o3": "order-3 tree selector: fnv1a64_extend(fnv1a64(b\"s0-raw-o3\"), &history[3])",
+      "s0-m3-session": "session-cache key: fnv1a64_extend(fnv1a64(b\"s0-m3-session\"), value_bytes)",
+      "s0-m4-token": "token key: fnv1a64_extend(fnv1a64(b\"s0-m4-token\"), token_bytes)",
+      "s0-m5-event": "M5 event bucket hash: fnv1a64_extend(fnv1a64(b\"s0-m5-event\"), &id.to_le_bytes())"
+    },
+    "lane_key": "fnv1a64_extend(fnv1a64(skeleton), &(index as u16).to_le_bytes()); index is the top-level value position, u16 little-endian",
+    "value_length_tree": "VALUE_LENGTH_TREE_BASE + (lane_key as usize & 4095)",
+    "value_order1_tree": "VALUE_ORDER1_TREE_BASE + (fnv1a64_extend(lane_key, &[previous_one]) as usize & 8191)",
+    "value_order2_tree": "VALUE_ORDER2_TREE_BASE + (fnv1a64_extend(lane_key, &[previous_two, previous_one]) as usize & 8191)",
+    "lane_bucket": "lane_key as usize & (LANE_BUCKETS(1024) - 1); used by M2, M3, M4 binary buckets",
+    "template_fnv_role": "rejection-filter only: TemplateStore/SessionStore/TokenStore hashes only reject non-candidates; every hit and duplicate check compares complete stored bytes for equality, in ascending slot order"
+  },
+  "event_identity_namespaces": {
+    "note": "Stable per-event identities feeding the optional M5 estimator hash; pinned because changing them changes every M5-arm loss.",
+    "plain_binary_context": "absolute context index (< 2^39)",
+    "length_class_tree_index": 8388607,
+    "length_class_tree_index_rule": "(1 << 23) - 1",
+    "length_mantissa_id_base": 549755813888,
+    "length_mantissa_id_base_rule": "1 << 39",
+    "tree_node_id": "(1 << 40) | (tree_index << 17) | node",
+    "mixed_node_id": "(1 << 63) | (first_index << 40) | (second_index << 17) | node"
+  },
+  "escape_codes_and_grammar": {
+    "record_types": {
+      "Hit": 0,
+      "Miss": 1,
+      "Fallback": 2,
+      "Empty": 3,
+      "coded_by": "TYPE_TREE symbol in the tree indexed by the PREVIOUS record type (type_tree(previous) = TYPE_TREE_BASE + previous); alphabet 4",
+      "initial_previous_type": "Miss"
+    },
+    "record_framing": {
+      "per_record_prefix": "MORE_CONTEXT bit = true before each record; a final MORE_CONTEXT bit = false ends the stream",
+      "terminated_bit": "after the final MORE=false, if any record was emitted, one TERMINATED_CONTEXT bit encodes whether the last record ended with LF",
+      "record_definition": "exact byte sequence through and including LF; a final nonempty unterminated suffix is one record; an empty final suffix is not a record"
+    },
+    "hit_grammar": {
+      "same_template_bit": "if a previous template slot exists, one SAME_TEMPLATE_CONTEXT bit (hit.same_as_last)",
+      "slot_symbol": "if no previous slot OR not same_as_last, one SLOT_TREE symbol (alphabet 4096) selecting the template slot",
+      "values": "each top-level value coded through the arm's ValueCoder chain under its lane_key; decoder reparses the reconstructed record and rejects any layout mismatch (no structure injection)"
+    },
+    "miss_grammar": {
+      "body": "entire record coded as one literal() run (valid JSON <= 1048576 bytes fits MAX_LITERAL_RUN); then template insert; then on_slots_cleared(cleared) and after_miss_insert(slot) hooks in that order"
+    },
+    "fallback_grammar": {
+      "trigger": "malformed JSON, non-object top level, record > 1048576 bytes, depth > 32, or field count > 256",
+      "chunking": "record split into ceil(len / MAX_VALUE_BYTES) chunks of at most MAX_VALUE_BYTES = 1048576 bytes; each chunk = one literal() run followed by a FALLBACK_MORE_CONTEXT bit (more chunks follow?)",
+      "state": "fallback does not update structure-specific state"
+    },
+    "empty_grammar": "just the Empty record-type symbol; no body",
+    "literal_run_grammar": {
+      "length_coding": "encode_length: LENGTH_CLASS tree (alphabet 21) codes class-1 = floor(log2(len)); then class-1 mantissa bits from a triangular-offset shared mantissa array; length in [1, MAX_LITERAL_RUN]",
+      "bytes": "raw literal bytes appended to the tape literal channel; charged exactly 8 bits each (not modeled events)"
+    },
+    "m2_grammar": {
+      "lane_eligibility": "only top-level value positions 0..63 (M2_LANES_PER_SLOT = 64) may carry typed state; index >= 64 always uses inner M1 coding and carries no M2 state",
+      "canonical_integer_rule": "classify_id accepts 0 or -?[1-9][0-9]* that fits i64 and excludes i64::MIN; leading zeros, -0, +, ., and exponents classify as Other",
+      "id_delta": "on an armed Id lane: ID_HIT bit; if hit, signed delta of i128(current)-i128(previous) via the ID delta family",
+      "time_byte_grammar": "classify_time accepts quoted YYYY-MM-DD[ Tt]HH:MM:SS[.1-9 digits](Z|z|+hh:mm|-hh:mm|+hhmm|-hhmm); shape = {separator, fraction_width, zone_length, zone[6]} reproduced verbatim; scaled = nanoseconds since 0000-01-01 proleptic Gregorian",
+      "time_delta": "on an armed Time lane of matching shape: TIME_HIT bit; if hit, signed delta = (scaled - previous) / shape_granularity charged in granularity units (granularity = 10^(9 - fraction_width) ns)",
+      "shape_components": [
+        "separator",
+        "fraction_width",
+        "zone_length",
+        "zone (up to 6 bytes)"
+      ],
+      "signed_delta_grammar": {
+        "zero_flag": "one bit (delta == 0); if set, stop",
+        "sign_flag": "one bit (delta < 0)",
+        "class_symbol": "class tree symbol = magnitude_class - 1; magnitude_class = 128-bit-width of unsigned magnitude",
+        "mantissa": "class-1 bits from a triangular-offset mantissa block (positions class-2 .. 0)",
+        "id_class_alphabet": 64,
+        "time_class_alphabet": 69,
+        "id_max_events_example": "72 (1 hit + 1 zero + 1 sign + 6 class + 63 mantissa) for the full i64 range",
+        "time_max_events_example": "78 (1 hit + 1 zero + 1 sign + 7 class + 68 mantissa) for the full 0000..9999 range"
+      },
+      "escape": "on any classification mismatch (or empty lane), one hit=false bit then the inner coder codes the exact bytes; the lane re-arms from the coded value",
+      "seeding": "after_miss_insert seeds each of the 64 lanes from the taught record's parsed values (uncharged); on_slots_cleared resets evicted slots' lanes to Empty"
+    },
+    "m3_grammar": {
+      "visibility": "sees every value that M2 escaped or found ineligible, before the inner coder; values consumed by an M2 hit never touch M3",
+      "hit": "M3_HIT bit = true; then a REFERENCE_TREE symbol (alphabet 65536) selecting the cached slot; reproduces the cached bytes exactly",
+      "miss": "M3_HIT bit = false; inner coder codes the value; then teach the decoded value (uncharged)",
+      "cache_eligibility": "values of 1..=128 bytes; seeding teaches every top-level value regardless of lane index",
+      "hit_event_cost_example": 17
+    },
+    "m4_grammar": {
+      "visibility": "terminates the chain; values consumed by an M2 or M3 hit never reach M4",
+      "segment_loop": "repeat: TOKEN_HIT bit; hit => longest dictionary token that is an exact prefix (8..32 bytes) coded as TOKEN_HIGH_TREE(slot/512) + TOKEN_LOW_TREE(slot%512), both alphabet 512; miss => one literal() run of the unmatched byte prefix up to the next matchable position; then a CONTINUE bit (more segments?)",
+      "teach_rule": "split value bytes into maximal ASCII-alphanumeric runs and maximal non-alphanumeric runs, clip each run left-to-right into 32-byte chunks, and insert every chunk of at least 8 bytes (uncharged, both sides)",
+      "value_ceiling": "decoder fails closed if the reconstructed value exceeds MAX_VALUE_BYTES = 1048576"
+    }
+  },
+  "cache_state_and_eviction": {
+    "clock_rule": "Deterministic CLOCK: the hand advances only during insertion; the reference bit is set on a decoded hit (encoder lookup / decoder select); reference bits are cleared while scanning; the first zero-bit slot in hand-relative ascending scan order (wrapping) is claimed; ties are broken by ascending scan order from the hand.",
+    "template_store": {
+      "insertion_reserves_target": "insert always calls next_victim once for the target (empty slots are claimed silently and not reported in cleared); under arena pressure it evicts further victims (excluding the reserved target) until the skeleton fits the 4194304-byte arena",
+      "cleared_report": "only previously-occupied evicted slots are reported, in exact eviction order; later mechanisms clear their per-slot state from this list",
+      "uncacheable": "skeleton > 65536 bytes is not inserted, clears last_slot, and returns uncacheable=true"
+    },
+    "m3_session_store": {
+      "arena": "none; fixed 65536 slots, pure CLOCK by slot count",
+      "scope": "item-scoped, not template-slot-scoped; on_slots_cleared does not clear session state"
+    },
+    "m4_token_store": {
+      "arena_pressure": "CLOCK plus arena pressure: keep evicting further victims (excluding the reserved target) until resident token bytes fit the 25165824-byte arena",
+      "scope": "item-scoped; on_slots_cleared does not clear token state"
+    },
+    "m2_lane_clear": "on_slots_cleared resets every lane of each evicted template slot to Empty (M2 lane state is template-slot-scoped)",
+    "item_boundary_reset": "all model, cache, dictionary, probability, and segment state resets to the fixed empty initial state at every item boundary (fresh construction, no partial reset)",
+    "segment_semantics": {
+      "segment_bytes": 16777216,
+      "snapshot_rule": "close a diagnostic segment snapshot at the first record boundary at or after each 16 MiB interval of consumed source",
+      "state_reset": "no model, cache, dictionary, or probability state resets at a segment boundary",
+      "decision_role": "segment snapshots are diagnostic-only and never enter decision calculations"
+    }
+  },
+  "stream_framing": {
+    "tape_format": {
+      "magic": "S0T1",
+      "header_bytes": 14,
+      "header_layout": "magic[4] + arm_id[1] + item_index[1] + bit_count[8 LE]",
+      "body_layout": "packed bit bytes (ceil(bit_count/8), MSB-first within each byte) + literal_count[8 LE] + literal bytes",
+      "trailer": "32-byte SHA-256 digest over all preceding bytes",
+      "padding_rule": "unused low bits of the final bit byte must be zero (non-canonical padding rejected)"
+    },
+    "record_semantics": {
+      "record_definition": "exact byte sequence through and including LF; final nonempty unterminated suffix is one record; empty final suffix is not a record",
+      "record_delimiter_charged": true,
+      "final_termination_charged": true
+    },
+    "declared_limits": {
+      "record_limit_bytes": 1048576,
+      "json_depth_limit": 32,
+      "field_count_limit": 256,
+      "code_enforcement": "MAX_RECORD_BYTES=1048576, MAX_DEPTH=32, MAX_FIELDS=256 in native/src/s0/json.rs; all three enforced (a violation routes the record to direct-literal fallback). See notes for exact semantics (depth counts the root object; field count is a total across all nested objects; arrays do not count toward fields)."
+    },
+    "projection_formulas": {
+      "charged_loss_q24": "modeled_loss_q24 + raw_literal_bytes * 8 * 2^24",
+      "payload_bytes": "ceil(charged_loss_q24 / (8 * 2^24))",
+      "coder_allowance_bytes": "ceil(payload_bytes * 5 / 1000)",
+      "aggregate_block_allowance_bytes": 6272,
+      "aggregate_stream_metadata_bytes": 72,
+      "fixed_framing_bytes": 4096,
+      "aggregate_complete_bytes": "payload_bytes + coder_allowance_bytes + 6272 + 72 + 4096",
+      "per_item_block_allowance_bytes": "32 * ceil(item_source_bytes / 2^20)",
+      "per_item_stream_metadata_bytes": 24,
+      "per_item_complete_bytes": "item_payload_bytes + ceil(item_payload_bytes * 5 / 1000) + 32 * ceil(item_source_bytes / 2^20) + 24 + 4096",
+      "rounding": "all divisions are ceiling (div_ceil) on u128; gain basis points use floor via i128 div_euclid"
+    },
+    "event_limit": {
+      "per_record": 96,
+      "scope": "full arm only; total_modeled_binary_events <= 96 * record_count separately for every item and the aggregate; raw literal bytes are not modeled events; exceeding kills S0"
+    }
+  },
+  "gates": {
+    "kanzi_complete_bytes": 1712149,
+    "advance_maximum_projected_complete_bytes": 1455326,
+    "advance_minimum_gain_basis_points": 1500,
+    "permit_one_refinement_minimum_bytes": 1455327,
+    "permit_one_refinement_maximum_bytes": 1540934,
+    "kill_at_or_above_projected_complete_bytes": 1540935,
+    "mechanism_report_minimum_attribution_bytes": 8561,
+    "mechanism_exact_build_minimum_attribution_bytes": 17122,
+    "full_minus_m4_minimum_gain_basis_points": 700,
+    "decision_formula": "floor((1712149 - full_arm_projected_complete_bytes) * 10000 / 1712149)",
+    "per_item_rule": "every full-arm per-item complete projection must not exceed that item's single-item Kanzi AXE1O reference (630525, 438522, 643208)",
+    "attribution": {
+      "m1_bytes": "max(0, raw-o3 - m1-chassis)",
+      "m2_bytes": "max(0, m1-chassis - m1-m2)",
+      "m3_bytes": "max(0, full-minus-m3 - full)",
+      "m4_bytes": "max(0, full-minus-m4 - full)",
+      "m5_bytes": "max(0, full-minus-m5 - full)",
+      "interaction_policy": "ordered-chain interactions credited to the later mechanism; leave-one-out interactions not separately assigned"
+    },
+    "code_scope_note": "The committed engine (ledger.rs) implements the aggregate/per-item projection, the Advance/RefineOnce/Kill byte-threshold decision, gain basis points, and the 96-events-per-record check. The attribution formulas, per-item Kanzi ceiling, full-minus-m4 quarantine, and refinement-band arbitration are protocol-level and would be enforced by the runner/verifier (not present in this kernel)."
+  },
+  "refined_differences": {
+    "note": "The refined constants manifest file is byte-identical to the base file except at exactly the two predeclared table maxima below (each stored once, in declared_ceilings). All mechanisms, context keys, hashes, update rules, item order, projection charges, event limit, thresholds, and derivation rules are byte-for-byte identical; the SSE bucket-bit growth is derived from the SSE maximum via mixer_and_sse.sse_bucket_bits_rule, not stored as a separate differing field.",
+    "changes": [
+      {
+        "field": "context_table_bytes_maximum",
+        "from": 201326592,
+        "to": 251658240
+      },
+      {
+        "field": "sse_table_bytes_maximum",
+        "from": 16777216,
+        "to": 25165824
+      }
+    ],
+    "engine_effect": {
+      "sse": "the SSE table grows from SSE_BASE_BUCKET_BITS=17 to SSE_REFINED_BUCKET_BITS=18 (M5Mixer::with_sse_bucket_bits), i.e. 17301504 bytes, above the base 16 MiB ceiling and within the refined 24 MiB ceiling",
+      "context_table": "no engine table grows with the context_table ceiling increase in the current engine; all context tables are fixed compile-time sizes well under even the base ceiling (see notes: refined context ceiling is a declared-ceiling-only change here)"
+    }
+  },
+  "capacity_profile_rule": "This manifest file is the base profile iff declared_ceilings.sse_table_bytes_maximum == 16777216 and the refined profile iff it == 25165824. The refined file is byte-identical to the base file except at exactly declared_ceilings.context_table_bytes_maximum and declared_ceilings.sse_table_bytes_maximum.",
+  "source_toolchain_build_identity": {
+    "engine_source_files": [
+      "native/Cargo.toml",
+      "native/src/bin/clab-s0-kernel.rs",
+      "native/src/s0/arms.rs",
+      "native/src/s0/chassis.rs",
+      "native/src/s0/event.rs",
+      "native/src/s0/fixed_log.rs",
+      "native/src/s0/golden.rs",
+      "native/src/s0/json.rs",
+      "native/src/s0/ledger.rs",
+      "native/src/s0/m1.rs",
+      "native/src/s0/m2.rs",
+      "native/src/s0/m3.rs",
+      "native/src/s0/m4.rs",
+      "native/src/s0/m5.rs",
+      "native/src/s0/mod.rs",
+      "native/src/s0/raw.rs",
+      "native/src/s0/screen.rs",
+      "native/src/s0/tape.rs",
+      "native/src/s0/template.rs"
+    ],
+    "toolchain_pin": "rustc 1.93.1 with cargo 1.93.1",
+    "build_profile": "cargo release profile: lto=fat, codegen-units=1, panic=abort, strip=true, opt-level default",
+    "binding_rule": "The engine commit, per-file SHA-256 of every engine_source_files entry, the SHA-256 of both constants manifest files, and the runner/verifier SHA-256 values are recorded in the S0 freeze record committed before the first corpus measurement, per the protocol's freeze_requirements_before_measurement. A manifest cannot contain its own hash; the freeze record is the binding document."
+  }
+}

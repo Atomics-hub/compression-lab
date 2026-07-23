@@ -60,6 +60,9 @@ const _: () = assert!(TYPE_TREE_COUNT == TYPE_TREE_ALPHABET as usize);
 const _: () = assert!(RecordType::Empty as usize + 1 == TYPE_TREE_ALPHABET as usize);
 const _: () = assert!(VALUE_BYTE_ALPHABET == 256);
 const _: () = assert!(MAX_VALUE_BYTES == MAX_LITERAL_RUN);
+// A parseable MISS record is charged as one whole-record literal, which is
+// only safe while no valid record can exceed the literal-run cap.
+const _: () = assert!(super::json::MAX_RECORD_BYTES == MAX_LITERAL_RUN);
 const _: () = assert!(
     VALUE_MANTISSA_CONTEXTS
         == (VALUE_LENGTH_ALPHABET as usize * (VALUE_LENGTH_ALPHABET as usize - 1)) / 2
