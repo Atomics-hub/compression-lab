@@ -11,18 +11,28 @@
 //! * `field-name-hash x value-byte-order-2`,
 //! * `path-hash x position-within-value`,
 //! * a digit-run view (the previous digits of the current numeric run predict
-//!   the next digit).
+//!   the next digit). This view is gated only on an active digit run, so it
+//!   fires on *any* numeric run wherever it occurs — inside string values and
+//!   number values, but also inside field names or non-JSON text.
 //!
 //! The views are computed from a deterministic streaming JSON structure tracker
-//! (a light state machine like `diagnose::classify`, **reset at every newline**
-//! so a malformed line cannot desync later ones). All four draw their cells from
-//! one shared, hashed, bounded pooled table — never per-field lanes. Every view
-//! is prediction-only, integer-only, live-adaptive, and decoder-reproducible;
-//! when the structure says the next byte is not inside a value the view feeds a
-//! neutral probability that the mixer treats as no evidence. C2 is isolated from
-//! H1 so the published Cycle-1 floor stays byte-for-byte frozen; its own tape is
-//! the literal modeled-bit stream under a disjoint arm id, exact on redecode and
-//! fail-closed on corruption, exhaustion, trailing data, and identity mismatch.
+//! (a light state machine like `diagnose::classify`). It resets at every newline
+//! **except when the newline occurs inside an open string literal** — the
+//! in-string branch consumes the raw newline as string content, so an
+//! unterminated string carries state across the line boundary until the next
+//! quote; such desync is encoder/decoder-**symmetric** (both sides walk the same
+//! history) and bounded to model quality, never to exactness. Likewise, the
+//! tracker's "inside a value" notion is a heuristic: on non-JSON or malformed
+//! input its number/literal/string tokens can activate the value views outside
+//! any real JSON value. All four views draw their cells from one shared, hashed,
+//! bounded pooled table — never per-field lanes — and remain prediction-only,
+//! integer-only, live-adaptive, deterministic, symmetric, and charge-free; when
+//! the heuristic says the next byte is not inside a value (and no digit run is
+//! active) the views feed a neutral probability the mixer treats as no evidence.
+//! C2 is isolated from H1 so the published Cycle-1 floor stays byte-for-byte
+//! frozen; its own tape is the literal modeled-bit stream under a disjoint arm
+//! id, exact on redecode and fail-closed on corruption, exhaustion, trailing
+//! data, and identity mismatch.
 
 use crate::s0::{
     Ledger, LossTable, M5Mixer, Probability, Tape, TapeError, TapeReader, TapeWriter,
@@ -127,9 +137,15 @@ fn observed_probability(probability_of_one: u16, bit: bool) -> u32 {
 // Streaming JSON structure tracker.
 //
 // A bounded, deterministic, integer-only state machine derived from prior bytes
-// only. It resets at every newline so a malformed line cannot desync later
-// lines. It is fixed-size O(1) scratch (never declared model state), mirroring
-// H1's `word`/`last_byte` registers. Its getters describe the *next* byte to be
+// only. It resets at every newline except when the newline falls inside an open
+// string literal (the in-string branch consumes the raw newline as content and
+// returns before the newline match), so an unterminated string carries state
+// across the line boundary until the next quote. That desync is
+// encoder/decoder-symmetric (both walk the same history) and bounded to model
+// quality, never to exactness. The "inside a value" notion is a heuristic that
+// can also activate on number/literal/string tokens in non-JSON text. It is
+// fixed-size O(1) scratch (never declared model state), mirroring H1's
+// `word`/`last_byte` registers. Its getters describe the *next* byte to be
 // coded, so the encoder and decoder — which have identical history — compute
 // identical value-view contexts.
 // ---------------------------------------------------------------------------
@@ -394,7 +410,10 @@ impl C2Structure {
         }
     }
 
-    /// Whether the next byte is expected to lie inside a JSON value span.
+    /// Heuristic: whether the next byte is expected to lie inside a value span.
+    /// On non-JSON or malformed input this can fire on value-shaped tokens
+    /// outside any real JSON value; it is symmetric and only affects which
+    /// views contribute, never exactness.
     fn next_in_value(&self) -> bool {
         self.in_number
             || self.in_literal
@@ -615,8 +634,11 @@ impl C2Model {
     }
 
     /// Resolve the four structure-conditioned views from the shared pooled
-    /// table for one bit. A view that the structure gates off resolves no cell
-    /// and feeds the neutral probability, which the mixer treats as no evidence.
+    /// table for one bit. The three value views fire on the heuristic
+    /// `next_in_value` gate; the digit-run view fires on any active digit run
+    /// (anywhere, including keys and non-JSON text). A view whose gate is off
+    /// resolves no cell and feeds the neutral probability, which the mixer
+    /// treats as no evidence.
     fn resolve_views(
         &mut self,
         node: u8,
