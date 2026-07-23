@@ -11,8 +11,8 @@
 //! M4.
 
 use super::chassis::{
-    chassis_contexts, decode_chassis_item, encode_chassis_item, ChassisError, ValueCoder,
-    M1_BINARY_CONTEXTS, M1_TREE_CONTEXTS, MAX_VALUE_BYTES,
+    chassis_contexts, decode_chassis_item, encode_chassis_item_with_segments, ChassisError,
+    SegmentSnapshot, ValueCoder, M1_BINARY_CONTEXTS, M1_TREE_CONTEXTS, MAX_VALUE_BYTES,
 };
 use super::m2::{extend_m2_tree_alphabets, M2ValueCoder, M2_BINARY_CONTEXTS, M2_TREE_CONTEXTS};
 use super::m3::{extend_m3_tree_alphabets, M3_BINARY_CONTEXTS, M3_TREE_CONTEXTS};
@@ -381,7 +381,7 @@ fn bucket(lane_key: u64) -> usize {
 
 /// The m1-m2-m4 arm's chain: M2 decides first, escapes and ineligible values
 /// proceed directly to the terminal M4 coder.
-fn m4_chain() -> M2ValueCoder<M4ValueCoder> {
+pub(super) fn m4_chain() -> M2ValueCoder<M4ValueCoder> {
     M2ValueCoder::with_inner(M4ValueCoder::new())
 }
 
@@ -406,13 +406,24 @@ pub fn encode_m1_m2_m4_item(
     table: &LossTable,
     item_index: u8,
 ) -> Result<(Tape, Ledger), ChassisError> {
-    encode_chassis_item(
+    let (tape, ledger, _) = encode_m1_m2_m4_item_with_segments(source, table, item_index, None)?;
+    Ok((tape, ledger))
+}
+
+pub fn encode_m1_m2_m4_item_with_segments(
+    source: &[u8],
+    table: &LossTable,
+    item_index: u8,
+    segment_bytes: Option<u64>,
+) -> Result<(Tape, Ledger, Vec<SegmentSnapshot>), ChassisError> {
+    encode_chassis_item_with_segments(
         source,
         table,
         m4_contexts()?,
         M4_ARM_ID,
         item_index,
         &mut m4_chain(),
+        segment_bytes,
     )
 }
 

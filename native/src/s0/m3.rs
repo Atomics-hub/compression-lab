@@ -8,8 +8,8 @@
 //! M2 hit never touch M3 state.
 
 use super::chassis::{
-    chassis_contexts, decode_chassis_item, encode_chassis_item, ChassisError, M1ValueCoder,
-    ValueCoder, M1_BINARY_CONTEXTS, M1_TREE_CONTEXTS,
+    chassis_contexts, decode_chassis_item, encode_chassis_item_with_segments, ChassisError,
+    M1ValueCoder, SegmentSnapshot, ValueCoder, M1_BINARY_CONTEXTS, M1_TREE_CONTEXTS,
 };
 use super::m2::{extend_m2_tree_alphabets, M2ValueCoder, M2_BINARY_CONTEXTS, M2_TREE_CONTEXTS};
 use super::template::{fnv1a64, fnv1a64_extend};
@@ -269,9 +269,9 @@ fn bucket(lane_key: u64) -> usize {
 
 /// The m1-m2-m3 arm's value-coder chain: M2 decides first, escapes and
 /// ineligible values proceed to M3, then to M1 bytes.
-type M3Chain = M2ValueCoder<M3ValueCoder<M1ValueCoder>>;
+pub(super) type M3Chain = M2ValueCoder<M3ValueCoder<M1ValueCoder>>;
 
-fn m3_chain() -> M3Chain {
+pub(super) fn m3_chain() -> M3Chain {
     M2ValueCoder::with_inner(M3ValueCoder::with_inner(M1ValueCoder))
 }
 
@@ -290,13 +290,24 @@ pub fn encode_m1_m2_m3_item(
     table: &LossTable,
     item_index: u8,
 ) -> Result<(Tape, Ledger), ChassisError> {
-    encode_chassis_item(
+    let (tape, ledger, _) = encode_m1_m2_m3_item_with_segments(source, table, item_index, None)?;
+    Ok((tape, ledger))
+}
+
+pub fn encode_m1_m2_m3_item_with_segments(
+    source: &[u8],
+    table: &LossTable,
+    item_index: u8,
+    segment_bytes: Option<u64>,
+) -> Result<(Tape, Ledger, Vec<SegmentSnapshot>), ChassisError> {
+    encode_chassis_item_with_segments(
         source,
         table,
         m3_contexts()?,
         M3_ARM_ID,
         item_index,
         &mut m3_chain(),
+        segment_bytes,
     )
 }
 

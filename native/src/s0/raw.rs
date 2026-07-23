@@ -6,9 +6,9 @@
 //! is no record grammar, no literal channel, and no per-record event budget
 //! (attribution arms may exceed it; only the full arm decides).
 
-use super::chassis::ChassisError;
+use super::chassis::{ChassisError, SegmentSnapshot};
 use super::template::{fnv1a64, fnv1a64_extend};
-use super::{ContextStore, EventDecoder, EventEncoder, Ledger, LossTable, Tape};
+use super::{split_records, ContextStore, EventDecoder, EventEncoder, Ledger, LossTable, Tape};
 
 pub const RAW_ARM_ID: u8 = 0;
 
@@ -38,15 +38,59 @@ pub fn encode_raw_o3_item(
     table: &LossTable,
     item_index: u8,
 ) -> Result<(Tape, Ledger), ChassisError> {
+    let (tape, ledger, _) = encode_raw_o3_item_with_segments(source, table, item_index, None)?;
+    Ok((tape, ledger))
+}
+
+/// Byte-identical to [`encode_raw_o3_item`]; additionally closes diagnostic
+/// segment snapshots at the first record boundary at or after each
+/// `segment_bytes` interval, with no model state reset.
+pub fn encode_raw_o3_item_with_segments(
+    source: &[u8],
+    table: &LossTable,
+    item_index: u8,
+    segment_bytes: Option<u64>,
+) -> Result<(Tape, Ledger, Vec<SegmentSnapshot>), ChassisError> {
+    if segment_bytes == Some(0) {
+        return Err(ChassisError::InvalidSegmentInterval);
+    }
     let mut events = EventEncoder::new(table, raw_contexts()?, RAW_ARM_ID, item_index);
     let mut history = [0_u8; 3];
-    for &byte in source {
+    let encode_byte = |events: &mut EventEncoder<'_>, history: &mut [u8; 3], byte: u8| {
         events.bit(MORE_CONTEXT, true)?;
-        events.symbol(order3_tree(history), u32::from(byte))?;
-        history = [history[1], history[2], byte];
+        events.symbol(order3_tree(*history), u32::from(byte))?;
+        *history = [history[1], history[2], byte];
+        Ok::<(), ChassisError>(())
+    };
+    let mut snapshots = Vec::new();
+    let mut consumed: u64 = 0;
+    let mut next_boundary = segment_bytes;
+    for (index, record) in split_records(source).into_iter().enumerate() {
+        for &byte in record.content {
+            encode_byte(&mut events, &mut history, byte)?;
+        }
+        if record.terminated {
+            encode_byte(&mut events, &mut history, b'\n')?;
+        }
+        consumed += record.content.len() as u64 + u64::from(record.terminated);
+        if let (Some(boundary), Some(interval)) = (next_boundary, segment_bytes) {
+            if consumed >= boundary {
+                snapshots.push(SegmentSnapshot {
+                    records: index as u64 + 1,
+                    source_bytes: consumed,
+                    ledger: events.ledger(),
+                });
+                let mut advanced = boundary;
+                while consumed >= advanced {
+                    advanced += interval;
+                }
+                next_boundary = Some(advanced);
+            }
+        }
     }
     events.bit(MORE_CONTEXT, false)?;
-    Ok(events.finish())
+    let (tape, ledger) = events.finish();
+    Ok((tape, ledger, snapshots))
 }
 
 pub fn decode_raw_o3_item(

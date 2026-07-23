@@ -1,6 +1,9 @@
 //! M1 arm entry points: the shared chassis with the default M1 value coder.
 
-use super::chassis::{chassis_contexts, decode_chassis_item, encode_chassis_item, M1ValueCoder};
+use super::chassis::{
+    chassis_contexts, decode_chassis_item, encode_chassis_item_with_segments, M1ValueCoder,
+    SegmentSnapshot,
+};
 use super::{Ledger, LossTable, Tape};
 
 pub use super::chassis::ChassisError as M1Error;
@@ -12,13 +15,24 @@ pub fn encode_m1_item(
     table: &LossTable,
     item_index: u8,
 ) -> Result<(Tape, Ledger), M1Error> {
-    encode_chassis_item(
+    let (tape, ledger, _) = encode_m1_item_with_segments(source, table, item_index, None)?;
+    Ok((tape, ledger))
+}
+
+pub fn encode_m1_item_with_segments(
+    source: &[u8],
+    table: &LossTable,
+    item_index: u8,
+    segment_bytes: Option<u64>,
+) -> Result<(Tape, Ledger, Vec<SegmentSnapshot>), M1Error> {
+    encode_chassis_item_with_segments(
         source,
         table,
         chassis_contexts(0, &[])?,
         M1_ARM_ID,
         item_index,
         &mut M1ValueCoder,
+        segment_bytes,
     )
 }
 

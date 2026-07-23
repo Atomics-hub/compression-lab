@@ -19,6 +19,7 @@ mod m3;
 mod m4;
 mod m5;
 mod raw;
+mod screen;
 mod tape;
 mod template;
 
@@ -31,7 +32,8 @@ pub use arms::{
 pub use chassis::{
     chassis_contexts, decode_chassis_item, decode_chassis_item_with_mixer, decode_m1_value,
     encode_chassis_item, encode_chassis_item_with_mixer, encode_m1_value, lane_key, ChassisError,
-    M1ValueCoder, RecordType, ValueCoder, M1_BINARY_CONTEXTS, M1_TREE_CONTEXTS, MAX_VALUE_BYTES,
+    M1ValueCoder, RecordType, SegmentSnapshot, ValueCoder, M1_BINARY_CONTEXTS, M1_TREE_CONTEXTS,
+    MAX_VALUE_BYTES,
 };
 pub use event::{ContextStore, EventDecoder, EventEncoder, EventError};
 pub use fixed_log::{LossTable, Probability, MAX_PROBABILITY, MIN_PROBABILITY};
@@ -58,5 +60,6 @@ pub use m5::{
     SSE_TABLE_BYTES_MAXIMUM, SSE_TABLE_BYTES_REFINED_MAXIMUM,
 };
 pub use raw::{decode_raw_o3_item, encode_raw_o3_item, RAW_ARM_ID, RAW_ORDER3_TREES};
+pub use screen::{decode_arm_item, encode_arm_item, Arm, ARMS, SEGMENT_BYTES};
 pub use tape::{Tape, TapeError, TapeReader, TapeWriter};
 pub use template::{InsertOutcome, TemplateError, TemplateHit, TemplateStore};
