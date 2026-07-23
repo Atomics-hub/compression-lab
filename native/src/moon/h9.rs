@@ -16,12 +16,23 @@
 //! index and rescans the sequence once per created rule, so the worst case is
 //! O(rule_budget x sequence_length), and the sequence need not shrink much
 //! per rule. On real log data the 2026-07-23 prescreen recorded
-//! `killed_by_budget` timeouts at 24, 12, and 4 MiB slice sizes under the
-//! 600 s wall (runs in `runs/moon-prescreen-cycle1-h9-v1/`): the offline
-//! naive form is computationally infeasible at prescreen scale on realistic
-//! inputs, independent of its ratio. An incremental Re-Pair (priority queue
-//! plus occurrence lists) would be near-linear; building it is a cycle-2
+//! `killed_by_budget` timeouts on every 12 MiB and 4 MiB slice under the
+//! 600 s wall (runs 22-29 in `runs/moon-prescreen-cycle1-h9-v1/`; the 24 MiB
+//! basis was never attempted because the measured ~42.5 KB/s synthetic
+//! throughput already projected ~593 s): the offline naive form is
+//! computationally infeasible at prescreen scale on realistic inputs,
+//! independent of its ratio. An incremental Re-Pair (priority queue plus
+//! occurrence lists) would be near-linear; building it is a cycle-2
 //! decision, not a patch to this arm.
+//!
+//! Known limits, accepted as documented for this prescreen arm: receipts
+//! report zero records because the grammar has no record notion (H1/H6 count
+//! lines); the expansion guard bounds symbol counts, not bytes, so a hostile
+//! tape can drive the transient decode stack to roughly 256 MiB before
+//! failing closed (still under the runner's 512 MiB kill); and encode does
+//! not reject sources larger than [`H9_MAX_EXPANSION`], so a source over
+//! 64 MiB (impossible at the <= 24 MiB prescreen basis) would produce a tape
+//! its own decoder refuses to expand.
 //!
 //! Pass 2 (charge): the rule table and final sequence are coded as fixed-width
 //! MSB-first symbol ids through an order-1 adaptive model, reusing the frozen
