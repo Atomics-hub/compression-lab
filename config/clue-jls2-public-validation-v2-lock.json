@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "name": "clue-jls2-public-validation-v2-readiness-lock",
+  "readiness_commit": "60483da911f3df6e677267d079f692dfc0956489",
+  "claim_ceiling": "This lock authorizes one unchanged acquisition and first score on the two declared previously unopened CLUE-LDS v2 ranges. It does not itself provide performance evidence, does not change the immutable v1 not_passed score, and does not support a category-win, market-leading, world-best, or state-of-the-art claim.",
+  "authorization": {
+    "maximum_acquisitions": 1,
+    "maximum_scored_attempts": 1,
+    "split": "public_validation",
+    "expected_item_ids": [
+      "clue-validation-v2-c",
+      "clue-validation-v2-d"
+    ],
+    "retain_failed_or_interrupted_attempt": true,
+    "prohibit_post_score_tuning": true
+  },
+  "locked_paths": {
+    ".github/workflows/clue-jls2-public-validation-v2.yml": "3ec767ff74f0b3f775a78e28f9d273e93f20bfa8ce1a8247aaf6ece8030dda62",
+    "config/clue-jls2-public-validation-v2-gates.json": "376354fb60eacb7cc6c7b7cda4fdde37ffd25b2aaa0ce41792a4ede0627d6c9a",
+    "config/clue-json-log-corpus-v2.json": "5a5f764a336f5c123050aa4cf5f53b69876eda1cba8ef0ebf57bc5d07679754a",
+    "config/clue-pbc-public-validation-v2-gates.json": "481fdc71f61113b823631b3f98ae999e8de04ee0ea9ea3c86c0bc49edea84d4b",
+    "config/log-competitor-reproduction-v1.json": "0b6792cdce6ea53b062e8083c976419b62ca4175e6f978c876cffc4b579991a7",
+    "docs/benchmarks/2026-07-23-clue-jls2-public-validation-v2-readiness.md": "7c0ebcb1fc4a771ca411556b6f48d923490769c507132e6d74815e9fa37e9b31",
+    "scripts/benchmark-clue-jls2-public-validation-v2.py": "b9e3dee0d7ae2c316d2351817df9b4af5a9f803eb53c88f8cf65354e1b48e0b1",
+    "scripts/benchmark-pbc-competitor.py": "e23691c006923b68b23a70c8ae923d8a3d7df99d63f825cea48c93542220970e",
+    "scripts/evaluate-clue-jls2-public-validation-v2.py": "ffbc53eead941bfb82ccb2bacbca04111e055642c9a24b1450ded5faf8552dc3",
+    "scripts/fetch-clue-json-corpus-v2.py": "837c6c4630534324c9ce45bb8391e0bd11c6bb2b9af982aefc9056375e7f5fbb",
+    "scripts/jls2-candidate-compress-v2.py": "d882140a5704b2de8ad8663ca572f3fa5c4f99f8c5c8a472feaee920e48bdda2",
+    "scripts/measure-clean-rss.py": "805ee3a20680d2afcf339f678d2e1292fb0ed72dc3ba2ccff261ba693bf41306",
+    "scripts/publish-clue-jls2-public-validation-v2.py": "12eb8467a6e9bb8277325189857bbe1c36f98d9d270112c942f457b85c6d2328",
+    "scripts/verify-clue-jls2-public-validation-v2-lock.py": "57c3b34fe4f9ceb7841a7143be42fff6573c74afa7d0574dabd5957283071a84",
+    "tests/test_clue_jls2_v2_benchmark_rss.py": "1e49312cb9d70986b4118d6609a46e90197c61c96560f49cf8794bf09be774e5",
+    "tests/test_clue_jls2_v2_import.py": "e49708c11c251043b82a426b997bd62be056fb5d82e4cebf6ff701a58754fa27",
+    "tests/test_clue_jls2_v2_publication.py": "8d2e091494bf27886fbdaeb12b413d7671ce2546e836138c84f703dc51453d40",
+    "tests/test_clue_jls2_v2_validation_lock.py": "6651b0888d2c2f5024e30b049060dad5f63596173918b3d51a317e6cb2ff45d4",
+    "tests/test_clue_jls2_v2_validation_readiness.py": "228510d938a04d8032290f13f2f2d6b1088a3a8eb0e3a6acebb94a64b98ceff8",
+    "tests/test_clue_json_corpus_v2.py": "c3c8b27cbcb37bb102a1c0ef1bac3d1880bfdd003ab3d751bc3171c5797daeb1"
+  },
+  "requirements": {
+    "require_clean_tracked_tree": true,
+    "require_readiness_commit_ancestor": true,
+    "require_worktree_matches_readiness_blobs": true,
+    "require_lock_before_acquisition": true,
+    "require_lock_before_scored_output_creation": true,
+    "require_publication_for_pass_or_no_pass": true
+  }
+}
