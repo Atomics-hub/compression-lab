@@ -97,6 +97,18 @@ surfaces, so it is flagged for an owner decision rather than patched ad hoc.
   identical slice bytes. Everything is `development_only_prescreen`. No
   frozen moonshot protocol exists yet; nothing in this lane is authorized
   to read development items until one does.
+- **H9 (bounded grammar) — KILLED at prescreen 2026-07-23.** Naive offline
+  Re-Pair (worst case O(rule_budget x n)) does not terminate inside the
+  600 s per-run budget at prescreen scale on realistic NDJSON: 8 of 8 runs
+  wall-timeout at 12 MiB and then 4 MiB (the 24 MiB basis was never
+  attempted — ~42.5 KB/s projects ~593 s, no margin). The preregistered
+  ratio kill-line (grammar size > 1.3x local ZPAQ-16MiB) was never
+  evaluable — no size was produced, so no ratio numbers exist. Observed
+  kill is computational, upstream of the ratio. Evidence
+  `runs/moon-prescreen-cycle1-h9-v1/`, chart
+  `docs/benchmarks/2026-07-23-moon-cycle1-h9-prescreen.md`; 29 of 160 cycle
+  runs used. An incremental Re-Pair (priority queue + occurrence lists,
+  near-linear) is a possible cycle-2 proposal, not funded now.
 
 ## Closed lanes (do not reopen without new evidence)
 
