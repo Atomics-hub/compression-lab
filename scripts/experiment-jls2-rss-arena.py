@@ -16,14 +16,26 @@ cells). The same binary logic peaks at ~130 MiB on macOS with real file
 output, so the excess is Linux-environment-specific but not explained by the
 two classic glibc malloc tunables.
 
-Round 3 discriminates the remaining suspects:
-- GLIBC_TUNABLES spellings of the same tunables, in case the legacy
-  MALLOC_* environment variables were silently ignored;
-- transparent hugepages (Azure/GitHub runners commonly set THP=always,
-  which can inflate resident anonymous mappings), flipped per cell via
-  sysfs with the runner's passwordless sudo;
-- a raw mmap/munmap/brk/madvise syscall capture (strace) of one decode so
-  the mapping sizes and lifetimes are ground truth rather than inference.
+Round 3 (run 29980724926) refuted transparent hugepages (THP never vs always:
+byte-identical 684.3 MiB) and the GLIBC_TUNABLES spelling (also identical),
+and the mmap/munmap trace showed only the FIRST worker batch direct-mmapping
+its ~16-20 MiB buffers (and freeing them correctly); later batches allocated
+invisibly, i.e. from arena heaps grown via mprotect, which round 3 did not
+trace. The measured floors sit at total lifetime allocation churn
+(12 segments x ~36 MiB ~= 437 MiB), and the peak is byte-identical at 1 and
+3 CPUs and even under strace, so the peak tracks cumulative churn that is
+never returned, not concurrency.
+
+Round 4 discriminates the mechanism decisively:
+- MALLOC_MMAP_THRESHOLD_=1 (extreme): if this changes nothing, the MALLOC_*
+  environment path is provably not reaching the allocator decision, because
+  at threshold 1 every allocation would be mmap-backed and freed to the OS;
+- MALLOC_TRIM_THRESHOLD_=0: forces aggressive trim on free;
+- LD_PRELOAD jemalloc (diagnostic only, never a product dependency): if RSS
+  collapses, glibc-malloc retention is proven by substitution;
+- output to /dev/shm vs the work directory: controls for any file-writeback
+  interaction with the resident accounting;
+- strace including mprotect, so arena-heap growth is finally visible.
 
 Diagnostic only: synthetic data, no licensed corpus paths, no product change,
 and every cell must reproduce the source bytes exactly or the experiment
@@ -49,31 +61,60 @@ THP_ENABLED_PATH = Path("/sys/kernel/mm/transparent_hugepage/enabled")
 THP_DEFRAG_PATH = Path("/sys/kernel/mm/transparent_hugepage/defrag")
 
 # Each cell: label, extra environment, cpu_limit, thp mode ("keep" leaves the
-# host setting untouched), and whether to capture an mmap/brk syscall trace.
+# host setting untouched), optional tmpfs output, and whether to capture a
+# memory-syscall trace. The env value "JEMALLOC" is replaced at runtime with
+# an LD_PRELOAD path to the installed jemalloc shared library.
 CELLS: tuple[dict[str, object], ...] = (
     {"label": "baseline-all", "env": {}, "cpus": None, "thp": "keep"},
     {"label": "baseline-cpus3", "env": {}, "cpus": 3, "thp": "keep"},
     {
-        "label": "glibc-tunables-all",
-        "env": {
-            "GLIBC_TUNABLES": (
-                "glibc.malloc.mmap_threshold=131072:glibc.malloc.arena_max=2"
-            )
-        },
+        "label": "mmap-threshold-1-all",
+        "env": {"MALLOC_MMAP_THRESHOLD_": "1"},
         "cpus": None,
         "thp": "keep",
     },
-    {"label": "thp-never-all", "env": {}, "cpus": None, "thp": "never"},
-    {"label": "thp-never-cpus3", "env": {}, "cpus": 3, "thp": "never"},
-    {"label": "thp-restored-all", "env": {}, "cpus": None, "thp": "restore"},
+    {
+        "label": "trim-0-all",
+        "env": {"MALLOC_TRIM_THRESHOLD_": "0"},
+        "cpus": None,
+        "thp": "keep",
+    },
+    {
+        "label": "jemalloc-all",
+        "env": {"LD_PRELOAD": "JEMALLOC"},
+        "cpus": None,
+        "thp": "keep",
+    },
+    {
+        "label": "jemalloc-cpus3",
+        "env": {"LD_PRELOAD": "JEMALLOC"},
+        "cpus": 3,
+        "thp": "keep",
+    },
+    {
+        "label": "output-shm-all",
+        "env": {},
+        "cpus": None,
+        "thp": "keep",
+        "output_shm": True,
+    },
     {
         "label": "strace-all",
         "env": {},
         "cpus": None,
-        "thp": "restore",
+        "thp": "keep",
         "strace": True,
     },
 )
+
+
+def find_jemalloc() -> str:
+    candidates = sorted(
+        Path("/usr/lib/x86_64-linux-gnu").glob("libjemalloc.so*")
+    ) + sorted(Path("/usr/lib").glob("libjemalloc.so*"))
+    if not candidates:
+        raise SystemExit("jemalloc cell requested but no libjemalloc.so* is installed")
+    return str(candidates[0])
 
 
 def sha256_file(path: Path) -> str:
@@ -159,11 +200,21 @@ def decode_cell(
     if output.exists():
         output.unlink()
     environment = dict(os.environ)
-    for variable in ("MALLOC_ARENA_MAX", "MALLOC_MMAP_THRESHOLD_", "GLIBC_TUNABLES"):
+    for variable in (
+        "MALLOC_ARENA_MAX",
+        "MALLOC_MMAP_THRESHOLD_",
+        "MALLOC_TRIM_THRESHOLD_",
+        "GLIBC_TUNABLES",
+        "LD_PRELOAD",
+    ):
         environment.pop(variable, None)
     extra_env = cell["env"]
     assert isinstance(extra_env, dict)
-    environment.update(extra_env)
+    resolved_env = {
+        key: find_jemalloc() if value == "JEMALLOC" else value
+        for key, value in extra_env.items()
+    }
+    environment.update(resolved_env)
     cpu_limit = cell["cpus"]
 
     # Linux-only interfaces, resolved dynamically so type checking stays
@@ -185,7 +236,7 @@ def decode_cell(
             strace,
             "-f",
             "-e",
-            "trace=mmap,munmap,mremap,brk,madvise",
+            "trace=mmap,munmap,mremap,mprotect,brk,madvise",
             "-o",
             str(strace_log),
         ] + command
@@ -204,7 +255,8 @@ def decode_cell(
     peak_bytes = peak_raw * 1024
     return {
         "label": cell["label"],
-        "env": extra_env,
+        "env": resolved_env,
+        "output_path": str(output),
         "cpu_limit": cpu_limit,
         "thp_mode_requested": cell["thp"],
         "thp_enabled_at_run": selected_thp(read_thp(THP_ENABLED_PATH)),
@@ -262,9 +314,13 @@ def main() -> int:
             elif thp_mode != "keep":
                 raise SystemExit(f"unknown thp mode: {thp_mode!r}")
             strace_log = work / "strace-memory.log" if cell.get("strace") else None
-            result = decode_cell(
-                binary, artifact, work / "decoded.jsonl", cell, strace_log
-            )
+            if cell.get("output_shm"):
+                decoded_path = Path("/dev/shm") / "clab-arena-decoded.jsonl"
+            else:
+                decoded_path = work / "decoded.jsonl"
+            result = decode_cell(binary, artifact, decoded_path, cell, strace_log)
+            if cell.get("output_shm"):
+                decoded_path.unlink(missing_ok=True)
             if result["decoded_sha256"] != source_sha:
                 raise SystemExit(
                     f"decode mismatch ({cell['label']}):"
@@ -287,7 +343,8 @@ def main() -> int:
             write_thp(thp_selected_original)
 
     report = {
-        "schema": "jls2-rss-arena-experiment-v3",
+        "schema": "jls2-rss-arena-experiment-v4",
+        "jemalloc_path": find_jemalloc(),
         "purpose": (
             "Diagnostic allocator/THP/affinity RSS matrix for the JLS2 native "
             "decoder on synthetic data. Not a gate measurement, not corpus "

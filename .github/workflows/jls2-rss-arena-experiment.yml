@@ -29,8 +29,10 @@ jobs:
         run: cargo build --release --locked --bin clab-jls2
         working-directory: native
 
-      - name: Ensure strace is available
-        run: which strace || sudo apt-get update && sudo apt-get install -y strace
+      - name: Ensure strace and jemalloc are available
+        run: |
+          which strace || { sudo apt-get update && sudo apt-get install -y strace; }
+          ls /usr/lib/x86_64-linux-gnu/libjemalloc.so* 2>/dev/null || { sudo apt-get update && sudo apt-get install -y libjemalloc2; }
 
       - name: Run the allocator/THP/affinity matrix
         run: |
