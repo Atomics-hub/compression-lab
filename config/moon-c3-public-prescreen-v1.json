@@ -1,0 +1,41 @@
+{
+  "schema": "moon-c3-public-prescreen-config-v1",
+  "evidence_stage": "development_only_prescreen",
+  "arm": "c3-live-adaptation",
+  "arm_id": 104,
+  "kernel_commit": "69e9ea6a974c24c9a0f99a364cca5e8cd9d36145",
+  "predicted_kill_criterion": "Kill if C3 complete bytes are at least 0.97x H1 complete bytes on both public snapshots, OR any exactness, identity, ledger, unaccounted-state, 600-second wall, or 512 MiB decode-RSS gate fails.",
+  "ratio_kill": {
+    "rule": "kill when C3_bytes * 100 >= H1_bytes * 97 on BOTH snapshots; equality kills; any operational gate failure kills regardless of ratio",
+    "numerator": 97,
+    "denominator": 100,
+    "reducer": "scripts/moon-prescreen-runner.py::c3_ratio_gate_kills"
+  },
+  "snapshots": [
+    {
+      "name": "gharchive-2026-05-15-14-s24",
+      "item_index": 0,
+      "source_bytes": 25165377,
+      "source_sha256": "a6873fdebc69a79c1cad8e7b4b52c8d207c5e7f5fa5ed1df3ec4117d920802b4",
+      "h1_floor_complete_bytes": 3609680,
+      "h1_floor_receipt": "runs/moon-prescreen-cycle1-h1-v1/gharchive-2026-05-15-14-s24__h1-floor.receipt.json"
+    },
+    {
+      "name": "gharchive-2026-06-15-14-s24",
+      "item_index": 1,
+      "source_bytes": 25165414,
+      "source_sha256": "05220440b98e0adfc933ce0b6f838a6bed37d35118e4bb4f02075d7e34e50f79",
+      "h1_floor_complete_bytes": 3517625,
+      "h1_floor_receipt": "runs/moon-prescreen-cycle1-h1-v1/gharchive-2026-06-15-14-s24__h1-floor.receipt.json"
+    }
+  ],
+  "budget": {
+    "counted_runs": 2,
+    "ledger": "moon-prescreen run-budget ledger (36 consumed before this sweep)"
+  },
+  "discipline": {
+    "no_tuning_on_measured_snapshots": true,
+    "synthetic_precheck_reference": "PR #94: exact 4 MiB redecode, 29.515582375 s wall, 177.093494250 s projected at 24 MiB, 164970496 B clean peak RSS, 126238720 B declared state",
+    "frozen_before_execution": "this file must merge to main before either snapshot is measured"
+  }
+}
