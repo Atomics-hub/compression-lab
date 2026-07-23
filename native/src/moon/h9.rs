@@ -12,6 +12,17 @@
 //! a hard rule budget of 32,768 rules, and a bounded digram index (16 MiB
 //! cap). It stops when no pair occurs at least twice or the budget is reached.
 //!
+//! Wall-time honesty (audit finding): this naive form rebuilds the digram
+//! index and rescans the sequence once per created rule, so the worst case is
+//! O(rule_budget x sequence_length), and the sequence need not shrink much
+//! per rule. On real log data the 2026-07-23 prescreen recorded
+//! `killed_by_budget` timeouts at 24, 12, and 4 MiB slice sizes under the
+//! 600 s wall (runs in `runs/moon-prescreen-cycle1-h9-v1/`): the offline
+//! naive form is computationally infeasible at prescreen scale on realistic
+//! inputs, independent of its ratio. An incremental Re-Pair (priority queue
+//! plus occurrence lists) would be near-linear; building it is a cycle-2
+//! decision, not a patch to this arm.
+//!
 //! Pass 2 (charge): the rule table and final sequence are coded as fixed-width
 //! MSB-first symbol ids through an order-1 adaptive model, reusing the frozen
 //! s0 event kernel read-only ([`EventEncoder`]/[`EventDecoder`]/[`ContextStore`]).
