@@ -1,0 +1,18 @@
+{
+  "emitted_bytes": 36296850,
+  "emitted_sha256": "439e68820e96bfb10f22b62a4faf5063e14927f64e25abe48ad876ec2028f38d",
+  "evidence_stage": "development_only_prescreen",
+  "generator_version": "moon-synthetic-corpus-v1",
+  "parameters": {
+    "duplication_factor": 2.0,
+    "key_cardinality": 500,
+    "record_size": 200,
+    "records": 120000,
+    "session_concurrency": 200,
+    "template_count": 3,
+    "timestamp_monotonicity": 0.5,
+    "value_cardinality": 2000
+  },
+  "schema": "moon-synthetic-corpus-receipt-v1",
+  "seed": 15
+}

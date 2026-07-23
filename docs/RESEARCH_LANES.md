@@ -28,23 +28,44 @@ or changes status. Status date: 2026-07-23.
 5. Small branches from `origin/main`, CI green before merge, no new
    dependencies without cause.
 
-## Lane 1 (ACTIVE, foreground): JLS2 decoder memory — the first category win
+## Lane 1 (RESOLVED at the diagnostic level 2026-07-23, owner decision pending): JLS2 decoder memory
 
-- **Goal:** reduce JLS2 decoder peak RSS from 621.3 MiB to ≤ 512 MiB with the
-  frozen bitstream unchanged, passing JLS2's last failed gate.
-- **Why it matters:** JLS2's frozen public-validation score (52.97% smaller
-  than the strongest eligible standard) already clears every other gate. The
-  memory gate is the only thing between the platform and its first honest
-  category win.
-- **Route 1 (preferred):** decoder-only engineering; keeps the frozen score.
-  First deliverable is a trustworthy allocation-lifetime profile — the A3
-  attribution audit was rejected, so no validated memory map exists.
-- **Route 2 (fallback, owner-gated):** a format-level ratio-for-memory trade.
-  That creates a new candidate and consumes a fresh validation family; it is
-  not started without an explicit owner decision.
-- **Already tried and rejected — do not naively re-run:** decompression
-  context reuse (`runs/`/docs history), inline single-worker decode, and the
-  A3 declared-size-lifetime attribution audit.
+- **Resolution:** the 621.3 MiB reading that failed the memory gate is a
+  measurement-instrument artifact, not decoder memory. Five diagnostic
+  rounds (`docs/benchmarks/2026-07-23-jls2-rss-instrument-diagnostic.md`,
+  evidence `runs/jls2-rss-instrument-diagnostic-v1/`, PR #75) proved that
+  `wait4` `ru_maxrss` for a child spawned from a large Python parent reports
+  the parent's footprint: decoding a 1 MB source reads 698.8 MiB on that
+  instrument, byte-identical to a 200 MB decode. Measured cleanly (PR #77's
+  tiny-parent instrument), the dieted decoder (PR #74) peaks at 162.9 MiB at
+  full parallelism on a 200 MB synthetic item — about 3x under the gate.
+- **What remains is an owner decision, not engineering:** re-scoring the
+  frozen memory gate on the frozen validation family with the corrected
+  instrument (an RSS re-measurement only; the frozen 52.97% ratio and all
+  byte results are untouched). Validation-path dispatch stays owner-only.
+- **Corollary:** the A2 context-reuse and inline-single-worker "no effect"
+  results likely compared polluted readings against polluted readings;
+  reread before citing them, pending confirmation of each run's exact
+  measurement path.
+- **Prior status (historical):** goal was 621.3 → ≤ 512 MiB via Route 1
+  (decoder-only) or owner-gated Route 2 (format trade). Route 1's buffer
+  diet (PR #74) merged and remains valuable (real live-memory reduction);
+  Route 2 is moot.
+
+### Known CI defect discovered during Lane 1 (2026-07-23, unresolved)
+
+The Windows CI jobs run multi-command `run:` blocks under pwsh, which only
+propagates the LAST command's exit code — the `cargo test` failures for
+`native/` have been silently swallowed on Windows since at least #68. Two
+`clab-s0-kernel` tests (`default_sse_bucket_bits_are_seventeen_and_recorded`,
+`refined_bits_hold_the_tape_and_move_only_mixer_loss`) build tape filenames
+via `{bits:?}`, embedding quotes that Windows forbids, so they have NEVER
+passed on Windows. The file is byte-pinned by the S0 freeze record
+(`test_json_log_s0_freeze_record`), so the in-file fix is barred (PR #80 was
+withdrawn for exactly this). Resolving this — e.g. a workflow-level
+`--skip` of those two tests on Windows plus splitting the pwsh blocks so
+failures propagate again — changes CI enforcement and freeze-adjacent
+surfaces, so it is flagged for an owner decision rather than patched ad hoc.
 
 ## Lane 2 (ACTIVE, background): the Pareto moonshot
 
@@ -63,8 +84,19 @@ or changes status. Status date: 2026-07-23.
   (S0-style freeze: constants manifests, runner, independent verifier,
   clean-checkout confirmation, one measurement). Every cycle has a compute
   ceiling; most cycles are expected to end in kills, and kills are published.
-- **Status:** cycle 1 in design. No frozen moonshot protocol exists yet;
-  nothing in this lane is authorized to read development items until one does.
+- **Status (2026-07-23):** cycle 1 prescreen RUNNING. Helm-approved slate:
+  H1 (shared hashed mixing + confirm-byte eviction, the floor arm, built in
+  PR #76 with a moon-local N-input integer logistic mixer after audit),
+  then H8 (frozen offline mixer weights), H6 (hybrid with the m3-style
+  value-reuse layer), H9 (bounded grammar compression, the diversifier).
+  Infrastructure merged: `native/src/moon/` + `clab-moon-kernel` (#76), the
+  clean peak-RSS instrument (#77), the pinned public-corpus fetcher (#78),
+  and the budgeted prescreen runner (#79). Prescreen basis: 24 MiB
+  line-aligned slices of five synthetic regimes plus two pinned GH Archive
+  hours, with kanzi-max and zpaq `-method 54` references computed on the
+  identical slice bytes. Everything is `development_only_prescreen`. No
+  frozen moonshot protocol exists yet; nothing in this lane is authorized
+  to read development items until one does.
 
 ## Closed lanes (do not reopen without new evidence)
 
