@@ -1,0 +1,56 @@
+{
+  "schema": "moon-prescreen-runner-config-v1",
+  "kernel_command": [
+    "/private/tmp/claude-501/-Users-guts/514131ce-ff40-4387-bb10-e42d7e7af2ff/scratchpad/sweep-wt/native/target/release/clab-moon-kernel"
+  ],
+  "references": "/Users/guts/Documents/axiom-moonshot-corpora/local-references-s24.json",
+  "budget_state": "/Users/guts/Documents/axiom-moonshot-corpora/run-budget.json",
+  "output_dir": "/Users/guts/Documents/axiom-moonshot-corpora/sweep-cycle1-h8",
+  "arms": [
+    "h8-static-mixer"
+  ],
+  "snapshots": [
+    {
+      "name": "gharchive-2026-05-15-14-s24",
+      "path": "/Users/guts/Documents/axiom-moonshot-corpora/slices/gharchive-2026-05-15-14-s24.ndjson",
+      "sha256": "a6873fdebc69a79c1cad8e7b4b52c8d207c5e7f5fa5ed1df3ec4117d920802b4",
+      "item_index": 0
+    },
+    {
+      "name": "gharchive-2026-06-15-14-s24",
+      "path": "/Users/guts/Documents/axiom-moonshot-corpora/slices/gharchive-2026-06-15-14-s24.ndjson",
+      "sha256": "05220440b98e0adfc933ce0b6f838a6bed37d35118e4bb4f02075d7e34e50f79",
+      "item_index": 1
+    },
+    {
+      "name": "moon-syn-high-dup-s24",
+      "path": "/Users/guts/Documents/axiom-moonshot-corpora/slices/moon-syn-high-dup-s24.ndjson",
+      "sha256": "861e004438bcbbb35f35751a7b5c5ad0408022c5d1c368ba491f589365cad642",
+      "item_index": 2
+    },
+    {
+      "name": "moon-syn-high-sessions-s24",
+      "path": "/Users/guts/Documents/axiom-moonshot-corpora/slices/moon-syn-high-sessions-s24.ndjson",
+      "sha256": "eafb11b3cda9505ef67c76416fc5fa0f02bff8f1ee975ab1fc0b188c8af01d63",
+      "item_index": 3
+    },
+    {
+      "name": "moon-syn-jittery-time-s24",
+      "path": "/Users/guts/Documents/axiom-moonshot-corpora/slices/moon-syn-jittery-time-s24.ndjson",
+      "sha256": "495f915922a93a55a6f26b617db41140d1cb7bdf834fdcaeb4c7e9fa7639c67c",
+      "item_index": 4
+    },
+    {
+      "name": "moon-syn-low-dup-s24",
+      "path": "/Users/guts/Documents/axiom-moonshot-corpora/slices/moon-syn-low-dup-s24.ndjson",
+      "sha256": "b8518673e4d089ac32d6d855d5eb004fdee4c8e8570314c172bac94663b091e3",
+      "item_index": 5
+    },
+    {
+      "name": "moon-syn-many-templates-s24",
+      "path": "/Users/guts/Documents/axiom-moonshot-corpora/slices/moon-syn-many-templates-s24.ndjson",
+      "sha256": "c3d575201f410839ddcad68bef3f4d99c2d6030e610e96b1e3a2994075865170",
+      "item_index": 6
+    }
+  ]
+}
