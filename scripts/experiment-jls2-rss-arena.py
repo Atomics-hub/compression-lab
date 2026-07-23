@@ -208,7 +208,7 @@ def decode_cell(
         "wait4_peak_rss_raw": peak_raw,
         "wait4_peak_rss_bytes": peak_bytes,
         "wait4_peak_rss_mib": round(peak_bytes / 1048576, 1),
-        "wall_seconds": round(usage.ru_utime + usage.ru_stime, 2),
+        "cpu_seconds": round(usage.ru_utime + usage.ru_stime, 2),
         "decoded_sha256": sha256_file(output),
     }
     if time_report is not None:

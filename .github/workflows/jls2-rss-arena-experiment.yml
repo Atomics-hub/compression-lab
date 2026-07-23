@@ -50,7 +50,7 @@ jobs:
                   f" artifact={cell['artifact']:>4}"
                   f" wait4={cell['wait4_peak_rss_mib']:>8} MiB"
                   f" clean={str(clean) + ' MiB' if clean is not None else 'n/a':>12}"
-                  f" wall={cell['wall_seconds']}s"
+                  f" cpu={cell['cpu_seconds']}s"
               )
           EOF
 

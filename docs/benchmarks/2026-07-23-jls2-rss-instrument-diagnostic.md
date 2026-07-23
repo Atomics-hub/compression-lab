@@ -15,13 +15,21 @@ The peak-RSS instrument used to measure the JLS2 native decoder — `wait4`'s
 instrument, the dieted decoder (main `200c74b`) peaks at **162.9 MiB** at
 full parallelism on a 200 MB synthetic item (ubuntu-22.04, 4 vCPU), and
 **4.9 MiB** on a 1 MB item. The frozen public-validation reading of
-651,517,952 bytes (621.3 MiB) was taken through the same class of
-instrument from a large Python worker
-(`src/compresslab/worker.py::_peak_rss_bytes`, which is
-`max(getrusage(RUSAGE_SELF), getrusage(RUSAGE_CHILDREN))`), so that reading
-is unreliable for the same reason. Whether the frozen memory gate is
-re-scored on the frozen validation family with a corrected instrument is an
-owner decision; nothing in this diagnostic touches the frozen result.
+651,517,952 bytes (621.3 MiB) was produced by
+`scripts/benchmark-clue-jls2-public-validation.py::run_process`, which reaps
+a `subprocess.Popen`ed `clab-jls2 decompress` child with `os.wait4(pid, 0)`
+and records `usage.ru_maxrss` — the identical wait4-from-a-large-parent
+instrument this diagnostic reproduces and refutes. Because that call sets no
+`preexec_fn`, it is vfork-eligible and reads the spawning parent's
+historical peak, matching this diagnostic's unrestricted cells. (The
+separate in-process harness telemetry in
+`src/compresslab/worker.py::_peak_rss_bytes`, a
+`max(getrusage(RUSAGE_SELF), getrusage(RUSAGE_CHILDREN))` inside a large
+worker, has its own accumulation problem for any future subprocess-based
+gate, but it is not the source of the frozen number.) Whether the frozen
+memory gate is re-scored on the frozen validation family with a corrected
+instrument is an owner decision; nothing in this diagnostic touches the
+frozen result.
 
 ## The decisive experiment (round 5, run 29981392849)
 
@@ -44,11 +52,12 @@ watermark is folded into the accounting that `wait4` later reports as
 `ru_maxrss`. Two further observations confirm the mechanism:
 
 - Cells that set CPU affinity through `preexec_fn` force CPython down the
-  plain-`fork` path and read the parent's **current** RSS (533.4 MiB);
-  cells without `preexec_fn` allow the `vfork` fast path, which shares the
-  parent's address space and reads the parent's historical **peak**
-  (698.8 MiB). This asymmetry manufactured a fake "worker-count step" in
-  rounds 1–4: the step tracked the spawn path, not the worker pool.
+  plain-`fork` path and read 533.4 MiB; cells without `preexec_fn` allow
+  the `vfork` fast path and read 698.8 MiB — consistent with plain fork
+  capturing the parent's current resident size and vfork sharing the
+  parent's address space, whose high-water mark is the parent's historical
+  peak. This asymmetry manufactured a fake "worker-count step" in rounds
+  1–4: the step tracked the spawn path, not the worker pool.
 - The round-4 syscall trace (`strace -f` over
   `mmap/munmap/mremap/mprotect/brk/madvise`) shows the decoder making only
   ~203 MiB of anonymous read-write mappings over its entire life while the
@@ -70,10 +79,11 @@ anomaly: no allocator-behavior hypothesis can produce that, only a reading
 taken before the decoder ever ran.
 
 A separate counting-allocator instrumentation of the same decode (macOS,
-Rust global allocator) measured true peak live bytes at exactly
-`workers x 16 MiB` — one segment buffer per in-flight worker — consistent
-with the clean Linux readings once shared libraries and zstd contexts are
-added.
+Rust global allocator; session-local, not archived in this bundle) measured
+true peak live bytes at exactly `workers x 16 MiB` — one segment buffer per
+in-flight worker — consistent with the clean Linux readings once shared
+libraries and zstd contexts are added. It is corroborating context only;
+the archived round-5 clean readings are the primary evidence.
 
 ## Consequences
 
@@ -91,9 +101,11 @@ added.
    readings of the harness, biased upward, never downward — compression-side
    readings and all byte/ratio numbers are unaffected.
 3. **Prior rejected memory work should be reread in this light.** The
-   A2 context-reuse and inline-single-worker results compared polluted
-   readings against polluted readings; their deltas near zero are exactly
-   what an instrument artifact predicts.
+   A2 context-reuse and inline-single-worker results likely compared
+   polluted readings against polluted readings — deltas near zero are
+   exactly what an instrument artifact predicts — pending confirmation of
+   each run's exact measurement path before any of those rejections is
+   formally revisited.
 
 ## Reproduction
 
