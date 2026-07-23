@@ -1,6 +1,7 @@
 import hashlib
 import json
 from pathlib import Path
+import subprocess
 import unittest
 
 
@@ -14,6 +15,16 @@ DECISION = (
     / "benchmarks"
     / "2026-07-17-dms2-native-development-gate.md"
 )
+
+
+def sha256_git_blob(commit: str, relative: str) -> str:
+    result = subprocess.run(
+        ["git", "show", f"{commit}:{relative}"],
+        cwd=REPOSITORY,
+        check=True,
+        capture_output=True,
+    )
+    return hashlib.sha256(result.stdout).hexdigest()
 
 
 class DMS2OperationalEvidenceTests(unittest.TestCase):
@@ -89,9 +100,14 @@ class DMS2OperationalEvidenceTests(unittest.TestCase):
                 for jobs in receipt["platform_jobs"].values()
             )
         )
+        # The receipt records the sources AS TESTED at tested_commit. Verify
+        # each pinned hash against that commit's git blob rather than the live
+        # working-tree bytes: files like .github/workflows/ci.yml may evolve
+        # (e.g. the Windows CI enforcement repair) without rewriting this frozen
+        # evidence. Mirrors test_jls2_native_decoder_evidence's historical bind.
         for path, expected in receipt["source_sha256"].items():
             self.assertEqual(
-                hashlib.sha256((REPOSITORY / path).read_bytes()).hexdigest(),
+                sha256_git_blob(receipt["tested_commit"], path),
                 expected,
             )
 

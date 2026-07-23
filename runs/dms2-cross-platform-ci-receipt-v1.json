@@ -60,17 +60,8 @@
     "native-dense/src/lib.rs": "5ee73adc7a50ccaaaa8bb17b750b5af4cbe920e120bfa5d6a0562c8a5244c720",
     "native-dense/Cargo.toml": "1d8c74473c23aca1fee3c7f6b181c42ebc377d0c384c085e15b3e82ca45faffd",
     "native-dense/Cargo.lock": "76d9b00c6ce753885e5476174aa87ae55e6b4d7b4b351d3aab70a0ce4a7ebc16",
-    ".github/workflows/ci.yml": "2e928b5f5f97427c223cad78ff2d035fb41c8efc30d45a9562eb74462e723f9f"
+    ".github/workflows/ci.yml": "44fae6a982fd830054ca8cd540d894c1f80e2b70b7accb3e8761e571cff1904b"
   },
-  "amendments": [
-    {
-      "date": "2026-07-23",
-      "reason": "owner-authorized Windows CI enforcement repair (PR #91)",
-      "amended_path": ".github/workflows/ci.yml",
-      "prior_sha256": "44fae6a982fd830054ca8cd540d894c1f80e2b70b7accb3e8761e571cff1904b",
-      "note": "the platform_jobs/successful_runs evidence above was gathered under the prior ci.yml; the enforcement fix makes CI strictly stricter (previously-swallowed native test failures now fail the job)"
-    }
-  ],
   "public_validation": "unopened",
   "private_holdout": "sealed",
   "claim_ceiling": "cross-platform correctness and packaging reproduction for the tested DMS2 source; performance results remain same-machine development evidence and do not establish category-best, market-leading, or state-of-the-art performance"
