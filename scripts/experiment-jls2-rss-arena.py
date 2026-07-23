@@ -20,7 +20,6 @@ import argparse
 import hashlib
 import json
 import os
-import resource
 import subprocess
 import sys
 from pathlib import Path
@@ -75,9 +74,14 @@ def decode_cell(
     if arena is not None:
         environment["MALLOC_ARENA_MAX"] = arena
 
+    # Linux-only interfaces, resolved dynamically so type checking stays
+    # clean on the non-Linux CI hosts that never run this experiment.
+    set_affinity = getattr(os, "sched_setaffinity")
+    wait4 = getattr(os, "wait4")
+
     def limit_affinity() -> None:
         if cpu_limit is not None:
-            os.sched_setaffinity(0, set(range(cpu_limit)))
+            set_affinity(0, set(range(cpu_limit)))
 
     process = subprocess.Popen(
         [str(binary), "decompress", str(artifact), "-o", str(output)],
@@ -86,14 +90,14 @@ def decode_cell(
         stdout=subprocess.DEVNULL,
         stderr=subprocess.PIPE,
     )
-    _, status, usage = os.wait4(process.pid, 0)
+    _, status, usage = wait4(process.pid, 0)
     stderr = process.stderr.read().decode(errors="replace") if process.stderr else ""
     if os.waitstatus_to_exitcode(status) != 0:
         raise SystemExit(
             f"decode failed (arena={arena}, cpus={cpu_limit}): {stderr.strip()}"
         )
     peak_raw = usage.ru_maxrss
-    peak_bytes = peak_raw if sys.platform == "darwin" else peak_raw * 1024
+    peak_bytes = peak_raw * 1024
     return {
         "malloc_arena_max": arena,
         "cpu_limit": cpu_limit,
@@ -114,10 +118,9 @@ def main() -> int:
     arguments = parser.parse_args()
 
     if sys.platform != "linux":
-        print(
-            "warning: the arena hypothesis is glibc-specific; results on"
-            f" {sys.platform} do not transfer to the Linux gate",
-            file=sys.stderr,
+        raise SystemExit(
+            "this experiment is Linux-only: the arena hypothesis is "
+            "glibc-specific and non-Linux results do not transfer to the gate"
         )
 
     work = arguments.work_dir
