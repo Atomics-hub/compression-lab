@@ -67,6 +67,8 @@ KILL_LINES = {
         "Kill if the hybrid does not beat max(H1-alone, M3-alone) by >= 3% on the "
         "public set."
     ),
+    # Verbatim from draft cycle-1 §2-H9.
+    "h9-grammar": "Kill if bounded-grammar size > 1.3x local ZPAQ-16MiB on the public set.",
 }
 
 

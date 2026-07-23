@@ -23,6 +23,9 @@ use moon::h1::{
 use moon::h6::{
     decode_h6_item_with_bits, encode_h6_item_with_bits, h6_declared_state_bytes, H6_ARM_ID,
 };
+use moon::h9::{
+    decode_h9_item_with_bits, encode_h9_item_with_bits, h9_declared_state_bytes, H9_ARM_ID,
+};
 use s0::{Ledger, LossTable, Tape, SSE_BASE_BUCKET_BITS, SSE_REFINED_BUCKET_BITS};
 use sha2::{Digest, Sha256};
 use std::env;
@@ -42,6 +45,9 @@ const H1_KILL_CRITERION: &str = "Kill if projected complete bytes exceed 1.10x l
 // the intentional recorded simplification, not a drift.
 const H6_KILL_CRITERION: &str =
     "Kill if the hybrid does not beat max(H1-alone, M3-alone) by >= 3% on the public set.";
+// H9 kill line, verbatim from draft cycle-1 §2-H9.
+const H9_KILL_CRITERION: &str =
+    "Kill if bounded-grammar size > 1.3x local ZPAQ-16MiB on the public set.";
 
 /// The moon prescreen arms. Each wraps a moon arm's encode/decode, declared
 /// state, and preregistered kill line so the kernel dispatches uniformly.
@@ -49,15 +55,17 @@ const H6_KILL_CRITERION: &str =
 enum MoonArm {
     H1Floor,
     H6Hybrid,
+    H9Grammar,
 }
 
-const ARMS: [MoonArm; 2] = [MoonArm::H1Floor, MoonArm::H6Hybrid];
+const ARMS: [MoonArm; 3] = [MoonArm::H1Floor, MoonArm::H6Hybrid, MoonArm::H9Grammar];
 
 impl MoonArm {
     fn from_name(name: &str) -> Option<Self> {
         match name {
             "h1-floor" => Some(Self::H1Floor),
             "h6-hybrid" => Some(Self::H6Hybrid),
+            "h9-grammar" => Some(Self::H9Grammar),
             _ => None,
         }
     }
@@ -66,6 +74,7 @@ impl MoonArm {
         match self {
             Self::H1Floor => "h1-floor",
             Self::H6Hybrid => "h6-hybrid",
+            Self::H9Grammar => "h9-grammar",
         }
     }
 
@@ -73,6 +82,7 @@ impl MoonArm {
         match self {
             Self::H1Floor => H1_ARM_ID,
             Self::H6Hybrid => H6_ARM_ID,
+            Self::H9Grammar => H9_ARM_ID,
         }
     }
 
@@ -80,6 +90,7 @@ impl MoonArm {
         match self {
             Self::H1Floor => H1_KILL_CRITERION,
             Self::H6Hybrid => H6_KILL_CRITERION,
+            Self::H9Grammar => H9_KILL_CRITERION,
         }
     }
 
@@ -87,6 +98,7 @@ impl MoonArm {
         match self {
             Self::H1Floor => h1_declared_state_bytes(table, sse_bucket_bits),
             Self::H6Hybrid => h6_declared_state_bytes(table, sse_bucket_bits),
+            Self::H9Grammar => h9_declared_state_bytes(table, sse_bucket_bits),
         }
     }
 
@@ -101,6 +113,8 @@ impl MoonArm {
             Self::H1Floor => encode_h1_item_with_bits(source, table, item_index, sse_bucket_bits)
                 .map_err(|error| error.to_string()),
             Self::H6Hybrid => encode_h6_item_with_bits(source, table, item_index, sse_bucket_bits)
+                .map_err(|error| error.to_string()),
+            Self::H9Grammar => encode_h9_item_with_bits(source, table, item_index, sse_bucket_bits)
                 .map_err(|error| error.to_string()),
         }
     }
@@ -122,6 +136,10 @@ impl MoonArm {
                 decode_h6_item_with_bits(tape, expected_ledger, table, item_index, sse_bucket_bits)
                     .map_err(|error| error.to_string())
             }
+            Self::H9Grammar => {
+                decode_h9_item_with_bits(tape, expected_ledger, table, item_index, sse_bucket_bits)
+                    .map_err(|error| error.to_string())
+            }
         }
     }
 }
@@ -130,10 +148,10 @@ const HELP: &str = "clab-moon-kernel — moonshot cycle-1 prescreen accounting k
 
 Usage:
   clab-moon-kernel arms
-  clab-moon-kernel encode --arm h1-floor|h6-hybrid --item-index N --input PATH
+  clab-moon-kernel encode --arm h1-floor|h6-hybrid|h9-grammar --item-index N --input PATH
                           --tape-out PATH --receipt-out PATH
                           [--sse-bucket-bits 17|18] [--force]
-  clab-moon-kernel decode --arm h1-floor|h6-hybrid --item-index N --tape PATH
+  clab-moon-kernel decode --arm h1-floor|h6-hybrid|h9-grammar --item-index N --tape PATH
                           --records N --modeled-binary-events N
                           --modeled-loss-q24 N --raw-literal-bytes N
                           --output PATH --receipt-out PATH
@@ -826,10 +844,67 @@ mod tests {
     }
 
     #[test]
-    fn arms_lists_both_moon_arms() {
+    fn arms_lists_every_moon_arm() {
         assert_eq!(MoonArm::from_name("h1-floor").map(MoonArm::id), Some(100));
         assert_eq!(MoonArm::from_name("h6-hybrid").map(MoonArm::id), Some(101));
+        assert_eq!(MoonArm::from_name("h9-grammar").map(MoonArm::id), Some(102));
         assert!(MoonArm::from_name("nope").is_none());
+        assert_eq!(ARMS.len(), 3);
+    }
+
+    #[test]
+    fn the_h9_arm_encodes_decodes_and_reports_its_own_state_and_kill_line() {
+        let scratch = Scratch::new();
+        let mut source = Vec::new();
+        for _ in 0..40 {
+            source.extend_from_slice(b"{\"event\":\"heartbeat\",\"ok\":true}\n");
+        }
+        fs::write(scratch.path("item.ndjson"), &source).unwrap();
+        let receipt_path = scratch.path("h9.receipt.json");
+        unwrap_message(encode_command(&[
+            "--arm",
+            "h9-grammar",
+            "--item-index",
+            "1",
+            "--input",
+            &scratch.path("item.ndjson"),
+            "--tape-out",
+            &scratch.path("h9.tape"),
+            "--receipt-out",
+            &receipt_path,
+        ]));
+        let receipt = fs::read_to_string(&receipt_path).unwrap();
+        assert_eq!(receipt_field(&receipt, "arm"), "h9-grammar");
+        assert_eq!(receipt_field(&receipt, "arm_id"), "102");
+        assert_eq!(receipt_field(&receipt, "decode_matches_source"), "true");
+        assert_eq!(
+            receipt_field(&receipt, "declared_model_state_bytes"),
+            "25297254"
+        );
+        assert!(receipt.contains("bounded-grammar size > 1.3x local ZPAQ-16MiB"));
+
+        let output = scratch.path("h9.decoded");
+        unwrap_message(decode_command(&[
+            "--arm",
+            "h9-grammar",
+            "--item-index",
+            "1",
+            "--tape",
+            &scratch.path("h9.tape"),
+            "--records",
+            receipt_field(&receipt, "records"),
+            "--modeled-binary-events",
+            receipt_field(&receipt, "modeled_binary_events"),
+            "--modeled-loss-q24",
+            receipt_field(&receipt, "modeled_loss_q24"),
+            "--raw-literal-bytes",
+            receipt_field(&receipt, "raw_literal_bytes"),
+            "--output",
+            &output,
+            "--receipt-out",
+            &scratch.path("h9.decode-receipt.json"),
+        ]));
+        assert_eq!(fs::read(&output).unwrap(), source);
     }
 
     #[test]
