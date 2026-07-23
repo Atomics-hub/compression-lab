@@ -70,10 +70,15 @@ jobs:
         os: [ubuntu-latest, macos-15, windows-latest]
     steps:
       - uses: actions/checkout@v6
-      - name: Build and test self-contained decoder
-        run: |
-          cargo build --release --locked --manifest-path native/Cargo.toml --bin clab-jls2
-          cargo test --release --locked --manifest-path native/Cargo.toml --bin clab-jls2
+      # Split so each command is its own step: on Windows the default shell is
+      # pwsh, whose run: | blocks only propagate the LAST command's exit code, so
+      # a build failure would be masked by a passing test. One command per step
+      # makes each exit code fail the job. (No --skip needed here: --bin
+      # clab-jls2 does not include the clab-s0-kernel tests.)
+      - name: Build self-contained decoder
+        run: cargo build --release --locked --manifest-path native/Cargo.toml --bin clab-jls2
+      - name: Test self-contained decoder
+        run: cargo test --release --locked --manifest-path native/Cargo.toml --bin clab-jls2
       - name: Assemble Unix archive
         if: runner.os != 'Windows'
         shell: bash
@@ -88,9 +93,14 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
+          # pwsh run: | blocks otherwise only propagate the last command's exit
+          # code; make cmdlet errors terminating and check the native exit code
+          # explicitly so any step here fails the job.
+          $ErrorActionPreference = 'Stop'
           New-Item -ItemType Directory -Force -Path "$env:RUNNER_TEMP/clab-jls2", "standalone"
           Copy-Item "native/target/release/clab-jls2.exe", "LICENSE", "README.md" -Destination "$env:RUNNER_TEMP/clab-jls2"
           & "native/target/release/clab-jls2.exe" --version
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           Compress-Archive -Path "$env:RUNNER_TEMP/clab-jls2" -DestinationPath "standalone/clab-jls2-$env:RUNNER_OS-$env:RUNNER_ARCH.zip"
       - uses: actions/upload-artifact@v7
         with:

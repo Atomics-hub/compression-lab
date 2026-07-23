@@ -52,20 +52,34 @@ or changes status. Status date: 2026-07-23.
   diet (PR #74) merged and remains valuable (real live-memory reduction);
   Route 2 is moot.
 
-### Known CI defect discovered during Lane 1 (2026-07-23, unresolved)
+### CI defect discovered during Lane 1 (2026-07-23, FIXED)
 
-The Windows CI jobs run multi-command `run:` blocks under pwsh, which only
-propagates the LAST command's exit code — the `cargo test` failures for
-`native/` have been silently swallowed on Windows since at least #68. Two
-`clab-s0-kernel` tests (`default_sse_bucket_bits_are_seventeen_and_recorded`,
-`refined_bits_hold_the_tape_and_move_only_mixer_loss`) build tape filenames
-via `{bits:?}`, embedding quotes that Windows forbids, so they have NEVER
-passed on Windows. The file is byte-pinned by the S0 freeze record
+**History.** The Windows CI jobs ran multi-command `run:` blocks under pwsh,
+which only propagates the LAST command's exit code — so the `cargo test`
+failures for `native/` were silently swallowed on Windows since at least #68.
+Two `clab-s0-kernel` tests (`default_sse_bucket_bits_are_seventeen_and_recorded`,
+`refined_bits_hold_the_tape_and_move_only_mixer_loss`) build tape filenames via
+`{bits:?}`, embedding quotes that Windows forbids, so they never passed on
+Windows. The file is byte-pinned by the S0 freeze record
 (`test_json_log_s0_freeze_record`), so the in-file fix is barred (PR #80 was
-withdrawn for exactly this). Resolving this — e.g. a workflow-level
-`--skip` of those two tests on Windows plus splitting the pwsh blocks so
-failures propagate again — changes CI enforcement and freeze-adjacent
-surfaces, so it is flagged for an owner decision rather than patched ad hoc.
+withdrawn for exactly this).
+
+**Resolution (owner-authorized).** The enforcement gap is closed:
+
+1. Every multi-command pwsh `run:` block in `ci.yml` and `release.yml` was
+   split so each command is its own step (one pwsh-cmdlet block, the Windows
+   archive assembly in `release.yml`, instead uses `$ErrorActionPreference =
+   'Stop'` plus an explicit `$LASTEXITCODE` check). Each command's exit code
+   now fails the job on Windows, matching the fail-fast behaviour the
+   non-Windows (bash) legs already had.
+2. The Windows matrix leg of the native `cargo test` steps skips exactly those
+   two freeze-pinned tests via `-- --skip
+   default_sse_bucket_bits_are_seventeen_and_recorded --skip
+   refined_bits_hold_the_tape_and_move_only_mixer_loss` (their filenames are
+   illegal on NTFS). No other native test is skipped, and the non-Windows legs
+   are unchanged.
+
+Windows now runs all native tests except those two named skips.
 
 ## Lane 2 (ACTIVE, background): the Pareto moonshot
 
