@@ -158,4 +158,14 @@ mod tests {
         assert_eq!(first.sha256(), second.sha256());
         assert_ne!(first.sha256(), [0_u8; 32]);
     }
+
+    #[test]
+    fn lookup_digest_matches_the_frozen_manifest_value() {
+        let digest = LossTable::generate().sha256();
+        let hex: String = digest.iter().map(|byte| format!("{byte:02x}")).collect();
+        assert_eq!(
+            hex,
+            "4684423d2b6feb82a598e925603811eb1b8d690027d4a05e20b219f13939c1de"
+        );
+    }
 }
