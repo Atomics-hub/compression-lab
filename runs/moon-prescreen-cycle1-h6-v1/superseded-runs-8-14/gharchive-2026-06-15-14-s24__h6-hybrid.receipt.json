@@ -1,0 +1,38 @@
+{
+  "arm": "h6-hybrid",
+  "declared_model_state_bytes": 129517566,
+  "decode_matches": true,
+  "evidence_stage": "development_only_prescreen",
+  "kill_reason": null,
+  "peak_rss_bytes": 322437120,
+  "predicted_kill_criterion": "Kill if the hybrid does not beat max(H1-alone, M3-alone) by >= 3% on the public set.",
+  "projected_complete_bytes": 3520639,
+  "ratio_vs_local_kanzi": 1.3259421707910295,
+  "ratio_vs_local_zpaq16": 1.2930082252716661,
+  "references": {
+    "kanzi": {
+      "args": "--compress --level=9 --block=1g --jobs=1",
+      "max_bytes": 2655198,
+      "path": "/Users/guts/Documents/Codex/2026-07-14/i/outputs/compression-lab/.baseline-tools/text-source-v1/bin/kanzi",
+      "seconds": 9.8,
+      "sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+      "version": "Kanzi 2.5.3"
+    },
+    "snapshot_source_bytes": 25165414,
+    "snapshot_source_sha256": "05220440b98e0adfc933ce0b6f838a6bed37d35118e4bb4f02075d7e34e50f79",
+    "zpaq": {
+      "args": "add ARCHIVE input.bin -method 54 -threads 1 -noattributes -until 20000101000000",
+      "m54_bytes": 2722828,
+      "path": "/private/tmp/claude-501/-Users-guts/77afc704-5e49-420d-9b6b-44e7f2adb0d5/scratchpad/zpaq-build/zpaq-nojit",
+      "seconds": 111.8,
+      "sha256": "3030bfef86efe97cc63ca6f47b0c362ae83fa2ec55e05095d6b190f463f28d37",
+      "version": "zpaq v7.15 (local clang++ -O3 -DNOJIT -Dunix build from the cached zpaq715.zip; NOJIT because the imported arm64 binary fails JIT allocation on macOS; compressed output is algorithm-identical)"
+    }
+  },
+  "rss_shim_floor_bytes": 18432000,
+  "run_index": 9,
+  "schema": "moon-prescreen-run-receipt-v1",
+  "snapshot": "gharchive-2026-06-15-14-s24",
+  "status": "measured",
+  "wall_seconds": 169.175416416
+}
