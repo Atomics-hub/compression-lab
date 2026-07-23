@@ -1,0 +1,74 @@
+{
+  "kanzi": {
+    "args": "--compress --level=9 --block=1g --jobs=1",
+    "path": "/Users/guts/Documents/Codex/2026-07-14/i/outputs/compression-lab/.baseline-tools/text-source-v1/bin/kanzi",
+    "sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+    "version": "Kanzi 2.5.3"
+  },
+  "note": "Local prescreen references on pinned public snapshots. development_only_prescreen; not comparable to frozen CLUE numbers.",
+  "schema": "moon-local-references-v1",
+  "snapshots": {
+    "gharchive-2026-05-15-14-s24": {
+      "kanzi_max_bytes": 2804326,
+      "kanzi_seconds": 11.6,
+      "source_bytes": 25165377,
+      "source_sha256": "a6873fdebc69a79c1cad8e7b4b52c8d207c5e7f5fa5ed1df3ec4117d920802b4",
+      "zpaq_m54_bytes": 2854515,
+      "zpaq_seconds": 113.8
+    },
+    "gharchive-2026-06-15-14-s24": {
+      "kanzi_max_bytes": 2655198,
+      "kanzi_seconds": 9.8,
+      "source_bytes": 25165414,
+      "source_sha256": "05220440b98e0adfc933ce0b6f838a6bed37d35118e4bb4f02075d7e34e50f79",
+      "zpaq_m54_bytes": 2722828,
+      "zpaq_seconds": 111.8
+    },
+    "moon-syn-high-dup-s24": {
+      "kanzi_max_bytes": 418281,
+      "kanzi_seconds": 14.3,
+      "source_bytes": 25165710,
+      "source_sha256": "861e004438bcbbb35f35751a7b5c5ad0408022c5d1c368ba491f589365cad642",
+      "zpaq_m54_bytes": 663219,
+      "zpaq_seconds": 166.8
+    },
+    "moon-syn-high-sessions-s24": {
+      "kanzi_max_bytes": 535393,
+      "kanzi_seconds": 11.1,
+      "source_bytes": 25165704,
+      "source_sha256": "eafb11b3cda9505ef67c76416fc5fa0f02bff8f1ee975ab1fc0b188c8af01d63",
+      "zpaq_m54_bytes": 826195,
+      "zpaq_seconds": 142.4
+    },
+    "moon-syn-jittery-time-s24": {
+      "kanzi_max_bytes": 524533,
+      "kanzi_seconds": 13.7,
+      "source_bytes": 25165774,
+      "source_sha256": "495f915922a93a55a6f26b617db41140d1cb7bdf834fdcaeb4c7e9fa7639c67c",
+      "zpaq_m54_bytes": 814755,
+      "zpaq_seconds": 139.3
+    },
+    "moon-syn-low-dup-s24": {
+      "kanzi_max_bytes": 632081,
+      "kanzi_seconds": 17.6,
+      "source_bytes": 25165614,
+      "source_sha256": "b8518673e4d089ac32d6d855d5eb004fdee4c8e8570314c172bac94663b091e3",
+      "zpaq_m54_bytes": 927115,
+      "zpaq_seconds": 147.0
+    },
+    "moon-syn-many-templates-s24": {
+      "kanzi_max_bytes": 542937,
+      "kanzi_seconds": 22.8,
+      "source_bytes": 25165656,
+      "source_sha256": "c3d575201f410839ddcad68bef3f4d99c2d6030e610e96b1e3a2994075865170",
+      "zpaq_m54_bytes": 836173,
+      "zpaq_seconds": 96.9
+    }
+  },
+  "zpaq": {
+    "args": "add ARCHIVE input.bin -method 54 -threads 1 -noattributes -until 20000101000000",
+    "path": "/private/tmp/claude-501/-Users-guts/77afc704-5e49-420d-9b6b-44e7f2adb0d5/scratchpad/zpaq-build/zpaq-nojit",
+    "sha256": "3030bfef86efe97cc63ca6f47b0c362ae83fa2ec55e05095d6b190f463f28d37",
+    "version": "zpaq v7.15 (local clang++ -O3 -DNOJIT -Dunix build from the cached zpaq715.zip; NOJIT because the imported arm64 binary fails JIT allocation on macOS; compressed output is algorithm-identical)"
+  }
+}

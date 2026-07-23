@@ -1,0 +1,55 @@
+{
+  "budget": {
+    "cap": 160,
+    "consumed_after": 36,
+    "consumed_before": 29
+  },
+  "config_sha256": "34cb4718cedc8f3ebb35787942c116f6368be18ead523de0fed39f7f053d5efd",
+  "evidence_stage": "development_only_prescreen",
+  "references_sha256": "5fb1a001b44e5652c5be19f9eead6167f29ce53084c791c3ab982a1fc750e07f",
+  "runs": [
+    {
+      "arm": "h8-static-mixer",
+      "receipt_path": "/Users/guts/Documents/axiom-moonshot-corpora/sweep-cycle1-h8/gharchive-2026-05-15-14-s24__h8-static-mixer.receipt.json",
+      "snapshot": "gharchive-2026-05-15-14-s24",
+      "status": "measured"
+    },
+    {
+      "arm": "h8-static-mixer",
+      "receipt_path": "/Users/guts/Documents/axiom-moonshot-corpora/sweep-cycle1-h8/gharchive-2026-06-15-14-s24__h8-static-mixer.receipt.json",
+      "snapshot": "gharchive-2026-06-15-14-s24",
+      "status": "measured"
+    },
+    {
+      "arm": "h8-static-mixer",
+      "receipt_path": "/Users/guts/Documents/axiom-moonshot-corpora/sweep-cycle1-h8/moon-syn-high-dup-s24__h8-static-mixer.receipt.json",
+      "snapshot": "moon-syn-high-dup-s24",
+      "status": "measured"
+    },
+    {
+      "arm": "h8-static-mixer",
+      "receipt_path": "/Users/guts/Documents/axiom-moonshot-corpora/sweep-cycle1-h8/moon-syn-high-sessions-s24__h8-static-mixer.receipt.json",
+      "snapshot": "moon-syn-high-sessions-s24",
+      "status": "measured"
+    },
+    {
+      "arm": "h8-static-mixer",
+      "receipt_path": "/Users/guts/Documents/axiom-moonshot-corpora/sweep-cycle1-h8/moon-syn-jittery-time-s24__h8-static-mixer.receipt.json",
+      "snapshot": "moon-syn-jittery-time-s24",
+      "status": "measured"
+    },
+    {
+      "arm": "h8-static-mixer",
+      "receipt_path": "/Users/guts/Documents/axiom-moonshot-corpora/sweep-cycle1-h8/moon-syn-low-dup-s24__h8-static-mixer.receipt.json",
+      "snapshot": "moon-syn-low-dup-s24",
+      "status": "measured"
+    },
+    {
+      "arm": "h8-static-mixer",
+      "receipt_path": "/Users/guts/Documents/axiom-moonshot-corpora/sweep-cycle1-h8/moon-syn-many-templates-s24__h8-static-mixer.receipt.json",
+      "snapshot": "moon-syn-many-templates-s24",
+      "status": "measured"
+    }
+  ],
+  "schema": "moon-prescreen-sweep-v1"
+}

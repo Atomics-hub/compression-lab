@@ -84,7 +84,10 @@ surfaces, so it is flagged for an owner decision rather than patched ad hoc.
   (S0-style freeze: constants manifests, runner, independent verifier,
   clean-checkout confirmation, one measurement). Every cycle has a compute
   ceiling; most cycles are expected to end in kills, and kills are published.
-- **Status (2026-07-23):** cycle 1 prescreen RUNNING. Helm-approved slate:
+- **Status (2026-07-23):** cycle 1 CLOSED — all four funded arms KILLED at
+  prescreen, no counted development screen earned, 36 of 160 cycle runs used.
+  Kill/nominate report: `docs/benchmarks/2026-07-23-moon-cycle1-report.md`.
+  Helm-approved slate:
   H1 (shared hashed mixing + confirm-byte eviction, the floor arm, built in
   PR #76 with a moon-local N-input integer logistic mixer after audit),
   then H8 (frozen offline mixer weights), H6 (hybrid with the m3-style
@@ -109,6 +112,24 @@ surfaces, so it is flagged for an owner decision rather than patched ad hoc.
   `docs/benchmarks/2026-07-23-moon-cycle1-h9-prescreen.md`; 29 of 160 cycle
   runs used. An incremental Re-Pair (priority queue + occurrence lists,
   near-linear) is a possible cycle-2 proposal, not funded now.
+- **H8 (frozen static mixer) — KILLED at prescreen 2026-07-23.** On the unseen
+  month (kill line: frozen-mixer complete bytes > 1.02x adaptive H1 on month B)
+  H8/H1 = 1.1368, decisive; the arm also loses in-distribution (1.1274 on
+  train month A) and on synthetics (1.15–1.22). The ~12–14% loss is bounded,
+  jointly attributed to freezing the weights and removing M5's recalibration
+  (audit P2-A), but the train→eval gap is only ~0.9 points — attribution-clean:
+  live per-stream adaptivity, not month-to-month transfer, is the cost. The H2
+  distillation family stays UNFUNDED for cycle 2. Evidence
+  `runs/moon-prescreen-cycle1-h8-v1/`, chart
+  `docs/benchmarks/2026-07-23-moon-cycle1-h8-prescreen.md`; 36 of 160 cycle
+  runs used.
+- **H1 and H6 — KILLED at prescreen 2026-07-23** on their preregistered lines
+  (H1: 1.265 and 1.292 vs 1.10x local zpaq16 on both public snapshots, refined
+  18-bit SSE byte-identical; H6: whole-line reuse loses to the floor on both
+  public snapshots, only many-templates profits −1.14%). Charts
+  `docs/benchmarks/2026-07-23-moon-cycle1-h1-prescreen.md` and
+  `...-h6-prescreen.md`. Cycle 1 closes with all four funded arms killed; see
+  the kill/nominate report for transferable signals.
 
 ## Closed lanes (do not reopen without new evidence)
 
