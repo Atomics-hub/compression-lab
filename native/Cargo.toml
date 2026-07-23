@@ -16,10 +16,6 @@ name = "clab-jls2-a3-audit"
 path = "src/bin/clab-jls2-a3-audit.rs"
 required-features = ["jls2-a3-audit"]
 
-[[bin]]
-name = "clab-s0-kernel"
-path = "src/bin/clab-s0-kernel.rs"
-
 [features]
 default = []
 jls2-a3-audit = []
