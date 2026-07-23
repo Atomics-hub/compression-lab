@@ -49,8 +49,9 @@ sweep; the H8/H1 column is the preregistered kill quantity.
 | moon-syn-many-templates-s24 | 1,336,677 | 1,108,284 | 1.2061 | 257.71 |
 
 Runs 30–36, all `status: measured`. All seven re-decode byte-exactly. Clean
-peak RSS is 264.6 MiB on every run — well inside the 512 MiB decode gate and
-under the 256 MiB target. Wall time 108.9–257.7 s per run, all comfortably
+peak RSS is 264.6 MiB on every run — 8.6 MiB **over** the draft's 256 MiB
+target, but safely under the binding 512 MiB runner decode gate. Wall time
+108.9–257.7 s per run, all comfortably
 under the 600 s per-run budget (consistent with PR #88's pre-merge 155.21 s
 measurement on the real 24 MiB month-A item). Cycle run budget after this
 sweep: **36 of 160**.
@@ -79,10 +80,14 @@ weights were fit to). The synthetic regimes are worse still, 1.15–1.22.
 
 2. **The transfer question is attribution-clean.** Whatever the loss's
    composition, the train→eval gap is only ~0.9 points (1.1274 on seen
-   month A → 1.1368 on unseen month B). The loss is nearly identical on seen
-   and unseen data, so **month-to-month transfer is not the dominant cost —
-   live per-stream adaptivity is.** This conclusion does not depend on
-   decomposing the loss, so P2-A does not weaken it.
+   month A → 1.1368 on unseen month B). What the evidence establishes is
+   narrow and specific: **this frozen-mixer design — which also removed M5's
+   secondary recalibration — lost by a similar margin on both tested months**,
+   so month-to-month transfer is not what drives its loss. That is enough to
+   leave H2 unfunded. **Live per-stream adaptivity is the leading
+   explanation** for the residual loss, but on two months against one frozen
+   design it is not established as a universal result. This reading does not
+   depend on decomposing the loss, so P2-A does not weaken it.
 
 3. **Consequence (per the helm review).** H8 did not survive its kill line, so
    the **H2 distillation family stays UNFUNDED for cycle 2.** The prescreen was
