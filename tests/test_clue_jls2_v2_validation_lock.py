@@ -34,20 +34,34 @@ def git(repo: Path, *args: str) -> None:
     subprocess.run(["git", *args], cwd=repo, check=True, capture_output=True)
 
 
+def write_lf(path: Path, text: str) -> None:
+    # Write exact bytes with LF newlines so the working tree matches the git
+    # blob regardless of the host's core.autocrlf/eol defaults (Windows CI).
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(text.encode("utf-8"))
+
+
+def init_repo(repo: Path) -> None:
+    repo.mkdir(parents=True, exist_ok=True)
+    git(repo, "init", "-q")
+    # Hermetic newline handling: never translate checked-out text to CRLF, so
+    # working-tree byte hashes equal the committed blob hashes on every host.
+    git(repo, "config", "core.autocrlf", "false")
+    git(repo, "config", "core.eol", "lf")
+    git(repo, "config", "user.email", "test@example.com")
+    git(repo, "config", "user.name", "Test")
+
+
 def make_repo(root: Path) -> tuple[Path, dict[str, str]]:
     repo = root / "repo"
-    (repo / "config").mkdir(parents=True)
-    (repo / "scripts").mkdir(parents=True)
+    init_repo(repo)
     tracked = {
         "config/clue-jls2-public-validation-v2-gates.json": '{"name": "gates"}\n',
         "config/clue-json-log-corpus-v2.json": '{"name": "corpus"}\n',
         "scripts/benchmark.py": "print('benchmark')\n",
     }
     for relative, content in tracked.items():
-        (repo / relative).write_text(content, encoding="utf-8")
-    git(repo, "init", "-q")
-    git(repo, "config", "user.email", "test@example.com")
-    git(repo, "config", "user.name", "Test")
+        write_lf(repo / relative, content)
     git(repo, "add", "-A")
     git(repo, "commit", "-q", "-m", "seed")
     head = subprocess.run(
@@ -76,7 +90,7 @@ def make_repo(root: Path) -> tuple[Path, dict[str, str]]:
         "locked_paths": locked,
     }
     lock_path = repo / "config" / "clue-jls2-public-validation-v2-lock.json"
-    lock_path.write_text(json.dumps(lock, indent=2) + "\n", encoding="utf-8")
+    write_lf(lock_path, json.dumps(lock, indent=2) + "\n")
     git(repo, "add", "-A")
     git(repo, "commit", "-q", "-m", "lock")
     return repo, locked
@@ -99,7 +113,7 @@ class ClueJLS2V2ValidationLockTests(unittest.TestCase):
             module = load_verifier(repo)
             lock_path = repo / "config" / "clue-jls2-public-validation-v2-lock.json"
             drifted = repo / "config" / "clue-json-log-corpus-v2.json"
-            drifted.write_text('{"name": "tampered"}\n', encoding="utf-8")
+            write_lf(drifted, '{"name": "tampered"}\n')
             with self.assertRaisesRegex(ValueError, "drifted"):
                 module.verify_lock(lock_path, require_clean=False)
 
@@ -108,9 +122,7 @@ class ClueJLS2V2ValidationLockTests(unittest.TestCase):
             repo, _ = make_repo(Path(raw))
             module = load_verifier(repo)
             lock_path = repo / "config" / "clue-jls2-public-validation-v2-lock.json"
-            (repo / "scripts" / "benchmark.py").write_text(
-                "print('x')\n", encoding="utf-8"
-            )
+            write_lf(repo / "scripts" / "benchmark.py", "print('x')\n")
             with self.assertRaisesRegex(ValueError, "clean tracked tree"):
                 module.verify_lock(lock_path, require_clean=True)
 
@@ -128,7 +140,7 @@ class ClueJLS2V2ValidationLockTests(unittest.TestCase):
             lock_path = repo / "config" / "clue-jls2-public-validation-v2-lock.json"
             lock = json.loads(lock_path.read_text(encoding="utf-8"))
             lock["authorization"]["expected_item_ids"] = ["clue-validation-a"]
-            lock_path.write_text(json.dumps(lock, indent=2) + "\n", encoding="utf-8")
+            write_lf(lock_path, json.dumps(lock, indent=2) + "\n")
             git(repo, "commit", "-q", "-am", "tamper roster")
             with self.assertRaisesRegex(ValueError, "item roster"):
                 module.verify_lock(lock_path, require_clean=False)
@@ -140,7 +152,7 @@ class ClueJLS2V2ValidationLockTests(unittest.TestCase):
             lock_path = repo / "config" / "clue-jls2-public-validation-v2-lock.json"
             lock = json.loads(lock_path.read_text(encoding="utf-8"))
             lock["authorization"]["maximum_scored_attempts"] = 2
-            lock_path.write_text(json.dumps(lock, indent=2) + "\n", encoding="utf-8")
+            write_lf(lock_path, json.dumps(lock, indent=2) + "\n")
             git(repo, "commit", "-q", "-am", "tamper attempts")
             with self.assertRaisesRegex(ValueError, "one scored attempt"):
                 module.verify_lock(lock_path, require_clean=False)
