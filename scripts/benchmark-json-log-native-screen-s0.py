@@ -20,6 +20,7 @@ from pathlib import Path
 import platform
 import subprocess
 import sys
+import tempfile
 import time
 from typing import Any
 
@@ -210,6 +211,7 @@ def encode_arm_item(
     corpus_dir: Path,
     output_dir: Path,
     segment_bytes: int,
+    sse_bucket_bits: int,
 ) -> dict[str, Any]:
     tape_out = output_dir / "tapes" / arm / f"{item['id']}.tape"
     receipt_out = output_dir / "receipts" / arm / f"{item['id']}.json"
@@ -234,24 +236,29 @@ def encode_arm_item(
         str(receipt_out),
         "--segment-bytes",
         str(segment_bytes),
+        "--sse-bucket-bits",
+        str(sse_bucket_bits),
     ]
     if not hasattr(os, "wait4"):
         raise ScreenError("S0 requires POSIX os.wait4 for peak-RSS capture")
+    # Redirect the child's stdout/stderr to temp files in the run scratch area,
+    # never to pipes: os.wait4 blocks for the child, and an unread pipe that
+    # fills its buffer would deadlock the wait. Unlinked temp files cannot leak.
     started = time.monotonic_ns()
-    process = subprocess.Popen(
-        command,
-        stdin=subprocess.DEVNULL,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        env={**os.environ, "LC_ALL": "C", "TZ": "UTC"},
-    )
-    _pid, status, usage = os.wait4(process.pid, 0)
-    stdout = process.stdout.read() if process.stdout else b""
-    stderr = process.stderr.read() if process.stderr else b""
-    if process.stdout:
-        process.stdout.close()
-    if process.stderr:
-        process.stderr.close()
+    with (
+        tempfile.TemporaryFile(dir=output_dir) as stdout_file,
+        tempfile.TemporaryFile(dir=output_dir) as stderr_file,
+    ):
+        process = subprocess.Popen(
+            command,
+            stdin=subprocess.DEVNULL,
+            stdout=stdout_file,
+            stderr=stderr_file,
+            env={**os.environ, "LC_ALL": "C", "TZ": "UTC"},
+        )
+        _pid, status, usage = os.wait4(process.pid, 0)
+        stderr_file.seek(0)
+        stderr = stderr_file.read()
     exit_code = os.waitstatus_to_exitcode(status)
     wall_ns = time.monotonic_ns() - started
     if exit_code != 0:
@@ -261,6 +268,12 @@ def encode_arm_item(
         )
     ordinary(tape_out)
     ordinary(receipt_out)
+    receipt = read_json(receipt_out)
+    if int(receipt["sse_bucket_bits"]) != sse_bucket_bits:
+        raise ScreenError(
+            f"receipt sse_bucket_bits differs for {arm}/{item['id']}: "
+            f"{receipt['sse_bucket_bits']} != {sse_bucket_bits}"
+        )
     raw_rss, normalized_rss = rss_bytes(usage)
     environment = {
         "arm": arm,
@@ -274,7 +287,7 @@ def encode_arm_item(
     return {
         "tape_out": tape_out,
         "receipt_out": receipt_out,
-        "receipt": read_json(receipt_out),
+        "receipt": receipt,
         "environment": environment,
     }
 
@@ -521,6 +534,16 @@ def main() -> int:
         ]:
             raise ScreenError("constants manifests differ beyond the two frozen maxima")
 
+        # The capacity profile selects the SSE bucket-bit count exactly as the
+        # manifest's mixer_and_sse.sse_bucket_bits_rule prescribes: base uses the
+        # base bits, refined uses the single predeclared refined bits.
+        mixer_and_sse = manifest["mixer_and_sse"]
+        sse_bucket_bits = int(
+            mixer_and_sse["sse_base_bucket_bits"]
+            if args.profile == "base"
+            else mixer_and_sse["sse_refined_bucket_bits"]
+        )
+
         items = load_items(config, args.items_config)
         preflight_items(items, corpus_dir)
 
@@ -541,7 +564,13 @@ def main() -> int:
             arm = arm_meta["name"]
             for item in items:
                 record = encode_arm_item(
-                    kernel, arm, item, corpus_dir, output_dir, args.segment_bytes
+                    kernel,
+                    arm,
+                    item,
+                    corpus_dir,
+                    output_dir,
+                    args.segment_bytes,
+                    sse_bucket_bits,
                 )
                 encoded[(arm, item["id"])] = record
                 environment_rows.append(record["environment"])
@@ -579,6 +608,7 @@ def main() -> int:
                 "refined_constants_manifest_sha256": sha256_file(refined_manifest_path),
             },
             "segment_interval_bytes": args.segment_bytes,
+            "sse_bucket_bits": sse_bucket_bits,
             "items": [
                 {
                     "index": item["index"],

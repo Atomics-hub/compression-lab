@@ -223,6 +223,22 @@ pub fn encode_m1_m2_m5_item_with_segments(
     item_index: u8,
     segment_bytes: Option<u64>,
 ) -> Result<(Tape, Ledger, Vec<SegmentSnapshot>), ChassisError> {
+    encode_m1_m2_m5_item_with_bits_and_segments(
+        source,
+        table,
+        item_index,
+        segment_bytes,
+        SSE_BASE_BUCKET_BITS,
+    )
+}
+
+pub fn encode_m1_m2_m5_item_with_bits_and_segments(
+    source: &[u8],
+    table: &LossTable,
+    item_index: u8,
+    segment_bytes: Option<u64>,
+    sse_bucket_bits: u32,
+) -> Result<(Tape, Ledger, Vec<SegmentSnapshot>), ChassisError> {
     encode_chassis_item_with_mixer_and_segments(
         source,
         table,
@@ -230,7 +246,7 @@ pub fn encode_m1_m2_m5_item_with_segments(
         M5_ARM_ID,
         item_index,
         &mut M2ValueCoder::with_inner(M1ValueCoder),
-        Box::new(M5Mixer::new(table)),
+        Box::new(M5Mixer::with_sse_bucket_bits(table, sse_bucket_bits)),
         segment_bytes,
     )
 }
@@ -241,6 +257,22 @@ pub fn decode_m1_m2_m5_item(
     table: &LossTable,
     expected_item_index: u8,
 ) -> Result<Vec<u8>, ChassisError> {
+    decode_m1_m2_m5_item_with_bits(
+        tape,
+        expected_ledger,
+        table,
+        expected_item_index,
+        SSE_BASE_BUCKET_BITS,
+    )
+}
+
+pub fn decode_m1_m2_m5_item_with_bits(
+    tape: &Tape,
+    expected_ledger: Ledger,
+    table: &LossTable,
+    expected_item_index: u8,
+    sse_bucket_bits: u32,
+) -> Result<Vec<u8>, ChassisError> {
     decode_chassis_item_with_mixer(
         tape,
         expected_ledger,
@@ -249,7 +281,7 @@ pub fn decode_m1_m2_m5_item(
         M5_ARM_ID,
         expected_item_index,
         &mut M2ValueCoder::with_inner(M1ValueCoder),
-        Box::new(M5Mixer::new(table)),
+        Box::new(M5Mixer::with_sse_bucket_bits(table, sse_bucket_bits)),
     )
 }
 

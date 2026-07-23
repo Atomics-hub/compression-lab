@@ -103,6 +103,57 @@ def make_corpus(directory: Path) -> Path:
     return corpus
 
 
+# The four M5 mixer arms are the only arms whose charged loss can move with the
+# SSE capacity; the other six ignore the bucket-bit count entirely.
+MIXER_ARMS = frozenset({"m1-m2-m5", "full", "full-minus-m3", "full-minus-m4"})
+
+
+def diverging_item() -> bytes:
+    # Large and varied enough to force an SSE 17-bit bucket collision that the
+    # 18th bit resolves, so the refined profile actually moves the mixer loss.
+    lines = []
+    for record in range(1_500):
+        mix = (record * 2_654_435_761) & 0xFFFFFFFF
+        lines.append(
+            json.dumps(
+                {
+                    "id": 100_000 + record,
+                    "ts": f"2026-07-22T{record % 24:02d}:{record % 60:02d}:{(record * 7) % 60:02d}Z",
+                    "session": f"s{record % 997}",
+                    "path": f"/api/v/{record % 733}/resource/{record % 521}",
+                    "tag": f"{mix:08x}",
+                    "status": 200 + (record % 5),
+                }
+            )
+        )
+    lines.append("{ malformed record triggers fallback }")
+    return ("\n".join(lines) + "\n").encode()
+
+
+def make_single_item_corpus(directory: Path) -> Path:
+    corpus = directory / "corpus"
+    corpus.mkdir(parents=True, exist_ok=True)
+    item_id = ITEM_IDS[0]
+    data = diverging_item()
+    (corpus / f"{item_id}.jsonl").write_bytes(data)
+    (directory / "items.json").write_text(
+        json.dumps(
+            {
+                "items": [
+                    {
+                        "id": item_id,
+                        "source_bytes": len(data),
+                        "source_sha256": hashlib.sha256(data).hexdigest(),
+                        "kanzi_single_item_axe1o_bytes": 10_000_000,
+                    }
+                ]
+            },
+            indent=2,
+        )
+    )
+    return corpus
+
+
 def run_runner(args: list[str]) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
         [sys.executable, str(RUNNER_PATH), *args],
@@ -428,6 +479,141 @@ class CleanCheckoutConfirmationTests(unittest.TestCase):
         )
         self.assertNotEqual(completed.returncode, 0)
         self.assertIn("engine source SHA differs", completed.stderr)
+
+
+class RefinedProfileEndToEndTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.kernel = ensure_kernel()
+        if cls.kernel is None:
+            raise unittest.SkipTest("clab-s0-kernel is unavailable and cargo cannot build it")
+
+    def setUp(self) -> None:
+        self._tmp = tempfile.TemporaryDirectory(prefix="s0-refined-")
+        self.tmp = Path(self._tmp.name)
+        self.corpus = make_single_item_corpus(self.tmp)
+        self.items_config = self.tmp / "items.json"
+
+    def tearDown(self) -> None:
+        self._tmp.cleanup()
+
+    def run_profile(self, profile: str, output: Path) -> dict:
+        completed = run_runner(
+            [
+                "--profile",
+                profile,
+                "--output-dir",
+                str(output),
+                "--corpus-dir",
+                str(self.corpus),
+                "--items-config",
+                str(self.items_config),
+                "--kernel-binary",
+                str(self.kernel),
+                "--skip-build",
+                "--segment-bytes",
+                str(1 << 20),
+            ]
+        )
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        return json.loads((output / "result.json").read_bytes())
+
+    def receipt_text(self, run: Path, arm: str, item_id: str) -> str:
+        return (run / "receipts" / arm / f"{item_id}.json").read_text()
+
+    def test_refined_profile_moves_only_mixer_loss_and_holds_every_tape(self) -> None:
+        base_out = self.tmp / "base"
+        refined_out = self.tmp / "refined"
+        base = self.run_profile("base", base_out)
+        refined = self.run_profile("refined", refined_out)
+
+        # The profile is recorded at the result top level and matches the bits.
+        self.assertEqual(base["sse_bucket_bits"], 17)
+        self.assertEqual(refined["sse_bucket_bits"], 18)
+
+        base_arms = {arm["name"]: arm for arm in base["arms"]}
+        refined_arms = {arm["name"]: arm for arm in refined["arms"]}
+        self.assertEqual(set(base_arms), set(refined_arms))
+
+        changed = set()
+        for name, refined_arm in refined_arms.items():
+            base_arm = base_arms[name]
+            # Every tape is byte-identical across profiles, item by item.
+            for base_row, refined_row in zip(
+                base_arm["per_item"], refined_arm["per_item"], strict=True
+            ):
+                self.assertEqual(
+                    base_row["tape_sha256"], refined_row["tape_sha256"], name
+                )
+            base_loss = base_arm["aggregate_ledger"]["modeled_loss_q24"]
+            refined_loss = refined_arm["aggregate_ledger"]["modeled_loss_q24"]
+            if base_loss != refined_loss:
+                changed.add(name)
+            if name not in MIXER_ARMS:
+                # Non-mixer receipts are byte-identical except the recorded
+                # sse_bucket_bits field, so the loss cannot have moved.
+                self.assertEqual(base_loss, refined_loss, name)
+                for item_id in (row["item_id"] for row in refined_arm["per_item"]):
+                    base_text = self.receipt_text(base_out, name, item_id)
+                    refined_text = self.receipt_text(refined_out, name, item_id)
+                    self.assertEqual(
+                        base_text.replace(
+                            '"sse_bucket_bits": 17', '"sse_bucket_bits": 18'
+                        ),
+                        refined_text,
+                        f"{name}/{item_id}",
+                    )
+
+        # Only mixer arms may move, and at least the decision arm actually does.
+        self.assertTrue(changed <= MIXER_ARMS, changed)
+        self.assertIn("full", changed)
+
+    def test_decode_with_the_wrong_bits_fails_on_a_refined_mixer_tape(self) -> None:
+        refined_out = self.tmp / "refined"
+        refined = self.run_profile("refined", refined_out)
+        full = next(arm for arm in refined["arms"] if arm["name"] == "full")
+        row = full["per_item"][0]
+        ledger = row["ledger"]
+        tape = refined_out / "tapes" / "full" / f"{row['item_id']}.tape"
+
+        def decode(bits: str) -> subprocess.CompletedProcess[str]:
+            out = self.tmp / f"decoded-{bits}"
+            receipt = self.tmp / f"decode-receipt-{bits}.json"
+            return subprocess.run(
+                [
+                    str(self.kernel),
+                    "decode",
+                    "--arm",
+                    "full",
+                    "--item-index",
+                    str(row["item_index"]),
+                    "--tape",
+                    str(tape),
+                    "--records",
+                    str(ledger["records"]),
+                    "--modeled-binary-events",
+                    str(ledger["modeled_binary_events"]),
+                    "--modeled-loss-q24",
+                    str(ledger["modeled_loss_q24"]),
+                    "--raw-literal-bytes",
+                    str(ledger["raw_literal_bytes"]),
+                    "--output",
+                    str(out),
+                    "--receipt-out",
+                    str(receipt),
+                    "--sse-bucket-bits",
+                    bits,
+                    "--force",
+                ],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+
+        # Matching refined bits reconstruct; the base bits reproduce a different
+        # loss and fail the independent decoder ledger equality.
+        self.assertEqual(decode("18").returncode, 0)
+        self.assertNotEqual(decode("17").returncode, 0)
 
 
 if __name__ == "__main__":

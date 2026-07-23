@@ -190,6 +190,20 @@ class Verifier:
         self.config = _read_json(self.config_path)
         self.items = _load_items(self.config, items_config)
         self.item_by_id = {item["id"]: item for item in self.items}
+        # The frozen roster and capacity profile are read from the bound manifest
+        # (check_bindings independently proves the manifest SHA and protocol
+        # binding, so these expectations are grounded, not assumed).
+        self.manifest = _read_json(self.manifest_path)
+        self.frozen_arm_names = [
+            arm["name"] for arm in self.manifest["arms"]["frozen_order"]
+        ]
+        self.item_ids = [item["id"] for item in self.items]
+        mixer = self.manifest["mixer_and_sse"]
+        self.expected_sse_bucket_bits = int(
+            mixer["sse_base_bucket_bits"]
+            if profile == "base"
+            else mixer["sse_refined_bucket_bits"]
+        )
         if kernel_binary is not None:
             self.kernel = kernel_binary.resolve()
         else:
@@ -207,6 +221,24 @@ class Verifier:
         return self._receipts[key]
 
     # --- individual checks ------------------------------------------------
+    def check_roster(self) -> None:
+        # The run must present exactly the ten frozen arms in order, each over
+        # exactly the frozen items in order; a dropped or reordered arm or item
+        # row cannot slip past the projection/gate checks unnoticed.
+        actual_arms = [arm["name"] for arm in self.result["arms"]]
+        if actual_arms != self.frozen_arm_names:
+            raise VerificationError(
+                f"result arms differ from the frozen roster: "
+                f"{actual_arms} != {self.frozen_arm_names}"
+            )
+        for arm in self.result["arms"]:
+            actual_items = [row["item_id"] for row in arm["per_item"]]
+            if actual_items != self.item_ids:
+                raise VerificationError(
+                    f"arm {arm['name']} items differ from the config roster: "
+                    f"{actual_items} != {self.item_ids}"
+                )
+
     def check_bindings(self) -> None:
         bindings = self.result["bindings"]
         if bindings["config_sha256"] != _sha256_file(self.config_path):
@@ -255,6 +287,12 @@ class Verifier:
                 receipt = self.receipt(arm["name"], row["item_id"])
                 if receipt["schema"] != "clab-s0-kernel-encode-receipt-v1":
                     raise VerificationError("receipt schema differs")
+                if int(receipt["sse_bucket_bits"]) != self.expected_sse_bucket_bits:
+                    raise VerificationError(
+                        f"receipt sse_bucket_bits differs from the {self.profile} profile "
+                        f"for {arm['name']}/{row['item_id']}: "
+                        f"{receipt['sse_bucket_bits']} != {self.expected_sse_bucket_bits}"
+                    )
                 if (
                     receipt["arm"] != arm["name"]
                     or int(receipt["arm_id"]) != arm["id"]
@@ -318,6 +356,8 @@ class Verifier:
                             str(out),
                             "--receipt-out",
                             str(receipt_out),
+                            "--sse-bucket-bits",
+                            str(self.expected_sse_bucket_bits),
                         ],
                         check=False,
                         stdin=subprocess.DEVNULL,
@@ -495,6 +535,7 @@ class Verifier:
 
     def run(self, expect_decision: str | None) -> dict[str, Any]:
         checks: list[tuple[str, Callable[[], None]]] = [
+            ("roster", self.check_roster),
             ("bindings", self.check_bindings),
             ("sha256sums", self.check_sha256sums),
             ("receipts", self.check_receipts),
@@ -542,7 +583,7 @@ def main() -> int:
     parser.add_argument("--items-config", type=Path, default=None)
     parser.add_argument("--corpus-dir", type=Path, default=None)
     parser.add_argument("--kernel-binary", type=Path, default=None)
-    parser.add_argument("--redecode", choices=("none", "full", "all"), default="full")
+    parser.add_argument("--redecode", choices=("none", "full", "all"), default="all")
     parser.add_argument(
         "--expect-decision", choices=("advance", "refine_once", "kill"), default=None
     )

@@ -15,7 +15,7 @@ use super::chassis::{
 use super::m2::M2ValueCoder;
 use super::m3::M3ValueCoder;
 use super::m4::{m4_contexts, M4ValueCoder};
-use super::m5::M5Mixer;
+use super::m5::{M5Mixer, SSE_BASE_BUCKET_BITS};
 use super::{Ledger, LossTable, Tape};
 
 pub const FULL_ARM_ID: u8 = 6;
@@ -36,7 +36,15 @@ pub(super) fn minus_m4_chain() -> M2ValueCoder<M3ValueCoder<M1ValueCoder>> {
 }
 
 macro_rules! mixed_arm {
-    ($encode:ident, $encode_segments:ident, $decode:ident, $arm:expr, $chain:expr) => {
+    (
+        $encode:ident,
+        $encode_segments:ident,
+        $encode_bits:ident,
+        $decode:ident,
+        $decode_bits:ident,
+        $arm:expr,
+        $chain:expr
+    ) => {
         pub fn $encode(
             source: &[u8],
             table: &LossTable,
@@ -52,6 +60,22 @@ macro_rules! mixed_arm {
             item_index: u8,
             segment_bytes: Option<u64>,
         ) -> Result<(Tape, Ledger, Vec<SegmentSnapshot>), ChassisError> {
+            $encode_bits(
+                source,
+                table,
+                item_index,
+                segment_bytes,
+                SSE_BASE_BUCKET_BITS,
+            )
+        }
+
+        pub fn $encode_bits(
+            source: &[u8],
+            table: &LossTable,
+            item_index: u8,
+            segment_bytes: Option<u64>,
+            sse_bucket_bits: u32,
+        ) -> Result<(Tape, Ledger, Vec<SegmentSnapshot>), ChassisError> {
             encode_chassis_item_with_mixer_and_segments(
                 source,
                 table,
@@ -59,7 +83,7 @@ macro_rules! mixed_arm {
                 $arm,
                 item_index,
                 &mut $chain,
-                Box::new(M5Mixer::new(table)),
+                Box::new(M5Mixer::with_sse_bucket_bits(table, sse_bucket_bits)),
                 segment_bytes,
             )
         }
@@ -70,6 +94,22 @@ macro_rules! mixed_arm {
             table: &LossTable,
             expected_item_index: u8,
         ) -> Result<Vec<u8>, ChassisError> {
+            $decode_bits(
+                tape,
+                expected_ledger,
+                table,
+                expected_item_index,
+                SSE_BASE_BUCKET_BITS,
+            )
+        }
+
+        pub fn $decode_bits(
+            tape: &Tape,
+            expected_ledger: Ledger,
+            table: &LossTable,
+            expected_item_index: u8,
+            sse_bucket_bits: u32,
+        ) -> Result<Vec<u8>, ChassisError> {
             decode_chassis_item_with_mixer(
                 tape,
                 expected_ledger,
@@ -78,7 +118,7 @@ macro_rules! mixed_arm {
                 $arm,
                 expected_item_index,
                 &mut $chain,
-                Box::new(M5Mixer::new(table)),
+                Box::new(M5Mixer::with_sse_bucket_bits(table, sse_bucket_bits)),
             )
         }
     };
@@ -87,21 +127,27 @@ macro_rules! mixed_arm {
 mixed_arm!(
     encode_full_item,
     encode_full_item_with_segments,
+    encode_full_item_with_bits_and_segments,
     decode_full_item,
+    decode_full_item_with_bits,
     FULL_ARM_ID,
     full_chain()
 );
 mixed_arm!(
     encode_full_minus_m3_item,
     encode_full_minus_m3_item_with_segments,
+    encode_full_minus_m3_item_with_bits_and_segments,
     decode_full_minus_m3_item,
+    decode_full_minus_m3_item_with_bits,
     FULL_MINUS_M3_ARM_ID,
     minus_m3_chain()
 );
 mixed_arm!(
     encode_full_minus_m4_item,
     encode_full_minus_m4_item_with_segments,
+    encode_full_minus_m4_item_with_bits_and_segments,
     decode_full_minus_m4_item,
+    decode_full_minus_m4_item_with_bits,
     FULL_MINUS_M4_ARM_ID,
     minus_m4_chain()
 );

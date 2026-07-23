@@ -258,6 +258,53 @@ class VerifierTests(unittest.TestCase):
             next(row for row in report["checks"] if row["check"] == "redecode")["passed"]
         )
 
+    def test_redecode_all_catches_a_tampered_non_full_arm(self) -> None:
+        # A consistent tamper of a non-full arm (tape byte flipped, receipt hash
+        # and SHA256SUMS regenerated) survives the hash checks but must be caught
+        # by re-decoding every arm, not only the full arm.
+        arm = "m1-m2"
+        item_id = ITEM_IDS[1]
+        tape_rel = f"tapes/{arm}/{item_id}.tape"
+        receipt_rel = f"receipts/{arm}/{item_id}.json"
+        tape_path = self.output / tape_rel
+        data = bytearray(tape_path.read_bytes())
+        data[len(data) // 2] ^= 0x01
+        tape_path.write_bytes(bytes(data))
+        receipt_path = self.output / receipt_rel
+        receipt = json.loads(receipt_path.read_bytes())
+        receipt["tape_sha256"] = sha256_file(tape_path)
+        receipt_path.write_text(json.dumps(receipt, indent=2) + "\n")
+        rewrite_sha256sums(self.output, tape_rel)
+        rewrite_sha256sums(self.output, receipt_rel)
+
+        # 'full' re-decode never touches this arm, so it slips through.
+        full_report = self.build_verifier(redecode="full").run(None)
+        self.assertNotIn("redecode", self.failed_checks(full_report))
+        # 'all' re-decodes every arm and catches the tampered non-full tape.
+        all_report = self.build_verifier(redecode="all").run(None)
+        self.assertFalse(all_report["verified"])
+        self.assertIn("redecode", self.failed_checks(all_report))
+
+    def test_roster_catches_a_dropped_arm_row(self) -> None:
+        result_path = self.output / "result.json"
+        result = json.loads(result_path.read_bytes())
+        result["arms"] = result["arms"][:-1]
+        result_path.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
+        rewrite_sha256sums(self.output, "result.json")
+        report = self.build_verifier(redecode="none").run(None)
+        self.assertFalse(report["verified"])
+        self.assertIn("roster", self.failed_checks(report))
+
+    def test_roster_catches_a_dropped_item_row(self) -> None:
+        result_path = self.output / "result.json"
+        result = json.loads(result_path.read_bytes())
+        result["arms"][0]["per_item"] = result["arms"][0]["per_item"][:-1]
+        result_path.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
+        rewrite_sha256sums(self.output, "result.json")
+        report = self.build_verifier(redecode="none").run(None)
+        self.assertFalse(report["verified"])
+        self.assertIn("roster", self.failed_checks(report))
+
 
 if __name__ == "__main__":
     unittest.main()

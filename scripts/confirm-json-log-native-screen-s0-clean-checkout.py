@@ -94,6 +94,7 @@ def reencode(
     item: dict[str, Any],
     corpus_dir: Path,
     segment_bytes: int,
+    sse_bucket_bits: int,
     scratch: Path,
 ) -> Path:
     tape_out = scratch / "tapes" / arm / f"{item['id']}.tape"
@@ -116,6 +117,8 @@ def reencode(
             str(receipt_out),
             "--segment-bytes",
             str(segment_bytes),
+            "--sse-bucket-bits",
+            str(sse_bucket_bits),
         ],
         check=False,
         stdin=subprocess.DEVNULL,
@@ -144,6 +147,7 @@ def main() -> int:
     parser.add_argument("--scratch-dir", type=Path, required=True)
     parser.add_argument("--freeze-record", type=Path, required=True)
     parser.add_argument("--repo", type=Path, default=ROOT)
+    parser.add_argument("--profile", choices=("base", "refined"), default="base")
     parser.add_argument("--corpus-dir", type=Path, default=None)
     parser.add_argument("--items-config", type=Path, default=None)
     parser.add_argument("--skip-build", action="store_true")
@@ -166,11 +170,32 @@ def main() -> int:
         freeze = read_json(args.freeze_record)
         if freeze["commit"] != args.commit:
             raise ConfirmationError("freeze record commit differs from --commit")
+
+        manifest = read_json(
+            checkout
+            / "config"
+            / f"json-log-native-screen-s0-constants-{args.profile}-v1.json"
+        )
+        build_identity = manifest["source_toolchain_build_identity"]
+        # The freeze record must attest exactly the manifest's engine-source
+        # set: neither an omitted file (so a changed file slips by unattested)
+        # nor an extra file (so a bogus attestation passes vacuously).
+        if set(freeze["engine_source_files"]) != set(build_identity["engine_source_files"]):
+            raise ConfirmationError(
+                "freeze record engine_source_files set differs from the manifest"
+            )
         for relative, expected in sorted(freeze["engine_source_files"].items()):
             path = checkout / relative
             ordinary(path)
             if sha256_file(path) != expected:
                 raise ConfirmationError(f"engine source SHA differs: {relative}")
+
+        mixer = manifest["mixer_and_sse"]
+        sse_bucket_bits = int(
+            mixer["sse_base_bucket_bits"]
+            if args.profile == "base"
+            else mixer["sse_refined_bucket_bits"]
+        )
 
         kernel = build_kernel(checkout, args.skip_build, args.kernel_binary)
         config = read_json(checkout / "config" / "json-log-native-screen-s0-v1.json")
@@ -182,12 +207,24 @@ def main() -> int:
             else checkout / DEFAULT_CORPUS_RELATIVE
         )
 
+        # The expected receipt count comes from the manifest arm count and the
+        # config item count; it is the single source of the arms x items total.
+        expected_comparisons = int(manifest["arms"]["count"]) * len(items)
+
         receipts_root = run_dir / "receipts"
         if not receipts_root.is_dir():
             raise ConfirmationError(f"original run has no receipts: {receipts_root}")
         arms = sorted(entry.name for entry in receipts_root.iterdir() if entry.is_dir())
         if not arms:
             raise ConfirmationError("original run has no arm receipts")
+        total_receipts = sum(
+            len(list((receipts_root / arm).glob("*.json"))) for arm in arms
+        )
+        if total_receipts != expected_comparisons:
+            raise ConfirmationError(
+                f"receipts directory holds {total_receipts} receipts, "
+                f"expected exactly {expected_comparisons}"
+            )
 
         comparisons: list[dict[str, Any]] = []
         all_identical = True
@@ -204,6 +241,7 @@ def main() -> int:
                     item_by_id[item_id],
                     corpus_dir,
                     segment_bytes,
+                    sse_bucket_bits,
                     args.scratch_dir,
                 )
                 identical = original.read_bytes() == fresh.read_bytes()
@@ -215,6 +253,12 @@ def main() -> int:
                         "identical": identical,
                     }
                 )
+
+        if len(comparisons) != expected_comparisons:
+            raise ConfirmationError(
+                f"confirmed {len(comparisons)} receipts, expected exactly "
+                f"{expected_comparisons} (arms x items)"
+            )
 
         report = {
             "confirmed": all_identical,

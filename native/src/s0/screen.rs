@@ -7,20 +7,24 @@
 //! boundary at or after each [`SEGMENT_BYTES`] interval.
 
 use super::arms::{
-    encode_full_item_with_segments, encode_full_minus_m3_item_with_segments,
-    encode_full_minus_m4_item_with_segments, encode_full_minus_m5_item_with_segments,
+    decode_full_item_with_bits, decode_full_minus_m3_item_with_bits,
+    decode_full_minus_m4_item_with_bits, encode_full_item_with_bits_and_segments,
+    encode_full_minus_m3_item_with_bits_and_segments,
+    encode_full_minus_m4_item_with_bits_and_segments, encode_full_minus_m5_item_with_segments,
 };
 use super::chassis::{ChassisError, SegmentSnapshot};
 use super::m1::encode_m1_item_with_segments;
 use super::m2::encode_m1_m2_item_with_segments;
 use super::m3::encode_m1_m2_m3_item_with_segments;
 use super::m4::encode_m1_m2_m4_item_with_segments;
-use super::m5::encode_m1_m2_m5_item_with_segments;
+use super::m5::{
+    decode_m1_m2_m5_item_with_bits, encode_m1_m2_m5_item_with_bits_and_segments,
+    SSE_BASE_BUCKET_BITS,
+};
 use super::raw::encode_raw_o3_item_with_segments;
 use super::{
-    decode_full_item, decode_full_minus_m3_item, decode_full_minus_m4_item,
     decode_full_minus_m5_item, decode_m1_item, decode_m1_m2_item, decode_m1_m2_m3_item,
-    decode_m1_m2_m4_item, decode_m1_m2_m5_item, decode_raw_o3_item, Ledger, LossTable, Tape,
+    decode_m1_m2_m4_item, decode_raw_o3_item, Ledger, LossTable, Tape,
 };
 
 /// The frozen diagnostic segment interval: 16 MiB of consumed source.
@@ -115,19 +119,66 @@ pub fn encode_arm_item(
     item_index: u8,
     segment_bytes: Option<u64>,
 ) -> Result<(Tape, Ledger, Vec<SegmentSnapshot>), ChassisError> {
-    let encode = match arm {
-        Arm::RawO3 => encode_raw_o3_item_with_segments,
-        Arm::M1Chassis => encode_m1_item_with_segments,
-        Arm::M1M2 => encode_m1_m2_item_with_segments,
-        Arm::M1M2M3 => encode_m1_m2_m3_item_with_segments,
-        Arm::M1M2M4 => encode_m1_m2_m4_item_with_segments,
-        Arm::M1M2M5 => encode_m1_m2_m5_item_with_segments,
-        Arm::Full => encode_full_item_with_segments,
-        Arm::FullMinusM3 => encode_full_minus_m3_item_with_segments,
-        Arm::FullMinusM4 => encode_full_minus_m4_item_with_segments,
-        Arm::FullMinusM5 => encode_full_minus_m5_item_with_segments,
-    };
-    encode(source, table, item_index, segment_bytes)
+    encode_arm_item_with_bits(
+        arm,
+        source,
+        table,
+        item_index,
+        segment_bytes,
+        SSE_BASE_BUCKET_BITS,
+    )
+}
+
+/// The bits-aware encode entry point. Only the four M5 mixer arms (`m1-m2-m5`,
+/// `full`, `full-minus-m3`, `full-minus-m4`) consult `sse_bucket_bits`; the six
+/// non-mixer arms have no M5 estimator and ignore it, so their tapes, ledgers,
+/// and receipts are invariant across capacity profiles.
+pub fn encode_arm_item_with_bits(
+    arm: Arm,
+    source: &[u8],
+    table: &LossTable,
+    item_index: u8,
+    segment_bytes: Option<u64>,
+    sse_bucket_bits: u32,
+) -> Result<(Tape, Ledger, Vec<SegmentSnapshot>), ChassisError> {
+    match arm {
+        Arm::RawO3 => encode_raw_o3_item_with_segments(source, table, item_index, segment_bytes),
+        Arm::M1Chassis => encode_m1_item_with_segments(source, table, item_index, segment_bytes),
+        Arm::M1M2 => encode_m1_m2_item_with_segments(source, table, item_index, segment_bytes),
+        Arm::M1M2M3 => encode_m1_m2_m3_item_with_segments(source, table, item_index, segment_bytes),
+        Arm::M1M2M4 => encode_m1_m2_m4_item_with_segments(source, table, item_index, segment_bytes),
+        Arm::M1M2M5 => encode_m1_m2_m5_item_with_bits_and_segments(
+            source,
+            table,
+            item_index,
+            segment_bytes,
+            sse_bucket_bits,
+        ),
+        Arm::Full => encode_full_item_with_bits_and_segments(
+            source,
+            table,
+            item_index,
+            segment_bytes,
+            sse_bucket_bits,
+        ),
+        Arm::FullMinusM3 => encode_full_minus_m3_item_with_bits_and_segments(
+            source,
+            table,
+            item_index,
+            segment_bytes,
+            sse_bucket_bits,
+        ),
+        Arm::FullMinusM4 => encode_full_minus_m4_item_with_bits_and_segments(
+            source,
+            table,
+            item_index,
+            segment_bytes,
+            sse_bucket_bits,
+        ),
+        Arm::FullMinusM5 => {
+            encode_full_minus_m5_item_with_segments(source, table, item_index, segment_bytes)
+        }
+    }
 }
 
 pub fn decode_arm_item(
@@ -137,19 +188,65 @@ pub fn decode_arm_item(
     table: &LossTable,
     expected_item_index: u8,
 ) -> Result<Vec<u8>, ChassisError> {
-    let decode = match arm {
-        Arm::RawO3 => decode_raw_o3_item,
-        Arm::M1Chassis => decode_m1_item,
-        Arm::M1M2 => decode_m1_m2_item,
-        Arm::M1M2M3 => decode_m1_m2_m3_item,
-        Arm::M1M2M4 => decode_m1_m2_m4_item,
-        Arm::M1M2M5 => decode_m1_m2_m5_item,
-        Arm::Full => decode_full_item,
-        Arm::FullMinusM3 => decode_full_minus_m3_item,
-        Arm::FullMinusM4 => decode_full_minus_m4_item,
-        Arm::FullMinusM5 => decode_full_minus_m5_item,
-    };
-    decode(tape, expected_ledger, table, expected_item_index)
+    decode_arm_item_with_bits(
+        arm,
+        tape,
+        expected_ledger,
+        table,
+        expected_item_index,
+        SSE_BASE_BUCKET_BITS,
+    )
+}
+
+/// The bits-aware decode entry point mirroring [`encode_arm_item_with_bits`].
+/// A mixer arm decoded under the wrong `sse_bucket_bits` reproduces a different
+/// refined loss and so fails the independent ledger-equality check.
+pub fn decode_arm_item_with_bits(
+    arm: Arm,
+    tape: &Tape,
+    expected_ledger: Ledger,
+    table: &LossTable,
+    expected_item_index: u8,
+    sse_bucket_bits: u32,
+) -> Result<Vec<u8>, ChassisError> {
+    match arm {
+        Arm::RawO3 => decode_raw_o3_item(tape, expected_ledger, table, expected_item_index),
+        Arm::M1Chassis => decode_m1_item(tape, expected_ledger, table, expected_item_index),
+        Arm::M1M2 => decode_m1_m2_item(tape, expected_ledger, table, expected_item_index),
+        Arm::M1M2M3 => decode_m1_m2_m3_item(tape, expected_ledger, table, expected_item_index),
+        Arm::M1M2M4 => decode_m1_m2_m4_item(tape, expected_ledger, table, expected_item_index),
+        Arm::M1M2M5 => decode_m1_m2_m5_item_with_bits(
+            tape,
+            expected_ledger,
+            table,
+            expected_item_index,
+            sse_bucket_bits,
+        ),
+        Arm::Full => decode_full_item_with_bits(
+            tape,
+            expected_ledger,
+            table,
+            expected_item_index,
+            sse_bucket_bits,
+        ),
+        Arm::FullMinusM3 => decode_full_minus_m3_item_with_bits(
+            tape,
+            expected_ledger,
+            table,
+            expected_item_index,
+            sse_bucket_bits,
+        ),
+        Arm::FullMinusM4 => decode_full_minus_m4_item_with_bits(
+            tape,
+            expected_ledger,
+            table,
+            expected_item_index,
+            sse_bucket_bits,
+        ),
+        Arm::FullMinusM5 => {
+            decode_full_minus_m5_item(tape, expected_ledger, table, expected_item_index)
+        }
+    }
 }
 
 #[cfg(test)]
@@ -157,7 +254,7 @@ mod tests {
     use super::super::{
         encode_full_item, encode_full_minus_m3_item, encode_full_minus_m4_item,
         encode_full_minus_m5_item, encode_m1_item, encode_m1_m2_item, encode_m1_m2_m3_item,
-        encode_m1_m2_m4_item, encode_m1_m2_m5_item, encode_raw_o3_item,
+        encode_m1_m2_m4_item, encode_m1_m2_m5_item, encode_raw_o3_item, SSE_REFINED_BUCKET_BITS,
     };
     use super::*;
 
@@ -291,6 +388,158 @@ mod tests {
             assert!(last.ledger.modeled_loss_q24 <= ledger.modeled_loss_q24);
             assert!(last.ledger.raw_literal_bytes <= ledger.raw_literal_bytes);
         }
+    }
+
+    fn is_mixer_arm(arm: Arm) -> bool {
+        matches!(
+            arm,
+            Arm::M1M2M5 | Arm::Full | Arm::FullMinusM3 | Arm::FullMinusM4
+        )
+    }
+
+    #[test]
+    fn base_bucket_bits_are_byte_identical_to_the_default_entry_points() {
+        let table = LossTable::generate();
+        let source = corpus();
+        for arm in ARMS {
+            let (plain_tape, plain_ledger, plain_segments) =
+                encode_arm_item(arm, &source, &table, 1, Some(64)).unwrap();
+            let (tape, ledger, segments) =
+                encode_arm_item_with_bits(arm, &source, &table, 1, Some(64), SSE_BASE_BUCKET_BITS)
+                    .unwrap();
+            assert_eq!(tape.to_bytes(), plain_tape.to_bytes(), "{}", arm.name());
+            assert_eq!(ledger, plain_ledger, "{}", arm.name());
+            assert_eq!(segments, plain_segments, "{}", arm.name());
+        }
+    }
+
+    #[test]
+    fn refined_bucket_bits_hold_every_tape_and_never_touch_non_mixer_loss() {
+        // On any corpus the refined SSE capacity leaves every tape byte-identical
+        // and every non-mixer ledger fully identical; only the four mixer arms
+        // are even eligible to move, and only in modeled_loss_q24. (Whether they
+        // actually move depends on SSE bucket collisions, exercised separately on
+        // a large corpus.)
+        let table = LossTable::generate();
+        let source = corpus();
+        for arm in ARMS {
+            let (base_tape, base_ledger, _) =
+                encode_arm_item_with_bits(arm, &source, &table, 2, None, SSE_BASE_BUCKET_BITS)
+                    .unwrap();
+            let (refined_tape, refined_ledger, _) =
+                encode_arm_item_with_bits(arm, &source, &table, 2, None, SSE_REFINED_BUCKET_BITS)
+                    .unwrap();
+            assert_eq!(
+                refined_tape.to_bytes(),
+                base_tape.to_bytes(),
+                "{}",
+                arm.name()
+            );
+            assert_eq!(
+                refined_ledger.records,
+                base_ledger.records,
+                "{}",
+                arm.name()
+            );
+            assert_eq!(
+                refined_ledger.modeled_binary_events,
+                base_ledger.modeled_binary_events,
+                "{}",
+                arm.name()
+            );
+            assert_eq!(
+                refined_ledger.raw_literal_bytes,
+                base_ledger.raw_literal_bytes,
+                "{}",
+                arm.name()
+            );
+            if !is_mixer_arm(arm) {
+                assert_eq!(
+                    refined_ledger.modeled_loss_q24,
+                    base_ledger.modeled_loss_q24,
+                    "{}",
+                    arm.name()
+                );
+            }
+            // A refined tape always re-decodes to the source under matching bits.
+            assert_eq!(
+                decode_arm_item_with_bits(
+                    arm,
+                    &refined_tape,
+                    refined_ledger,
+                    &table,
+                    2,
+                    SSE_REFINED_BUCKET_BITS
+                )
+                .unwrap(),
+                source,
+                "{}",
+                arm.name()
+            );
+        }
+    }
+
+    // A corpus large enough to force an SSE 17-bit bucket collision that the
+    // 18th bit resolves, so the refined profile's charged loss actually moves on
+    // a mixer arm while the tape stays byte-identical.
+    fn diverging_corpus() -> Vec<u8> {
+        let mut source = Vec::new();
+        for index in 0..1_500_u32 {
+            let mix = index.wrapping_mul(2_654_435_761);
+            source.extend_from_slice(
+                format!(
+                    "{{\"id\":{},\"ts\":\"2026-07-22T{:02}:{:02}:{:02}Z\",\"session\":\"s{}\",\"path\":\"/api/v/{}/resource/{}\",\"tag\":\"{:08x}\",\"status\":{}}}\n",
+                    100_000 + index,
+                    index % 24,
+                    index % 60,
+                    (index * 7) % 60,
+                    index % 997,
+                    index % 733,
+                    index % 521,
+                    mix,
+                    200 + (index % 5)
+                )
+                .as_bytes(),
+            );
+        }
+        source.extend_from_slice(b"{ bad }\n");
+        source
+    }
+
+    #[test]
+    fn refined_bits_move_the_mixer_loss_and_bind_the_decoder_on_a_large_corpus() {
+        let table = LossTable::generate();
+        let source = diverging_corpus();
+        let (base_tape, base_ledger) = encode_full_item_bits(&table, &source, 17);
+        let (refined_tape, refined_ledger) = encode_full_item_bits(&table, &source, 18);
+        // Tape is byte-identical; only the refined charged loss moves.
+        assert_eq!(refined_tape.to_bytes(), base_tape.to_bytes());
+        assert_eq!(
+            refined_ledger.modeled_binary_events,
+            base_ledger.modeled_binary_events
+        );
+        assert_ne!(
+            refined_ledger.modeled_loss_q24, base_ledger.modeled_loss_q24,
+            "refined SSE capacity did not move the full-arm loss on the large corpus"
+        );
+        // The refined tape reconstructs only under matching bits; decoding it
+        // under the base capacity reproduces a different loss and fails the
+        // independent ledger-equality check.
+        assert_eq!(
+            decode_arm_item_with_bits(Arm::Full, &refined_tape, refined_ledger, &table, 0, 18)
+                .unwrap(),
+            source
+        );
+        assert!(
+            decode_arm_item_with_bits(Arm::Full, &refined_tape, refined_ledger, &table, 0, 17)
+                .is_err()
+        );
+    }
+
+    fn encode_full_item_bits(table: &LossTable, source: &[u8], bits: u32) -> (Tape, Ledger) {
+        let (tape, ledger, _) =
+            encode_arm_item_with_bits(Arm::Full, source, table, 0, None, bits).unwrap();
+        (tape, ledger)
     }
 
     #[test]
