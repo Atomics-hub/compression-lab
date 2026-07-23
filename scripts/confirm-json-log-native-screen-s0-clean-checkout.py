@@ -168,8 +168,28 @@ def main() -> int:
         git("-C", str(checkout), "checkout", "--quiet", args.commit)
 
         freeze = read_json(args.freeze_record)
-        if freeze["commit"] != args.commit:
-            raise ConfirmationError("freeze record commit differs from --commit")
+        # The freeze record cannot name its own merge commit (hash
+        # self-reference), so the binding is ancestry: the attested engine
+        # commit must be reachable from the measurement commit, and the
+        # per-file hash loop below proves the checkout's engine sources are
+        # byte-identical to the attestation.
+        ancestry = subprocess.run(
+            [
+                "git",
+                "-C",
+                str(checkout),
+                "merge-base",
+                "--is-ancestor",
+                freeze["engine_commit"],
+                args.commit,
+            ],
+            check=False,
+            capture_output=True,
+        )
+        if ancestry.returncode != 0:
+            raise ConfirmationError(
+                "freeze record engine_commit is not an ancestor of --commit"
+            )
 
         manifest = read_json(
             checkout
@@ -180,11 +200,11 @@ def main() -> int:
         # The freeze record must attest exactly the manifest's engine-source
         # set: neither an omitted file (so a changed file slips by unattested)
         # nor an extra file (so a bogus attestation passes vacuously).
-        if set(freeze["engine_source_files"]) != set(build_identity["engine_source_files"]):
+        if set(freeze["engine_source_sha256"]) != set(build_identity["engine_source_files"]):
             raise ConfirmationError(
-                "freeze record engine_source_files set differs from the manifest"
+                "freeze record engine_source_sha256 set differs from the manifest"
             )
-        for relative, expected in sorted(freeze["engine_source_files"].items()):
+        for relative, expected in sorted(freeze["engine_source_sha256"].items()):
             path = checkout / relative
             ordinary(path)
             if sha256_file(path) != expected:
