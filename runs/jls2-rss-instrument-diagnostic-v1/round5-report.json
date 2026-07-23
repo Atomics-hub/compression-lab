@@ -1,0 +1,119 @@
+{
+  "schema": "jls2-rss-arena-experiment-v5",
+  "purpose": "Diagnostic RSS-instrument matrix for the JLS2 native decoder on synthetic data: wait4-from-a-large-parent versus GNU-time-from-a-tiny-parent, on large and tiny artifacts. Not a gate measurement, not corpus evidence, and not a compression-quality claim.",
+  "platform": "linux",
+  "cpu_count": 4,
+  "glibc_version": "ldd (Ubuntu GLIBC 2.35-0ubuntu3.13) 2.35",
+  "sources": {
+    "main": {
+      "source_bytes": 200000000,
+      "source_sha256": "28081a7e678152f7be39682aee09b5240862ae91321c4975aef2319198aa3049",
+      "artifact_path": "/home/runner/work/_temp/arena-work/synthetic-main.jls2",
+      "artifact_bytes": 199920,
+      "artifact_sha256": "a755bd70bcf785184228e5c6bbb2c21840fc2419f775afeeaab876b40306486a"
+    },
+    "tiny": {
+      "source_bytes": 1000000,
+      "source_sha256": "a26eb7a9d55496dfa856778d14cb97994d552e8d90fe73c342c1a4d01491f0eb",
+      "artifact_path": "/home/runner/work/_temp/arena-work/synthetic-tiny.jls2",
+      "artifact_bytes": 14645,
+      "artifact_sha256": "d2837873d7ea8b51be70d7e24a496256642347f045de2041827c13d6a85078f7"
+    }
+  },
+  "binary_sha256": "65760fee6d467190690fe31b632a6ed73b0457e0b1b9898a530377d0a3419006",
+  "cells": [
+    {
+      "label": "baseline-all",
+      "cpu_limit": null,
+      "artifact": "main",
+      "measure": "wait4",
+      "wait4_peak_rss_raw": 715556,
+      "wait4_peak_rss_bytes": 732729344,
+      "wait4_peak_rss_mib": 698.8,
+      "wall_seconds": 0.66,
+      "decoded_sha256": "28081a7e678152f7be39682aee09b5240862ae91321c4975aef2319198aa3049",
+      "decode_matches_source": true
+    },
+    {
+      "label": "baseline-cpus3",
+      "cpu_limit": 3,
+      "artifact": "main",
+      "measure": "wait4",
+      "wait4_peak_rss_raw": 546212,
+      "wait4_peak_rss_bytes": 559321088,
+      "wait4_peak_rss_mib": 533.4,
+      "wall_seconds": 0.53,
+      "decoded_sha256": "28081a7e678152f7be39682aee09b5240862ae91321c4975aef2319198aa3049",
+      "decode_matches_source": true
+    },
+    {
+      "label": "gnutime-all",
+      "cpu_limit": null,
+      "artifact": "main",
+      "measure": "gnutime",
+      "wait4_peak_rss_raw": 715556,
+      "wait4_peak_rss_bytes": 732729344,
+      "wait4_peak_rss_mib": 698.8,
+      "wall_seconds": 0.66,
+      "decoded_sha256": "28081a7e678152f7be39682aee09b5240862ae91321c4975aef2319198aa3049",
+      "clean_peak_rss_raw": 166776,
+      "clean_peak_rss_bytes": 170778624,
+      "clean_peak_rss_mib": 162.9,
+      "decode_matches_source": true
+    },
+    {
+      "label": "gnutime-cpus3",
+      "cpu_limit": 3,
+      "artifact": "main",
+      "measure": "gnutime",
+      "wait4_peak_rss_raw": 546212,
+      "wait4_peak_rss_bytes": 559321088,
+      "wait4_peak_rss_mib": 533.4,
+      "wall_seconds": 0.55,
+      "decoded_sha256": "28081a7e678152f7be39682aee09b5240862ae91321c4975aef2319198aa3049",
+      "clean_peak_rss_raw": 125472,
+      "clean_peak_rss_bytes": 128483328,
+      "clean_peak_rss_mib": 122.5,
+      "decode_matches_source": true
+    },
+    {
+      "label": "tiny-all",
+      "cpu_limit": null,
+      "artifact": "tiny",
+      "measure": "wait4",
+      "wait4_peak_rss_raw": 715556,
+      "wait4_peak_rss_bytes": 732729344,
+      "wait4_peak_rss_mib": 698.8,
+      "wall_seconds": 0.0,
+      "decoded_sha256": "a26eb7a9d55496dfa856778d14cb97994d552e8d90fe73c342c1a4d01491f0eb",
+      "decode_matches_source": true
+    },
+    {
+      "label": "tiny-cpus3",
+      "cpu_limit": 3,
+      "artifact": "tiny",
+      "measure": "wait4",
+      "wait4_peak_rss_raw": 546212,
+      "wait4_peak_rss_bytes": 559321088,
+      "wait4_peak_rss_mib": 533.4,
+      "wall_seconds": 0.0,
+      "decoded_sha256": "a26eb7a9d55496dfa856778d14cb97994d552e8d90fe73c342c1a4d01491f0eb",
+      "decode_matches_source": true
+    },
+    {
+      "label": "gnutime-tiny-all",
+      "cpu_limit": null,
+      "artifact": "tiny",
+      "measure": "gnutime",
+      "wait4_peak_rss_raw": 715556,
+      "wait4_peak_rss_bytes": 732729344,
+      "wait4_peak_rss_mib": 698.8,
+      "wall_seconds": 0.0,
+      "decoded_sha256": "a26eb7a9d55496dfa856778d14cb97994d552e8d90fe73c342c1a4d01491f0eb",
+      "clean_peak_rss_raw": 4992,
+      "clean_peak_rss_bytes": 5111808,
+      "clean_peak_rss_mib": 4.9,
+      "decode_matches_source": true
+    }
+  ]
+}
