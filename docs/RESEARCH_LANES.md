@@ -30,6 +30,13 @@ or changes status. Status date: 2026-07-23.
 
 ## Lane 1 (RESOLVED at the diagnostic level 2026-07-23, owner decision pending): JLS2 decoder memory
 
+- **Frozen result (immutable):** under the one-acquisition/one-score frozen
+  contract, JLS2's public validation is a recorded `not_passed` (run
+  `29606109504`, exit code 2). That no-pass is final; the diagnostic below
+  invalidates the *reading*, not the *result*. JLS2 did not pass, "would not
+  have passed" / "now passes" are barred, and there is no recomputed frozen
+  score. See
+  `docs/benchmarks/2026-07-23-jls2-memory-gate-instrument-addendum.md`.
 - **Resolution:** the 621.3 MiB reading that failed the memory gate is a
   measurement-instrument artifact, not decoder memory. Five diagnostic
   rounds (`docs/benchmarks/2026-07-23-jls2-rss-instrument-diagnostic.md`,
@@ -39,10 +46,12 @@ or changes status. Status date: 2026-07-23.
   instrument, byte-identical to a 200 MB decode. Measured cleanly (PR #77's
   tiny-parent instrument), the dieted decoder (PR #74) peaks at 162.9 MiB at
   full parallelism on a 200 MB synthetic item — about 3x under the gate.
-- **What remains is an owner decision, not engineering:** re-scoring the
-  frozen memory gate on the frozen validation family with the corrected
-  instrument (an RSS re-measurement only; the frozen 52.97% ratio and all
-  byte results are untouched). Validation-path dispatch stays owner-only.
+- **What remains is an owner decision, not engineering:** any corrected
+  memory re-validation is a *new, separately frozen protocol* on previously
+  unopened validation families — not a re-score of this consumed, frozen
+  attempt. Owner-dispatched, followed in sequence by the sealed private
+  holdout and independent reproduction. Validation-path dispatch stays
+  owner-only.
 - **Corollary:** the A2 context-reuse and inline-single-worker "no effect"
   results likely compared polluted readings against polluted readings;
   reread before citing them, pending confirmation of each run's exact
