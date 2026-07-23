@@ -80,8 +80,9 @@ pub fn h1_declared_state_bytes(table: &LossTable, sse_bucket_bits: u32) -> usize
 }
 
 /// The mutable H1 model state. Reused unchanged by the encoder and decoder so
-/// both evolve byte-for-byte identically.
-struct H1Model {
+/// both evolve byte-for-byte identically. Also reused as the shared floor
+/// coder of the H6 hybrid arm, which drives its byte and flag primitives.
+pub struct H1Model {
     contexts: ContextTable,
     moon: MoonMixer,
     mixer: Box<M5Mixer>,
@@ -91,7 +92,7 @@ struct H1Model {
 }
 
 impl H1Model {
-    fn new(table: &LossTable, sse_bucket_bits: u32) -> Self {
+    pub fn new(table: &LossTable, sse_bucket_bits: u32) -> Self {
         Self {
             contexts: ContextTable::new(),
             moon: MoonMixer::new(table),
@@ -178,6 +179,120 @@ impl H1Model {
             self.word = 0;
         }
     }
+
+    /// Encode one byte as eight modeled bits through the H1 mixing floor,
+    /// given the preceding byte history. Advances the model. Reused verbatim
+    /// by the H6 hybrid arm for miss-line bytes so their per-byte grammar is
+    /// identical to H1's.
+    pub fn encode_byte(
+        &mut self,
+        byte: u8,
+        history: &[u8],
+        table: &LossTable,
+        ledger: &mut Ledger,
+        writer: &mut TapeWriter,
+    ) -> Result<(), H1Error> {
+        let mut node: u32 = 1;
+        for shift in (0..8_u32).rev() {
+            let bit = (byte >> shift) & 1 == 1;
+            let (indices, probabilities) = self.resolve(history, node as u8);
+            let event_id = self.event_id(node as u8);
+            encode_bit(
+                self,
+                &indices,
+                &probabilities,
+                node as u8,
+                event_id,
+                bit,
+                table,
+                ledger,
+                writer,
+            )?;
+            node = (node << 1) | u32::from(bit);
+        }
+        self.advance_byte(byte);
+        Ok(())
+    }
+
+    /// Decode one byte, mirror of [`encode_byte`]. Advances the model.
+    ///
+    /// [`encode_byte`]: H1Model::encode_byte
+    pub fn decode_byte(
+        &mut self,
+        history: &[u8],
+        table: &LossTable,
+        ledger: &mut Ledger,
+        reader: &mut TapeReader<'_>,
+    ) -> Result<u8, H1Error> {
+        let mut node: u32 = 1;
+        for _ in 0..8 {
+            let (indices, probabilities) = self.resolve(history, node as u8);
+            let event_id = self.event_id(node as u8);
+            let bit = decode_bit(
+                self,
+                &indices,
+                &probabilities,
+                node as u8,
+                event_id,
+                table,
+                ledger,
+                reader,
+            )?;
+            node = (node << 1) | u32::from(bit);
+        }
+        let byte = (node & 0xff) as u8;
+        self.advance_byte(byte);
+        Ok(byte)
+    }
+
+    /// Charge one continuation bit through the H1 floor estimator (the shared
+    /// s0 mixer keyed by the continuation identity, against the continuation
+    /// probability cell). The H6 hybrid arm reuses this verbatim for its
+    /// per-byte framing so that, on the miss substream, its continuation
+    /// events are charged bit-for-bit identically to pure H1.
+    pub fn encode_continuation_bit(
+        &mut self,
+        more: bool,
+        table: &LossTable,
+        ledger: &mut Ledger,
+        writer: &mut TapeWriter,
+    ) -> Result<(), H1Error> {
+        let base = self.continuation.probability_of_one();
+        let charged = self.mixer.predict(CONTINUATION_EVENT_ID, base);
+        let loss = table
+            .get(observed_probability(charged, more))
+            .ok_or(H1Error::InvalidProbability)?;
+        ledger
+            .add_modeled_event(loss)
+            .ok_or(H1Error::LedgerOverflow)?;
+        writer.push_bit(more)?;
+        self.mixer.update(more);
+        self.continuation.update(more, H1_RATE_SHIFT);
+        Ok(())
+    }
+
+    /// Decode one continuation bit, mirror of [`encode_continuation_bit`].
+    ///
+    /// [`encode_continuation_bit`]: H1Model::encode_continuation_bit
+    pub fn decode_continuation_bit(
+        &mut self,
+        table: &LossTable,
+        ledger: &mut Ledger,
+        reader: &mut TapeReader<'_>,
+    ) -> Result<bool, H1Error> {
+        let more = reader.read_bit()?;
+        let base = self.continuation.probability_of_one();
+        let charged = self.mixer.predict(CONTINUATION_EVENT_ID, base);
+        let loss = table
+            .get(observed_probability(charged, more))
+            .ok_or(H1Error::InvalidProbability)?;
+        ledger
+            .add_modeled_event(loss)
+            .ok_or(H1Error::LedgerOverflow)?;
+        self.mixer.update(more);
+        self.continuation.update(more, H1_RATE_SHIFT);
+        Ok(more)
+    }
 }
 
 /// The shared prediction step for one modeled byte-bit. The moon logistic
@@ -251,47 +366,6 @@ fn decode_bit(
     Ok(bit)
 }
 
-fn encode_continuation(
-    model: &mut H1Model,
-    more: bool,
-    table: &LossTable,
-    ledger: &mut Ledger,
-    writer: &mut TapeWriter,
-) -> Result<(), H1Error> {
-    let base = model.continuation.probability_of_one();
-    let charged = model.mixer.predict(CONTINUATION_EVENT_ID, base);
-    let loss = table
-        .get(observed_probability(charged, more))
-        .ok_or(H1Error::InvalidProbability)?;
-    ledger
-        .add_modeled_event(loss)
-        .ok_or(H1Error::LedgerOverflow)?;
-    writer.push_bit(more)?;
-    model.mixer.update(more);
-    model.continuation.update(more, H1_RATE_SHIFT);
-    Ok(())
-}
-
-fn decode_continuation(
-    model: &mut H1Model,
-    table: &LossTable,
-    ledger: &mut Ledger,
-    reader: &mut TapeReader<'_>,
-) -> Result<bool, H1Error> {
-    let more = reader.read_bit()?;
-    let base = model.continuation.probability_of_one();
-    let charged = model.mixer.predict(CONTINUATION_EVENT_ID, base);
-    let loss = table
-        .get(observed_probability(charged, more))
-        .ok_or(H1Error::InvalidProbability)?;
-    ledger
-        .add_modeled_event(loss)
-        .ok_or(H1Error::LedgerOverflow)?;
-    model.mixer.update(more);
-    model.continuation.update(more, H1_RATE_SHIFT);
-    Ok(more)
-}
-
 /// Encode one item under the H1 arm at the base SSE capacity.
 pub fn encode_h1_item(
     source: &[u8],
@@ -312,32 +386,13 @@ pub fn encode_h1_item_with_bits(
     let mut writer = TapeWriter::new(H1_ARM_ID, item_index);
     let mut ledger = Ledger::default();
     for (position, &byte) in source.iter().enumerate() {
-        encode_continuation(&mut model, true, table, &mut ledger, &mut writer)?;
-        let history = &source[..position];
-        let mut node: u32 = 1;
-        for shift in (0..8_u32).rev() {
-            let bit = (byte >> shift) & 1 == 1;
-            let (indices, probabilities) = model.resolve(history, node as u8);
-            let event_id = model.event_id(node as u8);
-            encode_bit(
-                &mut model,
-                &indices,
-                &probabilities,
-                node as u8,
-                event_id,
-                bit,
-                table,
-                &mut ledger,
-                &mut writer,
-            )?;
-            node = (node << 1) | u32::from(bit);
-        }
-        model.advance_byte(byte);
+        model.encode_continuation_bit(true, table, &mut ledger, &mut writer)?;
+        model.encode_byte(byte, &source[..position], table, &mut ledger, &mut writer)?;
         if byte == b'\n' {
             ledger.add_record().ok_or(H1Error::LedgerOverflow)?;
         }
     }
-    encode_continuation(&mut model, false, table, &mut ledger, &mut writer)?;
+    model.encode_continuation_bit(false, table, &mut ledger, &mut writer)?;
     Ok((writer.finish(), ledger))
 }
 
@@ -374,28 +429,11 @@ pub fn decode_h1_item_with_bits(
     let mut reader = tape.reader();
     let mut output: Vec<u8> = Vec::new();
     loop {
-        if !decode_continuation(&mut model, table, &mut ledger, &mut reader)? {
+        if !model.decode_continuation_bit(table, &mut ledger, &mut reader)? {
             break;
         }
-        let mut node: u32 = 1;
-        for _ in 0..8 {
-            let (indices, probabilities) = model.resolve(&output, node as u8);
-            let event_id = model.event_id(node as u8);
-            let bit = decode_bit(
-                &mut model,
-                &indices,
-                &probabilities,
-                node as u8,
-                event_id,
-                table,
-                &mut ledger,
-                &mut reader,
-            )?;
-            node = (node << 1) | u32::from(bit);
-        }
-        let byte = (node & 0xff) as u8;
+        let byte = model.decode_byte(&output, table, &mut ledger, &mut reader)?;
         output.push(byte);
-        model.advance_byte(byte);
         if byte == b'\n' {
             ledger.add_record().ok_or(H1Error::LedgerOverflow)?;
         }
