@@ -1,0 +1,26 @@
+{
+  "schema": "clean-rss-measurement-v1",
+  "command": [
+    "/Users/guts/Documents/Codex/2026-07-14/i/outputs/compression-lab/native/target/release/clab-moon-kernel",
+    "encode",
+    "--arm",
+    "h1-floor",
+    "--item-index",
+    "4",
+    "--input",
+    "/Users/guts/Documents/axiom-moonshot-corpora/slices/moon-syn-jittery-time-s24.ndjson",
+    "--tape-out",
+    "/Users/guts/Documents/axiom-moonshot-corpora/sweep-cycle1-h1/moon-syn-jittery-time-s24__h1-floor.tape",
+    "--receipt-out",
+    "/Users/guts/Documents/axiom-moonshot-corpora/sweep-cycle1-h1/moon-syn-jittery-time-s24__h1-floor.kernel-receipt.json",
+    "--force"
+  ],
+  "exit_code": 0,
+  "platform": "darwin",
+  "maxrss_raw": 292159488,
+  "maxrss_bytes": 292159488,
+  "shim_maxrss_bytes": 18595840,
+  "wall_ns": 191327047792,
+  "user_seconds": 190.286266,
+  "system_seconds": 0.523419
+}

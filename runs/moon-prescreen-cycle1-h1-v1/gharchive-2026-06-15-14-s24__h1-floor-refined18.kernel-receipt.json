@@ -1,0 +1,19 @@
+{
+  "schema": "clab-moon-kernel-encode-receipt-v1",
+  "kernel_version": "0.1.0",
+  "evidence_stage": "development_only_prescreen",
+  "arm": "h1-floor",
+  "arm_id": 100,
+  "item_index": 0,
+  "source_bytes": 25165414,
+  "source_sha256": "05220440b98e0adfc933ce0b6f838a6bed37d35118e4bb4f02075d7e34e50f79",
+  "tape_bytes": 28311145,
+  "tape_sha256": "c6a9ecb73d60c52e33682e0fa400a5ee04b9f4d01bcc0190d95c26ac4f1197cf",
+  "sse_bucket_bits": 18,
+  "declared_model_state_bytes": 128598016,
+  "ledger": {"records": 35854, "modeled_binary_events": 226488727, "modeled_loss_q24": 469125813093030, "raw_literal_bytes": 0},
+  "item_projection": {"payload_bytes": 3495260, "coder_allowance_bytes": 17477, "block_allowance_bytes": 768, "stream_metadata_bytes": 24, "fixed_framing_bytes": 4096, "complete_bytes": 3517625},
+  "predicted_kill_criterion": "Kill if projected complete bytes exceed 1.10x local zpaq -m5 -B16 on at least two public snapshots at <=256 MiB declared state, OR peak decode RSS exceeds 512 MiB.",
+  "decoded_sha256": "05220440b98e0adfc933ce0b6f838a6bed37d35118e4bb4f02075d7e34e50f79",
+  "decode_matches_source": true
+}

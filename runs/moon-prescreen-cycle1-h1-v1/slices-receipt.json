@@ -1,0 +1,49 @@
+{
+  "items": {
+    "gharchive-2026-05-15-14-s24": {
+      "slice_bytes": 25165377,
+      "slice_sha256": "a6873fdebc69a79c1cad8e7b4b52c8d207c5e7f5fa5ed1df3ec4117d920802b4",
+      "source": "/Users/guts/Documents/axiom-moonshot-corpora/gharchive-2026-05-15-14.ndjson",
+      "source_sha256": "747214a6416c119a21d112ae37550049cac88536f9f190afe22c126338b7d32d"
+    },
+    "gharchive-2026-06-15-14-s24": {
+      "slice_bytes": 25165414,
+      "slice_sha256": "05220440b98e0adfc933ce0b6f838a6bed37d35118e4bb4f02075d7e34e50f79",
+      "source": "/Users/guts/Documents/axiom-moonshot-corpora/gharchive-2026-06-15-14.ndjson",
+      "source_sha256": "aebc9ec26671c0c9ba73aae3516e08e44538bf65354204adfc26cc67dcc28fbd"
+    },
+    "moon-syn-high-dup-s24": {
+      "slice_bytes": 25165710,
+      "slice_sha256": "861e004438bcbbb35f35751a7b5c5ad0408022c5d1c368ba491f589365cad642",
+      "source": "/Users/guts/Documents/axiom-moonshot-corpora/synthetic/moon-syn-high-dup.ndjson",
+      "source_sha256": "aaa08954e88f3a345a390e247ed5efae6f751f1ce6e50c7f05abfe60f5d7d413"
+    },
+    "moon-syn-high-sessions-s24": {
+      "slice_bytes": 25165704,
+      "slice_sha256": "eafb11b3cda9505ef67c76416fc5fa0f02bff8f1ee975ab1fc0b188c8af01d63",
+      "source": "/Users/guts/Documents/axiom-moonshot-corpora/synthetic/moon-syn-high-sessions.ndjson",
+      "source_sha256": "f994f8bcb41f951d7fff53aff39ed80be9607960f52053bc5f5f03a3869c3326"
+    },
+    "moon-syn-jittery-time-s24": {
+      "slice_bytes": 25165774,
+      "slice_sha256": "495f915922a93a55a6f26b617db41140d1cb7bdf834fdcaeb4c7e9fa7639c67c",
+      "source": "/Users/guts/Documents/axiom-moonshot-corpora/synthetic/moon-syn-jittery-time.ndjson",
+      "source_sha256": "439e68820e96bfb10f22b62a4faf5063e14927f64e25abe48ad876ec2028f38d"
+    },
+    "moon-syn-low-dup-s24": {
+      "slice_bytes": 25165614,
+      "slice_sha256": "b8518673e4d089ac32d6d855d5eb004fdee4c8e8570314c172bac94663b091e3",
+      "source": "/Users/guts/Documents/axiom-moonshot-corpora/synthetic/moon-syn-low-dup.ndjson",
+      "source_sha256": "e724ad1a8fbf463a7817ee3c0af07f71695d9ff2c632a1bfb99e19b4a859ba8f"
+    },
+    "moon-syn-many-templates-s24": {
+      "slice_bytes": 25165656,
+      "slice_sha256": "c3d575201f410839ddcad68bef3f4d99c2d6030e610e96b1e3a2994075865170",
+      "source": "/Users/guts/Documents/axiom-moonshot-corpora/synthetic/moon-syn-many-templates.ndjson",
+      "source_sha256": "fc65f298adb1b80bc70beb7f5c7e34a7f237b58fabc2be18e3a690673e8a6abc"
+    }
+  },
+  "note": "24 MiB prefix slices cut at the last full NDJSON line <= 25165824 bytes; same-bytes basis for arm and reference comparisons.",
+  "schema": "moon-prescreen-slices-v1",
+  "slice_target_bytes": 25165824
+}
