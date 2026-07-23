@@ -26,6 +26,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import subprocess
 import sys
 import time
@@ -275,6 +276,14 @@ def execute_encode(
     """Run the kernel encode through the clean-RSS instrument. Returns the
     clean-RSS report (always) and the kernel receipt (None if it was not
     written). Never raises on a failed target: failure is data."""
+    # The clean-RSS instrument reaps the child with os.wait4, which POSIX
+    # provides and Windows does not. Fail closed with a clear message rather
+    # than mismeasure the sweep.
+    if not hasattr(os, "wait4"):
+        raise ConfigError(
+            "the prescreen runner requires POSIX os.wait4 for clean peak-RSS "
+            "measurement (scripts/measure-clean-rss.py); this platform lacks it"
+        )
     kernel_command = config.kernel_command + [
         "encode",
         "--arm",

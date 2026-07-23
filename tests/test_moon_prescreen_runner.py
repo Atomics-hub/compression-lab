@@ -6,6 +6,7 @@ from __future__ import annotations
 import hashlib
 import importlib.util
 import json
+import os
 from pathlib import Path
 import shutil
 import sys
@@ -132,6 +133,10 @@ class PrescreenRunnerTests(unittest.TestCase):
         self.addCleanup(shutil.rmtree, root, ignore_errors=True)
         return root
 
+    @unittest.skipUnless(
+        hasattr(os, "wait4"),
+        "the clean-RSS instrument requires POSIX os.wait4",
+    )
     def test_end_to_end_run_records_the_full_metric_tuple(self) -> None:
         fixture = Fixture(self.make_root())
         summary = MODULE.run(fixture.write_config())
