@@ -21,6 +21,7 @@ use moon::c3::{
     c3_declared_state_bytes, decode_c3_item_with_bits, encode_c3_item_with_bits_and_quarters,
     C3QuarterSnapshot, C3_ARM_ID,
 };
+use moon::diagnose::{decompose_h1, DEFAULT_TOP_REGIONS};
 use moon::h1::{
     decode_h1_item_with_bits, encode_h1_item_with_bits, h1_declared_state_bytes, H1_ARM_ID,
 };
@@ -208,6 +209,8 @@ Usage:
                           --modeled-loss-q24 N --raw-literal-bytes N
                           --output PATH --receipt-out PATH
                           [--sse-bucket-bits 17|18] [--force]
+  clab-moon-kernel diagnose-h1 --item-index N --input PATH --report-out PATH
+                          [--sse-bucket-bits 17|18] [--top-regions N] [--force]
   clab-moon-kernel --help
   clab-moon-kernel --version
 ";
@@ -236,6 +239,7 @@ fn main() -> ExitCode {
         }
         Some((&"encode", rest)) => run(encode_command(rest)),
         Some((&"decode", rest)) => run(decode_command(rest)),
+        Some((&"diagnose-h1", rest)) => run(diagnose_h1_command(rest)),
         Some((command, _)) => {
             eprintln!("unknown or malformed command: {command}\n{HELP}");
             ExitCode::from(2)
@@ -576,6 +580,48 @@ fn decode_command(arguments: &[&str]) -> Result<(), CommandError> {
     );
     write_output(receipt_out, receipt.as_bytes(), options.force)?;
     written_output.keep();
+    Ok(())
+}
+
+/// Read-only H1 loss-decomposition diagnostic. It never writes a tape and never
+/// touches the encode/decode receipt paths; it emits a single deterministic
+/// decomposition report for one item. The `decompose_h1` observer re-runs the
+/// canonical H1 arm and fails closed if its tape or ledger diverges by a byte,
+/// so this command can never report a decomposition of a tape the arm would not
+/// have produced.
+fn diagnose_h1_command(arguments: &[&str]) -> Result<(), CommandError> {
+    let options = parse_options(
+        arguments,
+        &[
+            "item-index",
+            "input",
+            "report-out",
+            "sse-bucket-bits",
+            "top-regions",
+        ],
+    )?;
+    let item_index: u8 = parse_number("item-index", options.take("item-index")?)?;
+    let input = options.take("input")?;
+    let report_out = options.take("report-out")?;
+    let sse_bucket_bits = parse_sse_bucket_bits(&options)?;
+    let top_regions: usize = match options.take_optional("top-regions") {
+        None => DEFAULT_TOP_REGIONS,
+        Some(value) => parse_number("top-regions", value)?,
+    };
+
+    let source = read_bytes(input)?;
+    let table = LossTable::generate();
+    let decomposition = decompose_h1(&source, &table, item_index, sse_bucket_bits, top_regions)
+        .map_err(|error| failure(format!("loss decomposition failed: {error}")))?;
+
+    // Re-encode once to recover the exact tape SHA for provenance; the observer
+    // already proved this tape is byte-identical to the one it decomposed.
+    let (tape, _) =
+        moon::h1::encode_h1_item_with_bits(&source, &table, item_index, sse_bucket_bits)
+            .map_err(|error| failure(format!("tape hash re-encode failed: {error}")))?;
+    let report =
+        decomposition.to_json(VERSION, &sha256_hex(&source), &sha256_hex(&tape.to_bytes()));
+    write_output(report_out, report.as_bytes(), options.force)?;
     Ok(())
 }
 
@@ -1093,6 +1139,66 @@ mod tests {
         assert_eq!(MoonArm::from_name("h9-grammar").map(MoonArm::id), Some(102));
         assert!(MoonArm::from_name("nope").is_none());
         assert_eq!(ARMS.len(), 5);
+    }
+
+    #[test]
+    fn diagnose_h1_emits_a_deterministic_decomposition_report() {
+        let scratch = Scratch::new();
+        let source = corpus();
+        fs::write(scratch.path("item.ndjson"), &source).unwrap();
+
+        let run = |name: &str| {
+            let report_path = scratch.path(name);
+            unwrap_message(diagnose_h1_command(&[
+                "--item-index",
+                "4",
+                "--input",
+                &scratch.path("item.ndjson"),
+                "--report-out",
+                &report_path,
+                "--top-regions",
+                "8",
+            ]));
+            fs::read_to_string(&report_path).unwrap()
+        };
+        let first = run("a.report.json");
+        let second = run("b.report.json");
+        assert_eq!(first, second, "report must be deterministic");
+        assert_eq!(
+            receipt_field(&first, "schema"),
+            "clab-moon-h1-loss-decomposition-v1"
+        );
+        assert_eq!(receipt_field(&first, "arm"), "h1-floor");
+        assert_eq!(receipt_field(&first, "evidence_stage"), EVIDENCE_STAGE);
+        assert_eq!(receipt_field(&first, "item_index"), "4");
+        // The report's tape SHA matches an independent H1 encode of the source.
+        let table = LossTable::generate();
+        let (tape, _) =
+            moon::h1::encode_h1_item_with_bits(&source, &table, 4, SSE_BASE_BUCKET_BITS).unwrap();
+        assert_eq!(
+            receipt_field(&first, "tape_sha256"),
+            sha256_hex(&tape.to_bytes())
+        );
+        assert!(first.contains("\"primary_partition\""));
+        assert!(first.contains("\"top_regions\""));
+        assert!(first.contains("\"repeat_candidate\""));
+    }
+
+    #[test]
+    fn diagnose_h1_never_clobbers_without_force() {
+        let scratch = Scratch::new();
+        fs::write(scratch.path("item.ndjson"), corpus()).unwrap();
+        fs::write(scratch.path("report.json"), b"existing").unwrap();
+        let result = diagnose_h1_command(&[
+            "--item-index",
+            "0",
+            "--input",
+            &scratch.path("item.ndjson"),
+            "--report-out",
+            &scratch.path("report.json"),
+        ]);
+        assert!(matches!(result, Err(CommandError::Failure(_))));
+        assert_eq!(fs::read(scratch.path("report.json")).unwrap(), b"existing");
     }
 
     #[test]
