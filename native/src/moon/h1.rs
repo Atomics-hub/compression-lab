@@ -35,6 +35,19 @@ pub const H1_BYTE_ORDERS: [usize; 6] = [1, 2, 3, 4, 6, 8];
 /// event layer's `RATE_SHIFT`).
 const H1_RATE_SHIFT: u32 = 5;
 
+/// Context-miss proxy threshold used by the read-only loss-decomposition
+/// observer (never by the encode/decode path). A modeled bit is flagged
+/// "context-miss" when the *best-supported* of its eight hashed contexts has
+/// been observed fewer than this many times at prediction (i.e. the maximum
+/// [`Cell::confidence`] over the byte's eight resolved cells is below the
+/// threshold). Such a bit is coded largely from the mixer bias / base rate
+/// rather than a warmed context, so it is a mechanical proxy for "the model had
+/// no confident context here." Chosen once and pinned; it does not affect any
+/// tape or ledger.
+///
+/// [`Cell::confidence`]: super::table::Cell::confidence
+pub const H1_LOW_CONFIDENCE_THRESHOLD: u32 = 4;
+
 // Disjoint FNV-1a namespaces per context kind, so two contexts that hash the
 // same bytes still land on different cells.
 const TAG_ORDER: u8 = 0x01;
@@ -476,6 +489,210 @@ impl Display for H1Error {
 
 impl Error for H1Error {}
 
+// ---------------------------------------------------------------------------
+// Read-only loss-decomposition observer.
+//
+// `encode_h1_item_traced` is a *parallel* encode path that produces the exact
+// same tape and ledger as `encode_h1_item_with_bits` while additionally
+// emitting a per-source-byte trace of where the fixed-point coding loss went.
+// It shares every tape-affecting primitive with the canonical arm (`resolve`,
+// `predict_byte_bit`, `update_byte_bit`, `advance_byte`, `event_id`, and the
+// same `LossTable`/`observed_probability` arithmetic); the only additions are
+// (1) capturing the per-bit loss value the canonical path computes and
+// discards, and (2) reading — never mutating — the resolved cells' confidence
+// to flag the context-miss proxy. The existing `encode_byte` /
+// `encode_continuation_bit` / `encode_h1_item_with_bits` functions are left
+// byte-for-byte untouched, and a test asserts the traced path reproduces the
+// pinned tape SHA and an identical ledger.
+// ---------------------------------------------------------------------------
+
+/// Per-source-byte loss trace. All losses are in the same Q24 fixed-point bits
+/// the ledger tracks (`loss_q24 / 2^24` bits). Emitted only by the observer.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct H1ByteTrace {
+    /// The source byte value (used by the classifier; never re-emitted raw).
+    pub byte: u8,
+    /// Loss of the `continuation(true)` framing bit that precedes this byte.
+    pub continuation_loss_q24: u32,
+    /// Loss of each of the eight modeled byte-bits, in the coder's MSB-first
+    /// order (index 0 is the bit at shift 7).
+    pub bit_loss_q24: [u32; 8],
+    /// Context-miss proxy: bit `k` is set when modeled byte-bit `k` was coded
+    /// with the best-supported of its eight contexts below
+    /// [`H1_LOW_CONFIDENCE_THRESHOLD`].
+    pub low_confidence_mask: u8,
+}
+
+impl H1ByteTrace {
+    /// Total modeled (byte-bit) loss for this byte, excluding its continuation
+    /// framing bit.
+    #[must_use]
+    pub fn modeled_loss_q24(&self) -> u64 {
+        self.bit_loss_q24.iter().map(|&loss| u64::from(loss)).sum()
+    }
+
+    /// Total loss owned by this byte position: its framing continuation bit
+    /// plus its eight modeled bits.
+    #[must_use]
+    pub fn total_loss_q24(&self) -> u64 {
+        u64::from(self.continuation_loss_q24) + self.modeled_loss_q24()
+    }
+}
+
+/// The full per-item observer trace. Byte order matches the source.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct H1LossTrace {
+    /// One entry per source byte, in order.
+    pub bytes: Vec<H1ByteTrace>,
+    /// Loss of the terminal `continuation(false)` end-of-stream framing bit.
+    pub terminal_continuation_loss_q24: u32,
+}
+
+/// Charge one modeled byte-bit exactly as [`encode_bit`] does, additionally
+/// returning the Q24 loss the canonical path computes and discards. The
+/// operation sequence (predict, loss lookup, ledger charge, tape write, paired
+/// update) is identical, so the tape and ledger are unaffected.
+#[allow(clippy::too_many_arguments)]
+fn charge_byte_bit_traced(
+    model: &mut H1Model,
+    indices: &[usize; H1_CONTEXT_COUNT],
+    probabilities: &[u16; H1_CONTEXT_COUNT],
+    node: u8,
+    event_id: u64,
+    bit: bool,
+    table: &LossTable,
+    ledger: &mut Ledger,
+    writer: &mut TapeWriter,
+) -> Result<u32, H1Error> {
+    let charged = predict_byte_bit(model, probabilities, node, event_id);
+    let loss = table
+        .get(observed_probability(charged, bit))
+        .ok_or(H1Error::InvalidProbability)?;
+    ledger
+        .add_modeled_event(loss)
+        .ok_or(H1Error::LedgerOverflow)?;
+    writer.push_bit(bit)?;
+    update_byte_bit(model, indices, bit);
+    Ok(loss)
+}
+
+impl H1Model {
+    /// Confidence of the best-supported of the eight resolved contexts. Read
+    /// only; used solely by the observer's context-miss proxy.
+    fn best_context_confidence(&self, indices: &[usize; H1_CONTEXT_COUNT]) -> u32 {
+        indices
+            .iter()
+            .map(|&index| self.contexts.cell(index).confidence())
+            .max()
+            .unwrap_or(0)
+    }
+
+    /// Traced mirror of [`encode_byte`]. Identical charging sequence; also
+    /// returns each modeled bit's Q24 loss and the context-miss mask.
+    ///
+    /// [`encode_byte`]: H1Model::encode_byte
+    fn encode_byte_traced(
+        &mut self,
+        byte: u8,
+        history: &[u8],
+        table: &LossTable,
+        ledger: &mut Ledger,
+        writer: &mut TapeWriter,
+    ) -> Result<([u32; 8], u8), H1Error> {
+        let mut node: u32 = 1;
+        let mut losses = [0_u32; 8];
+        let mut low_confidence_mask = 0_u8;
+        for (slot, shift) in (0..8_u32).rev().enumerate() {
+            let bit = (byte >> shift) & 1 == 1;
+            let (indices, probabilities) = self.resolve(history, node as u8);
+            if self.best_context_confidence(&indices) < H1_LOW_CONFIDENCE_THRESHOLD {
+                low_confidence_mask |= 1 << slot;
+            }
+            let event_id = self.event_id(node as u8);
+            losses[slot] = charge_byte_bit_traced(
+                self,
+                &indices,
+                &probabilities,
+                node as u8,
+                event_id,
+                bit,
+                table,
+                ledger,
+                writer,
+            )?;
+            node = (node << 1) | u32::from(bit);
+        }
+        self.advance_byte(byte);
+        Ok((losses, low_confidence_mask))
+    }
+
+    /// Traced mirror of [`encode_continuation_bit`]; also returns the framing
+    /// bit's Q24 loss.
+    ///
+    /// [`encode_continuation_bit`]: H1Model::encode_continuation_bit
+    fn encode_continuation_bit_traced(
+        &mut self,
+        more: bool,
+        table: &LossTable,
+        ledger: &mut Ledger,
+        writer: &mut TapeWriter,
+    ) -> Result<u32, H1Error> {
+        let base = self.continuation.probability_of_one();
+        let charged = self.mixer.predict(CONTINUATION_EVENT_ID, base);
+        let loss = table
+            .get(observed_probability(charged, more))
+            .ok_or(H1Error::InvalidProbability)?;
+        ledger
+            .add_modeled_event(loss)
+            .ok_or(H1Error::LedgerOverflow)?;
+        writer.push_bit(more)?;
+        self.mixer.update(more);
+        self.continuation.update(more, H1_RATE_SHIFT);
+        Ok(loss)
+    }
+}
+
+/// Encode one item under the H1 arm, returning the same tape and ledger as
+/// [`encode_h1_item_with_bits`] plus a per-byte loss trace. This is the
+/// read-only observer used by the loss-decomposition diagnostic; it never
+/// changes the tape or ledger (asserted by tests).
+pub fn encode_h1_item_traced(
+    source: &[u8],
+    table: &LossTable,
+    item_index: u8,
+    sse_bucket_bits: u32,
+) -> Result<(Tape, Ledger, H1LossTrace), H1Error> {
+    let mut model = H1Model::new(table, sse_bucket_bits);
+    let mut writer = TapeWriter::new(H1_ARM_ID, item_index);
+    let mut ledger = Ledger::default();
+    let mut bytes = Vec::with_capacity(source.len());
+    for (position, &byte) in source.iter().enumerate() {
+        let continuation_loss_q24 =
+            model.encode_continuation_bit_traced(true, table, &mut ledger, &mut writer)?;
+        let (bit_loss_q24, low_confidence_mask) =
+            model.encode_byte_traced(byte, &source[..position], table, &mut ledger, &mut writer)?;
+        if byte == b'\n' {
+            ledger.add_record().ok_or(H1Error::LedgerOverflow)?;
+        }
+        bytes.push(H1ByteTrace {
+            byte,
+            continuation_loss_q24,
+            bit_loss_q24,
+            low_confidence_mask,
+        });
+    }
+    let terminal_continuation_loss_q24 =
+        model.encode_continuation_bit_traced(false, table, &mut ledger, &mut writer)?;
+    Ok((
+        writer.finish(),
+        ledger,
+        H1LossTrace {
+            bytes,
+            terminal_continuation_loss_q24,
+        },
+    ))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -691,6 +908,62 @@ mod tests {
             decode_h1_item(&tampered, ledger, &table, 0),
             Err(H1Error::TrailingChargedData)
         );
+    }
+
+    #[test]
+    fn traced_observer_reproduces_the_arm_tape_and_ledger_byte_for_byte() {
+        let table = LossTable::generate();
+        for (name, source) in regime_snippets() {
+            let (arm_tape, arm_ledger) = encode_h1_item(&source, &table, 3).unwrap();
+            let (traced_tape, traced_ledger, trace) =
+                encode_h1_item_traced(&source, &table, 3, crate::s0::SSE_BASE_BUCKET_BITS).unwrap();
+            assert_eq!(
+                arm_tape.to_bytes(),
+                traced_tape.to_bytes(),
+                "traced tape diverged from the arm on regime {name}"
+            );
+            assert_eq!(
+                arm_ledger, traced_ledger,
+                "traced ledger diverged from the arm on regime {name}"
+            );
+            // One trace entry per source byte, in order.
+            assert_eq!(trace.bytes.len(), source.len());
+            for (entry, &byte) in trace.bytes.iter().zip(source.iter()) {
+                assert_eq!(entry.byte, byte);
+            }
+        }
+    }
+
+    #[test]
+    fn traced_losses_close_exactly_against_the_ledger() {
+        let table = LossTable::generate();
+        let source = regime_snippets().remove(1).1;
+        let (_, ledger, trace) =
+            encode_h1_item_traced(&source, &table, 0, crate::s0::SSE_BASE_BUCKET_BITS).unwrap();
+        // Every charged bit is accounted for exactly once: the continuation
+        // framing bits (one per byte plus the terminal) plus eight modeled bits
+        // per byte equal the ledger's event count, and the summed Q24 losses
+        // equal the ledger's total loss with no rounding slack.
+        let mut total_loss = u64::from(trace.terminal_continuation_loss_q24);
+        let mut events = 1_u64;
+        for entry in &trace.bytes {
+            total_loss += entry.total_loss_q24();
+            events += 9;
+        }
+        assert_eq!(events, ledger.modeled_binary_events);
+        assert_eq!(total_loss, ledger.modeled_loss_q24);
+    }
+
+    #[test]
+    fn traced_observer_is_deterministic() {
+        let table = LossTable::generate();
+        let source = regime_snippets().remove(2).1;
+        let first =
+            encode_h1_item_traced(&source, &table, 1, crate::s0::SSE_BASE_BUCKET_BITS).unwrap();
+        let second =
+            encode_h1_item_traced(&source, &table, 1, crate::s0::SSE_BASE_BUCKET_BITS).unwrap();
+        assert_eq!(first.1, second.1);
+        assert_eq!(first.2, second.2);
     }
 
     #[test]

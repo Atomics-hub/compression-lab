@@ -8,6 +8,7 @@
 //! exact-codec, or ratio claims, and no licensed-item reads.
 
 pub mod c3;
+pub mod diagnose;
 pub mod h1;
 pub mod h6;
 pub mod h8;
@@ -22,9 +23,14 @@ pub use c3::{
     C3_APM_STATE_BYTES, C3_ARM_ID, C3_BYTE_ORDERS, C3_CONTEXT_COUNT, C3_CONTEXT_TABLE_BYTES,
 };
 
+pub use diagnose::{
+    decompose_h1, ByteClass, Decomposition, DiagnoseError, DIAGNOSIS_SCHEMA, MATCH_MIN_LENGTH,
+    MATCH_WINDOW_BYTES,
+};
 pub use h1::{
-    decode_h1_item, decode_h1_item_with_bits, encode_h1_item, encode_h1_item_with_bits,
-    h1_declared_state_bytes, H1Error, H1Model, H1_ARM_ID, H1_BYTE_ORDERS, H1_CONTEXT_COUNT,
+    decode_h1_item, decode_h1_item_with_bits, encode_h1_item, encode_h1_item_traced,
+    encode_h1_item_with_bits, h1_declared_state_bytes, H1ByteTrace, H1Error, H1LossTrace, H1Model,
+    H1_ARM_ID, H1_BYTE_ORDERS, H1_CONTEXT_COUNT, H1_LOW_CONFIDENCE_THRESHOLD,
 };
 pub use h6::{
     decode_h6_item, decode_h6_item_with_bits, encode_h6_item, encode_h6_item_with_bits,
