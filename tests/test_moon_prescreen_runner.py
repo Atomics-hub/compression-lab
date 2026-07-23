@@ -356,6 +356,50 @@ class PrescreenRunnerTests(unittest.TestCase):
         self.assertIsNotNone(match)
         self.assertEqual(match.group(1), MODULE.KILL_LINES["c3-live-adaptation"])
 
+    def test_c2_kill_line_is_byte_identical_across_kernel_and_runner(self) -> None:
+        source = KERNEL_SOURCE.read_text(encoding="utf-8")
+        match = re.search(r'const C2_KILL_CRITERION: &str = "([^"]+)";', source)
+        self.assertIsNotNone(match)
+        self.assertEqual(match.group(1), MODULE.KILL_LINES["c2-value-context"])
+
+    def test_c2_arm_id_is_registered(self) -> None:
+        self.assertEqual(MODULE.ARM_IDS["c2-value-context"], 106)
+        self.assertIn("c2-value-context", MODULE.KILL_LINES)
+
+    def test_c2_ratio_gate_is_the_binding_disjunction(self) -> None:
+        # Versus-H1 side: 0.95 * H1, equality kills, AND over two snapshots.
+        self.assertTrue(MODULE.c2_snapshot_crosses_h1_ratio_kill(950, 1000))
+        self.assertTrue(MODULE.c2_snapshot_crosses_h1_ratio_kill(951, 1000))
+        self.assertFalse(MODULE.c2_snapshot_crosses_h1_ratio_kill(949, 1000))
+        # Versus-C1 side: no smaller than C1, equality kills.
+        self.assertTrue(MODULE.c2_snapshot_no_smaller_than_c1(1000, 1000))
+        self.assertFalse(MODULE.c2_snapshot_no_smaller_than_c1(999, 1000))
+        # Disjunction: either both-snapshot AND side kills.
+        self.assertTrue(
+            MODULE.c2_ratio_gate_kills(
+                {"a": (950, 1000), "b": (1900, 2000)},
+                {"a": (800, 900), "b": (800, 900)},
+            )
+        )
+        self.assertTrue(
+            MODULE.c2_ratio_gate_kills(
+                {"a": (900, 1000), "b": (900, 1000)},
+                {"a": (900, 900), "b": (950, 940)},
+            )
+        )
+        self.assertFalse(
+            MODULE.c2_ratio_gate_kills(
+                {"a": (900, 1000), "b": (1900, 2000)},
+                {"a": (800, 900), "b": (800, 900)},
+            )
+        )
+        overflow = 1 << 100
+        self.assertTrue(
+            MODULE.c2_snapshot_crosses_h1_ratio_kill(95 * overflow, 100 * overflow)
+        )
+        with self.assertRaises(ValueError):
+            MODULE.c2_ratio_gate_kills({"only": (950, 1000)}, {"only": (950, 1000)})
+
     def test_encode_failure_is_recorded_without_crashing(self) -> None:
         fixture = Fixture(self.make_root())
         config, references, verified = fixture.loaded()
