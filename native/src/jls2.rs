@@ -1,5 +1,7 @@
 use sha2::{Digest, Sha256};
+use std::collections::BTreeMap;
 use std::io::Write;
+use std::sync::mpsc;
 use std::thread;
 
 const STREAM_MAGIC: &[u8; 4] = b"JLS2";
@@ -196,10 +198,14 @@ fn decompress_streams(
 
 fn reassemble_columns(
     skeleton: &[u8],
-    channels: &[Vec<u8>],
+    mut channels: Vec<Vec<u8>>,
     original_size: usize,
 ) -> DecodeResult<Vec<u8>> {
     let mut channel_offsets = vec![0_usize; channels.len()];
+    let mut unconsumed = channels
+        .iter()
+        .filter(|channel| !channel.is_empty())
+        .count();
     let mut output = Vec::with_capacity(original_size);
     let mut offset = 0_usize;
     while offset < skeleton.len() {
@@ -234,6 +240,7 @@ fn reassemble_columns(
         let channel = channels
             .get(channel_id)
             .ok_or_else(|| "JSON-column channel reference is invalid".to_owned())?;
+        let channel_len = channel.len();
         let channel_offset = channel_offsets
             .get_mut(channel_id)
             .ok_or_else(|| "JSON-column channel reference is invalid".to_owned())?;
@@ -249,12 +256,12 @@ fn reassemble_columns(
         }
         output.extend_from_slice(value);
         *channel_offset = value_end;
+        if value_end == channel_len {
+            channels[channel_id] = Vec::new();
+            unconsumed -= 1;
+        }
     }
-    if channels
-        .iter()
-        .zip(channel_offsets)
-        .any(|(channel, consumed)| channel.len() != consumed)
-    {
+    if unconsumed != 0 {
         return Err("JSON-column channel has unconsumed values".to_owned());
     }
     if output.len() != original_size {
@@ -362,7 +369,7 @@ fn decode_columnar(
     let skeleton = decoded
         .pop()
         .ok_or_else(|| "JSON-column skeleton is missing".to_owned())?;
-    let restored = reassemble_columns(&skeleton, &channels, original_size)?;
+    let restored = reassemble_columns(&skeleton, channels, original_size)?;
     Ok((restored, expected_sha256))
 }
 
@@ -510,31 +517,37 @@ pub fn decode_to_writer(
     let mut restored_size = 0_usize;
     let mut restored_digest = Sha256::new();
     for batch in segments.chunks(segment_workers) {
-        let restored_batch = thread::scope(|scope| {
-            let handles: Vec<_> = batch
-                .iter()
-                .map(|&(size, frame)| {
-                    scope.spawn(move || decode_frame(frame, size, channel_worker_limit))
-                })
-                .collect();
-            handles
-                .into_iter()
-                .map(|handle| {
-                    handle
-                        .join()
-                        .map_err(|_| "JLS2 segment worker panicked".to_owned())?
-                })
-                .collect::<DecodeResult<Vec<_>>>()
+        thread::scope(|scope| -> DecodeResult<()> {
+            let (sender, receiver) = mpsc::channel::<(usize, DecodeResult<Vec<u8>>)>();
+            for (position, &(size, frame)) in batch.iter().enumerate() {
+                let sender = sender.clone();
+                scope.spawn(move || {
+                    let restored = decode_frame(frame, size, channel_worker_limit);
+                    let _ = sender.send((position, restored));
+                });
+            }
+            drop(sender);
+
+            let mut pending: BTreeMap<usize, Vec<u8>> = BTreeMap::new();
+            let mut write_cursor = 0_usize;
+            while write_cursor < batch.len() {
+                let (position, restored) = receiver
+                    .recv()
+                    .map_err(|_| "JLS2 segment worker panicked".to_owned())?;
+                pending.insert(position, restored?);
+                while let Some(bytes) = pending.remove(&write_cursor) {
+                    output
+                        .write_all(&bytes)
+                        .map_err(|error| format!("cannot write output: {error}"))?;
+                    restored_digest.update(&bytes);
+                    restored_size = restored_size
+                        .checked_add(bytes.len())
+                        .ok_or_else(|| "JLS2 output size overflows".to_owned())?;
+                    write_cursor += 1;
+                }
+            }
+            Ok(())
         })?;
-        for restored in restored_batch {
-            output
-                .write_all(&restored)
-                .map_err(|error| format!("cannot write output: {error}"))?;
-            restored_digest.update(&restored);
-            restored_size = restored_size
-                .checked_add(restored.len())
-                .ok_or_else(|| "JLS2 output size overflows".to_owned())?;
-        }
     }
     if restored_size != original_size {
         return Err("JLS2 output size mismatch".to_owned());
@@ -554,7 +567,7 @@ pub fn decode_to_writer(
 mod tests {
     use super::*;
 
-    fn direct_stream(source: &[u8]) -> Vec<u8> {
+    fn direct_frame(source: &[u8]) -> Vec<u8> {
         let payload = zstd::bulk::compress(source, 3).unwrap();
         let mut frame = Vec::new();
         frame.extend_from_slice(FRAME_MAGIC);
@@ -564,19 +577,31 @@ mod tests {
         frame.extend_from_slice(&sha256(source));
         frame.extend_from_slice(&sha256(&payload));
         frame.extend_from_slice(&payload);
+        frame
+    }
+
+    fn multi_segment_stream(segment_sources: &[&[u8]]) -> Vec<u8> {
+        let source: Vec<u8> = segment_sources.concat();
         let mut stream_payload = Vec::new();
-        stream_payload.extend_from_slice(&(source.len() as u64).to_be_bytes());
-        stream_payload.extend_from_slice(&(frame.len() as u64).to_be_bytes());
-        stream_payload.extend_from_slice(&frame);
+        for segment in segment_sources {
+            let frame = direct_frame(segment);
+            stream_payload.extend_from_slice(&(segment.len() as u64).to_be_bytes());
+            stream_payload.extend_from_slice(&(frame.len() as u64).to_be_bytes());
+            stream_payload.extend_from_slice(&frame);
+        }
         let mut stream = Vec::new();
         stream.extend_from_slice(STREAM_MAGIC);
         stream.extend_from_slice(&[VERSION, 0, 0, 0]);
         stream.extend_from_slice(&(source.len() as u64).to_be_bytes());
-        stream.extend_from_slice(&sha256(source));
+        stream.extend_from_slice(&sha256(&source));
         stream.extend_from_slice(&sha256(&stream_payload));
-        stream.extend_from_slice(&1_u32.to_be_bytes());
+        stream.extend_from_slice(&(segment_sources.len() as u32).to_be_bytes());
         stream.extend_from_slice(&stream_payload);
         stream
+    }
+
+    fn direct_stream(source: &[u8]) -> Vec<u8> {
+        multi_segment_stream(&[source])
     }
 
     #[test]
@@ -620,6 +645,35 @@ mod tests {
         stream[48..80].copy_from_slice(&encoded_digest);
         let error = decode_to_writer(&stream, &mut Vec::new(), None).unwrap_err();
         assert_eq!(error, "JLF2 original SHA-256 mismatch");
+    }
+
+    #[test]
+    fn streams_multi_segment_bytes_identically_and_deterministically() {
+        let segment_sources: Vec<Vec<u8>> = (0..17_u32)
+            .map(|index| {
+                let mut segment = Vec::new();
+                for row in 0..4096_u32 {
+                    let value = index.wrapping_mul(2_654_435_761).wrapping_add(row);
+                    segment.extend_from_slice(
+                        format!("segment {index} row {row} value {value}\n").as_bytes(),
+                    );
+                }
+                segment
+            })
+            .collect();
+        let source: Vec<u8> = segment_sources.concat();
+        let borrowed: Vec<&[u8]> = segment_sources.iter().map(Vec::as_slice).collect();
+        let stream = multi_segment_stream(&borrowed);
+
+        let mut first = Vec::new();
+        let stats = decode_to_writer(&stream, &mut first, None).unwrap();
+        assert_eq!(stats.segment_count, segment_sources.len() as u32);
+        assert_eq!(stats.restored_bytes, source.len() as u64);
+        assert_eq!(sha256(&first), sha256(&source));
+
+        let mut second = Vec::new();
+        decode_to_writer(&stream, &mut second, None).unwrap();
+        assert_eq!(sha256(&second), sha256(&first));
     }
 
     #[test]
