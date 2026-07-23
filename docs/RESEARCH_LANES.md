@@ -28,7 +28,7 @@ or changes status. Status date: 2026-07-23.
 5. Small branches from `origin/main`, CI green before merge, no new
    dependencies without cause.
 
-## Lane 1 (RESOLVED at the diagnostic level 2026-07-23, owner decision pending): JLS2 decoder memory
+## Lane 1 (V2 DESIGN APPROVED 2026-07-23): JLS2 decoder memory
 
 - **Frozen result (immutable):** under the one-acquisition/one-score frozen
   contract, JLS2's public validation is a recorded `not_passed` (run
@@ -52,6 +52,12 @@ or changes status. Status date: 2026-07-23.
   attempt. Owner-dispatched, followed in sequence by the sealed private
   holdout and independent reproduction. Validation-path dispatch stays
   owner-only.
+- **Owner decision:** build a full fresh public-validation v2 protocol for the
+  current dieted shipping decoder on two untouched 250k-record CLUE-LDS ranges
+  (28,000,001–28,250,000 and 40,000,001–40,250,000), using the clean tiny-parent
+  RSS instrument. Design, implementation, and freeze are approved; acquisition
+  and scoring remain separately owner-dispatched. Decision record:
+  `docs/benchmarks/2026-07-23-jls2-public-validation-v2-owner-decision.md`.
 - **Corollary:** the A2 context-reuse and inline-single-worker "no effect"
   results likely compared polluted readings against polluted readings;
   reread before citing them, pending confirmation of each run's exact
@@ -90,7 +96,7 @@ withdrawn for exactly this).
 
 Windows now runs all native tests except those two named skips.
 
-## Lane 2 (ACTIVE, background): the Pareto moonshot
+## Lane 2 (ACTIVE — CYCLE 2 APPROVED 2026-07-23): the Pareto moonshot
 
 - **Goal:** move the ratio/memory/speed Pareto frontier for structured-text
   compression — ZPAQ-class ratios at practical decode budgets. Not a raw-ratio
@@ -123,6 +129,11 @@ Windows now runs all native tests except those two named skips.
   identical slice bytes. Everything is `development_only_prescreen`. No
   frozen moonshot protocol exists yet; nothing in this lane is authorized
   to read development items until one does.
+- **Cycle 2:** build and synthetic/public prescreen are approved under
+  `docs/benchmarks/2026-07-23-moonshot-cycle2-charter.md`. Order: C3 live
+  adaptation, C1 match model, C2 pooled value reuse, C5 BWT; C4 is
+  precheck-gated and C6 requires C1+C2 survival. C3 implementation is the
+  immediate task. No development, validation, or holdout access is authorized.
 - **H9 (bounded grammar) — KILLED at prescreen 2026-07-23.** Naive offline
   Re-Pair (worst case O(rule_budget x n)) does not terminate inside the
   600 s per-run budget at prescreen scale on realistic NDJSON: 8 of 8 runs
