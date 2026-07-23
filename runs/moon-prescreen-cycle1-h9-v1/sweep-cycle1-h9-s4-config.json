@@ -1,0 +1,38 @@
+{
+  "schema": "moon-prescreen-runner-config-v1",
+  "kernel_command": [
+    "/Users/guts/Documents/Codex/2026-07-14/i/outputs/compression-lab/.claude/worktrees/agent-aae63cb8a544dbd95/native/target/release/clab-moon-kernel"
+  ],
+  "references": "/Users/guts/Documents/axiom-moonshot-corpora/local-references-s4.json",
+  "budget_state": "/Users/guts/Documents/axiom-moonshot-corpora/run-budget.json",
+  "output_dir": "/Users/guts/Documents/axiom-moonshot-corpora/sweep-cycle1-h9-s4",
+  "arms": [
+    "h9-grammar"
+  ],
+  "snapshots": [
+    {
+      "name": "gharchive-2026-05-15-14-s4",
+      "path": "/Users/guts/Documents/axiom-moonshot-corpora/slices/gharchive-2026-05-15-14-s4.ndjson",
+      "sha256": "44bbda9b7f8ace28996ba8922794ca9ea415c02784b77b136694aadbe4edd818",
+      "item_index": 0
+    },
+    {
+      "name": "gharchive-2026-06-15-14-s4",
+      "path": "/Users/guts/Documents/axiom-moonshot-corpora/slices/gharchive-2026-06-15-14-s4.ndjson",
+      "sha256": "4deb87d0406de3a7814faaf8d52f422ab736c322b285f8de974f24d8b6a80c7c",
+      "item_index": 1
+    },
+    {
+      "name": "moon-syn-high-dup-s4",
+      "path": "/Users/guts/Documents/axiom-moonshot-corpora/slices/moon-syn-high-dup-s4.ndjson",
+      "sha256": "ca150dab593568effcbd1a5ee0e6d496416298332ae01017704a9b9fa7c41c16",
+      "item_index": 2
+    },
+    {
+      "name": "moon-syn-many-templates-s4",
+      "path": "/Users/guts/Documents/axiom-moonshot-corpora/slices/moon-syn-many-templates-s4.ndjson",
+      "sha256": "66cac66ce4e98a18b80ec050fa74634e1517ca20df8841e19fba74e25f045564",
+      "item_index": 3
+    }
+  ]
+}

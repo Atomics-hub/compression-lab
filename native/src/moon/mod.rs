@@ -10,6 +10,7 @@
 pub mod h1;
 pub mod h6;
 pub mod h8;
+pub mod h9;
 pub mod mixer;
 pub mod reuse;
 pub mod table;
@@ -27,6 +28,10 @@ pub use h8::{
     h8_declared_state_bytes, initial_static_weights, serialize_weight_file, train_static_weights,
     H8Error, H8_ARM_ID, H8_CONFIDENCE_BUCKETS, H8_CONTEXT_COUNT, H8_PROCEDURE_VERSION,
     H8_STATIC_WEIGHT_BYTES, H8_STATIC_WEIGHT_COUNT, H8_WEIGHT_FILE_BYTES, H8_WEIGHT_FILE_SHA256,
+};
+pub use h9::{
+    decode_h9_item, decode_h9_item_with_bits, encode_h9_item, encode_h9_item_with_bits,
+    h9_declared_state_bytes, H9Error, H9_ARM_ID, H9_RULE_BUDGET, H9_SYMBOL_ALPHABET,
 };
 pub use mixer::{MoonMixer, MOON_MIXER_BUCKETS, MOON_MIXER_INPUTS, MOON_MIXER_WEIGHT_BYTES};
 pub use reuse::{LineCache, ReferenceCoder, REFERENCE_TREE_BYTES, REFERENCE_TREE_NODES};

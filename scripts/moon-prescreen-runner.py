@@ -74,6 +74,8 @@ KILL_LINES = {
         "Kill if frozen-mixer complete bytes exceed 1.02x adaptive H1 complete "
         "bytes on the unseen month."
     ),
+    # Verbatim from draft cycle-1 §2-H9.
+    "h9-grammar": "Kill if bounded-grammar size > 1.3x local ZPAQ-16MiB on the public set.",
 }
 
 

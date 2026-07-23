@@ -1,0 +1,50 @@
+{
+  "kanzi": {
+    "args": "--compress --level=9 --block=1g --jobs=1",
+    "path": "/Users/guts/Documents/Codex/2026-07-14/i/outputs/compression-lab/.baseline-tools/text-source-v1/bin/kanzi",
+    "sha256": "3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618",
+    "version": "Kanzi 2.5.3"
+  },
+  "note": "Local prescreen references on pinned public snapshots. development_only_prescreen; not comparable to frozen CLUE numbers.",
+  "schema": "moon-local-references-v1",
+  "snapshots": {
+    "gharchive-2026-05-15-14-s4": {
+      "kanzi_max_bytes": 510956,
+      "kanzi_seconds": 1.3,
+      "source_bytes": 4190412,
+      "source_sha256": "44bbda9b7f8ace28996ba8922794ca9ea415c02784b77b136694aadbe4edd818",
+      "zpaq_m54_bytes": 500108,
+      "zpaq_seconds": 12.1
+    },
+    "gharchive-2026-06-15-14-s4": {
+      "kanzi_max_bytes": 506848,
+      "kanzi_seconds": 1.2,
+      "source_bytes": 4193799,
+      "source_sha256": "4deb87d0406de3a7814faaf8d52f422ab736c322b285f8de974f24d8b6a80c7c",
+      "zpaq_m54_bytes": 496998,
+      "zpaq_seconds": 11.7
+    },
+    "moon-syn-high-dup-s4": {
+      "kanzi_max_bytes": 237884,
+      "kanzi_seconds": 1.2,
+      "source_bytes": 4194152,
+      "source_sha256": "ca150dab593568effcbd1a5ee0e6d496416298332ae01017704a9b9fa7c41c16",
+      "zpaq_m54_bytes": 223430,
+      "zpaq_seconds": 14.1
+    },
+    "moon-syn-many-templates-s4": {
+      "kanzi_max_bytes": 346664,
+      "kanzi_seconds": 1.4,
+      "source_bytes": 4194130,
+      "source_sha256": "66cac66ce4e98a18b80ec050fa74634e1517ca20df8841e19fba74e25f045564",
+      "zpaq_m54_bytes": 336444,
+      "zpaq_seconds": 12.9
+    }
+  },
+  "zpaq": {
+    "args": "add ARCHIVE input.bin -method 54 -threads 1 -noattributes -until 20000101000000",
+    "path": "/private/tmp/claude-501/-Users-guts/77afc704-5e49-420d-9b6b-44e7f2adb0d5/scratchpad/zpaq-build/zpaq-nojit",
+    "sha256": "3030bfef86efe97cc63ca6f47b0c362ae83fa2ec55e05095d6b190f463f28d37",
+    "version": "zpaq v7.15 (local clang++ -O3 -DNOJIT -Dunix build from the cached zpaq715.zip; NOJIT because the imported arm64 binary fails JIT allocation on macOS; compressed output is algorithm-identical)"
+  }
+}
