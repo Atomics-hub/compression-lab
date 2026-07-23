@@ -21,7 +21,7 @@ jobs:
       BASELINE_COMMIT: 604271cbc89a11c739848f68a7739ed523fb9a1b
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
