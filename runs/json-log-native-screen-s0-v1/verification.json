@@ -1,0 +1,52 @@
+{
+  "checks": [
+    {
+      "check": "roster",
+      "detail": "",
+      "passed": true
+    },
+    {
+      "check": "bindings",
+      "detail": "",
+      "passed": true
+    },
+    {
+      "check": "sha256sums",
+      "detail": "",
+      "passed": true
+    },
+    {
+      "check": "receipts",
+      "detail": "",
+      "passed": true
+    },
+    {
+      "check": "redecode",
+      "detail": "",
+      "passed": true
+    },
+    {
+      "check": "projections",
+      "detail": "",
+      "passed": true
+    },
+    {
+      "check": "gates",
+      "detail": "",
+      "passed": true
+    },
+    {
+      "check": "segments",
+      "detail": "",
+      "passed": true
+    },
+    {
+      "check": "event_limit",
+      "detail": "full-arm item over the event limit: clue-early-development",
+      "passed": false
+    }
+  ],
+  "decision": "kill",
+  "profile": "base",
+  "verified": false
+}

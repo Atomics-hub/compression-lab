@@ -1,0 +1,24 @@
+{
+  "schema": "clab-s0-kernel-encode-receipt-v1",
+  "kernel_version": "0.1.0",
+  "arm": "full-minus-m5",
+  "arm_id": 9,
+  "item_index": 0,
+  "source_bytes": 62267473,
+  "source_sha256": "4f1571569ebdf98621bbd29da45ba84ab37b4f1f1033aacf822dd5b3f40358fe",
+  "tape_bytes": 9239365,
+  "tape_sha256": "77643b2bbf17f05b1e0aeb3624a373067ab81d2b1d5c6dda188efa93119f23df",
+  "segment_interval_bytes": 16777216,
+  "sse_bucket_bits": 17,
+  "ledger": {"records": 250000, "modeled_binary_events": 36456656, "modeled_loss_q24": 182693770329196, "raw_literal_bytes": 4682229},
+  "event_limit_applies": false,
+  "event_limit_passes": false,
+  "item_projection": {"payload_bytes": 6043404, "coder_allowance_bytes": 30218, "block_allowance_bytes": 1920, "stream_metadata_bytes": 24, "fixed_framing_bytes": 4096, "complete_bytes": 6079662},
+  "decoded_sha256": "4f1571569ebdf98621bbd29da45ba84ab37b4f1f1033aacf822dd5b3f40358fe",
+  "decode_matches_source": true,
+  "segments": [
+    {"records": 74301, "source_bytes": 16777397, "ledger": {"records": 74301, "modeled_binary_events": 8568524, "modeled_loss_q24": 33581193205298, "raw_literal_bytes": 544342}},
+    {"records": 138557, "source_bytes": 33554623, "ledger": {"records": 138557, "modeled_binary_events": 19006724, "modeled_loss_q24": 89888128167270, "raw_literal_bytes": 2095394}},
+    {"records": 199164, "source_bytes": 50331818, "ledger": {"records": 199164, "modeled_binary_events": 30047180, "modeled_loss_q24": 153480202127732, "raw_literal_bytes": 4113755}}
+  ]
+}

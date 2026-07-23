@@ -83,6 +83,25 @@ contains the complete size/RSS table, artifacts, logs, receipts, and exact
 claim ceiling. It is development-only diagnostic evidence, not a new codec,
 unseen score, speed win, or state-of-the-art claim.
 
+## What the native structure-aware screen measured
+
+The follow-up S0 screen froze a ten-arm bounded native model matrix (template
+chassis, typed ID/TIME deltas, session-reference cache, online token
+dictionary, fixed-point mixing with one SSE stage) and measured it exactly once
+on the three development items under preregistered gates. The result is a
+decisive **kill**: the full arm projected **26,871,011 complete bytes** against
+the 1,540,935-byte kill threshold (E1 Kanzi-max reference 1,712,149), breached
+the frozen 96-events-per-record budget on every item, and exceeded every
+per-item Kanzi reference. The most informative diagnostics: the bounded
+session-reference cache was the only strongly positive mechanism, the template
+chassis modeled real records worse than a raw order-3 byte stream, and the
+charged online token dictionary was strongly negative. The
+[immutable S0 publication](runs/json-log-native-screen-s0-v1/README.md) and the
+[standardized chart](docs/benchmarks/2026-07-22-json-log-native-screen-s0-results.md)
+contain every arm, gate, attribution, and the exact claim ceiling. It is
+development-only diagnostic evidence; no exact native candidate is authorized
+from S0, and any successor needs a new preregistered protocol.
+
 <details>
 <summary><strong>Open the earlier development and standalone-decoder evidence</strong></summary>
 
@@ -276,7 +295,7 @@ remains independently reproducible.
 
 | Category | Objective completion | Best measured result | Gate status and evidence |
 | --- | ---: | --- | --- |
-| JSON and machine logs | **50%** | JLS2 is 52.97% smaller than the strongest eligible standard on the first frozen public-validation score; bounded generic context scaling later captured 5.78% vs E1 Kanzi-max under the stricter 460 MiB development cap | JLS2's overall gate failed only decoder RSS at 621.3 MiB vs 512 MiB; E2-A killed the generic bounded level-5 lane and directs the next candidate toward native structure-aware modeling ([JLS2 result](runs/clue-jls2-public-validation-v1/publication/README.md), [E2-A chart](runs/json-context-ceiling-e2-a-v1/README.md)) |
+| JSON and machine logs | **50%** | JLS2 is 52.97% smaller than the strongest eligible standard on the first frozen public-validation score; bounded generic context scaling later captured 5.78% vs E1 Kanzi-max under the stricter 460 MiB development cap | JLS2's overall gate failed only decoder RSS at 621.3 MiB vs 512 MiB; E2-A killed the generic bounded level-5 lane; the S0 native structure-aware screen was then killed by its own preregistered gates, so the lane needs a new protocol before any further candidate ([JLS2 result](runs/clue-jls2-public-validation-v1/publication/README.md), [E2-A chart](runs/json-context-ceiling-e2-a-v1/README.md), [S0 chart](runs/json-log-native-screen-s0-v1/README.md)) |
 | Source-code bundles | **10%** | Exact Axiom Q1 was 1.42% larger than Kanzi-max; the later non-Axiom BWT ceiling was at least 34.75% larger | Structural, low-order predictor, explicit-LZP, record-neighborhood, and BWT directions all failed frozen gates; next candidate must expose grammar productions and identifier bindings ([latest chart](runs/text-source-bwt-screen-v1/publication/README.md), [protocol](docs/benchmarks/2026-07-18-text-source-bwt-screen-protocol.md)) |
 | English Wikimedia wikitext | **10%** | Exact WK-C1 was 0.158% larger than Kanzi-max and only 0.032% better than its structure-only ablation | Structural, low-order predictor, explicit-LZP, record-neighborhood, BWT, and recursive template-column directions all failed frozen gates; the next candidate must improve prediction or coding rather than only rearrange structure ([latest chart](runs/text-source-wk-c1-screen-v1/publication/README.md), [protocol](docs/benchmarks/2026-07-18-text-source-wk-c1-protocol.md)) |
 | Delimited tables | **50%** | TBS1 vs 7-Zip-9: 3.48% larger aggregate | Frozen gate failed ([decision](docs/benchmarks/2026-07-17-tbl1-public-validation-decision.md), [Fresh successor corpus protocol](docs/benchmarks/2026-07-17-tabular-successor-corpus-protocol.md)) |
