@@ -1,0 +1,26 @@
+{
+  "schema": "clean-rss-measurement-v1",
+  "command": [
+    "/Users/guts/Documents/Codex/2026-07-14/i/outputs/compression-lab/native/target/release/clab-moon-kernel",
+    "encode",
+    "--arm",
+    "c3-live-adaptation",
+    "--item-index",
+    "0",
+    "--input",
+    "/tmp/axiom-c3-precheck-v5/synthetic.bin",
+    "--tape-out",
+    "/tmp/axiom-c3-precheck-v5/synthetic.tape",
+    "--receipt-out",
+    "/tmp/axiom-c3-precheck-v5/kernel-receipt.json",
+    "--force"
+  ],
+  "exit_code": 0,
+  "platform": "darwin",
+  "maxrss_raw": 164970496,
+  "maxrss_bytes": 164970496,
+  "shim_maxrss_bytes": 18890752,
+  "wall_ns": 29515582375,
+  "user_seconds": 28.812802,
+  "system_seconds": 0.193234
+}

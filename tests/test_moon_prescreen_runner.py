@@ -8,6 +8,7 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import sys
 import tempfile
@@ -16,6 +17,7 @@ import unittest
 
 REPOSITORY = Path(__file__).resolve().parents[1]
 SCRIPT = REPOSITORY / "scripts" / "moon-prescreen-runner.py"
+KERNEL_SOURCE = REPOSITORY / "native" / "src" / "bin" / "clab-moon-kernel.rs"
 SPEC = importlib.util.spec_from_file_location("moon_prescreen_runner", SCRIPT)
 if SPEC is None or SPEC.loader is None:
     raise RuntimeError("could not load the moon prescreen runner")
@@ -25,6 +27,7 @@ SPEC.loader.exec_module(MODULE)
 STUB_KERNEL = textwrap.dedent(
     """
     import json
+    import hashlib
     import sys
 
     args = sys.argv[1:]
@@ -34,14 +37,26 @@ STUB_KERNEL = textwrap.dedent(
 
     with open(value("--tape-out"), "wb") as handle:
         handle.write(b"stub-tape-bytes")
+    source = open(value("--input"), "rb").read()
+    source_sha = hashlib.sha256(source).hexdigest()
     receipt = {
         "schema": "clab-moon-kernel-encode-receipt-v1",
         "evidence_stage": "development_only_prescreen",
         "arm": value("--arm"),
+        "arm_id": 100,
+        "item_index": int(value("--item-index")),
+        "source_bytes": len(source),
+        "source_sha256": source_sha,
+        "decoded_sha256": source_sha,
         "item_projection": {"complete_bytes": 1234},
+        "ledger": {"modeled_binary_events": 1, "modeled_loss_q24": 1},
         "declared_model_state_bytes": 119947264,
         "decode_matches_source": True,
-        "predicted_kill_criterion": "stub",
+        "predicted_kill_criterion": (
+            "Kill if projected complete bytes exceed 1.10x local zpaq -m5 -B16 on at "
+            "least two public snapshots at <=256 MiB declared state, OR peak decode RSS "
+            "exceeds 512 MiB."
+        ),
     }
     with open(value("--receipt-out"), "w") as handle:
         json.dump(receipt, handle)
@@ -126,6 +141,23 @@ class Fixture:
         verified = MODULE.verify_snapshots(config, references)
         return config, references, verified
 
+    def kernel_receipt(self) -> dict:
+        return {
+            "schema": "clab-moon-kernel-encode-receipt-v1",
+            "evidence_stage": "development_only_prescreen",
+            "arm": "h1-floor",
+            "arm_id": 100,
+            "item_index": 0,
+            "source_bytes": self.corpus_len,
+            "source_sha256": self.corpus_sha,
+            "decoded_sha256": self.corpus_sha,
+            "item_projection": {"complete_bytes": 1234},
+            "ledger": {"modeled_binary_events": 1, "modeled_loss_q24": 1},
+            "declared_model_state_bytes": 119947264,
+            "decode_matches_source": True,
+            "predicted_kill_criterion": MODULE.KILL_LINES["h1-floor"],
+        }
+
 
 class PrescreenRunnerTests(unittest.TestCase):
     def make_root(self) -> Path:
@@ -162,6 +194,7 @@ class PrescreenRunnerTests(unittest.TestCase):
             "wall_seconds",
             "decode_matches",
             "declared_model_state_bytes",
+            "quarter_diagnostics",
             "predicted_kill_criterion",
             "references",
         ):
@@ -225,11 +258,7 @@ class PrescreenRunnerTests(unittest.TestCase):
                 "exit_code": 0,
                 "timed_out": False,
             }
-            kernel_receipt = {
-                "item_projection": {"complete_bytes": 1234},
-                "declared_model_state_bytes": 119947264,
-                "decode_matches_source": True,
-            }
+            kernel_receipt = fixture.kernel_receipt()
             return report, kernel_receipt
 
         summary = MODULE.sweep(config, references, verified, execute=fake_execute)
@@ -241,6 +270,91 @@ class PrescreenRunnerTests(unittest.TestCase):
         self.assertEqual(receipt["peak_rss_bytes"], 600 * 1024 * 1024)
         # The budget still counted the run.
         self.assertEqual(summary["budget"]["consumed_after"], 1)
+
+    def test_kernel_runner_kill_line_mismatch_is_invalid(self) -> None:
+        fixture = Fixture(self.make_root())
+        config, references, verified = fixture.loaded()
+
+        def fake_execute(_config, _snapshot, _arm, _tape, _receipt, _rss):
+            return (
+                {
+                    "maxrss_bytes": 1,
+                    "shim_maxrss_bytes": 1,
+                    "wall_ns": 1,
+                    "exit_code": 0,
+                    "timed_out": False,
+                },
+                {
+                    **fixture.kernel_receipt(),
+                    "predicted_kill_criterion": MODULE.KILL_LINES["h1-floor"] + "!",
+                },
+            )
+
+        summary = MODULE.sweep(config, references, verified, execute=fake_execute)
+        receipt = json.loads(Path(summary["runs"][0]["receipt_path"]).read_text())
+        self.assertEqual(receipt["status"], "invalid")
+        self.assertEqual(
+            receipt["kill_reason"], "kernel_receipt_predicted_kill_criterion_mismatch"
+        )
+
+    def test_non_exact_kernel_receipt_is_invalid(self) -> None:
+        fixture = Fixture(self.make_root())
+        config, references, verified = fixture.loaded()
+
+        def fake_execute(_config, _snapshot, _arm, _tape, _receipt, _rss):
+            receipt = fixture.kernel_receipt()
+            receipt["decode_matches_source"] = False
+            return (
+                {
+                    "maxrss_bytes": 1,
+                    "shim_maxrss_bytes": 1,
+                    "wall_ns": 1,
+                    "exit_code": 0,
+                    "timed_out": False,
+                },
+                receipt,
+            )
+
+        summary = MODULE.sweep(config, references, verified, execute=fake_execute)
+        receipt = json.loads(Path(summary["runs"][0]["receipt_path"]).read_text())
+        self.assertEqual(receipt["status"], "invalid")
+        self.assertEqual(
+            receipt["kill_reason"], "kernel_receipt_decode_matches_source_mismatch"
+        )
+
+    def test_archived_c3_quarters_validate_against_the_ledger(self) -> None:
+        receipt = json.loads(
+            (
+                REPOSITORY
+                / "runs"
+                / "moon-cycle2-c3-synthetic-precheck-v1"
+                / "kernel-receipt.json"
+            ).read_text()
+        )
+        reference = {
+            "source_bytes": receipt["source_bytes"],
+            "source_sha256": receipt["source_sha256"],
+        }
+        self.assertIsNone(
+            MODULE.validate_kernel_receipt(
+                receipt, "c3-live-adaptation", 0, reference
+            )
+        )
+        receipt["quarter_diagnostics"][3]["delta_modeled_loss_q24"] += 1
+        self.assertEqual(
+            MODULE.validate_kernel_receipt(
+                receipt, "c3-live-adaptation", 0, reference
+            ),
+            "kernel_receipt_quarter_loss_total_mismatch",
+        )
+
+    def test_c3_kill_line_is_byte_identical_across_kernel_and_runner(self) -> None:
+        source = KERNEL_SOURCE.read_text(encoding="utf-8")
+        match = re.search(
+            r'const C3_KILL_CRITERION: &str = "([^"]+)";', source
+        )
+        self.assertIsNotNone(match)
+        self.assertEqual(match.group(1), MODULE.KILL_LINES["c3-live-adaptation"])
 
     def test_encode_failure_is_recorded_without_crashing(self) -> None:
         fixture = Fixture(self.make_root())
@@ -280,6 +394,21 @@ class PrescreenRunnerTests(unittest.TestCase):
         self.assertEqual(slow, ("killed_by_budget", "wall_over_600_s"))
         failed = MODULE.classify_run({"exit_code": 2}, None)
         self.assertEqual(failed, ("encode_failed", "encode_nonzero_exit"))
+
+    def test_c3_integer_ratio_gate_is_inclusive_and_overflow_safe(self) -> None:
+        self.assertTrue(MODULE.c3_snapshot_crosses_ratio_kill(970, 1000))
+        self.assertTrue(MODULE.c3_snapshot_crosses_ratio_kill(971, 1000))
+        self.assertFalse(MODULE.c3_snapshot_crosses_ratio_kill(969, 1000))
+        huge = 1 << 100
+        self.assertTrue(MODULE.c3_snapshot_crosses_ratio_kill(97 * huge, 100 * huge))
+        self.assertTrue(
+            MODULE.c3_ratio_gate_kills({"a": (970, 1000), "b": (1940, 2000)})
+        )
+        self.assertFalse(
+            MODULE.c3_ratio_gate_kills({"a": (969, 1000), "b": (1940, 2000)})
+        )
+        with self.assertRaises(ValueError):
+            MODULE.c3_ratio_gate_kills({"only": (970, 1000)})
 
 
 if __name__ == "__main__":

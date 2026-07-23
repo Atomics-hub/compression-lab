@@ -1,0 +1,21 @@
+{
+  "arm": "c3-live-adaptation",
+  "clean_rss_receipt_sha256": "69233111f8dc2a61dbdad16a9225a932fe58a3f490cf1da95e8e4b199b787b3c",
+  "decode_matches_source": true,
+  "evidence_stage": "development_only_prescreen",
+  "generator": "axiom-nonstationary-json-v1",
+  "kernel_binary_sha256": "800a49ee220f597288f61b29d773505cfe6daab089e1210e826afc8678117122",
+  "kernel_receipt_sha256": "699a4da0ac7cebef2445b75b34b3e2e01d52bad61df9b0b8533c19fc7d59a132",
+  "margin_ceiling_ns": 400000000000,
+  "off_cycle_run_budget": true,
+  "peak_rss_bytes": 164970496,
+  "projected_public_wall_ns": 177093494250,
+  "public_basis_bytes": 25165824,
+  "rss_shim_floor_bytes": 18890752,
+  "schema": "moon-synthetic-precheck-v1",
+  "seed": 840321490669,
+  "source_bytes": 4194304,
+  "source_sha256": "842e4e8759cc0f453f03e8a3f640c1053c0cafe92e4b45491c6d3768f68275ed",
+  "throughput_gate_passed": true,
+  "wall_ns": 29515582375
+}
