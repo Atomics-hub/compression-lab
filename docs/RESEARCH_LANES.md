@@ -82,11 +82,13 @@ or changes status. Status date: 2026-07-23.
 
 ## Known repo quirks
 
-- The frozen JLS2-A3 preflight workflow
-  (`.github/workflows/jls2-declared-size-lifetime-a3-attribution.yml`) fails
-  at "Enforce frozen attribution result" on every PR touching its scoped paths
-  (pre-existing hosted drift since 2026-07-20, unrelated to current lanes).
-  Its Cargo.toml boundary check is healthy; the deeper failure belongs to a
-  concluded lane and is deliberately unfixed.
+- The JLS2-A3 preflight workflow
+  (`.github/workflows/jls2-declared-size-lifetime-a3-attribution.yml`) is
+  RETIRED (2026-07-23): its pull_request trigger is removed and only manual
+  dispatch remains. The A3 lane concluded with a published rejection; the
+  hosted preflight could no longer pass (attribution-enforcement drift since
+  2026-07-20, plus frozen file pins that predate later product work on
+  `native/src/jls2.rs`). All A3 evidence remains immutable in `runs/`, docs,
+  and git history.
 - `runs/` and `corpora/` are gitignored; published run evidence is force-added
   selectively. Large tapes/artifacts stay out of git, pinned by SHA256SUMS.
