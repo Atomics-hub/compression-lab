@@ -788,8 +788,9 @@ mod tests {
     }
 
     fn encode_with_bits(scratch: &Scratch, arm: &str, bits: Option<&str>) -> String {
-        let tape = scratch.path(&format!("{arm}-{bits:?}.tape"));
-        let receipt_path = scratch.path(&format!("{arm}-{bits:?}.receipt.json"));
+        let label = bits.unwrap_or("default");
+        let tape = scratch.path(&format!("{arm}-{label}.tape"));
+        let receipt_path = scratch.path(&format!("{arm}-{label}.receipt.json"));
         let mut command = vec![
             "--arm",
             arm,
