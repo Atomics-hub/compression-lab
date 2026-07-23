@@ -115,3 +115,100 @@ supplied) before reading it, and makes no kill/nominate decision.
 Two runs → `runs_consumed` 38 → 40. The exact config is delivered in the PR /
 task report (kept out of the corpora tree by design); it is not run here and no
 public slice is read by this change.
+
+## Counted results (runs 38 → 40, `development_only_prescreen`)
+
+The two counted runs are on the two pinned GH Archive slices. Both reports and
+the sweep summary are published at `runs/moon-h1-loss-decomposition-v1/`
+(`SHA256SUMS` included). Evidence stage: `development_only_prescreen` — this is a
+loss-attribution map of the H1 floor arm, not a codec result, candidate score,
+or unseen-validation number. No compression-ratio claim is made or implied by
+any figure below; every number is a *share of the arm's own Q24 coding loss*.
+
+Provenance of the two runs:
+
+| snapshot | source_bytes | source_sha256 | tape_bytes | tape_sha256 | total_loss_q24 | records |
+| --- | --- | --- | --- | --- | --- | --- |
+| gharchive-2026-05-15-14-s24 | 25,165,377 | `a6873fde…802b4` | 28,311,104 | `c8e153b5…dff80` | 481,419,739,510,336 | 37,231 |
+| gharchive-2026-06-15-14-s24 | 25,165,414 | `05220440…e50f79` | 28,311,145 | `65161fc7…e579b` | 469,125,813,093,030 | 35,854 |
+
+Internal consistency holds on both reports (checked, not asserted): the primary
+partition sums exactly to `modeled_bits_loss_q24`; `modeled_bits + framing ==
+total_loss_q24`; and the per-bucket byte counts sum to `source_bytes` with zero
+`unclassified` (coverage 1,000,000 ppm). Observer transparency is guaranteed by
+the byte-identity unit test plus the runtime fail-closed guard documented above;
+each report's `tape_sha256` is the byte-identical arm tape.
+
+### Primary partition — share of total Q24 loss
+
+Percentages are `bucket loss_q24 / total_loss_q24`; every source byte is in
+exactly one class. `framing` is the pooled continuation-bit loss (separate from
+the byte classes).
+
+| class | 05-15 loss share | 05-15 bytes | 06-15 loss share | 06-15 bytes |
+| --- | --- | --- | --- | --- |
+| string_value | 77.78% | 13,976,500 | 77.95% | 14,280,539 |
+| number_value | 10.92% | 1,399,775 | 10.74% | 1,346,656 |
+| structural | 6.43% | 4,558,262 | 6.32% | 4,436,329 |
+| field_name | 4.54% | 5,029,771 | 4.65% | 4,904,322 |
+| literal_value | 0.095% | 163,838 | 0.107% | 161,714 |
+| whitespace | 0.006% | 37,231 | 0.006% | 35,854 |
+| framing (continuation) | 0.217% | — | 0.223% | — |
+
+The two snapshots agree closely. The headline is stable: **~78% of the H1 floor
+arm's coding loss is spent inside string values**, a further ~11% on numeric
+literals, and structural punctuation + field names together account for ~11%.
+Whitespace, JSON literals (`true`/`false`/`null`), and record framing are jointly
+under 0.4% of loss — measured immaterial.
+
+### Value-subclass and structural overlays — share of total Q24 loss
+
+Overlays may overlap each other and the primary classes; each marks a byte and
+attributes that byte's eight modeled bits. These are OBSERVER proxies, not codec
+components.
+
+| overlay | 05-15 loss share | 05-15 bytes | 06-15 loss share | 06-15 bytes |
+| --- | --- | --- | --- | --- |
+| repeat_candidate (≥8 B match, 64 KiB window) | 42.95% | 21,110,001 | 43.76% | 21,158,512 |
+| digits | 40.37% | 4,565,754 | 40.11% | 4,500,730 |
+| hex_id_run | 37.60% | 2,656,187 | 36.08% | 2,487,235 |
+| timestamp_span | 0.62% | 759,637 | 0.89% | 818,560 |
+| context_miss (best context <4 confidence) | 0.10% | — | 0.10% | — |
+
+Two large, overlapping pools stand out. **~43% of loss sits inside bytes that lie
+within a long repeat** a copy/match model could in principle capture, and the
+digit + hex-id-run overlays (which live predominantly inside the string_value and
+number_value pots) carry ~40% and ~37% respectively. `timestamp_span` is a small
+slice (<1%), and the context-miss / cold-start proxy is ~0.1% — the arm is almost
+never coding from an un-warmed context. Hot 64-byte regions (`top_regions`) are
+overwhelmingly pure `string_value` runs dominated by `hex_id` overlays,
+consistent with the partition.
+
+### Tape bytes vs. cycle-1 projected complete bytes (not the same quantity)
+
+The report's `tape_bytes` (28,311,104 / 28,311,145) is the raw s0 accounting-tape
+byte count — the internal per-event modeling tape the observer walks and is
+byte-identical against. It is intentionally **different** from the cycle-1 H1
+receipts' `projected_complete_bytes` (3,609,680 / 3,517,625 in
+`runs/moon-prescreen-cycle1-h1-v1/`), which is the compression **projection**
+metric (the arm's estimated coded output size). These measure different things:
+one is the modeling/accounting tape used to attribute loss, the other is the
+scoreboard output-size projection. They are not expected to match and no identity
+between them is claimed. The lineage that *does* hold is the byte-identity of the
+arm tape itself, enforced by the fail-closed guard.
+
+### Funding consequences (helm decisions, already made)
+
+These are attribution-driven allocation calls; none is a survival prediction and
+none reads a development item.
+
+- **C1 match-mixer arm — FUNDED** to attack the ~43% `repeat_candidate` mass:
+  the largest single addressable pool is loss inside long repeats a copy/match
+  model could capture.
+- **C2 value-context arm — FUNDED** to attack the ~78% `string_value` pot (with
+  its `hex_id_run` / `digits` sub-structure): the dominant loss class by a wide
+  margin.
+- **C8 expert-mixture arm — FUNDED** (new id). The 0.93× H1 kill line is to be
+  frozen pre-measurement, before any counted run.
+- **NOT priority targets** (measured immaterial): `timestamp_span`, `framing`,
+  and context cold-start each carry ≤ ~0.9% of loss and are explicitly deprioritized.
