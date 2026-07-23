@@ -195,8 +195,23 @@ pub fn encode_chassis_item<C: ValueCoder>(
     item_index: u8,
     coder: &mut C,
 ) -> Result<(Tape, Ledger), ChassisError> {
+    let (tape, ledger, _) = encode_chassis_item_with_segments(
+        source, table, contexts, arm_id, item_index, coder, None,
+    )?;
+    Ok((tape, ledger))
+}
+
+pub fn encode_chassis_item_with_segments<C: ValueCoder>(
+    source: &[u8],
+    table: &LossTable,
+    contexts: ContextStore,
+    arm_id: u8,
+    item_index: u8,
+    coder: &mut C,
+    segment_bytes: Option<u64>,
+) -> Result<(Tape, Ledger, Vec<SegmentSnapshot>), ChassisError> {
     let events = EventEncoder::new(table, contexts, arm_id, item_index);
-    encode_chassis_records(source, events, coder)
+    encode_chassis_records_with_segments(source, events, coder, segment_bytes)
 }
 
 /// M5 arms: identical grammar and tape bits, refined charged probabilities.
@@ -210,18 +225,54 @@ pub fn encode_chassis_item_with_mixer<C: ValueCoder>(
     coder: &mut C,
     mixer: Box<M5Mixer>,
 ) -> Result<(Tape, Ledger), ChassisError> {
-    let events = EventEncoder::with_mixer(table, contexts, arm_id, item_index, mixer);
-    encode_chassis_records(source, events, coder)
+    let (tape, ledger, _) = encode_chassis_item_with_mixer_and_segments(
+        source, table, contexts, arm_id, item_index, coder, mixer, None,
+    )?;
+    Ok((tape, ledger))
 }
 
-fn encode_chassis_records<C: ValueCoder>(
+/// Mixer variant of [`encode_chassis_item_with_segments`].
+#[allow(clippy::too_many_arguments)]
+pub fn encode_chassis_item_with_mixer_and_segments<C: ValueCoder>(
+    source: &[u8],
+    table: &LossTable,
+    contexts: ContextStore,
+    arm_id: u8,
+    item_index: u8,
+    coder: &mut C,
+    mixer: Box<M5Mixer>,
+    segment_bytes: Option<u64>,
+) -> Result<(Tape, Ledger, Vec<SegmentSnapshot>), ChassisError> {
+    let events = EventEncoder::with_mixer(table, contexts, arm_id, item_index, mixer);
+    encode_chassis_records_with_segments(source, events, coder, segment_bytes)
+}
+
+/// Diagnostic-only segment ledger: closes a snapshot at the first record
+/// boundary at or after each `segment_bytes` interval of consumed source.
+/// No model state resets at a segment boundary, and snapshots never enter
+/// decision calculations.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct SegmentSnapshot {
+    pub records: u64,
+    pub source_bytes: u64,
+    pub ledger: Ledger,
+}
+
+fn encode_chassis_records_with_segments<C: ValueCoder>(
     source: &[u8],
     mut events: EventEncoder<'_>,
     coder: &mut C,
-) -> Result<(Tape, Ledger), ChassisError> {
+    segment_bytes: Option<u64>,
+) -> Result<(Tape, Ledger, Vec<SegmentSnapshot>), ChassisError> {
+    if segment_bytes == Some(0) {
+        return Err(ChassisError::InvalidSegmentInterval);
+    }
     let records = split_records(source);
     let mut templates = TemplateStore::new();
     let mut previous_type = RecordType::Miss;
+    let mut snapshots = Vec::new();
+    let mut consumed: u64 = 0;
+    let mut next_boundary = segment_bytes;
 
     for (index, record) in records.iter().enumerate() {
         if index + 1 != records.len() && !record.terminated {
@@ -236,12 +287,28 @@ fn encode_chassis_records<C: ValueCoder>(
             &mut templates,
             coder,
         )?;
+        consumed += record.content.len() as u64 + u64::from(record.terminated);
+        if let (Some(boundary), Some(interval)) = (next_boundary, segment_bytes) {
+            if consumed >= boundary {
+                snapshots.push(SegmentSnapshot {
+                    records: index as u64 + 1,
+                    source_bytes: consumed,
+                    ledger: events.ledger(),
+                });
+                let mut advanced = boundary;
+                while consumed >= advanced {
+                    advanced += interval;
+                }
+                next_boundary = Some(advanced);
+            }
+        }
     }
     events.bit(MORE_CONTEXT, false)?;
     if let Some(last) = records.last() {
         events.bit(TERMINATED_CONTEXT, last.terminated)?;
     }
-    Ok(events.finish())
+    let (tape, ledger) = events.finish();
+    Ok((tape, ledger, snapshots))
 }
 
 pub fn decode_chassis_item<C: ValueCoder>(
@@ -533,6 +600,7 @@ pub enum ChassisError {
     InvalidValueByte,
     TapeIdentityMismatch,
     TooManyValues,
+    InvalidSegmentInterval,
     LaneOutOfRange,
     DeltaOverflow,
     SessionReference,

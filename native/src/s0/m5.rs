@@ -7,7 +7,8 @@
 //! table, so the whole estimator is integer-only and deterministic.
 
 use super::chassis::{
-    decode_chassis_item_with_mixer, encode_chassis_item_with_mixer, ChassisError, M1ValueCoder,
+    decode_chassis_item_with_mixer, encode_chassis_item_with_mixer_and_segments, ChassisError,
+    M1ValueCoder, SegmentSnapshot,
 };
 use super::m2::{m2_contexts, M2ValueCoder};
 use super::template::{fnv1a64, fnv1a64_extend};
@@ -212,7 +213,17 @@ pub fn encode_m1_m2_m5_item(
     table: &LossTable,
     item_index: u8,
 ) -> Result<(Tape, Ledger), ChassisError> {
-    encode_chassis_item_with_mixer(
+    let (tape, ledger, _) = encode_m1_m2_m5_item_with_segments(source, table, item_index, None)?;
+    Ok((tape, ledger))
+}
+
+pub fn encode_m1_m2_m5_item_with_segments(
+    source: &[u8],
+    table: &LossTable,
+    item_index: u8,
+    segment_bytes: Option<u64>,
+) -> Result<(Tape, Ledger, Vec<SegmentSnapshot>), ChassisError> {
+    encode_chassis_item_with_mixer_and_segments(
         source,
         table,
         m2_contexts()?,
@@ -220,6 +231,7 @@ pub fn encode_m1_m2_m5_item(
         item_index,
         &mut M2ValueCoder::with_inner(M1ValueCoder),
         Box::new(M5Mixer::new(table)),
+        segment_bytes,
     )
 }
 

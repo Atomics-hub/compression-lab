@@ -8,8 +8,8 @@
 //! collisions may share predictions but never reconstruction state.
 
 use super::chassis::{
-    chassis_contexts, decode_chassis_item, encode_chassis_item, ChassisError, M1ValueCoder,
-    ValueCoder, M1_BINARY_CONTEXTS, M1_TREE_CONTEXTS,
+    chassis_contexts, decode_chassis_item, encode_chassis_item_with_segments, ChassisError,
+    M1ValueCoder, SegmentSnapshot, ValueCoder, M1_BINARY_CONTEXTS, M1_TREE_CONTEXTS,
 };
 use super::template::TEMPLATE_SLOTS;
 use super::{ContextStore, EventDecoder, EventEncoder, JsonLayout, Ledger, LossTable, Tape};
@@ -331,13 +331,24 @@ pub fn encode_m1_m2_item(
     table: &LossTable,
     item_index: u8,
 ) -> Result<(Tape, Ledger), ChassisError> {
-    encode_chassis_item(
+    let (tape, ledger, _) = encode_m1_m2_item_with_segments(source, table, item_index, None)?;
+    Ok((tape, ledger))
+}
+
+pub fn encode_m1_m2_item_with_segments(
+    source: &[u8],
+    table: &LossTable,
+    item_index: u8,
+    segment_bytes: Option<u64>,
+) -> Result<(Tape, Ledger, Vec<SegmentSnapshot>), ChassisError> {
+    encode_chassis_item_with_segments(
         source,
         table,
         m2_contexts()?,
         M2_ARM_ID,
         item_index,
         &mut M2ValueCoder::new(),
+        segment_bytes,
     )
 }
 

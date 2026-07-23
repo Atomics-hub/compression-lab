@@ -8,8 +8,9 @@
 //! context index is arm-invariant and unused blocks never charge events.
 
 use super::chassis::{
-    decode_chassis_item, decode_chassis_item_with_mixer, encode_chassis_item,
-    encode_chassis_item_with_mixer, ChassisError, M1ValueCoder,
+    decode_chassis_item, decode_chassis_item_with_mixer,
+    encode_chassis_item_with_mixer_and_segments, encode_chassis_item_with_segments, ChassisError,
+    M1ValueCoder, SegmentSnapshot,
 };
 use super::m2::M2ValueCoder;
 use super::m3::M3ValueCoder;
@@ -22,26 +23,36 @@ pub const FULL_MINUS_M3_ARM_ID: u8 = 7;
 pub const FULL_MINUS_M4_ARM_ID: u8 = 8;
 pub const FULL_MINUS_M5_ARM_ID: u8 = 9;
 
-fn full_chain() -> M2ValueCoder<M3ValueCoder<M4ValueCoder>> {
+pub(super) fn full_chain() -> M2ValueCoder<M3ValueCoder<M4ValueCoder>> {
     M2ValueCoder::with_inner(M3ValueCoder::with_inner(M4ValueCoder::new()))
 }
 
-fn minus_m3_chain() -> M2ValueCoder<M4ValueCoder> {
+pub(super) fn minus_m3_chain() -> M2ValueCoder<M4ValueCoder> {
     M2ValueCoder::with_inner(M4ValueCoder::new())
 }
 
-fn minus_m4_chain() -> M2ValueCoder<M3ValueCoder<M1ValueCoder>> {
+pub(super) fn minus_m4_chain() -> M2ValueCoder<M3ValueCoder<M1ValueCoder>> {
     M2ValueCoder::with_inner(M3ValueCoder::with_inner(M1ValueCoder))
 }
 
 macro_rules! mixed_arm {
-    ($encode:ident, $decode:ident, $arm:expr, $chain:expr) => {
+    ($encode:ident, $encode_segments:ident, $decode:ident, $arm:expr, $chain:expr) => {
         pub fn $encode(
             source: &[u8],
             table: &LossTable,
             item_index: u8,
         ) -> Result<(Tape, Ledger), ChassisError> {
-            encode_chassis_item_with_mixer(
+            let (tape, ledger, _) = $encode_segments(source, table, item_index, None)?;
+            Ok((tape, ledger))
+        }
+
+        pub fn $encode_segments(
+            source: &[u8],
+            table: &LossTable,
+            item_index: u8,
+            segment_bytes: Option<u64>,
+        ) -> Result<(Tape, Ledger, Vec<SegmentSnapshot>), ChassisError> {
+            encode_chassis_item_with_mixer_and_segments(
                 source,
                 table,
                 m4_contexts()?,
@@ -49,6 +60,7 @@ macro_rules! mixed_arm {
                 item_index,
                 &mut $chain,
                 Box::new(M5Mixer::new(table)),
+                segment_bytes,
             )
         }
 
@@ -74,18 +86,21 @@ macro_rules! mixed_arm {
 
 mixed_arm!(
     encode_full_item,
+    encode_full_item_with_segments,
     decode_full_item,
     FULL_ARM_ID,
     full_chain()
 );
 mixed_arm!(
     encode_full_minus_m3_item,
+    encode_full_minus_m3_item_with_segments,
     decode_full_minus_m3_item,
     FULL_MINUS_M3_ARM_ID,
     minus_m3_chain()
 );
 mixed_arm!(
     encode_full_minus_m4_item,
+    encode_full_minus_m4_item_with_segments,
     decode_full_minus_m4_item,
     FULL_MINUS_M4_ARM_ID,
     minus_m4_chain()
@@ -96,13 +111,25 @@ pub fn encode_full_minus_m5_item(
     table: &LossTable,
     item_index: u8,
 ) -> Result<(Tape, Ledger), ChassisError> {
-    encode_chassis_item(
+    let (tape, ledger, _) =
+        encode_full_minus_m5_item_with_segments(source, table, item_index, None)?;
+    Ok((tape, ledger))
+}
+
+pub fn encode_full_minus_m5_item_with_segments(
+    source: &[u8],
+    table: &LossTable,
+    item_index: u8,
+    segment_bytes: Option<u64>,
+) -> Result<(Tape, Ledger, Vec<SegmentSnapshot>), ChassisError> {
+    encode_chassis_item_with_segments(
         source,
         table,
         m4_contexts()?,
         FULL_MINUS_M5_ARM_ID,
         item_index,
         &mut full_chain(),
+        segment_bytes,
     )
 }
 
