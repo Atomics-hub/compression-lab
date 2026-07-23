@@ -55,6 +55,7 @@ ARM_IDS = {
     "h9-grammar": 102,
     "h8-static-mixer": 103,
     "c3-live-adaptation": 104,
+    "c8-expert-mixture": 107,
 }
 # Grace beyond the wall limit before the wrapper subprocess is force-killed.
 WALL_TIMEOUT_GRACE_SECONDS = 30.0
@@ -66,6 +67,11 @@ WALL_TIMEOUT_GRACE_SECONDS = 30.0
 KILL_LINES = {
     "c3-live-adaptation": (
         "Kill if C3 complete bytes are at least 0.97x H1 complete bytes on both "
+        "public snapshots, OR any exactness, identity, ledger, unaccounted-state, "
+        "600-second wall, or 512 MiB decode-RSS gate fails."
+    ),
+    "c8-expert-mixture": (
+        "Kill if C8 complete bytes are at least 0.93x H1 complete bytes on both "
         "public snapshots, OR any exactness, identity, ledger, unaccounted-state, "
         "600-second wall, or 512 MiB decode-RSS gate fails."
     ),
