@@ -20,6 +20,9 @@ pub mod moon;
 use moon::h1::{
     decode_h1_item_with_bits, encode_h1_item_with_bits, h1_declared_state_bytes, H1_ARM_ID,
 };
+use moon::h6::{
+    decode_h6_item_with_bits, encode_h6_item_with_bits, h6_declared_state_bytes, H6_ARM_ID,
+};
 use s0::{Ledger, LossTable, Tape, SSE_BASE_BUCKET_BITS, SSE_REFINED_BUCKET_BITS};
 use sha2::{Digest, Sha256};
 use std::env;
@@ -29,20 +32,105 @@ use std::process::ExitCode;
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 const EVIDENCE_STAGE: &str = "development_only_prescreen";
-const ARM_NAME: &str = "h1-floor";
-// The preregistered H1 kill line (draft cycle-1 §2), echoed verbatim into every
-// receipt so the eventual kill/nominate report is mechanical. It is a data
-// string, not a claim: no candidate, SOTA, exact-codec, or ratio assertion.
+
+// Preregistered per-arm kill lines (draft cycle-1 §2), echoed verbatim into
+// every receipt so the eventual kill/nominate report is mechanical. Data
+// strings, not claims: no candidate, SOTA, exact-codec, or ratio assertion.
 const H1_KILL_CRITERION: &str = "Kill if projected complete bytes exceed 1.10x local zpaq -m5 -B16 on at least two public snapshots at <=256 MiB declared state, OR peak decode RSS exceeds 512 MiB.";
+const H6_KILL_CRITERION: &str =
+    "Kill if the hybrid does not beat max(H1-alone, M3-alone) by >= 3% on the public set.";
+
+/// The moon prescreen arms. Each wraps a moon arm's encode/decode, declared
+/// state, and preregistered kill line so the kernel dispatches uniformly.
+#[derive(Clone, Copy)]
+enum MoonArm {
+    H1Floor,
+    H6Hybrid,
+}
+
+const ARMS: [MoonArm; 2] = [MoonArm::H1Floor, MoonArm::H6Hybrid];
+
+impl MoonArm {
+    fn from_name(name: &str) -> Option<Self> {
+        match name {
+            "h1-floor" => Some(Self::H1Floor),
+            "h6-hybrid" => Some(Self::H6Hybrid),
+            _ => None,
+        }
+    }
+
+    fn name(self) -> &'static str {
+        match self {
+            Self::H1Floor => "h1-floor",
+            Self::H6Hybrid => "h6-hybrid",
+        }
+    }
+
+    fn id(self) -> u8 {
+        match self {
+            Self::H1Floor => H1_ARM_ID,
+            Self::H6Hybrid => H6_ARM_ID,
+        }
+    }
+
+    fn kill_criterion(self) -> &'static str {
+        match self {
+            Self::H1Floor => H1_KILL_CRITERION,
+            Self::H6Hybrid => H6_KILL_CRITERION,
+        }
+    }
+
+    fn declared_state_bytes(self, table: &LossTable, sse_bucket_bits: u32) -> usize {
+        match self {
+            Self::H1Floor => h1_declared_state_bytes(table, sse_bucket_bits),
+            Self::H6Hybrid => h6_declared_state_bytes(table, sse_bucket_bits),
+        }
+    }
+
+    fn encode(
+        self,
+        source: &[u8],
+        table: &LossTable,
+        item_index: u8,
+        sse_bucket_bits: u32,
+    ) -> Result<(Tape, Ledger), String> {
+        match self {
+            Self::H1Floor => encode_h1_item_with_bits(source, table, item_index, sse_bucket_bits)
+                .map_err(|error| error.to_string()),
+            Self::H6Hybrid => encode_h6_item_with_bits(source, table, item_index, sse_bucket_bits)
+                .map_err(|error| error.to_string()),
+        }
+    }
+
+    fn decode(
+        self,
+        tape: &Tape,
+        expected_ledger: Ledger,
+        table: &LossTable,
+        item_index: u8,
+        sse_bucket_bits: u32,
+    ) -> Result<Vec<u8>, String> {
+        match self {
+            Self::H1Floor => {
+                decode_h1_item_with_bits(tape, expected_ledger, table, item_index, sse_bucket_bits)
+                    .map_err(|error| error.to_string())
+            }
+            Self::H6Hybrid => {
+                decode_h6_item_with_bits(tape, expected_ledger, table, item_index, sse_bucket_bits)
+                    .map_err(|error| error.to_string())
+            }
+        }
+    }
+}
 
 const HELP: &str = "clab-moon-kernel — moonshot cycle-1 prescreen accounting kernel
 
 Usage:
   clab-moon-kernel arms
-  clab-moon-kernel encode --arm h1-floor --item-index N --input PATH
+  clab-moon-kernel encode --arm h1-floor|h6-hybrid --item-index N --input PATH
                           --tape-out PATH --receipt-out PATH
                           [--sse-bucket-bits 17|18] [--force]
-  clab-moon-kernel decode --arm h1-floor --item-index N --tape PATH
+  clab-moon-kernel decode --arm h1-floor|h6-hybrid --item-index N --tape PATH
                           --records N --modeled-binary-events N
                           --modeled-loss-q24 N --raw-literal-bytes N
                           --output PATH --receipt-out PATH
@@ -68,7 +156,9 @@ fn main() -> ExitCode {
             ExitCode::SUCCESS
         }
         Some((&"arms", [])) => {
-            println!("{H1_ARM_ID} {ARM_NAME}");
+            for arm in ARMS {
+                println!("{} {}", arm.id(), arm.name());
+            }
             ExitCode::SUCCESS
         }
         Some((&"encode", rest)) => run(encode_command(rest)),
@@ -159,12 +249,13 @@ impl Options {
     }
 }
 
-fn parse_arm(name: &str) -> Result<(), CommandError> {
-    if name == ARM_NAME {
-        Ok(())
-    } else {
-        Err(usage(format!("unknown arm: {name} (expected {ARM_NAME})")))
-    }
+fn parse_arm(name: &str) -> Result<MoonArm, CommandError> {
+    MoonArm::from_name(name).ok_or_else(|| {
+        usage(format!(
+            "unknown arm: {name} (expected one of {})",
+            ARMS.map(MoonArm::name).join(", ")
+        ))
+    })
 }
 
 fn parse_number<T: std::str::FromStr>(name: &str, value: &str) -> Result<T, CommandError> {
@@ -286,7 +377,7 @@ fn encode_command(arguments: &[&str]) -> Result<(), CommandError> {
             "sse-bucket-bits",
         ],
     )?;
-    parse_arm(options.take("arm")?)?;
+    let arm = parse_arm(options.take("arm")?)?;
     let item_index: u8 = parse_number("item-index", options.take("item-index")?)?;
     let input = options.take("input")?;
     let tape_out = options.take("tape-out")?;
@@ -295,7 +386,8 @@ fn encode_command(arguments: &[&str]) -> Result<(), CommandError> {
 
     let source = read_bytes(input)?;
     let table = LossTable::generate();
-    let (tape, ledger) = encode_h1_item_with_bits(&source, &table, item_index, sse_bucket_bits)
+    let (tape, ledger) = arm
+        .encode(&source, &table, item_index, sse_bucket_bits)
         .map_err(|error| failure(format!("encode failed: {error}")))?;
     let tape_bytes = tape.to_bytes();
     write_output(tape_out, &tape_bytes, options.force)?;
@@ -307,21 +399,25 @@ fn encode_command(arguments: &[&str]) -> Result<(), CommandError> {
     let written = read_bytes(tape_out)?;
     let reread = Tape::from_bytes(&written)
         .map_err(|error| failure(format!("written tape failed to parse: {error}")))?;
-    let decoded = decode_h1_item_with_bits(&reread, ledger, &table, item_index, sse_bucket_bits)
+    let decoded = arm
+        .decode(&reread, ledger, &table, item_index, sse_bucket_bits)
         .map_err(|error| failure(format!("confirmation decode failed: {error}")))?;
     if decoded != source {
         return Err(failure("confirmation decode did not reproduce the source"));
     }
 
     let source_bytes = source.len() as u64;
-    let declared_state_bytes = h1_declared_state_bytes(&table, sse_bucket_bits);
+    let declared_state_bytes = arm.declared_state_bytes(&table, sse_bucket_bits);
     let receipt = format!(
-        "{{\n  \"schema\": \"clab-moon-kernel-encode-receipt-v1\",\n  \"kernel_version\": \"{VERSION}\",\n  \"evidence_stage\": \"{EVIDENCE_STAGE}\",\n  \"arm\": \"{ARM_NAME}\",\n  \"arm_id\": {H1_ARM_ID},\n  \"item_index\": {item_index},\n  \"source_bytes\": {source_bytes},\n  \"source_sha256\": \"{}\",\n  \"tape_bytes\": {},\n  \"tape_sha256\": \"{}\",\n  \"sse_bucket_bits\": {sse_bucket_bits},\n  \"declared_model_state_bytes\": {declared_state_bytes},\n  \"ledger\": {},\n  \"item_projection\": {},\n  \"predicted_kill_criterion\": \"{H1_KILL_CRITERION}\",\n  \"decoded_sha256\": \"{}\",\n  \"decode_matches_source\": true\n}}\n",
+        "{{\n  \"schema\": \"clab-moon-kernel-encode-receipt-v1\",\n  \"kernel_version\": \"{VERSION}\",\n  \"evidence_stage\": \"{EVIDENCE_STAGE}\",\n  \"arm\": \"{}\",\n  \"arm_id\": {},\n  \"item_index\": {item_index},\n  \"source_bytes\": {source_bytes},\n  \"source_sha256\": \"{}\",\n  \"tape_bytes\": {},\n  \"tape_sha256\": \"{}\",\n  \"sse_bucket_bits\": {sse_bucket_bits},\n  \"declared_model_state_bytes\": {declared_state_bytes},\n  \"ledger\": {},\n  \"item_projection\": {},\n  \"predicted_kill_criterion\": \"{}\",\n  \"decoded_sha256\": \"{}\",\n  \"decode_matches_source\": true\n}}\n",
+        arm.name(),
+        arm.id(),
         sha256_hex(&source),
         tape_bytes.len(),
         sha256_hex(&tape_bytes),
         ledger_json(ledger),
         projection_json(ledger, source_bytes)?,
+        arm.kill_criterion(),
         sha256_hex(&decoded),
     );
     write_output(receipt_out, receipt.as_bytes(), options.force)?;
@@ -345,7 +441,7 @@ fn decode_command(arguments: &[&str]) -> Result<(), CommandError> {
             "sse-bucket-bits",
         ],
     )?;
-    parse_arm(options.take("arm")?)?;
+    let arm = parse_arm(options.take("arm")?)?;
     let item_index: u8 = parse_number("item-index", options.take("item-index")?)?;
     let tape_path = options.take("tape")?;
     let output = options.take("output")?;
@@ -365,14 +461,16 @@ fn decode_command(arguments: &[&str]) -> Result<(), CommandError> {
     let tape = Tape::from_bytes(&tape_bytes)
         .map_err(|error| failure(format!("tape failed to parse: {error}")))?;
     let table = LossTable::generate();
-    let decoded =
-        decode_h1_item_with_bits(&tape, expected_ledger, &table, item_index, sse_bucket_bits)
-            .map_err(|error| failure(format!("decode failed: {error}")))?;
+    let decoded = arm
+        .decode(&tape, expected_ledger, &table, item_index, sse_bucket_bits)
+        .map_err(|error| failure(format!("decode failed: {error}")))?;
     write_output(output, &decoded, options.force)?;
     let mut written_output = WrittenOutput::pending(output);
 
     let receipt = format!(
-        "{{\n  \"schema\": \"clab-moon-kernel-decode-receipt-v1\",\n  \"kernel_version\": \"{VERSION}\",\n  \"evidence_stage\": \"{EVIDENCE_STAGE}\",\n  \"arm\": \"{ARM_NAME}\",\n  \"arm_id\": {H1_ARM_ID},\n  \"item_index\": {item_index},\n  \"tape_bytes\": {},\n  \"tape_sha256\": \"{}\",\n  \"sse_bucket_bits\": {sse_bucket_bits},\n  \"ledger\": {},\n  \"decoded_bytes\": {},\n  \"decoded_sha256\": \"{}\"\n}}\n",
+        "{{\n  \"schema\": \"clab-moon-kernel-decode-receipt-v1\",\n  \"kernel_version\": \"{VERSION}\",\n  \"evidence_stage\": \"{EVIDENCE_STAGE}\",\n  \"arm\": \"{}\",\n  \"arm_id\": {},\n  \"item_index\": {item_index},\n  \"tape_bytes\": {},\n  \"tape_sha256\": \"{}\",\n  \"sse_bucket_bits\": {sse_bucket_bits},\n  \"ledger\": {},\n  \"decoded_bytes\": {},\n  \"decoded_sha256\": \"{}\"\n}}\n",
+        arm.name(),
+        arm.id(),
         tape_bytes.len(),
         sha256_hex(&tape_bytes),
         ledger_json(expected_ledger),
@@ -388,6 +486,8 @@ fn decode_command(arguments: &[&str]) -> Result<(), CommandError> {
 mod tests {
     use super::*;
     use std::sync::atomic::{AtomicU64, Ordering};
+
+    const ARM_NAME: &str = "h1-floor";
 
     static SCRATCH_COUNTER: AtomicU64 = AtomicU64::new(0);
 
@@ -664,6 +764,69 @@ mod tests {
         assert!(matches!(result, Err(CommandError::Failure(_))));
         assert!(!Path::new(&scratch.path("item.tape")).exists());
         assert_eq!(fs::read(scratch.path("receipt.json")).unwrap(), b"occupied");
+    }
+
+    #[test]
+    fn the_h6_arm_encodes_decodes_and_reports_its_own_state_and_kill_line() {
+        let scratch = Scratch::new();
+        // Heavy exact-duplicate lines so the reuse layer fires.
+        let mut source = Vec::new();
+        for _ in 0..30 {
+            source.extend_from_slice(b"{\"level\":\"info\",\"msg\":\"ready\"}\n");
+        }
+        fs::write(scratch.path("item.ndjson"), &source).unwrap();
+        let receipt_path = scratch.path("h6.receipt.json");
+        unwrap_message(encode_command(&[
+            "--arm",
+            "h6-hybrid",
+            "--item-index",
+            "2",
+            "--input",
+            &scratch.path("item.ndjson"),
+            "--tape-out",
+            &scratch.path("h6.tape"),
+            "--receipt-out",
+            &receipt_path,
+        ]));
+        let receipt = fs::read_to_string(&receipt_path).unwrap();
+        assert_eq!(receipt_field(&receipt, "arm"), "h6-hybrid");
+        assert_eq!(receipt_field(&receipt, "arm_id"), "101");
+        assert_eq!(receipt_field(&receipt, "decode_matches_source"), "true");
+        assert_eq!(
+            receipt_field(&receipt, "declared_model_state_bytes"),
+            "129517566"
+        );
+        assert!(receipt.contains("beat max(H1-alone, M3-alone) by >= 3%"));
+
+        let output = scratch.path("h6.decoded");
+        unwrap_message(decode_command(&[
+            "--arm",
+            "h6-hybrid",
+            "--item-index",
+            "2",
+            "--tape",
+            &scratch.path("h6.tape"),
+            "--records",
+            receipt_field(&receipt, "records"),
+            "--modeled-binary-events",
+            receipt_field(&receipt, "modeled_binary_events"),
+            "--modeled-loss-q24",
+            receipt_field(&receipt, "modeled_loss_q24"),
+            "--raw-literal-bytes",
+            receipt_field(&receipt, "raw_literal_bytes"),
+            "--output",
+            &output,
+            "--receipt-out",
+            &scratch.path("h6.decode-receipt.json"),
+        ]));
+        assert_eq!(fs::read(&output).unwrap(), source);
+    }
+
+    #[test]
+    fn arms_lists_both_moon_arms() {
+        assert_eq!(MoonArm::from_name("h1-floor").map(MoonArm::id), Some(100));
+        assert_eq!(MoonArm::from_name("h6-hybrid").map(MoonArm::id), Some(101));
+        assert!(MoonArm::from_name("nope").is_none());
     }
 
     #[test]
