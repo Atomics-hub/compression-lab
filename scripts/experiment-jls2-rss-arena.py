@@ -1,12 +1,22 @@
-"""Diagnostic JLS2 decoder RSS experiment: allocator arenas and CPU affinity.
+"""Diagnostic JLS2 decoder RSS experiment: allocator behavior and CPU affinity.
 
 The frozen public-validation gate measured the native decoder at 621.3 MiB
 peak RSS on Linux, yet only ~50-100 MB of that is source-visible decoded data.
-The leading hypothesis is glibc per-thread malloc-arena retention from the
-segment worker pool. This experiment decodes one fully synthetic JLS2
-artifact under a matrix of MALLOC_ARENA_MAX values and CPU-affinity limits
-(available_parallelism honors affinity on Linux, which bounds the worker pool
-without any code change) and records ru_maxrss for every cell.
+Round 1 (run 29979759484) refuted the MALLOC_ARENA_MAX hypothesis (no effect)
+and measured a bit-identical 448.8 MiB floor at 1-3 CPUs with a +214.5 MiB
+step at 4 CPUs. A counting-allocator instrumentation of the same decode
+measured true peak live bytes at exactly workers x 16 MiB (segment size), so
+nearly all of the Linux RSS is glibc retention of freed segment buffers, not
+live data. The refined hypothesis: glibc's dynamic M_MMAP_THRESHOLD
+adaptation moves the 16 MiB segment buffers from mmap onto arena heaps after
+the first frees, and freed arena memory is never returned to the OS while
+the decode is still running, so ru_maxrss ratchets to the total churn.
+
+Round 2 pins the threshold with MALLOC_MMAP_THRESHOLD_ (the trailing
+underscore is glibc's tunable spelling), which also disables the dynamic
+adaptation, so every segment-sized buffer stays mmap-backed and every free
+returns to the OS immediately. Expected result if the hypothesis holds:
+peak RSS collapses to roughly live bytes at every CPU count.
 
 Diagnostic only: synthetic data, no licensed corpus paths, no product change,
 and every cell must reproduce the source bytes exactly or the experiment
@@ -27,8 +37,17 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
-ARENA_VALUES: tuple[str | None, ...] = (None, "2")
-CPU_LIMITS: tuple[int | None, ...] = (None, 3, 2, 1)
+# (MALLOC_ARENA_MAX, MALLOC_MMAP_THRESHOLD_, cpu_limit) per cell. The first
+# two cells replay the round-1 baseline anchors; the rest test the pinned
+# mmap threshold at full and reduced parallelism, plus one combined cell.
+CELLS: tuple[tuple[str | None, str | None, int | None], ...] = (
+    (None, None, None),
+    (None, None, 3),
+    (None, "131072", None),
+    (None, "131072", 3),
+    (None, "131072", 1),
+    ("2", "131072", None),
+)
 
 
 def sha256_file(path: Path) -> str:
@@ -65,14 +84,18 @@ def decode_cell(
     artifact: Path,
     output: Path,
     arena: str | None,
+    mmap_threshold: str | None,
     cpu_limit: int | None,
 ) -> dict[str, object]:
     if output.exists():
         output.unlink()
     environment = dict(os.environ)
     environment.pop("MALLOC_ARENA_MAX", None)
+    environment.pop("MALLOC_MMAP_THRESHOLD_", None)
     if arena is not None:
         environment["MALLOC_ARENA_MAX"] = arena
+    if mmap_threshold is not None:
+        environment["MALLOC_MMAP_THRESHOLD_"] = mmap_threshold
 
     # Linux-only interfaces, resolved dynamically so type checking stays
     # clean on the non-Linux CI hosts that never run this experiment.
@@ -94,12 +117,14 @@ def decode_cell(
     stderr = process.stderr.read().decode(errors="replace") if process.stderr else ""
     if os.waitstatus_to_exitcode(status) != 0:
         raise SystemExit(
-            f"decode failed (arena={arena}, cpus={cpu_limit}): {stderr.strip()}"
+            f"decode failed (arena={arena}, mmap={mmap_threshold},"
+            f" cpus={cpu_limit}): {stderr.strip()}"
         )
     peak_raw = usage.ru_maxrss
     peak_bytes = peak_raw * 1024
     return {
         "malloc_arena_max": arena,
+        "malloc_mmap_threshold": mmap_threshold,
         "cpu_limit": cpu_limit,
         "peak_rss_raw": peak_raw,
         "peak_rss_bytes": peak_bytes,
@@ -140,26 +165,32 @@ def main() -> int:
     compress_file(source, artifact)
 
     cells = []
-    for cpu_limit in CPU_LIMITS:
-        for arena in ARENA_VALUES:
-            cell = decode_cell(
-                binary, artifact, work / "decoded.jsonl", arena, cpu_limit
+    for arena, mmap_threshold, cpu_limit in CELLS:
+        cell = decode_cell(
+            binary,
+            artifact,
+            work / "decoded.jsonl",
+            arena,
+            mmap_threshold,
+            cpu_limit,
+        )
+        if cell["decoded_sha256"] != source_sha:
+            raise SystemExit(
+                f"decode mismatch (arena={arena}, mmap={mmap_threshold},"
+                f" cpus={cpu_limit}): decoded bytes differ from the source"
             )
-            if cell["decoded_sha256"] != source_sha:
-                raise SystemExit(
-                    f"decode mismatch (arena={arena}, cpus={cpu_limit}):"
-                    " decoded bytes differ from the source"
-                )
-            cell["decode_matches_source"] = True
-            cells.append(cell)
-            print(
-                f"arena={arena or 'unset':>5} cpus={cpu_limit or 'all':>3} "
-                f"peak={cell['peak_rss_mib']:>8} MiB",
-                flush=True,
-            )
+        cell["decode_matches_source"] = True
+        cells.append(cell)
+        print(
+            f"arena={arena or 'unset':>5} "
+            f"mmap={mmap_threshold or 'unset':>6} "
+            f"cpus={cpu_limit or 'all':>3} "
+            f"peak={cell['peak_rss_mib']:>8} MiB",
+            flush=True,
+        )
 
     report = {
-        "schema": "jls2-rss-arena-experiment-v1",
+        "schema": "jls2-rss-arena-experiment-v2",
         "purpose": (
             "Diagnostic allocator/affinity RSS matrix for the JLS2 native "
             "decoder on synthetic data. Not a gate measurement, not corpus "

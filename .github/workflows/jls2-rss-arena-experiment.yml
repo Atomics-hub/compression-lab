@@ -42,6 +42,7 @@ jobs:
           for cell in report["cells"]:
               print(
                   f"arena={str(cell['malloc_arena_max'] or 'unset'):>5}"
+                  f" mmap={str(cell['malloc_mmap_threshold'] or 'unset'):>6}"
                   f" cpus={str(cell['cpu_limit'] or 'all'):>3}"
                   f" peak={cell['peak_rss_mib']:>8} MiB"
                   f" wall={cell['wall_seconds']}s"
