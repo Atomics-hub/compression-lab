@@ -422,8 +422,8 @@ class CleanCheckoutConfirmationTests(unittest.TestCase):
         self.freeze.write_text(
             json.dumps(
                 {
-                    "commit": self.commit,
-                    "engine_source_files": {
+                    "engine_commit": self.commit,
+                    "engine_source_sha256": {
                         relative: hashlib.sha256((ROOT / relative).read_bytes()).hexdigest()
                         for relative in files
                     },
@@ -470,8 +470,8 @@ class CleanCheckoutConfirmationTests(unittest.TestCase):
 
     def test_a_tampered_freeze_record_fails_closed(self) -> None:
         record = json.loads(self.freeze.read_bytes())
-        some_file = next(iter(record["engine_source_files"]))
-        record["engine_source_files"][some_file] = "0" * 64
+        some_file = next(iter(record["engine_source_sha256"]))
+        record["engine_source_sha256"][some_file] = "0" * 64
         self.freeze.write_text(json.dumps(record))
         scratch = self.tmp / "confirm"
         completed = subprocess.run(
