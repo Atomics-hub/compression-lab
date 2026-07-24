@@ -1,0 +1,596 @@
++ '[' -z '' ']'
++ renice -n 10 13315
+13315 (process ID) old priority 0, new priority 10
++ BUILD_TYPE=Debug
++ THIRD_PARTY_BUILD_TYPE=Release
++ ENABLE_THIN_LTO=OFF
++ USE_CLANG=1
++ POSITIONAL=()
++ [[ 1 -gt 0 ]]
++ key=-r
++ case $key in
++ BUILD_TYPE=Release
++ shift
++ [[ 0 -gt 0 ]]
++ set --
++ '[' -z 4 ']'
++ echo 'PBC Project build with parallel 4'
+PBC Project build with parallel 4
++ '[' -z '' ']'
+++ date +%Y%m%d%H%M
++ BUILD_TIMESTAMP=202607240855
++ CMAKE_FLAGS=
++ CMAKE_CXX_FLAGS=
++ LAUNCHER=
++ '[' '!' -z '' ']'
++ '[' '!' -z '' ']'
++ '[' '!' -z '' ']'
++ CMAKE_FLAGS=' -DENABLE_ASAN=OFF'
++ BUILD_DIR=build
++ '[' '!' -z 1 ']'
++ echo 'Build with Clang'
+Build with Clang
++ export CC=clang
++ CC=clang
++ export CXX=clang++
++ CXX=clang++
++ '[' '!' -z '' ']'
++ '[' '!' -f /bin/gcc ']'
++ mkdir -p /home/runner/work/_temp/pbc/third-party/build
++ pushd /home/runner/work/_temp/pbc/third-party/build
+~/work/_temp/pbc/third-party/build ~/work/_temp/pbc
++ cmake -DDOWNLOAD_DIR=/home/runner/work/_temp/pbc/third-party/downloads -DCMAKE_INSTALL_PREFIX=/home/runner/work/_temp/pbc/third-party/install -DCMAKE_CXX_COMPILER_LAUNCHER= /home/runner/work/_temp/pbc/third-party
+CMake Deprecation Warning at CMakeLists.txt:1 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+
+
+-- The C compiler identification is Clang 14.0.0
+-- The CXX compiler identification is Clang 14.0.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/clang - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/clang++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Number of online physcial CPU cores: 2
+-- Available physical memory: 15076 MB
+-- Building third party with 2 jobs
+-- Glibc version: 2.35
+CMake Warning (dev) at /usr/local/share/cmake-3.31/Modules/ExternalProject/shared_internal_commands.cmake:1276 (message):
+  The DOWNLOAD_EXTRACT_TIMESTAMP option was not given and policy CMP0135 is
+  not set.  The policy's OLD behavior will be used.  When using a URL
+  download, the timestamps of extracted files should preferably be that of
+  the time of extraction, otherwise code that depends on the extracted
+  contents might not be rebuilt if the URL changes.  The OLD behavior
+  preserves the timestamps from the archive instead, but this is usually not
+  what you want.  Update your project to the NEW behavior or specify the
+  DOWNLOAD_EXTRACT_TIMESTAMP option with a value of true to avoid this
+  robustness issue.
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.31/Modules/ExternalProject.cmake:3041 (_ep_add_download_command)
+  externals/boost.cmake:18 (ExternalProject_Add)
+  CMakeLists.txt:108 (include)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at /usr/local/share/cmake-3.31/Modules/ExternalProject.cmake:2009 (message):
+  Policy CMP0114 is not set: ExternalProject step targets fully adopt their
+  steps.  Run "cmake --help-policy CMP0114" for policy details.  Use the
+  cmake_policy command to set the policy and suppress this warning.
+
+  ExternalProject target 'boost' would depend on the targets for step(s)
+  'clean' under policy CMP0114, but this is being left out for compatibility
+  since the policy is not set.
+Call Stack (most recent call first):
+  externals/boost.cmake:73 (ExternalProject_Add_StepTargets)
+  CMakeLists.txt:108 (include)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at /usr/local/share/cmake-3.31/Modules/ExternalProject/shared_internal_commands.cmake:1276 (message):
+  The DOWNLOAD_EXTRACT_TIMESTAMP option was not given and policy CMP0135 is
+  not set.  The policy's OLD behavior will be used.  When using a URL
+  download, the timestamps of extracted files should preferably be that of
+  the time of extraction, otherwise code that depends on the extracted
+  contents might not be rebuilt if the URL changes.  The OLD behavior
+  preserves the timestamps from the archive instead, but this is usually not
+  what you want.  Update your project to the NEW behavior or specify the
+  DOWNLOAD_EXTRACT_TIMESTAMP option with a value of true to avoid this
+  robustness issue.
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.31/Modules/ExternalProject.cmake:3041 (_ep_add_download_command)
+  externals/colm.cmake:18 (ExternalProject_Add)
+  CMakeLists.txt:108 (include)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at /usr/local/share/cmake-3.31/Modules/ExternalProject.cmake:2009 (message):
+  Policy CMP0114 is not set: ExternalProject step targets fully adopt their
+  steps.  Run "cmake --help-policy CMP0114" for policy details.  Use the
+  cmake_policy command to set the policy and suppress this warning.
+
+  ExternalProject target 'colm' would depend on the targets for step(s)
+  'clean' under policy CMP0114, but this is being left out for compatibility
+  since the policy is not set.
+Call Stack (most recent call first):
+  externals/colm.cmake:50 (ExternalProject_Add_StepTargets)
+  CMakeLists.txt:108 (include)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at /usr/local/share/cmake-3.31/Modules/ExternalProject/shared_internal_commands.cmake:1276 (message):
+  The DOWNLOAD_EXTRACT_TIMESTAMP option was not given and policy CMP0135 is
+  not set.  The policy's OLD behavior will be used.  When using a URL
+  download, the timestamps of extracted files should preferably be that of
+  the time of extraction, otherwise code that depends on the extracted
+  contents might not be rebuilt if the URL changes.  The OLD behavior
+  preserves the timestamps from the archive instead, but this is usually not
+  what you want.  Update your project to the NEW behavior or specify the
+  DOWNLOAD_EXTRACT_TIMESTAMP option with a value of true to avoid this
+  robustness issue.
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.31/Modules/ExternalProject.cmake:3041 (_ep_add_download_command)
+  externals/hyperscan.cmake:28 (ExternalProject_Add)
+  CMakeLists.txt:108 (include)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at /usr/local/share/cmake-3.31/Modules/ExternalProject.cmake:2009 (message):
+  Policy CMP0114 is not set: ExternalProject step targets fully adopt their
+  steps.  Run "cmake --help-policy CMP0114" for policy details.  Use the
+  cmake_policy command to set the policy and suppress this warning.
+
+  ExternalProject target 'hyperscan' would depend on the targets for step(s)
+  'clean' under policy CMP0114, but this is being left out for compatibility
+  since the policy is not set.
+Call Stack (most recent call first):
+  externals/hyperscan.cmake:61 (ExternalProject_Add_StepTargets)
+  CMakeLists.txt:108 (include)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at /usr/local/share/cmake-3.31/Modules/ExternalProject/shared_internal_commands.cmake:1276 (message):
+  The DOWNLOAD_EXTRACT_TIMESTAMP option was not given and policy CMP0135 is
+  not set.  The policy's OLD behavior will be used.  When using a URL
+  download, the timestamps of extracted files should preferably be that of
+  the time of extraction, otherwise code that depends on the extracted
+  contents might not be rebuilt if the URL changes.  The OLD behavior
+  preserves the timestamps from the archive instead, but this is usually not
+  what you want.  Update your project to the NEW behavior or specify the
+  DOWNLOAD_EXTRACT_TIMESTAMP option with a value of true to avoid this
+  robustness issue.
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.31/Modules/ExternalProject.cmake:3041 (_ep_add_download_command)
+  externals/ragel.cmake:18 (ExternalProject_Add)
+  CMakeLists.txt:108 (include)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at /usr/local/share/cmake-3.31/Modules/ExternalProject.cmake:2009 (message):
+  Policy CMP0114 is not set: ExternalProject step targets fully adopt their
+  steps.  Run "cmake --help-policy CMP0114" for policy details.  Use the
+  cmake_policy command to set the policy and suppress this warning.
+
+  ExternalProject target 'ragel' would depend on the targets for step(s)
+  'clean' under policy CMP0114, but this is being left out for compatibility
+  since the policy is not set.
+Call Stack (most recent call first):
+  externals/ragel.cmake:50 (ExternalProject_Add_StepTargets)
+  CMakeLists.txt:108 (include)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at /usr/local/share/cmake-3.31/Modules/ExternalProject/shared_internal_commands.cmake:1276 (message):
+  The DOWNLOAD_EXTRACT_TIMESTAMP option was not given and policy CMP0135 is
+  not set.  The policy's OLD behavior will be used.  When using a URL
+  download, the timestamps of extracted files should preferably be that of
+  the time of extraction, otherwise code that depends on the extracted
+  contents might not be rebuilt if the URL changes.  The OLD behavior
+  preserves the timestamps from the archive instead, but this is usually not
+  what you want.  Update your project to the NEW behavior or specify the
+  DOWNLOAD_EXTRACT_TIMESTAMP option with a value of true to avoid this
+  robustness issue.
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.31/Modules/ExternalProject.cmake:3041 (_ep_add_download_command)
+  externals/zstd.cmake:19 (ExternalProject_Add)
+  CMakeLists.txt:108 (include)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at /usr/local/share/cmake-3.31/Modules/ExternalProject.cmake:2009 (message):
+  Policy CMP0114 is not set: ExternalProject step targets fully adopt their
+  steps.  Run "cmake --help-policy CMP0114" for policy details.  Use the
+  cmake_policy command to set the policy and suppress this warning.
+
+  ExternalProject target 'zstd' would depend on the targets for step(s)
+  'clean' under policy CMP0114, but this is being left out for compatibility
+  since the policy is not set.
+Call Stack (most recent call first):
+  externals/zstd.cmake:50 (ExternalProject_Add_StepTargets)
+  CMakeLists.txt:108 (include)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at /usr/local/share/cmake-3.31/Modules/ExternalProject/shared_internal_commands.cmake:1276 (message):
+  The DOWNLOAD_EXTRACT_TIMESTAMP option was not given and policy CMP0135 is
+  not set.  The policy's OLD behavior will be used.  When using a URL
+  download, the timestamps of extracted files should preferably be that of
+  the time of extraction, otherwise code that depends on the extracted
+  contents might not be rebuilt if the URL changes.  The OLD behavior
+  preserves the timestamps from the archive instead, but this is usually not
+  what you want.  Update your project to the NEW behavior or specify the
+  DOWNLOAD_EXTRACT_TIMESTAMP option with a value of true to avoid this
+  robustness issue.
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.31/Modules/ExternalProject.cmake:3041 (_ep_add_download_command)
+  externals/gflags.cmake:17 (ExternalProject_Add)
+  CMakeLists.txt:108 (include)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at /usr/local/share/cmake-3.31/Modules/ExternalProject.cmake:2009 (message):
+  Policy CMP0114 is not set: ExternalProject step targets fully adopt their
+  steps.  Run "cmake --help-policy CMP0114" for policy details.  Use the
+  cmake_policy command to set the policy and suppress this warning.
+
+  ExternalProject target 'gflags' would depend on the targets for step(s)
+  'clean' under policy CMP0114, but this is being left out for compatibility
+  since the policy is not set.
+Call Stack (most recent call first):
+  externals/gflags.cmake:47 (ExternalProject_Add_StepTargets)
+  CMakeLists.txt:108 (include)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at /usr/local/share/cmake-3.31/Modules/ExternalProject/shared_internal_commands.cmake:1276 (message):
+  The DOWNLOAD_EXTRACT_TIMESTAMP option was not given and policy CMP0135 is
+  not set.  The policy's OLD behavior will be used.  When using a URL
+  download, the timestamps of extracted files should preferably be that of
+  the time of extraction, otherwise code that depends on the extracted
+  contents might not be rebuilt if the URL changes.  The OLD behavior
+  preserves the timestamps from the archive instead, but this is usually not
+  what you want.  Update your project to the NEW behavior or specify the
+  DOWNLOAD_EXTRACT_TIMESTAMP option with a value of true to avoid this
+  robustness issue.
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.31/Modules/ExternalProject.cmake:3041 (_ep_add_download_command)
+  externals/googletest.cmake:17 (ExternalProject_Add)
+  CMakeLists.txt:108 (include)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at /usr/local/share/cmake-3.31/Modules/ExternalProject.cmake:2009 (message):
+  Policy CMP0114 is not set: ExternalProject step targets fully adopt their
+  steps.  Run "cmake --help-policy CMP0114" for policy details.  Use the
+  cmake_policy command to set the policy and suppress this warning.
+
+  ExternalProject target 'googletest' would depend on the targets for step(s)
+  'clean' under policy CMP0114, but this is being left out for compatibility
+  since the policy is not set.
+Call Stack (most recent call first):
+  externals/googletest.cmake:46 (ExternalProject_Add_StepTargets)
+  CMakeLists.txt:108 (include)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at /usr/local/share/cmake-3.31/Modules/ExternalProject/shared_internal_commands.cmake:1276 (message):
+  The DOWNLOAD_EXTRACT_TIMESTAMP option was not given and policy CMP0135 is
+  not set.  The policy's OLD behavior will be used.  When using a URL
+  download, the timestamps of extracted files should preferably be that of
+  the time of extraction, otherwise code that depends on the extracted
+  contents might not be rebuilt if the URL changes.  The OLD behavior
+  preserves the timestamps from the archive instead, but this is usually not
+  what you want.  Update your project to the NEW behavior or specify the
+  DOWNLOAD_EXTRACT_TIMESTAMP option with a value of true to avoid this
+  robustness issue.
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.31/Modules/ExternalProject.cmake:3041 (_ep_add_download_command)
+  externals/cereal.cmake:17 (ExternalProject_Add)
+  CMakeLists.txt:108 (include)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at /usr/local/share/cmake-3.31/Modules/ExternalProject.cmake:2009 (message):
+  Policy CMP0114 is not set: ExternalProject step targets fully adopt their
+  steps.  Run "cmake --help-policy CMP0114" for policy details.  Use the
+  cmake_policy command to set the policy and suppress this warning.
+
+  ExternalProject target 'cereal' would depend on the targets for step(s)
+  'clean' under policy CMP0114, but this is being left out for compatibility
+  since the policy is not set.
+Call Stack (most recent call first):
+  externals/cereal.cmake:45 (ExternalProject_Add_StepTargets)
+  CMakeLists.txt:108 (include)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Configuring done (2.5s)
+-- Generating done (0.0s)
+-- Build files have been written to: /home/runner/work/_temp/pbc/third-party/build
++ make -j4
+[  1%] Creating directories for 'boost'
+[  3%] Creating directories for 'colm'
+[  5%] Creating directories for 'gflags'
+[  6%] Creating directories for 'zstd'
+[  8%] Performing download step (download, verify and extract) for 'boost'
+[ 10%] Performing download step (download, verify and extract) for 'gflags'
+[ 12%] Performing download step (download, verify and extract) for 'colm'
+[ 12%] Performing download step (download, verify and extract) for 'zstd'
+-- Downloading...
+   dst='/home/runner/work/_temp/pbc/third-party/downloads/boost_1_67_0.tar.gz'
+   timeout='120 seconds'
+   inactivity timeout='none'
+-- Downloading...
+   dst='/home/runner/work/_temp/pbc/third-party/downloads/gflags-2.2.1.tar.gz'
+   timeout='120 seconds'
+   inactivity timeout='none'
+-- Using src='https://github.com/gflags/gflags/archive/refs/tags/v2.2.1.tar.gz'
+-- Downloading...
+   dst='/home/runner/work/_temp/pbc/third-party/downloads/archive.tar'
+   timeout='120 seconds'
+   inactivity timeout='none'
+-- Downloading...
+   dst='/home/runner/work/_temp/pbc/third-party/downloads/zstd-1.4.3.tar.gz'
+   timeout='120 seconds'
+   inactivity timeout='none'
+-- Using src='https://codeload.github.com/adrian-thurston/colm-suite/tar.gz/e88bda068d4a25f2afa7f48821e0f539405c8c6a'
+-- Using src='https://archives.boost.io/release/1.67.0/source/boost_1_67_0.tar.gz'
+-- Using src='https://github.com/facebook/zstd/releases/download/v1.4.3/zstd-1.4.3.tar.gz'
+-- verifying file...
+       file='/home/runner/work/_temp/pbc/third-party/downloads/gflags-2.2.1.tar.gz'
+-- Downloading... done
+-- extracting...
+     src='/home/runner/work/_temp/pbc/third-party/downloads/gflags-2.2.1.tar.gz'
+     dst='/home/runner/work/_temp/pbc/third-party/build/gflags/source'
+-- extracting... [tar xfz]
+-- verifying file...
+       file='/home/runner/work/_temp/pbc/third-party/downloads/zstd-1.4.3.tar.gz'
+-- extracting... [analysis]
+-- extracting... [rename]
+-- extracting... [clean up]
+-- extracting... done
+-- Downloading... done
+[ 13%] No update step for 'gflags'
+-- extracting...
+     src='/home/runner/work/_temp/pbc/third-party/downloads/zstd-1.4.3.tar.gz'
+     dst='/home/runner/work/_temp/pbc/third-party/build/zstd/source'
+-- extracting... [tar xfz]
+[ 15%] No patch step for 'gflags'
+[ 15%] Performing configure step for 'gflags'
+-- extracting... [analysis]
+-- extracting... [rename]
+-- extracting... [clean up]
+-- extracting... done
+[ 17%] No update step for 'zstd'
+[ 18%] No patch step for 'zstd'
+[ 20%] Performing configure step for 'zstd'
+-- zstd configure command succeeded.  See also /home/runner/work/_temp/pbc/third-party/build/build-info/zstd-configure-*.log
+[ 22%] Performing build step for 'zstd'
+-- verifying file...
+       file='/home/runner/work/_temp/pbc/third-party/downloads/archive.tar'
+-- Downloading... done
+-- extracting...
+     src='/home/runner/work/_temp/pbc/third-party/downloads/archive.tar'
+     dst='/home/runner/work/_temp/pbc/third-party/build/colm/source'
+-- extracting... [tar xf]
+-- extracting... [analysis]
+-- extracting... [rename]
+-- extracting... [clean up]
+-- extracting... done
+[ 24%] No update step for 'colm'
+[ 25%] No patch step for 'colm'
+[ 27%] Performing configure step for 'colm'
+-- verifying file...
+       file='/home/runner/work/_temp/pbc/third-party/downloads/boost_1_67_0.tar.gz'
+-- Downloading... done
+-- extracting...
+     src='/home/runner/work/_temp/pbc/third-party/downloads/boost_1_67_0.tar.gz'
+     dst='/home/runner/work/_temp/pbc/third-party/build/boost/source'
+-- extracting... [tar xfz]
+-- gflags configure command succeeded.  See also /home/runner/work/_temp/pbc/third-party/build/build-info/gflags-configure-*.log
+[ 29%] Performing build step for 'gflags'
+-- extracting... [analysis]
+-- extracting... [rename]
+-- extracting... [clean up]
+-- extracting... done
+[ 31%] No update step for 'boost'
+[ 32%] No patch step for 'boost'
+[ 34%] Performing configure step for 'boost'
+-- gflags build command succeeded.  See also /home/runner/work/_temp/pbc/third-party/build/build-info/gflags-build-*.log
+[ 36%] Performing install step for 'gflags'
+-- gflags install command succeeded.  See also /home/runner/work/_temp/pbc/third-party/build/build-info/gflags-install-*.log
+[ 37%] Completed 'gflags'
+[ 37%] Built target gflags
+[ 39%] Creating directories for 'googletest'
+[ 41%] Performing download step (download, verify and extract) for 'googletest'
+-- Downloading...
+   dst='/home/runner/work/_temp/pbc/third-party/downloads/googletest-1.12.1.tar.gz'
+   timeout='120 seconds'
+   inactivity timeout='none'
+-- Using src='https://github.com/google/googletest/archive/refs/tags/release-1.12.1.tar.gz'
+-- verifying file...
+       file='/home/runner/work/_temp/pbc/third-party/downloads/googletest-1.12.1.tar.gz'
+-- Downloading... done
+-- extracting...
+     src='/home/runner/work/_temp/pbc/third-party/downloads/googletest-1.12.1.tar.gz'
+     dst='/home/runner/work/_temp/pbc/third-party/build/googletest/source'
+-- extracting... [tar xfz]
+-- extracting... [analysis]
+-- extracting... [rename]
+-- extracting... [clean up]
+-- extracting... done
+[ 43%] No update step for 'googletest'
+[ 44%] No patch step for 'googletest'
+[ 44%] Performing configure step for 'googletest'
+-- googletest configure command succeeded.  See also /home/runner/work/_temp/pbc/third-party/build/build-info/googletest-configure-*.log
+[ 46%] Performing build step for 'googletest'
+-- boost configure command succeeded.  See also /home/runner/work/_temp/pbc/third-party/build/build-info/boost-configure-*.log
+[ 48%] Performing setup-compiler step for 'boost'
+[ 50%] Performing build step for 'boost'
+-- googletest build command succeeded.  See also /home/runner/work/_temp/pbc/third-party/build/build-info/googletest-build-*.log
+[ 51%] Performing install step for 'googletest'
+-- googletest install command succeeded.  See also /home/runner/work/_temp/pbc/third-party/build/build-info/googletest-install-*.log
+[ 53%] Completed 'googletest'
+[ 53%] Built target googletest
+[ 55%] Creating directories for 'cereal'
+[ 56%] Performing download step (download, verify and extract) for 'cereal'
+-- Downloading...
+   dst='/home/runner/work/_temp/pbc/third-party/downloads/cereal-1.3.2.tar.gz'
+   timeout='120 seconds'
+   inactivity timeout='none'
+-- Using src='https://github.com/USCiLab/cereal/archive/refs/tags/v1.3.2.tar.gz'
+-- verifying file...
+       file='/home/runner/work/_temp/pbc/third-party/downloads/cereal-1.3.2.tar.gz'
+-- Downloading... done
+-- extracting...
+     src='/home/runner/work/_temp/pbc/third-party/downloads/cereal-1.3.2.tar.gz'
+     dst='/home/runner/work/_temp/pbc/third-party/build/cereal/source'
+-- extracting... [tar xfz]
+-- extracting... [analysis]
+-- extracting... [rename]
+-- extracting... [clean up]
+-- extracting... done
+[ 58%] No update step for 'cereal'
+[ 60%] No patch step for 'cereal'
+[ 62%] No configure step for 'cereal'
+[ 63%] No build step for 'cereal'
+[ 65%] Performing install step for 'cereal'
+-- cereal install command succeeded.  See also /home/runner/work/_temp/pbc/third-party/build/build-info/cereal-install-*.log
+[ 67%] Completed 'cereal'
+[ 67%] Built target cereal
+-- colm configure command succeeded.  See also /home/runner/work/_temp/pbc/third-party/build/build-info/colm-configure-*.log
+[ 68%] Performing build step for 'colm'
+-- zstd build command succeeded.  See also /home/runner/work/_temp/pbc/third-party/build/build-info/zstd-build-*.log
+[ 70%] Performing install step for 'zstd'
+-- zstd install command succeeded.  See also /home/runner/work/_temp/pbc/third-party/build/build-info/zstd-install-*.log
+[ 70%] Completed 'zstd'
+[ 70%] Built target zstd
+-- colm build command succeeded.  See also /home/runner/work/_temp/pbc/third-party/build/build-info/colm-build-*.log
+[ 72%] Performing install step for 'colm'
+-- colm install command succeeded.  See also /home/runner/work/_temp/pbc/third-party/build/build-info/colm-install-*.log
+[ 74%] Completed 'colm'
+[ 74%] Built target colm
+[ 75%] Creating directories for 'ragel'
+[ 77%] Performing download step (download, verify and extract) for 'ragel'
+-- Downloading...
+   dst='/home/runner/work/_temp/pbc/third-party/downloads/7.0.4.tar.gz'
+   timeout='120 seconds'
+   inactivity timeout='none'
+-- Using src='https://github.com/adrian-thurston/ragel/archive/refs/tags/7.0.4.tar.gz'
+-- verifying file...
+       file='/home/runner/work/_temp/pbc/third-party/downloads/7.0.4.tar.gz'
+-- Downloading... done
+-- extracting...
+     src='/home/runner/work/_temp/pbc/third-party/downloads/7.0.4.tar.gz'
+     dst='/home/runner/work/_temp/pbc/third-party/build/ragel/source'
+-- extracting... [tar xfz]
+-- extracting... [analysis]
+-- extracting... [rename]
+-- extracting... [clean up]
+-- extracting... done
+[ 79%] No update step for 'ragel'
+[ 81%] No patch step for 'ragel'
+[ 82%] Performing configure step for 'ragel'
+-- ragel configure command succeeded.  See also /home/runner/work/_temp/pbc/third-party/build/build-info/ragel-configure-*.log
+[ 82%] Performing build step for 'ragel'
+-- ragel build command succeeded.  See also /home/runner/work/_temp/pbc/third-party/build/build-info/ragel-build-*.log
+[ 84%] Performing install step for 'ragel'
+-- ragel install command succeeded.  See also /home/runner/work/_temp/pbc/third-party/build/build-info/ragel-install-*.log
+[ 86%] Completed 'ragel'
+[ 86%] Built target ragel
+-- boost build command succeeded.  See also /home/runner/work/_temp/pbc/third-party/build/build-info/boost-build-*.log
+[ 87%] No install step for 'boost'
+[ 87%] Completed 'boost'
+[ 87%] Built target boost
+[ 89%] Creating directories for 'hyperscan'
+[ 91%] Performing download step (download, verify and extract) for 'hyperscan'
+-- Downloading...
+   dst='/home/runner/work/_temp/pbc/third-party/downloads/hyperscan_x86_64.tar.gz'
+   timeout='120 seconds'
+   inactivity timeout='none'
+-- Using src='https://github.com/intel/hyperscan/archive/refs/tags/v5.4.2.tar.gz'
+-- verifying file...
+       file='/home/runner/work/_temp/pbc/third-party/downloads/hyperscan_x86_64.tar.gz'
+-- Downloading... done
+-- extracting...
+     src='/home/runner/work/_temp/pbc/third-party/downloads/hyperscan_x86_64.tar.gz'
+     dst='/home/runner/work/_temp/pbc/third-party/build/hyperscan/source'
+-- extracting... [tar xfz]
+-- extracting... [analysis]
+-- extracting... [rename]
+-- extracting... [clean up]
+-- extracting... done
+[ 93%] No update step for 'hyperscan'
+[ 94%] No patch step for 'hyperscan'
+[ 96%] Performing configure step for 'hyperscan'
+-- hyperscan configure command succeeded.  See also /home/runner/work/_temp/pbc/third-party/build/build-info/hyperscan-configure-*.log
+[ 96%] Performing build step for 'hyperscan'
+-- hyperscan build command succeeded.  See also /home/runner/work/_temp/pbc/third-party/build/build-info/hyperscan-build-*.log
+[ 98%] Performing install step for 'hyperscan'
+-- hyperscan install command succeeded.  See also /home/runner/work/_temp/pbc/third-party/build/build-info/hyperscan-install-*.log
+[100%] Completed 'hyperscan'
+[100%] Built target hyperscan
++ popd
+~/work/_temp/pbc
++ '[' '!' -z '' ']'
++ echo 'building pbc...'
+building pbc...
++ mkdir -p /home/runner/work/_temp/pbc/build
++ pushd /home/runner/work/_temp/pbc/build
+~/work/_temp/pbc/build ~/work/_temp/pbc
++ cmake -DCMAKE_BUILD_TYPE=Release -DENABLE_ASAN=OFF -DCMAKE_C_FLAGS= -DCMAKE_CXX_FLAGS= -DCMAKE_CXX_COMPILER_LAUNCHER= -DENABLE_THIN_LTO=OFF ..
+CMake Deprecation Warning at CMakeLists.txt:1 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+
+
+-- The C compiler identification is Clang 14.0.0
+-- The CXX compiler identification is Clang 14.0.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/clang - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/clang++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Architecture: x86_64
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+-- Configuring done (0.7s)
+-- Generating done (0.0s)
+-- Build files have been written to: /home/runner/work/_temp/pbc/build
++ make -j4
+[  7%] Building CXX object src/deps/fsst/CMakeFiles/pbc_fsst.dir/libfsst.cpp.o
+[  7%] Building C object src/deps/fse/CMakeFiles/pbc_fse.dir/debug.c.o
+[ 14%] Building CXX object src/deps/fsst/CMakeFiles/pbc_fsst.dir/fsst_avx512.cpp.o
+[ 14%] Building C object src/deps/fse/CMakeFiles/pbc_fse.dir/entropy_common.c.o
+[ 17%] Building C object src/deps/fse/CMakeFiles/pbc_fse.dir/fseU16.c.o
+[ 21%] Building C object src/deps/fse/CMakeFiles/pbc_fse.dir/fse_compress.c.o
+[ 25%] Building C object src/deps/fse/CMakeFiles/pbc_fse.dir/fse_decompress.c.o
+[ 28%] Building C object src/deps/fse/CMakeFiles/pbc_fse.dir/hist.c.o
+[ 32%] Building C object src/deps/fse/CMakeFiles/pbc_fse.dir/huf_compress.c.o
+[ 35%] Building C object src/deps/fse/CMakeFiles/pbc_fse.dir/huf_decompress.c.o
+[ 39%] Linking CXX static library libpbc_fsst.a
+[ 39%] Built target pbc_fsst
+[ 42%] Linking C static library libpbc_fse.a
+[ 42%] Built target pbc_fse
+[ 46%] Building CXX object src/CMakeFiles/pbc_lib.dir/common/utils.cc.o
+[ 50%] Building CXX object src/CMakeFiles/pbc_lib.dir/compress-c.cc.o
+[ 53%] Building CXX object src/CMakeFiles/pbc_lib.dir/compress/compress.cc.o
+[ 57%] Building CXX object src/CMakeFiles/pbc_lib.dir/compress/compress_factory.cc.o
+[ 60%] Building CXX object src/CMakeFiles/pbc_lib.dir/compress/pbc_fse_compress.cc.o
+[ 64%] Building CXX object src/CMakeFiles/pbc_lib.dir/compress/pbc_fsst_compress.cc.o
+[ 67%] Building CXX object src/CMakeFiles/pbc_lib.dir/compress/pbc_only_compress.cc.o
+[ 71%] Building CXX object src/CMakeFiles/pbc_lib.dir/compress/pbc_zstd_compress.cc.o
+[ 75%] Building CXX object src/CMakeFiles/pbc_lib.dir/train/pbc_train.cc.o
+[ 78%] Building CXX object src/CMakeFiles/pbc_lib.dir/train/thread_pool.cc.o
+[ 82%] Linking CXX static library libpbc.a
+[ 82%] Built target pbc_lib
+[ 89%] Building CXX object src/CMakeFiles/pbc_test.dir/unit_test/test_main.cc.o
+[ 89%] Building CXX object src/CMakeFiles/pbc.dir/tools/pbc.cc.o
+[ 92%] Building CXX object src/CMakeFiles/pbc_test.dir/unit_test/test_pbc.cc.o
+[ 96%] Linking CXX executable /home/runner/work/_temp/pbc/bin/pbc
+[ 96%] Built target pbc
+[100%] Linking CXX executable /home/runner/work/_temp/pbc/bin/pbc_test
+[100%] Built target pbc_test

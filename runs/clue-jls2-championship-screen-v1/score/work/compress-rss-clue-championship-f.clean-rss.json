@@ -1,0 +1,19 @@
+{
+  "schema": "clean-rss-measurement-v1",
+  "command": [
+    "/opt/hostedtoolcache/Python/3.12.13/x64/bin/python",
+    "/home/runner/work/compression-lab/compression-lab/scripts/jls2-candidate-compress-v2.py",
+    "--source",
+    "/home/runner/work/_temp/clue-championship/clue-championship-f.jsonl",
+    "--destination",
+    "/home/runner/work/_temp/clue-jls2-championship-screen-v1/score/work/compress-rss-clue-championship-f.jls2"
+  ],
+  "exit_code": 0,
+  "platform": "linux",
+  "maxrss_raw": 302688,
+  "maxrss_bytes": 309952512,
+  "shim_maxrss_bytes": 13520896,
+  "wall_ns": 429022385,
+  "user_seconds": 0.6793629999999999,
+  "system_seconds": 0.14638299999999999
+}

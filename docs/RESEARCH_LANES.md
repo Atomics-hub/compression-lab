@@ -78,21 +78,34 @@ or changes status. Status date: 2026-07-23.
   `docs/benchmarks/2026-07-24-jls2-private-holdout-readiness-v1.md`; blockers are
   unexecuted dedicated-machine reproduction and Kanzi/ZPAQ never run in a frozen
   championship protocol. Acquisition stays owner-dispatched and one-way.
-- **Championship screen (owner-dispatched 2026-07-25, FROZEN, not executed):**
-  a freeze-first, one-shot public championship screen answering "does JLS2 beat
-  Kanzi-max and ZPAQ -method 54 on two fresh unopened CLUE-LDS ranges?" on
-  `clue-championship-e` (15,000,001–15,250,000) and `clue-championship-f`
-  (32,000,001–32,250,000). Protocol
-  `docs/benchmarks/2026-07-25-clue-jls2-championship-screen-protocol.md`; gates
-  `config/clue-jls2-championship-screen-v1-gates.json`; frozen integer reducer
-  `scripts/reduce-clue-jls2-championship-screen-v1.py` (contender iff JLS2 * 100 <=
-  95 * strongest eligible, equality passes, per-family + per-item + all JLS2 gates,
-  Kanzi and ZPAQ both valid). kanzi-max and zpaq-5-m54 are eligible byte opponents
-  regardless of their own RSS; -method 510 (1272.1 MiB decode) contextual only;
-  ZPAQ per-item wall frozen at 1800 s (JLS2 keeps the v2 1800 s wall). This screen
-  reads no corpus data at freeze, does NOT touch the v1 not_passed or v2 passed
-  records, is NOT charged against the moon 160-run ledger, and does not authorize
-  the private holdout. Acquisition/scoring stay owner-dispatched and one-way.
+- **Championship screen — PUBLISHED not_contender (2026-07-25).** The frozen
+  one-shot specialist screen ("does JLS2 beat Kanzi-max and ZPAQ -method 54 on two
+  fresh unopened CLUE-LDS ranges `clue-championship-e` 15,000,001–15,250,000 and
+  `clue-championship-f` 32,000,001–32,250,000?") completed on attempt 3 (run
+  30080444891, head `850cb63`) and the frozen reducer decided **not_contender**.
+  JLS2 aggregate 4,323,039 B vs the strongest eligible valid opponent zpaq-5-m54
+  1,540,588 B — **2.81× larger** (2.82× family e, 2.55× family f), and JLS2 breaches
+  its own 512 MiB compression-memory gate on the heavy-record family e (645,296,128 B
+  / 615.4 MiB). The result is overdetermined: JLS2's own memory-gate failure AND
+  outright per-family + aggregate losses to zpaq-m54 (and to brotli-11/zstd-22/7zip-9
+  on aggregate + family e). JLS2 beat only PBC (everywhere) and the LZMA/Brotli
+  standards on family f. kanzi-max was an **invalid-tool-failure** (exit 127 in ~1 ms,
+  a runner-binary spawn/loader failure — an infrastructure failure, not a Kanzi
+  result; Kanzi remains unmeasured here) and xz-lzma2-9e an invalid-tool-failure
+  (harness restore-path defect); neither counts as beaten or beating. Re-acquisition
+  byte-identical to attempt 2 (e `9197e1ae…`, f `ff84d870…`; all 14 SHA256SUMS verify;
+  the frozen evaluator recomputed offline reproduces the decision). Evidence sealed
+  under `runs/clue-jls2-championship-screen-v1/` (+ `decision-recomputed.json`
+  independent-recomputation receipt); results
+  `docs/benchmarks/2026-07-25-clue-jls2-championship-screen-results.md`; protocol +
+  verbatim helm ruling + attempts 1/2/3 in
+  `docs/benchmarks/2026-07-25-clue-jls2-championship-screen-protocol.md`. The v2
+  category-scoped pass against the standard roster is unchanged and immutable, scoped
+  to its claim ceiling; this screen answers the specialist question and the answer is
+  that JLS2 does not beat ZPAQ-class compression on fresh CLUE ranges. **The JSON/log
+  lane's next algorithmic work moves to the private laboratory per Tom's
+  authorization** — no mechanism details in this public repo. Not charged against the
+  moon 160-run ledger.
 - **Corollary:** the A2 context-reuse and inline-single-worker "no effect"
   results likely compared polluted readings against polluted readings;
   reread before citing them, pending confirmation of each run's exact
