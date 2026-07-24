@@ -1,0 +1,86 @@
++++ dirname /home/runner/work/_temp/pbc/run_tests.sh
+++ cd /home/runner/work/_temp/pbc/.
+++ pwd
++ PBC_HOME=/home/runner/work/_temp/pbc
++ POSITIONAL=()
++ [[ 1 -gt 0 ]]
++ key=--pbc-integration-test
++ case $key in
++ PBC_INTEGRATION_TEST=1
++ shift
++ [[ 0 -gt 0 ]]
++ set --
++ '[' '!' -z '' ']'
++ '[' '!' -z '' ']'
++ '[' '!' -z '' ']'
++ BUILD_DIR=build
++ '[' -z '' ']'
++ export GTEST_LOG_OUTPUT_DIR=/home/runner/work/_temp/pbc/testresult
++ GTEST_LOG_OUTPUT_DIR=/home/runner/work/_temp/pbc/testresult
++ mkdir -p /home/runner/work/_temp/pbc/testresult
++ '[' -z '' ']'
++ export GTEST_OUTPUT=xml:/home/runner/work/_temp/pbc/testresult/gtest/
++ GTEST_OUTPUT=xml:/home/runner/work/_temp/pbc/testresult/gtest/
++ mkdir -p /home/runner/work/_temp/pbc/testresult/gtest/
++ cp /home/runner/work/_temp/pbc/dataset/Apache /home/runner/work/_temp/pbc/dataset/test_data
++ echo 'unit testing...'
+unit testing...
++ pushd /home/runner/work/_temp/pbc/build
+~/work/_temp/pbc/build ~/work/compression-lab/compression-lab
++ UNIT_TEST_TIMEOUT=2400
++ timeout 2400 ctest CTEST_OUTPUT_ON_FAILURE -j 4
++ tee /home/runner/work/_temp/pbc/testresult/unit_tests_summary.log
+Test project /home/runner/work/_temp/pbc/build
+    Start 1: pbc_test
+1/1 Test #1: pbc_test .........................   Passed   38.11 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =  38.14 sec
++ [[ ! -z /home/runner/work/_temp/pbc/testresult ]]
++ cp Testing/Temporary/LastTest.log /home/runner/work/_temp/pbc/testresult/unit_tests_details.log
++ grep -q '0 tests failed out' /home/runner/work/_temp/pbc/testresult/unit_tests_summary.log
++ echo 'unit tests passed'
+unit tests passed
++ popd
+~/work/compression-lab/compression-lab
++ [[ ! -z 1 ]]
++ echo 'run pbc integration test'
+run pbc integration test
++ bash /home/runner/work/_temp/pbc/integration_test.sh
++ set -e
++++ dirname /home/runner/work/_temp/pbc/integration_test.sh
+++ cd /home/runner/work/_temp/pbc/.
+++ pwd
++ PBC_HOME=/home/runner/work/_temp/pbc
++ PBC_INTEGRATION_TEST_DIR=/home/runner/work/_temp/pbc/testresult/integration_test
+++ date +%Y%m%d%H%M
++ date_time=202607240028
++ TRAIN_PATTERN_LOG=/home/runner/work/_temp/pbc/testresult/integration_test/train_pattern.log.202607240028
++ TEST_COMPRESS_LOG=/home/runner/work/_temp/pbc/testresult/integration_test/test_compress.log.202607240028
++ COMPRESS_LOG=/home/runner/work/_temp/pbc/testresult/integration_test/compress.log.202607240028
++ DECOMPRESS_LOG=/home/runner/work/_temp/pbc/testresult/integration_test/decompress.log.202607240028
++ mkdir -p /home/runner/work/_temp/pbc/testresult/integration_test
++ cp /home/runner/work/_temp/pbc/dataset/Apache /home/runner/work/_temp/pbc/testresult/integration_test/test_data
++ echo 'run pbc integration test'
+run pbc integration test
++ /home/runner/work/_temp/pbc/bin/pbc --train-pattern -i /home/runner/work/_temp/pbc/testresult/integration_test/test_data -p /home/runner/work/_temp/pbc/testresult/integration_test/test_data_2000_100_pbc_only --compress-method pbc_only --pattern-size 100 --train-data-number 2000 --train-thread-num 64
++ /home/runner/work/_temp/pbc/bin/pbc --train-pattern -i /home/runner/work/_temp/pbc/testresult/integration_test/test_data -p /home/runner/work/_temp/pbc/testresult/integration_test/test_data_2000_100_pbc_fse --compress-method pbc_fse --pattern-size 100 --train-data-number 2000 --train-thread-num 64
++ /home/runner/work/_temp/pbc/bin/pbc --train-pattern -i /home/runner/work/_temp/pbc/testresult/integration_test/test_data -p /home/runner/work/_temp/pbc/testresult/integration_test/test_data_2000_100_pbc_fsst --compress-method pbc_fsst --pattern-size 100 --train-data-number 2000 --train-thread-num 64
++ /home/runner/work/_temp/pbc/bin/pbc --train-pattern -i /home/runner/work/_temp/pbc/testresult/integration_test/test_data -p /home/runner/work/_temp/pbc/testresult/integration_test/test_data_2000_100_pbc_zstd --compress-method pbc_zstd --pattern-size 100 --train-data-number 2000 --train-thread-num 64
++ /home/runner/work/_temp/pbc/bin/pbc --test-compress -i /home/runner/work/_temp/pbc/testresult/integration_test/test_data -p /home/runner/work/_temp/pbc/testresult/integration_test/test_data_2000_100_pbc_only --compress-method pbc_only
++ /home/runner/work/_temp/pbc/bin/pbc --test-compress -i /home/runner/work/_temp/pbc/testresult/integration_test/test_data -p /home/runner/work/_temp/pbc/testresult/integration_test/test_data_2000_100_pbc_fse --compress-method pbc_fse
++ /home/runner/work/_temp/pbc/bin/pbc --test-compress -i /home/runner/work/_temp/pbc/testresult/integration_test/test_data -p /home/runner/work/_temp/pbc/testresult/integration_test/test_data_2000_100_pbc_fsst --compress-method pbc_fsst
++ /home/runner/work/_temp/pbc/bin/pbc --test-compress -i /home/runner/work/_temp/pbc/testresult/integration_test/test_data -p /home/runner/work/_temp/pbc/testresult/integration_test/test_data_2000_100_pbc_zstd --compress-method pbc_zstd
++ /home/runner/work/_temp/pbc/bin/pbc -c -i /home/runner/work/_temp/pbc/testresult/integration_test/test_data -p /home/runner/work/_temp/pbc/testresult/integration_test/test_data_2000_100_pbc_only -o /home/runner/work/_temp/pbc/testresult/integration_test/test_data_2000_100_pbc_only_compress
++ /home/runner/work/_temp/pbc/bin/pbc -d -i /home/runner/work/_temp/pbc/testresult/integration_test/test_data_2000_100_pbc_only_compress -p /home/runner/work/_temp/pbc/testresult/integration_test/test_data_2000_100_pbc_only -o /home/runner/work/_temp/pbc/testresult/integration_test/test_data_2000_100_pbc_only_decompress
++ cat /home/runner/work/_temp/pbc/testresult/integration_test/test_data
++ /home/runner/work/_temp/pbc/bin/pbc -c -p /home/runner/work/_temp/pbc/testresult/integration_test/test_data_2000_100_pbc_only
++ gzip -c
++ gzip -c -d
++ /home/runner/work/_temp/pbc/bin/pbc -d -p /home/runner/work/_temp/pbc/testresult/integration_test/test_data_2000_100_pbc_only -o /home/runner/work/_temp/pbc/testresult/integration_test/test_data_2000_100_pbc_only_decompress2
++ cmp /home/runner/work/_temp/pbc/testresult/integration_test/test_data /home/runner/work/_temp/pbc/testresult/integration_test/test_data_2000_100_pbc_only_decompress
++ cmp /home/runner/work/_temp/pbc/testresult/integration_test/test_data /home/runner/work/_temp/pbc/testresult/integration_test/test_data_2000_100_pbc_only_decompress2
++ set +e
++ set +x
++ '[' 0 -ne 0 ']'

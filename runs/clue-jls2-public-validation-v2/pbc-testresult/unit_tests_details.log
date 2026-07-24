@@ -1,0 +1,789 @@
+Start testing: Jul 24 00:27 UTC
+----------------------------------------------------------
+1/1 Testing: pbc_test
+1/1 Test: pbc_test
+Command: "/home/runner/work/_temp/pbc/bin/pbc_test" "--dataset_path=/home/runner/work/_temp/pbc/dataset/"
+Directory: /home/runner/work/_temp/pbc/build/src
+"pbc_test" start time: Jul 24 00:27 UTC
+Output:
+----------------------------------------------------------
+Running main() from /home/runner/work/_temp/pbc/src/unit_test/test_main.cc
+[==========] Running 3 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 3 tests from PBC_CompressionTest
+[ RUN      ] PBC_CompressionTest.GivenDatasets
+[INFO]total data number: 56482
+[INFO]train data number: 565
+[INFO]start pretrain: current pattern_num = 565
+[INFO]end pretrain: current pattern_num = 373, cost time = 0.000301888s.
+[INFO]------------ compute minimal encoding length ------------
+[INFO]init pattern count:373
+[INFO]---------------------------------------------------------
+
+[INFO]ComputeTotalMinValueTable_time=0.645099
+[INFO]------------ merge pattern ---------------
+[INFO]init pattern count:373
+[INFO]target pattern num:50
+[INFO]------------------------------------------
+[INFO]actual pattern num : 40
+[INFO]ComputeTotalMinValueTable_time=0.645099s,UpdateMinValueTable_time=1.03062s,MergePattern_time=0.0127905s,GetMinValue_time=0.402777s,CreateSecondaryEncoderData_time=2.3e-07s.
+[INFO]Compress Method : 0
+[INFO]Test Set Compression ratio: 0.22509
+[INFO]compress_pbc_only rate : 0.976647
+[INFO]compress_secondary_only rate : 0
+[INFO]compress_pbc_combined rate : 0
+[INFO]compress_failed rate : 0.0233526
+[INFO]total data number: 56482
+[INFO]train data number: 565
+[INFO]start pretrain: current pattern_num = 565
+[INFO]end pretrain: current pattern_num = 373, cost time = 0.000231005s.
+[INFO]------------ compute minimal encoding length ------------
+[INFO]init pattern count:373
+[INFO]---------------------------------------------------------
+
+[INFO]ComputeTotalMinValueTable_time=0.818383
+[INFO]------------ merge pattern ---------------
+[INFO]init pattern count:373
+[INFO]target pattern num:50
+[INFO]------------------------------------------
+[INFO]actual pattern num : 40
+[INFO]ComputeTotalMinValueTable_time=0.818383s,UpdateMinValueTable_time=1.41403s,MergePattern_time=0.0178657s,GetMinValue_time=0.52336s,CreateSecondaryEncoderData_time=1.61e-07s.
+[INFO]Compress Method : 0
+[INFO]Test Set Compression ratio: 0.22509
+[INFO]compress_pbc_only rate : 0.976647
+[INFO]compress_secondary_only rate : 0
+[INFO]compress_pbc_combined rate : 0
+[INFO]compress_failed rate : 0.0233526
+[INFO]total data number: 56482
+[INFO]train data number: 565
+[INFO]start pretrain: current pattern_num = 565
+[INFO]end pretrain: current pattern_num = 373, cost time = 0.000190819s.
+[INFO]------------ compute minimal encoding length ------------
+[INFO]init pattern count:373
+[INFO]---------------------------------------------------------
+
+[INFO]ComputeTotalMinValueTable_time=0.313577
+[INFO]------------ merge pattern ---------------
+[INFO]init pattern count:373
+[INFO]target pattern num:50
+[INFO]------------------------------------------
+[INFO]actual pattern num : 40
+[INFO]ComputeTotalMinValueTable_time=0.313577s,UpdateMinValueTable_time=0.92365s,MergePattern_time=0.0182312s,GetMinValue_time=0.385982s,CreateSecondaryEncoderData_time=6e-08s.
+[INFO]Compress Method : 0
+[INFO]Test Set Compression ratio: 0.22509
+[INFO]compress_pbc_only rate : 0.976647
+[INFO]compress_secondary_only rate : 0
+[INFO]compress_pbc_combined rate : 0
+[INFO]compress_failed rate : 0.0233526
+[INFO]total data number: 56482
+[INFO]train data number: 565
+[INFO]start pretrain: current pattern_num = 565
+[INFO]end pretrain: current pattern_num = 373, cost time = 0.000185048s.
+[INFO]------------ compute minimal encoding length ------------
+[INFO]init pattern count:373
+[INFO]---------------------------------------------------------
+
+[INFO]ComputeTotalMinValueTable_time=0.640488
+[INFO]------------ merge pattern ---------------
+[INFO]init pattern count:373
+[INFO]target pattern num:50
+[INFO]------------------------------------------
+[INFO]actual pattern num : 40
+[INFO]ComputeTotalMinValueTable_time=0.640488s,UpdateMinValueTable_time=1.04526s,MergePattern_time=0.0130568s,GetMinValue_time=0.408259s,CreateSecondaryEncoderData_time=0.0670362s.
+[INFO]Compress Method : 1
+[INFO]Test Set Compression ratio: 0.179961
+[INFO]compress_pbc_only rate : 0.374385
+[INFO]compress_secondary_only rate : 0.018289
+[INFO]compress_pbc_combined rate : 0.602263
+[INFO]compress_failed rate : 0.00506356
+[INFO]total data number: 56482
+[INFO]train data number: 565
+[INFO]start pretrain: current pattern_num = 565
+[INFO]end pretrain: current pattern_num = 373, cost time = 0.000191159s.
+[INFO]------------ compute minimal encoding length ------------
+[INFO]init pattern count:373
+[INFO]---------------------------------------------------------
+
+[INFO]ComputeTotalMinValueTable_time=0.83735
+[INFO]------------ merge pattern ---------------
+[INFO]init pattern count:373
+[INFO]target pattern num:50
+[INFO]------------------------------------------
+[INFO]actual pattern num : 40
+[INFO]ComputeTotalMinValueTable_time=0.83735s,UpdateMinValueTable_time=1.40937s,MergePattern_time=0.0173135s,GetMinValue_time=0.527249s,CreateSecondaryEncoderData_time=0.0678116s.
+[INFO]Compress Method : 1
+[INFO]Test Set Compression ratio: 0.179961
+[INFO]compress_pbc_only rate : 0.374385
+[INFO]compress_secondary_only rate : 0.018289
+[INFO]compress_pbc_combined rate : 0.602263
+[INFO]compress_failed rate : 0.00506356
+[INFO]total data number: 56482
+[INFO]train data number: 565
+[INFO]start pretrain: current pattern_num = 565
+[INFO]end pretrain: current pattern_num = 373, cost time = 0.000190729s.
+[INFO]------------ compute minimal encoding length ------------
+[INFO]init pattern count:373
+[INFO]---------------------------------------------------------
+
+[INFO]ComputeTotalMinValueTable_time=0.311429
+[INFO]------------ merge pattern ---------------
+[INFO]init pattern count:373
+[INFO]target pattern num:50
+[INFO]------------------------------------------
+[INFO]actual pattern num : 40
+[INFO]ComputeTotalMinValueTable_time=0.311429s,UpdateMinValueTable_time=0.820746s,MergePattern_time=0.0166715s,GetMinValue_time=0.340092s,CreateSecondaryEncoderData_time=0.0684996s.
+[INFO]Compress Method : 1
+[INFO]Test Set Compression ratio: 0.179961
+[INFO]compress_pbc_only rate : 0.374385
+[INFO]compress_secondary_only rate : 0.018289
+[INFO]compress_pbc_combined rate : 0.602263
+[INFO]compress_failed rate : 0.00506356
+[INFO]total data number: 56482
+[INFO]train data number: 565
+[INFO]start pretrain: current pattern_num = 565
+[INFO]end pretrain: current pattern_num = 373, cost time = 0.00019684s.
+[INFO]------------ compute minimal encoding length ------------
+[INFO]init pattern count:373
+[INFO]---------------------------------------------------------
+
+[INFO]ComputeTotalMinValueTable_time=0.646082
+[INFO]------------ merge pattern ---------------
+[INFO]init pattern count:373
+[INFO]target pattern num:50
+[INFO]------------------------------------------
+[INFO]actual pattern num : 40
+[INFO]ComputeTotalMinValueTable_time=0.646082s,UpdateMinValueTable_time=1.05089s,MergePattern_time=0.013063s,GetMinValue_time=0.412987s,CreateSecondaryEncoderData_time=0.142955s.
+[INFO]Compress Method : 2
+[INFO]Test Set Compression ratio: 0.159782
+[INFO]compress_pbc_only rate : 0.341737
+[INFO]compress_secondary_only rate : 0.0233526
+[INFO]compress_pbc_combined rate : 0.63491
+[INFO]compress_failed rate : 0
+[INFO]total data number: 56482
+[INFO]train data number: 565
+[INFO]start pretrain: current pattern_num = 565
+[INFO]end pretrain: current pattern_num = 373, cost time = 0.000200066s.
+[INFO]------------ compute minimal encoding length ------------
+[INFO]init pattern count:373
+[INFO]---------------------------------------------------------
+
+[INFO]ComputeTotalMinValueTable_time=0.846948
+[INFO]------------ merge pattern ---------------
+[INFO]init pattern count:373
+[INFO]target pattern num:50
+[INFO]------------------------------------------
+[INFO]actual pattern num : 40
+[INFO]ComputeTotalMinValueTable_time=0.846948s,UpdateMinValueTable_time=1.42107s,MergePattern_time=0.0175409s,GetMinValue_time=0.535323s,CreateSecondaryEncoderData_time=0.137332s.
+[INFO]Compress Method : 2
+[INFO]Test Set Compression ratio: 0.159782
+[INFO]compress_pbc_only rate : 0.341737
+[INFO]compress_secondary_only rate : 0.0233526
+[INFO]compress_pbc_combined rate : 0.63491
+[INFO]compress_failed rate : 0
+[INFO]total data number: 56482
+[INFO]train data number: 565
+[INFO]start pretrain: current pattern_num = 565
+[INFO]end pretrain: current pattern_num = 373, cost time = 0.000190448s.
+[INFO]------------ compute minimal encoding length ------------
+[INFO]init pattern count:373
+[INFO]---------------------------------------------------------
+
+[INFO]ComputeTotalMinValueTable_time=0.312589
+[INFO]------------ merge pattern ---------------
+[INFO]init pattern count:373
+[INFO]target pattern num:50
+[INFO]------------------------------------------
+[INFO]actual pattern num : 40
+[INFO]ComputeTotalMinValueTable_time=0.312589s,UpdateMinValueTable_time=0.828379s,MergePattern_time=0.0165845s,GetMinValue_time=0.341846s,CreateSecondaryEncoderData_time=0.140204s.
+[INFO]Compress Method : 2
+[INFO]Test Set Compression ratio: 0.159782
+[INFO]compress_pbc_only rate : 0.341737
+[INFO]compress_secondary_only rate : 0.0233526
+[INFO]compress_pbc_combined rate : 0.63491
+[INFO]compress_failed rate : 0
+[INFO]total data number: 56482
+[INFO]train data number: 565
+[INFO]start pretrain: current pattern_num = 565
+[INFO]end pretrain: current pattern_num = 373, cost time = 0.000189136s.
+[INFO]------------ compute minimal encoding length ------------
+[INFO]init pattern count:373
+[INFO]---------------------------------------------------------
+
+[INFO]ComputeTotalMinValueTable_time=0.646157
+[INFO]------------ merge pattern ---------------
+[INFO]init pattern count:373
+[INFO]target pattern num:50
+[INFO]------------------------------------------
+[INFO]actual pattern num : 40
+[INFO]ComputeTotalMinValueTable_time=0.646157s,UpdateMinValueTable_time=1.04996s,MergePattern_time=0.0130192s,GetMinValue_time=0.410685s,CreateSecondaryEncoderData_time=0.0795916s.
+[INFO]Compress Method : 3
+[INFO]Test Set Compression ratio: 0.216466
+[INFO]compress_pbc_only rate : 0.966981
+[INFO]compress_secondary_only rate : 0.0141107
+[INFO]compress_pbc_combined rate : 0.0096668
+[INFO]compress_failed rate : 0.00924188
+[INFO]total data number: 56482
+[INFO]train data number: 565
+[INFO]start pretrain: current pattern_num = 565
+[INFO]end pretrain: current pattern_num = 373, cost time = 0.000188855s.
+[INFO]------------ compute minimal encoding length ------------
+[INFO]init pattern count:373
+[INFO]---------------------------------------------------------
+
+[INFO]ComputeTotalMinValueTable_time=0.852221
+[INFO]------------ merge pattern ---------------
+[INFO]init pattern count:373
+[INFO]target pattern num:50
+[INFO]------------------------------------------
+[INFO]actual pattern num : 40
+[INFO]ComputeTotalMinValueTable_time=0.852221s,UpdateMinValueTable_time=1.44156s,MergePattern_time=0.0177709s,GetMinValue_time=0.540045s,CreateSecondaryEncoderData_time=0.0846672s.
+[INFO]Compress Method : 3
+[INFO]Test Set Compression ratio: 0.216466
+[INFO]compress_pbc_only rate : 0.966981
+[INFO]compress_secondary_only rate : 0.0141107
+[INFO]compress_pbc_combined rate : 0.0096668
+[INFO]compress_failed rate : 0.00924188
+[INFO]total data number: 56482
+[INFO]train data number: 565
+[INFO]start pretrain: current pattern_num = 565
+[INFO]end pretrain: current pattern_num = 373, cost time = 0.000240001s.
+[INFO]------------ compute minimal encoding length ------------
+[INFO]init pattern count:373
+[INFO]---------------------------------------------------------
+
+[INFO]ComputeTotalMinValueTable_time=0.315014
+[INFO]------------ merge pattern ---------------
+[INFO]init pattern count:373
+[INFO]target pattern num:50
+[INFO]------------------------------------------
+[INFO]actual pattern num : 40
+[INFO]ComputeTotalMinValueTable_time=0.315014s,UpdateMinValueTable_time=0.800149s,MergePattern_time=0.0166026s,GetMinValue_time=0.329264s,CreateSecondaryEncoderData_time=0.0856033s.
+[INFO]Compress Method : 3
+[INFO]Test Set Compression ratio: 0.216466
+[INFO]compress_pbc_only rate : 0.966981
+[INFO]compress_secondary_only rate : 0.0141107
+[INFO]compress_pbc_combined rate : 0.0096668
+[INFO]compress_failed rate : 0.00924188
+[       OK ] PBC_CompressionTest.GivenDatasets (28214 ms)
+[ RUN      ] PBC_CompressionTest.RandomDataWithPattern
+[INFO]total data number: 10000
+[INFO]train data number: 100
+[INFO]start pretrain: current pattern_num = 100
+[INFO]end pretrain: current pattern_num = 100, cost time = 4.6998e-05s.
+[INFO]------------ compute minimal encoding length ------------
+[INFO]init pattern count:100
+[INFO]---------------------------------------------------------
+
+[INFO]ComputeTotalMinValueTable_time=0.0360844
+[INFO]------------ merge pattern ---------------
+[INFO]init pattern count:100
+[INFO]target pattern num:50
+[INFO]------------------------------------------
+[INFO]actual pattern num : 50
+[INFO]ComputeTotalMinValueTable_time=0.0360844s,UpdateMinValueTable_time=0.0860596s,MergePattern_time=0.000835871s,GetMinValue_time=0.0143143s,CreateSecondaryEncoderData_time=1.4e-07s.
+[INFO]Compress Method : 0
+[INFO]Test Set Compression ratio: 0.444324
+[INFO]compress_pbc_only rate : 0.9611
+[INFO]compress_secondary_only rate : 0
+[INFO]compress_pbc_combined rate : 0
+[INFO]compress_failed rate : 0.0389
+[INFO]total data number: 10000
+[INFO]train data number: 100
+[INFO]start pretrain: current pattern_num = 100
+[INFO]end pretrain: current pattern_num = 100, cost time = 5.4813e-05s.
+[INFO]------------ compute minimal encoding length ------------
+[INFO]init pattern count:100
+[INFO]---------------------------------------------------------
+
+[INFO]ComputeTotalMinValueTable_time=0.062032
+[INFO]------------ merge pattern ---------------
+[INFO]init pattern count:100
+[INFO]target pattern num:50
+[INFO]------------------------------------------
+[INFO]actual pattern num : 50
+[INFO]ComputeTotalMinValueTable_time=0.062032s,UpdateMinValueTable_time=0.153643s,MergePattern_time=0.00103111s,GetMinValue_time=0.0259827s,CreateSecondaryEncoderData_time=6e-08s.
+[INFO]Compress Method : 0
+[INFO]Test Set Compression ratio: 0.444324
+[INFO]compress_pbc_only rate : 0.9611
+[INFO]compress_secondary_only rate : 0
+[INFO]compress_pbc_combined rate : 0
+[INFO]compress_failed rate : 0.0389
+[INFO]total data number: 10000
+[INFO]train data number: 100
+[INFO]start pretrain: current pattern_num = 100
+[INFO]end pretrain: current pattern_num = 100, cost time = 4.4925e-05s.
+[INFO]------------ compute minimal encoding length ------------
+[INFO]init pattern count:100
+[INFO]---------------------------------------------------------
+
+[INFO]ComputeTotalMinValueTable_time=0.0195511
+[INFO]------------ merge pattern ---------------
+[INFO]init pattern count:100
+[INFO]target pattern num:50
+[INFO]------------------------------------------
+[INFO]actual pattern num : 50
+[INFO]ComputeTotalMinValueTable_time=0.0195511s,UpdateMinValueTable_time=0.0689167s,MergePattern_time=0.00105171s,GetMinValue_time=0.0141887s,CreateSecondaryEncoderData_time=6.1e-08s.
+[INFO]Compress Method : 0
+[INFO]Test Set Compression ratio: 0.444324
+[INFO]compress_pbc_only rate : 0.9611
+[INFO]compress_secondary_only rate : 0
+[INFO]compress_pbc_combined rate : 0
+[INFO]compress_failed rate : 0.0389
+[INFO]total data number: 10000
+[INFO]train data number: 100
+[INFO]start pretrain: current pattern_num = 100
+[INFO]end pretrain: current pattern_num = 100, cost time = 4.2169e-05s.
+[INFO]------------ compute minimal encoding length ------------
+[INFO]init pattern count:100
+[INFO]---------------------------------------------------------
+
+[INFO]ComputeTotalMinValueTable_time=0.0366365
+[INFO]------------ merge pattern ---------------
+[INFO]init pattern count:100
+[INFO]target pattern num:50
+[INFO]------------------------------------------
+[INFO]actual pattern num : 50
+[INFO]ComputeTotalMinValueTable_time=0.0366365s,UpdateMinValueTable_time=0.087274s,MergePattern_time=0.000827839s,GetMinValue_time=0.0145474s,CreateSecondaryEncoderData_time=0.104587s.
+[INFO]Compress Method : 1
+[INFO]Test Set Compression ratio: 0.444288
+[INFO]compress_pbc_only rate : 0.9597
+[INFO]compress_secondary_only rate : 0
+[INFO]compress_pbc_combined rate : 0.0014
+[INFO]compress_failed rate : 0.0389
+[INFO]total data number: 10000
+[INFO]train data number: 100
+[INFO]start pretrain: current pattern_num = 100
+[INFO]end pretrain: current pattern_num = 100, cost time = 4.0706e-05s.
+[INFO]------------ compute minimal encoding length ------------
+[INFO]init pattern count:100
+[INFO]---------------------------------------------------------
+
+[INFO]ComputeTotalMinValueTable_time=0.0655482
+[INFO]------------ merge pattern ---------------
+[INFO]init pattern count:100
+[INFO]target pattern num:50
+[INFO]------------------------------------------
+[INFO]actual pattern num : 50
+[INFO]ComputeTotalMinValueTable_time=0.0655482s,UpdateMinValueTable_time=0.159121s,MergePattern_time=0.00103008s,GetMinValue_time=0.0253554s,CreateSecondaryEncoderData_time=0.104307s.
+[INFO]Compress Method : 1
+[INFO]Test Set Compression ratio: 0.444288
+[INFO]compress_pbc_only rate : 0.9597
+[INFO]compress_secondary_only rate : 0
+[INFO]compress_pbc_combined rate : 0.0014
+[INFO]compress_failed rate : 0.0389
+[INFO]total data number: 10000
+[INFO]train data number: 100
+[INFO]start pretrain: current pattern_num = 100
+[INFO]end pretrain: current pattern_num = 100, cost time = 4.5555e-05s.
+[INFO]------------ compute minimal encoding length ------------
+[INFO]init pattern count:100
+[INFO]---------------------------------------------------------
+
+[INFO]ComputeTotalMinValueTable_time=0.0297667
+[INFO]------------ merge pattern ---------------
+[INFO]init pattern count:100
+[INFO]target pattern num:50
+[INFO]------------------------------------------
+[INFO]actual pattern num : 50
+[INFO]ComputeTotalMinValueTable_time=0.0297667s,UpdateMinValueTable_time=0.0674786s,MergePattern_time=0.00111437s,GetMinValue_time=0.0154129s,CreateSecondaryEncoderData_time=0.104151s.
+[INFO]Compress Method : 1
+[INFO]Test Set Compression ratio: 0.444288
+[INFO]compress_pbc_only rate : 0.9597
+[INFO]compress_secondary_only rate : 0
+[INFO]compress_pbc_combined rate : 0.0014
+[INFO]compress_failed rate : 0.0389
+[INFO]total data number: 10000
+[INFO]train data number: 100
+[INFO]start pretrain: current pattern_num = 100
+[INFO]end pretrain: current pattern_num = 100, cost time = 5.2889e-05s.
+[INFO]------------ compute minimal encoding length ------------
+[INFO]init pattern count:100
+[INFO]---------------------------------------------------------
+
+[INFO]ComputeTotalMinValueTable_time=0.036312
+[INFO]------------ merge pattern ---------------
+[INFO]init pattern count:100
+[INFO]target pattern num:50
+[INFO]------------------------------------------
+[INFO]actual pattern num : 50
+[INFO]ComputeTotalMinValueTable_time=0.036312s,UpdateMinValueTable_time=0.086857s,MergePattern_time=0.00083494s,GetMinValue_time=0.0145817s,CreateSecondaryEncoderData_time=0.213225s.
+[INFO]Compress Method : 2
+[INFO]Test Set Compression ratio: 0.444324
+[INFO]compress_pbc_only rate : 0.9611
+[INFO]compress_secondary_only rate : 0
+[INFO]compress_pbc_combined rate : 0
+[INFO]compress_failed rate : 0.0389
+[INFO]total data number: 10000
+[INFO]train data number: 100
+[INFO]start pretrain: current pattern_num = 100
+[INFO]end pretrain: current pattern_num = 100, cost time = 5.7017e-05s.
+[INFO]------------ compute minimal encoding length ------------
+[INFO]init pattern count:100
+[INFO]---------------------------------------------------------
+
+[INFO]ComputeTotalMinValueTable_time=0.0592651
+[INFO]------------ merge pattern ---------------
+[INFO]init pattern count:100
+[INFO]target pattern num:50
+[INFO]------------------------------------------
+[INFO]actual pattern num : 50
+[INFO]ComputeTotalMinValueTable_time=0.0592651s,UpdateMinValueTable_time=0.151781s,MergePattern_time=0.00102521s,GetMinValue_time=0.024755s,CreateSecondaryEncoderData_time=0.209599s.
+[INFO]Compress Method : 2
+[INFO]Test Set Compression ratio: 0.444324
+[INFO]compress_pbc_only rate : 0.9611
+[INFO]compress_secondary_only rate : 0
+[INFO]compress_pbc_combined rate : 0
+[INFO]compress_failed rate : 0.0389
+[INFO]total data number: 10000
+[INFO]train data number: 100
+[INFO]start pretrain: current pattern_num = 100
+[INFO]end pretrain: current pattern_num = 100, cost time = 4.1768e-05s.
+[INFO]------------ compute minimal encoding length ------------
+[INFO]init pattern count:100
+[INFO]---------------------------------------------------------
+
+[INFO]ComputeTotalMinValueTable_time=0.0202855
+[INFO]------------ merge pattern ---------------
+[INFO]init pattern count:100
+[INFO]target pattern num:50
+[INFO]------------------------------------------
+[INFO]actual pattern num : 50
+[INFO]ComputeTotalMinValueTable_time=0.0202855s,UpdateMinValueTable_time=0.0707733s,MergePattern_time=0.00113539s,GetMinValue_time=0.0146614s,CreateSecondaryEncoderData_time=0.210031s.
+[INFO]Compress Method : 2
+[INFO]Test Set Compression ratio: 0.444324
+[INFO]compress_pbc_only rate : 0.9611
+[INFO]compress_secondary_only rate : 0
+[INFO]compress_pbc_combined rate : 0
+[INFO]compress_failed rate : 0.0389
+[INFO]total data number: 10000
+[INFO]train data number: 100
+[INFO]start pretrain: current pattern_num = 100
+[INFO]end pretrain: current pattern_num = 100, cost time = 4.1117e-05s.
+[INFO]------------ compute minimal encoding length ------------
+[INFO]init pattern count:100
+[INFO]---------------------------------------------------------
+
+[INFO]ComputeTotalMinValueTable_time=0.0361404
+[INFO]------------ merge pattern ---------------
+[INFO]init pattern count:100
+[INFO]target pattern num:50
+[INFO]------------------------------------------
+[INFO]actual pattern num : 50
+[INFO]ComputeTotalMinValueTable_time=0.0361404s,UpdateMinValueTable_time=0.0869187s,MergePattern_time=0.000839569s,GetMinValue_time=0.0145061s,CreateSecondaryEncoderData_time=0.109499s.
+[INFO]Compress Method : 3
+[INFO]Test Set Compression ratio: 0.444205
+[INFO]compress_pbc_only rate : 0.96
+[INFO]compress_secondary_only rate : 0
+[INFO]compress_pbc_combined rate : 0.0011
+[INFO]compress_failed rate : 0.0389
+[INFO]total data number: 10000
+[INFO]train data number: 100
+[INFO]start pretrain: current pattern_num = 100
+[INFO]end pretrain: current pattern_num = 100, cost time = 4.1648e-05s.
+[INFO]------------ compute minimal encoding length ------------
+[INFO]init pattern count:100
+[INFO]---------------------------------------------------------
+
+[INFO]ComputeTotalMinValueTable_time=0.0654661
+[INFO]------------ merge pattern ---------------
+[INFO]init pattern count:100
+[INFO]target pattern num:50
+[INFO]------------------------------------------
+[INFO]actual pattern num : 50
+[INFO]ComputeTotalMinValueTable_time=0.0654661s,UpdateMinValueTable_time=0.158207s,MergePattern_time=0.00102684s,GetMinValue_time=0.0242925s,CreateSecondaryEncoderData_time=0.107962s.
+[INFO]Compress Method : 3
+[INFO]Test Set Compression ratio: 0.444205
+[INFO]compress_pbc_only rate : 0.96
+[INFO]compress_secondary_only rate : 0
+[INFO]compress_pbc_combined rate : 0.0011
+[INFO]compress_failed rate : 0.0389
+[INFO]total data number: 10000
+[INFO]train data number: 100
+[INFO]start pretrain: current pattern_num = 100
+[INFO]end pretrain: current pattern_num = 100, cost time = 4.3131e-05s.
+[INFO]------------ compute minimal encoding length ------------
+[INFO]init pattern count:100
+[INFO]---------------------------------------------------------
+
+[INFO]ComputeTotalMinValueTable_time=0.0195919
+[INFO]------------ merge pattern ---------------
+[INFO]init pattern count:100
+[INFO]target pattern num:50
+[INFO]------------------------------------------
+[INFO]actual pattern num : 50
+[INFO]ComputeTotalMinValueTable_time=0.0195919s,UpdateMinValueTable_time=0.0678626s,MergePattern_time=0.00100758s,GetMinValue_time=0.0148295s,CreateSecondaryEncoderData_time=0.111295s.
+[INFO]Compress Method : 3
+[INFO]Test Set Compression ratio: 0.444205
+[INFO]compress_pbc_only rate : 0.96
+[INFO]compress_secondary_only rate : 0
+[INFO]compress_pbc_combined rate : 0.0011
+[INFO]compress_failed rate : 0.0389
+[       OK ] PBC_CompressionTest.RandomDataWithPattern (4633 ms)
+[ RUN      ] PBC_CompressionTest.RandomDataWithPatternContainEmptyChar
+[INFO]total data number: 10000
+[INFO]train data number: 100
+[INFO]start pretrain: current pattern_num = 100
+[INFO]end pretrain: current pattern_num = 100, cost time = 3.8823e-05s.
+[INFO]------------ compute minimal encoding length ------------
+[INFO]init pattern count:100
+[INFO]---------------------------------------------------------
+
+[INFO]ComputeTotalMinValueTable_time=0.0368583
+[INFO]------------ merge pattern ---------------
+[INFO]init pattern count:100
+[INFO]target pattern num:50
+[INFO]------------------------------------------
+[INFO]actual pattern num : 50
+[INFO]ComputeTotalMinValueTable_time=0.0368583s,UpdateMinValueTable_time=0.131326s,MergePattern_time=0.000823276s,GetMinValue_time=0.0151738s,CreateSecondaryEncoderData_time=1.41e-07s.
+[INFO]Compress Method : 0
+[INFO]Test Set Compression ratio: 0.453469
+[INFO]compress_pbc_only rate : 0.9224
+[INFO]compress_secondary_only rate : 0
+[INFO]compress_pbc_combined rate : 0
+[INFO]compress_failed rate : 0.0776
+[INFO]total data number: 10000
+[INFO]train data number: 100
+[INFO]start pretrain: current pattern_num = 100
+[INFO]end pretrain: current pattern_num = 100, cost time = 4.0777e-05s.
+[INFO]------------ compute minimal encoding length ------------
+[INFO]init pattern count:100
+[INFO]---------------------------------------------------------
+
+[INFO]ComputeTotalMinValueTable_time=0.0623584
+[INFO]------------ merge pattern ---------------
+[INFO]init pattern count:100
+[INFO]target pattern num:50
+[INFO]------------------------------------------
+[INFO]actual pattern num : 50
+[INFO]ComputeTotalMinValueTable_time=0.0623584s,UpdateMinValueTable_time=0.228688s,MergePattern_time=0.0010184s,GetMinValue_time=0.0274928s,CreateSecondaryEncoderData_time=6e-08s.
+[INFO]Compress Method : 0
+[INFO]Test Set Compression ratio: 0.453469
+[INFO]compress_pbc_only rate : 0.9224
+[INFO]compress_secondary_only rate : 0
+[INFO]compress_pbc_combined rate : 0
+[INFO]compress_failed rate : 0.0776
+[INFO]total data number: 10000
+[INFO]train data number: 100
+[INFO]start pretrain: current pattern_num = 100
+[INFO]end pretrain: current pattern_num = 100, cost time = 4.3693e-05s.
+[INFO]------------ compute minimal encoding length ------------
+[INFO]init pattern count:100
+[INFO]---------------------------------------------------------
+
+[INFO]ComputeTotalMinValueTable_time=0.0200945
+[INFO]------------ merge pattern ---------------
+[INFO]init pattern count:100
+[INFO]target pattern num:50
+[INFO]------------------------------------------
+[INFO]actual pattern num : 50
+[INFO]ComputeTotalMinValueTable_time=0.0200945s,UpdateMinValueTable_time=0.0916023s,MergePattern_time=0.0010229s,GetMinValue_time=0.0156733s,CreateSecondaryEncoderData_time=6e-08s.
+[INFO]Compress Method : 0
+[INFO]Test Set Compression ratio: 0.453469
+[INFO]compress_pbc_only rate : 0.9224
+[INFO]compress_secondary_only rate : 0
+[INFO]compress_pbc_combined rate : 0
+[INFO]compress_failed rate : 0.0776
+[INFO]total data number: 10000
+[INFO]train data number: 100
+[INFO]start pretrain: current pattern_num = 100
+[INFO]end pretrain: current pattern_num = 100, cost time = 4.0717e-05s.
+[INFO]------------ compute minimal encoding length ------------
+[INFO]init pattern count:100
+[INFO]---------------------------------------------------------
+
+[INFO]ComputeTotalMinValueTable_time=0.0386419
+[INFO]------------ merge pattern ---------------
+[INFO]init pattern count:100
+[INFO]target pattern num:50
+[INFO]------------------------------------------
+[INFO]actual pattern num : 50
+[INFO]ComputeTotalMinValueTable_time=0.0386419s,UpdateMinValueTable_time=0.134378s,MergePattern_time=0.000820876s,GetMinValue_time=0.0157014s,CreateSecondaryEncoderData_time=0.106395s.
+[INFO]Compress Method : 1
+[INFO]Test Set Compression ratio: 0.453446
+[INFO]compress_pbc_only rate : 0.9215
+[INFO]compress_secondary_only rate : 0
+[INFO]compress_pbc_combined rate : 0.0009
+[INFO]compress_failed rate : 0.0776
+[INFO]total data number: 10000
+[INFO]train data number: 100
+[INFO]start pretrain: current pattern_num = 100
+[INFO]end pretrain: current pattern_num = 100, cost time = 4.2941e-05s.
+[INFO]------------ compute minimal encoding length ------------
+[INFO]init pattern count:100
+[INFO]---------------------------------------------------------
+
+[INFO]ComputeTotalMinValueTable_time=0.0662384
+[INFO]------------ merge pattern ---------------
+[INFO]init pattern count:100
+[INFO]target pattern num:50
+[INFO]------------------------------------------
+[INFO]actual pattern num : 50
+[INFO]ComputeTotalMinValueTable_time=0.0662384s,UpdateMinValueTable_time=0.227225s,MergePattern_time=0.00100816s,GetMinValue_time=0.0264037s,CreateSecondaryEncoderData_time=0.10746s.
+[INFO]Compress Method : 1
+[INFO]Test Set Compression ratio: 0.453446
+[INFO]compress_pbc_only rate : 0.9215
+[INFO]compress_secondary_only rate : 0
+[INFO]compress_pbc_combined rate : 0.0009
+[INFO]compress_failed rate : 0.0776
+[INFO]total data number: 10000
+[INFO]train data number: 100
+[INFO]start pretrain: current pattern_num = 100
+[INFO]end pretrain: current pattern_num = 100, cost time = 4.1327e-05s.
+[INFO]------------ compute minimal encoding length ------------
+[INFO]init pattern count:100
+[INFO]---------------------------------------------------------
+
+[INFO]ComputeTotalMinValueTable_time=0.0200293
+[INFO]------------ merge pattern ---------------
+[INFO]init pattern count:100
+[INFO]target pattern num:50
+[INFO]------------------------------------------
+[INFO]actual pattern num : 50
+[INFO]ComputeTotalMinValueTable_time=0.0200293s,UpdateMinValueTable_time=0.0978917s,MergePattern_time=0.00107333s,GetMinValue_time=0.0154523s,CreateSecondaryEncoderData_time=0.106341s.
+[INFO]Compress Method : 1
+[INFO]Test Set Compression ratio: 0.453446
+[INFO]compress_pbc_only rate : 0.9215
+[INFO]compress_secondary_only rate : 0
+[INFO]compress_pbc_combined rate : 0.0009
+[INFO]compress_failed rate : 0.0776
+[INFO]total data number: 10000
+[INFO]train data number: 100
+[INFO]start pretrain: current pattern_num = 100
+[INFO]end pretrain: current pattern_num = 100, cost time = 8.9648e-05s.
+[INFO]------------ compute minimal encoding length ------------
+[INFO]init pattern count:100
+[INFO]---------------------------------------------------------
+
+[INFO]ComputeTotalMinValueTable_time=0.0384891
+[INFO]------------ merge pattern ---------------
+[INFO]init pattern count:100
+[INFO]target pattern num:50
+[INFO]------------------------------------------
+[INFO]actual pattern num : 50
+[INFO]ComputeTotalMinValueTable_time=0.0384891s,UpdateMinValueTable_time=0.134506s,MergePattern_time=0.000846583s,GetMinValue_time=0.0156734s,CreateSecondaryEncoderData_time=0.215173s.
+[INFO]Compress Method : 2
+[INFO]Test Set Compression ratio: 0.453469
+[INFO]compress_pbc_only rate : 0.9224
+[INFO]compress_secondary_only rate : 0
+[INFO]compress_pbc_combined rate : 0
+[INFO]compress_failed rate : 0.0776
+[INFO]total data number: 10000
+[INFO]train data number: 100
+[INFO]start pretrain: current pattern_num = 100
+[INFO]end pretrain: current pattern_num = 100, cost time = 4.1608e-05s.
+[INFO]------------ compute minimal encoding length ------------
+[INFO]init pattern count:100
+[INFO]---------------------------------------------------------
+
+[INFO]ComputeTotalMinValueTable_time=0.0613936
+[INFO]------------ merge pattern ---------------
+[INFO]init pattern count:100
+[INFO]target pattern num:50
+[INFO]------------------------------------------
+[INFO]actual pattern num : 50
+[INFO]ComputeTotalMinValueTable_time=0.0613936s,UpdateMinValueTable_time=0.214883s,MergePattern_time=0.00101445s,GetMinValue_time=0.0237675s,CreateSecondaryEncoderData_time=0.215234s.
+[INFO]Compress Method : 2
+[INFO]Test Set Compression ratio: 0.453469
+[INFO]compress_pbc_only rate : 0.9224
+[INFO]compress_secondary_only rate : 0
+[INFO]compress_pbc_combined rate : 0
+[INFO]compress_failed rate : 0.0776
+[INFO]total data number: 10000
+[INFO]train data number: 100
+[INFO]start pretrain: current pattern_num = 100
+[INFO]end pretrain: current pattern_num = 100, cost time = 4.271e-05s.
+[INFO]------------ compute minimal encoding length ------------
+[INFO]init pattern count:100
+[INFO]---------------------------------------------------------
+
+[INFO]ComputeTotalMinValueTable_time=0.0197896
+[INFO]------------ merge pattern ---------------
+[INFO]init pattern count:100
+[INFO]target pattern num:50
+[INFO]------------------------------------------
+[INFO]actual pattern num : 50
+[INFO]ComputeTotalMinValueTable_time=0.0197896s,UpdateMinValueTable_time=0.0997711s,MergePattern_time=0.00105459s,GetMinValue_time=0.0147561s,CreateSecondaryEncoderData_time=0.213824s.
+[INFO]Compress Method : 2
+[INFO]Test Set Compression ratio: 0.453469
+[INFO]compress_pbc_only rate : 0.9224
+[INFO]compress_secondary_only rate : 0
+[INFO]compress_pbc_combined rate : 0
+[INFO]compress_failed rate : 0.0776
+[INFO]total data number: 10000
+[INFO]train data number: 100
+[INFO]start pretrain: current pattern_num = 100
+[INFO]end pretrain: current pattern_num = 100, cost time = 4.0826e-05s.
+[INFO]------------ compute minimal encoding length ------------
+[INFO]init pattern count:100
+[INFO]---------------------------------------------------------
+
+[INFO]ComputeTotalMinValueTable_time=0.0378646
+[INFO]------------ merge pattern ---------------
+[INFO]init pattern count:100
+[INFO]target pattern num:50
+[INFO]------------------------------------------
+[INFO]actual pattern num : 50
+[INFO]ComputeTotalMinValueTable_time=0.0378646s,UpdateMinValueTable_time=0.133763s,MergePattern_time=0.000824037s,GetMinValue_time=0.0153711s,CreateSecondaryEncoderData_time=0.109412s.
+[INFO]Compress Method : 3
+[INFO]Test Set Compression ratio: 0.453347
+[INFO]compress_pbc_only rate : 0.921
+[INFO]compress_secondary_only rate : 0
+[INFO]compress_pbc_combined rate : 0.0014
+[INFO]compress_failed rate : 0.0776
+[INFO]total data number: 10000
+[INFO]train data number: 100
+[INFO]start pretrain: current pattern_num = 100
+[INFO]end pretrain: current pattern_num = 100, cost time = 4.0887e-05s.
+[INFO]------------ compute minimal encoding length ------------
+[INFO]init pattern count:100
+[INFO]---------------------------------------------------------
+
+[INFO]ComputeTotalMinValueTable_time=0.0603777
+[INFO]------------ merge pattern ---------------
+[INFO]init pattern count:100
+[INFO]target pattern num:50
+[INFO]------------------------------------------
+[INFO]actual pattern num : 50
+[INFO]ComputeTotalMinValueTable_time=0.0603777s,UpdateMinValueTable_time=0.221177s,MergePattern_time=0.00100032s,GetMinValue_time=0.0266536s,CreateSecondaryEncoderData_time=0.10841s.
+[INFO]Compress Method : 3
+[INFO]Test Set Compression ratio: 0.453347
+[INFO]compress_pbc_only rate : 0.921
+[INFO]compress_secondary_only rate : 0
+[INFO]compress_pbc_combined rate : 0.0014
+[INFO]compress_failed rate : 0.0776
+[INFO]total data number: 10000
+[INFO]train data number: 100
+[INFO]start pretrain: current pattern_num = 100
+[INFO]end pretrain: current pattern_num = 100, cost time = 4.253e-05s.
+[INFO]------------ compute minimal encoding length ------------
+[INFO]init pattern count:100
+[INFO]---------------------------------------------------------
+
+[INFO]ComputeTotalMinValueTable_time=0.0305963
+[INFO]------------ merge pattern ---------------
+[INFO]init pattern count:100
+[INFO]target pattern num:50
+[INFO]------------------------------------------
+[INFO]actual pattern num : 50
+[INFO]ComputeTotalMinValueTable_time=0.0305963s,UpdateMinValueTable_time=0.0972131s,MergePattern_time=0.00104078s,GetMinValue_time=0.0148122s,CreateSecondaryEncoderData_time=0.108631s.
+[INFO]Compress Method : 3
+[INFO]Test Set Compression ratio: 0.453347
+[INFO]compress_pbc_only rate : 0.921
+[INFO]compress_secondary_only rate : 0
+[INFO]compress_pbc_combined rate : 0.0014
+[INFO]compress_failed rate : 0.0776
+[       OK ] PBC_CompressionTest.RandomDataWithPatternContainEmptyChar (5256 ms)
+[----------] 3 tests from PBC_CompressionTest (38103 ms total)
+
+[----------] Global test environment tear-down
+[==========] 3 tests from 1 test suite ran. (38103 ms total)
+[  PASSED  ] 3 tests.
+<end of output>
+Test time =  38.11 sec
+----------------------------------------------------------
+Test Passed.
+"pbc_test" end time: Jul 24 00:28 UTC
+"pbc_test" time elapsed: 00:00:38
+----------------------------------------------------------
+
+End testing: Jul 24 00:28 UTC
