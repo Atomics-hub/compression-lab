@@ -1,0 +1,26 @@
+{
+  "schema": "clean-rss-measurement-v1",
+  "command": [
+    "/Users/guts/Documents/compression-lab/native/target/release/clab-moon-kernel",
+    "encode",
+    "--arm",
+    "c1-match-mixer",
+    "--item-index",
+    "0",
+    "--input",
+    "/Users/guts/Documents/axiom-moonshot-corpora/slices/gharchive-2026-05-15-14-s24.ndjson",
+    "--tape-out",
+    "/Users/guts/Documents/axiom-moonshot-corpora/sweep-cycle2-c1c2c8/gharchive-2026-05-15-14-s24__c1-match-mixer.tape",
+    "--receipt-out",
+    "/Users/guts/Documents/axiom-moonshot-corpora/sweep-cycle2-c1c2c8/gharchive-2026-05-15-14-s24__c1-match-mixer.kernel-receipt.json",
+    "--force"
+  ],
+  "exit_code": 0,
+  "platform": "darwin",
+  "maxrss_raw": 308150272,
+  "maxrss_bytes": 308150272,
+  "shim_maxrss_bytes": 18481152,
+  "wall_ns": 271036089083,
+  "user_seconds": 261.039312,
+  "system_seconds": 1.349641
+}

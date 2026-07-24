@@ -1,0 +1,49 @@
+{
+  "budget": {
+    "cap": 160,
+    "consumed_after": 52,
+    "consumed_before": 46
+  },
+  "config_sha256": "9d6d37e0d3b1b5d194877c38a810573b7682ff45c4c4b67c0decdbf21a37fc91",
+  "evidence_stage": "development_only_prescreen",
+  "references_sha256": "5fb1a001b44e5652c5be19f9eead6167f29ce53084c791c3ab982a1fc750e07f",
+  "runs": [
+    {
+      "arm": "c1-match-mixer",
+      "receipt_path": "/Users/guts/Documents/axiom-moonshot-corpora/sweep-cycle2-c1c2c8/gharchive-2026-05-15-14-s24__c1-match-mixer.receipt.json",
+      "snapshot": "gharchive-2026-05-15-14-s24",
+      "status": "measured"
+    },
+    {
+      "arm": "c2-value-context",
+      "receipt_path": "/Users/guts/Documents/axiom-moonshot-corpora/sweep-cycle2-c1c2c8/gharchive-2026-05-15-14-s24__c2-value-context.receipt.json",
+      "snapshot": "gharchive-2026-05-15-14-s24",
+      "status": "measured"
+    },
+    {
+      "arm": "c8-expert-mixture",
+      "receipt_path": "/Users/guts/Documents/axiom-moonshot-corpora/sweep-cycle2-c1c2c8/gharchive-2026-05-15-14-s24__c8-expert-mixture.receipt.json",
+      "snapshot": "gharchive-2026-05-15-14-s24",
+      "status": "measured"
+    },
+    {
+      "arm": "c1-match-mixer",
+      "receipt_path": "/Users/guts/Documents/axiom-moonshot-corpora/sweep-cycle2-c1c2c8/gharchive-2026-06-15-14-s24__c1-match-mixer.receipt.json",
+      "snapshot": "gharchive-2026-06-15-14-s24",
+      "status": "measured"
+    },
+    {
+      "arm": "c2-value-context",
+      "receipt_path": "/Users/guts/Documents/axiom-moonshot-corpora/sweep-cycle2-c1c2c8/gharchive-2026-06-15-14-s24__c2-value-context.receipt.json",
+      "snapshot": "gharchive-2026-06-15-14-s24",
+      "status": "measured"
+    },
+    {
+      "arm": "c8-expert-mixture",
+      "receipt_path": "/Users/guts/Documents/axiom-moonshot-corpora/sweep-cycle2-c1c2c8/gharchive-2026-06-15-14-s24__c8-expert-mixture.receipt.json",
+      "snapshot": "gharchive-2026-06-15-14-s24",
+      "status": "measured"
+    }
+  ],
+  "schema": "moon-prescreen-sweep-v1"
+}

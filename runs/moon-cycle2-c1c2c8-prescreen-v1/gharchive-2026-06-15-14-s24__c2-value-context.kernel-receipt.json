@@ -1,0 +1,21 @@
+{
+  "schema": "clab-moon-kernel-encode-receipt-v1",
+  "kernel_version": "0.1.0",
+  "evidence_stage": "development_only_prescreen",
+  "arm": "c2-value-context",
+  "arm_id": 106,
+  "item_index": 1,
+  "source_bytes": 25165414,
+  "source_sha256": "05220440b98e0adfc933ce0b6f838a6bed37d35118e4bb4f02075d7e34e50f79",
+  "tape_bytes": 28311145,
+  "tape_sha256": "f4fccf4b90ee42736865a49f755f79e1a53cd784fff687c89b085e70a0c99c12",
+  "sse_bucket_bits": 17,
+  "declared_model_state_bytes": 220676096,
+  "ledger": {"records": 35854, "modeled_binary_events": 226488727, "modeled_loss_q24": 443826691165025, "raw_literal_bytes": 0},
+  "item_projection": {"payload_bytes": 3306767, "coder_allowance_bytes": 16534, "block_allowance_bytes": 768, "stream_metadata_bytes": 24, "fixed_framing_bytes": 4096, "complete_bytes": 3328189},
+  "quarter_diagnostics_q24_scale": 16777216,
+  "quarter_diagnostics": null,
+  "predicted_kill_criterion": "Kill if C2 complete bytes are at least 0.95x H1 complete bytes on both public snapshots, or if C2 is no smaller than C1 on both public snapshots, OR any exactness, identity, ledger, unaccounted-state, 600-second wall, or 512 MiB decode-RSS gate fails.",
+  "decoded_sha256": "05220440b98e0adfc933ce0b6f838a6bed37d35118e4bb4f02075d7e34e50f79",
+  "decode_matches_source": true
+}
