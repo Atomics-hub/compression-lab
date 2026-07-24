@@ -68,6 +68,11 @@ or changes status. Status date: 2026-07-23.
   `docs/benchmarks/2026-07-24-clue-jls2-public-validation-v2-results.md`.
   Dedicated-machine independent confirmation and the sealed private holdout
   remain pending and owner-gated.
+- **Prospective championship roster (frozen, not executed):** the complete
+  championship comparison roster, tool identities, framing, gates, and decision
+  reducer are frozen ahead of execution in
+  `docs/benchmarks/2026-07-24-json-log-championship-roster-v1.md`; execution is
+  owner-gated and follows independent reproduction.
 - **Corollary:** the A2 context-reuse and inline-single-worker "no effect"
   results likely compared polluted readings against polluted readings;
   reread before citing them, pending confirmation of each run's exact
