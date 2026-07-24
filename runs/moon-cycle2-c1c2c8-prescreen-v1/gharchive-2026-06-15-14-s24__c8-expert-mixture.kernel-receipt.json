@@ -1,0 +1,21 @@
+{
+  "schema": "clab-moon-kernel-encode-receipt-v1",
+  "kernel_version": "0.1.0",
+  "evidence_stage": "development_only_prescreen",
+  "arm": "c8-expert-mixture",
+  "arm_id": 107,
+  "item_index": 1,
+  "source_bytes": 25165414,
+  "source_sha256": "05220440b98e0adfc933ce0b6f838a6bed37d35118e4bb4f02075d7e34e50f79",
+  "tape_bytes": 28311145,
+  "tape_sha256": "58de01f3ab16cbe006e20bdb41c7295803d1aaf4405136a9d249428640fe1d90",
+  "sse_bucket_bits": 17,
+  "declared_model_state_bytes": 119963648,
+  "ledger": {"records": 35854, "modeled_binary_events": 226488727, "modeled_loss_q24": 466640732834063, "raw_literal_bytes": 0},
+  "item_projection": {"payload_bytes": 3476745, "coder_allowance_bytes": 17384, "block_allowance_bytes": 768, "stream_metadata_bytes": 24, "fixed_framing_bytes": 4096, "complete_bytes": 3499017},
+  "quarter_diagnostics_q24_scale": 16777216,
+  "quarter_diagnostics": null,
+  "predicted_kill_criterion": "Kill if C8 complete bytes are at least 0.93x H1 complete bytes on both public snapshots, OR any exactness, identity, ledger, unaccounted-state, 600-second wall, or 512 MiB decode-RSS gate fails.",
+  "decoded_sha256": "05220440b98e0adfc933ce0b6f838a6bed37d35118e4bb4f02075d7e34e50f79",
+  "decode_matches_source": true
+}

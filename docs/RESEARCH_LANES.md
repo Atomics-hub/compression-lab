@@ -177,6 +177,28 @@ Windows now runs all native tests except those two named skips.
   test. Evidence `runs/moon-cycle2-c3-prescreen-v1/`, chart
   `docs/benchmarks/2026-07-23-moon-cycle2-c3-prescreen.md`; 38 of 160 cycle runs
   used.
+- **C1/C2/C8 (match-mixer / value-context / expert-mixture) — prescreened
+  2026-07-24, 1 survives / 2 killed.** One frozen sweep under manifest
+  `config/moon-cycle2-c1c2c8-public-prescreen-v1.json` (sha `433d7eb6…`, merged
+  in PR #107 before any measurement; kernel_commit 1519bbc). All six measured
+  runs exact-redecode, peak RSS well under 512 MiB (C1 ≈294/292, C2 ≈372, C8
+  ≈276 MiB), walls ≤271 s. **C1 — SURVIVED the kill line, keep-alive lead, no
+  screen earned:** crosses 0.90x H1 on 05-15 (integer 325,554,300 ≥ 324,871,200)
+  but not on 06-15 (311,690,200 < 316,586,250), so `c1_ratio_gate_kills` → False;
+  aggregate 0.8941x H1 (10.59% smaller; per-snapshot 9.81%/11.39%), but larger
+  than both local specialists on both snapshots (1.1405x/1.1447x zpaq -m54,
+  1.1609x/1.1739x kanzi-max) → not a nominee, no counted development screen.
+  **C2 — KILLED by the C1-dominance clause:** the H1 side does not kill
+  (0.9469/0.9461, both under 0.95) but C2 ≥ C1 on both snapshots (3,417,834 ≥
+  3,255,543; 3,328,189 ≥ 3,116,902), so `c2_ratio_gate_kills` → True. **C8 —
+  KILLED on the 0.93x line:** 0.9946/0.9947 (integer 359,005,500 ≥ 335,700,240
+  and 349,901,700 ≥ 327,139,125), `c8_ratio_gate_kills` → True; per-bucket expert
+  gating essentially matched H1 (~0.5% smaller). **C6 — not built:** the charter
+  requires both C1 and C2 to survive before C6; C2 died. C1 keep-alive work needs
+  a new cycle proposal. Evidence `runs/moon-cycle2-c1c2c8-prescreen-v1/` (with a
+  disclosed attempt-1 tooling failure: 6 `encode_failed` runs charged honestly,
+  40 → 46 → 52), chart `docs/benchmarks/2026-07-24-moon-cycle2-c1c2c8-prescreen.md`;
+  52 of 160 cycle runs used (cycle-2 spend 16 of 60).
 - **H9 (bounded grammar) — KILLED at prescreen 2026-07-23.** Naive offline
   Re-Pair (worst case O(rule_budget x n)) does not terminate inside the
   600 s per-run budget at prescreen scale on realistic NDJSON: 8 of 8 runs
