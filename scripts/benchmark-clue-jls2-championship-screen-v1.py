@@ -27,6 +27,7 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -56,31 +57,40 @@ PBC_BENCHMARK = REPOSITORY / "scripts" / "benchmark-pbc-competitor.py"
 CHUNK_SIZE = 1024 * 1024
 
 # Frozen per-codec command templates. Each template expands with {source},
-# {archive}, {restored}, and {bin} (the built binary path passed by the workflow).
-# The archive is the complete file that exactly restores the source; its byte
-# count is the complete-archive size scored by the reducer.
+# {archive}, {bin}, {restored} (a single output-file path for file-writing tools),
+# and {restore_dir} (a fresh per-item directory for extractors that recreate the
+# source path tree or extract into a directory). Decompression always restores
+# somewhere under {restore_dir}; the harness resolves the single restored payload
+# under it and verifies the SHA-256, so tools that recreate directories (zpaq, the
+# documented E1 behavior) and tools that extract into a directory (7-Zip) are all
+# handled uniformly. {restored} points at a file inside {restore_dir}. The archive
+# is the complete file that exactly restores the source; its byte count is the
+# complete-archive size scored by the reducer.
 OPPONENT_TEMPLATES: dict[str, dict[str, Any]] = {
     "kanzi-max": {
         "role": "eligible",
-        "compress": ["{bin}", "--compress", "--input", "{source}", "--output",
-                     "{archive}", "--level", "9", "--block", "1g", "--jobs", "1",
-                     "--force"],
-        "decompress": ["{bin}", "--decompress", "--input", "{archive}", "--output",
-                       "{restored}", "--jobs", "1", "--force"],
+        # Kanzi 2.5.3 long options require the =value form (verified against the
+        # pinned build; matches the frozen gates settings "--level=9 --block=1g
+        # --jobs=1").
+        "compress": ["{bin}", "--compress", "--input={source}", "--output={archive}",
+                     "--level=9", "--block=1g", "--jobs=1", "--force"],
+        "decompress": ["{bin}", "--decompress", "--input={archive}",
+                       "--output={restored}", "--jobs=1", "--force"],
     },
     "zpaq-5-m54": {
         "role": "eligible",
         "compress": ["{bin}", "add", "{archive}", "{source}", "-method", "54",
                      "-threads", "1", "-noattributes", "-until", "20000101000000"],
-        "decompress": ["{bin}", "extract", "{archive}", "-to", "{restored}",
+        "decompress": ["{bin}", "extract", "{archive}", "-to", "{restore_dir}",
                        "-threads", "1", "-force"],
     },
     "brotli-11": {
         "role": "eligible",
-        "compress": ["{bin}", "--quality", "11", "--force", "--output", "{archive}",
-                     "{source}"],
-        "decompress": ["{bin}", "--decompress", "--force", "--output", "{restored}",
-                       "{archive}"],
+        # Brotli 1.2.0 long options require the =value form; the short flags -q/-o
+        # take a space value. Use the short flags (verified against the pinned
+        # version): quality 11, single thread, explicit output file.
+        "compress": ["{bin}", "-q", "11", "-f", "-o", "{archive}", "{source}"],
+        "decompress": ["{bin}", "-d", "-f", "-o", "{restored}", "{archive}"],
     },
     "zstd-22": {
         "role": "eligible",
@@ -100,13 +110,13 @@ OPPONENT_TEMPLATES: dict[str, dict[str, Any]] = {
         "role": "eligible",
         "compress": ["{bin}", "a", "-t7z", "-m0=LZMA2", "-mx=9", "-bd", "{archive}",
                      "{source}"],
-        "decompress": ["{bin}", "e", "-bd", "-y", "{archive}"],
+        "decompress": ["{bin}", "e", "-bd", "-y", "-o{restore_dir}", "{archive}"],
     },
     "zpaq-5-m510": {
         "role": "contextual",
         "compress": ["{bin}", "add", "{archive}", "{source}", "-method", "510",
                      "-threads", "1", "-noattributes", "-until", "20000101000000"],
-        "decompress": ["{bin}", "extract", "{archive}", "-to", "{restored}",
+        "decompress": ["{bin}", "extract", "{archive}", "-to", "{restore_dir}",
                        "-threads", "1", "-force"],
     },
     "zstd-22-long31": {
@@ -376,6 +386,26 @@ def _decompress(spec: dict[str, Any], mapping: dict[str, str], wall: float) -> t
     return _run_redirected(_expand(spec["decompress"], mapping), stdout_path, wall)
 
 
+def _resolve_restored(restore_dir: Path) -> Path | None:
+    """Return the single restored payload file anywhere under the restore root.
+
+    Extractors differ: file-writing tools drop one file (`payload`); zpaq
+    `extract -to DIR` recreates the stored source path as a directory tree with the
+    payload nested inside (the documented E1 behavior); 7-Zip `-oDIR` drops the
+    stored basename into DIR. All produce exactly one regular file under the
+    restore root, which this resolves deterministically. Zero or more than one
+    regular file is ambiguous and treated as a restore failure.
+    """
+    if not restore_dir.is_dir():
+        return None
+    files = [
+        path
+        for path in sorted(restore_dir.rglob("*"))
+        if path.is_file() and not path.is_symlink()
+    ]
+    return files[0] if len(files) == 1 else None
+
+
 def run_opponent_item(
     codec_id: str,
     spec: dict[str, Any],
@@ -389,21 +419,27 @@ def run_opponent_item(
     """Run one opponent on ONE item (family) and classify that item independently.
 
     Determinism is checked by compressing twice and comparing archive bytes;
-    exactness by restoring and comparing the SHA-256 to the source (a byte-exact
-    roundtrip preserves record order and timezone text). A failure here is an
+    exactness by restoring into a fresh per-item directory and comparing the
+    single restored payload's SHA-256 to the source (a byte-exact roundtrip
+    preserves record order and timezone text). A failure here is an
     invalid-tool-failure for THIS item only; another item's result stands.
     Every compress/decompress invocation (including the stdout-redirected and
-    determinism re-runs) is timed.
+    determinism re-runs) is timed. Cleanup removes archive files and the restore
+    directory tree.
     """
     tag = f"{codec_id}.{family}"
+    restore_dir = work / f"{tag}.restore"
+    if restore_dir.exists():
+        shutil.rmtree(restore_dir, ignore_errors=True)
+    restore_dir.mkdir(parents=True)
     mapping = {
         "bin": str(binary),
         "source": str(source),
         "archive": str(work / f"{tag}.archive"),
-        "restored": str(work / f"{tag}.restored"),
+        "restored": str(restore_dir / "payload"),
+        "restore_dir": str(restore_dir),
     }
     archive = Path(mapping["archive"])
-    restored = Path(mapping["restored"])
     second_archive = work / f"{tag}.archive.second"
 
     compress_rc, compress_timeout, compress_wall_ns = _compress(spec, mapping, wall_seconds)
@@ -422,8 +458,9 @@ def run_opponent_item(
         decompress_rc, decompress_timeout, decompress_wall_ns = _decompress(
             spec, mapping, wall_seconds
         )
-        if restored.is_file():
-            restored_sha256 = sha256_file(restored)
+        restored_file = _resolve_restored(restore_dir)
+        if restored_file is not None:
+            restored_sha256 = sha256_file(restored_file)
 
     exact = restored_sha256 == source_sha256
     finished_within_wall = not compress_timeout and not decompress_timeout
@@ -435,8 +472,9 @@ def run_opponent_item(
         and exact
         and deterministic
     )
-    for scratch in (archive, second_archive, restored):
-        scratch.unlink(missing_ok=True)
+    archive.unlink(missing_ok=True)
+    second_archive.unlink(missing_ok=True)
+    shutil.rmtree(restore_dir, ignore_errors=True)
     return {
         "codec_id": codec_id,
         "family": family,
