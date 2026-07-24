@@ -49,6 +49,9 @@ PEAK_RSS_LIMIT_BYTES = 512 * 1024 * 1024
 WALL_LIMIT_SECONDS = 600.0
 C3_KILL_NUMERATOR = 97
 C3_KILL_DENOMINATOR = 100
+# C2 crosses its H1 ratio line at complete bytes >= 0.95 * H1 (equality kills).
+C2_KILL_NUMERATOR = 95
+C2_KILL_DENOMINATOR = 100
 ARM_IDS = {
     "h1-floor": 100,
     "h6-hybrid": 101,
@@ -56,6 +59,7 @@ ARM_IDS = {
     "h8-static-mixer": 103,
     "c3-live-adaptation": 104,
     "c1-match-mixer": 105,
+    "c2-value-context": 106,
 }
 # Grace beyond the wall limit before the wrapper subprocess is force-killed.
 WALL_TIMEOUT_GRACE_SECONDS = 30.0
@@ -65,6 +69,14 @@ WALL_TIMEOUT_GRACE_SECONDS = 30.0
 # data strings, not decisions: the runner computes ratios but never claims a
 # kill or a nomination.
 KILL_LINES = {
+    # Charter cycle-2 arm gate for C2. Byte-identical to the kernel's
+    # C2_KILL_CRITERION constant (a Rust/Python binding test enforces it).
+    "c2-value-context": (
+        "Kill if C2 complete bytes are at least 0.95x H1 complete bytes on both "
+        "public snapshots, or if C2 is no smaller than C1 on both public "
+        "snapshots, OR any exactness, identity, ledger, unaccounted-state, "
+        "600-second wall, or 512 MiB decode-RSS gate fails."
+    ),
     "c3-live-adaptation": (
         "Kill if C3 complete bytes are at least 0.97x H1 complete bytes on both "
         "public snapshots, OR any exactness, identity, ledger, unaccounted-state, "
@@ -418,6 +430,40 @@ def c3_ratio_gate_kills(snapshots: dict[str, tuple[int, int]]) -> bool:
         c3_snapshot_crosses_ratio_kill(c3_bytes, h1_bytes)
         for c3_bytes, h1_bytes in snapshots.values()
     )
+
+
+def c2_snapshot_crosses_h1_ratio_kill(c2_bytes: int, h1_bytes: int) -> bool:
+    """Exact C2 `>= 0.95 * H1` comparison; equality crosses the line."""
+    if c2_bytes < 0 or h1_bytes <= 0:
+        raise ValueError("C2/H1 complete bytes must be positive")
+    return c2_bytes * C2_KILL_DENOMINATOR >= h1_bytes * C2_KILL_NUMERATOR
+
+
+def c2_snapshot_no_smaller_than_c1(c2_bytes: int, c1_bytes: int) -> bool:
+    """Exact C2 `>= C1` comparison; equality (no smaller) crosses the line."""
+    if c2_bytes < 0 or c1_bytes <= 0:
+        raise ValueError("C2/C1 complete bytes must be positive")
+    return c2_bytes >= c1_bytes
+
+
+def c2_ratio_gate_kills(
+    h1_snapshots: dict[str, tuple[int, int]],
+    c1_snapshots: dict[str, tuple[int, int]],
+) -> bool:
+    """Binding C2 disjunction: kill if C2 crosses `0.95 * H1` on both public
+    snapshots, OR C2 is no smaller than C1 on both public snapshots. Each side
+    is an AND over exactly two distinct snapshots."""
+    if len(h1_snapshots) != 2 or len(c1_snapshots) != 2:
+        raise ValueError("C2 ratio gate requires exactly two distinct snapshots")
+    versus_h1 = all(
+        c2_snapshot_crosses_h1_ratio_kill(c2_bytes, h1_bytes)
+        for c2_bytes, h1_bytes in h1_snapshots.values()
+    )
+    versus_c1 = all(
+        c2_snapshot_no_smaller_than_c1(c2_bytes, c1_bytes)
+        for c2_bytes, c1_bytes in c1_snapshots.values()
+    )
+    return versus_h1 or versus_c1
 
 
 def validate_kernel_receipt(
