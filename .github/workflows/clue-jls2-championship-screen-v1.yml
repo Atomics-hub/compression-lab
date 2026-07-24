@@ -1,0 +1,249 @@
+name: CLUE-LDS JLS2 championship screen v1
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: clue-jls2-championship-screen-v1
+  cancel-in-progress: false
+
+jobs:
+  championship-screen:
+    name: Frozen first and only CLUE-LDS championship screen
+    runs-on: ubuntu-22.04
+    timeout-minutes: 300
+    env:
+      PYTHONUNBUFFERED: "1"
+      PYTHONPATH: src
+      ZSTD_COMMIT: f8745da6ff1ad1e7bab384bd1f9d742439278e99
+      BROTLI_COMMIT: 028fb5a23661f123017c060daa546b55cf4bde29
+      KANZI_COMMIT: 6eea1658897019ab3107df2806d5e534ef0798df
+      ZPAQ_ZIP_SHA256: e85ec2529eb0ba22ceaeabd461e55357ef099b80f61c14f377b429ea3d49d418
+      XZ_TARBALL_SHA256: fff1ffcf2b0da84d308a14de513a1aa23d4e9aa3464d17e64b9714bfdd0bbfb6
+      SEVENZIP_SHA256: 41aaba7b1235304ab5aa0624530c67ae829496cd29e875925271efdccc28c03e
+      PBC_COMMIT: bac1f86d29624cb585bb4475235d22a28e60ffea
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Initialize immutable attempt paths
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "EVIDENCE_DIR=$RUNNER_TEMP/clue-jls2-championship-screen-v1" >> "$GITHUB_ENV"
+          echo "BIN_DIR=$RUNNER_TEMP/opponent-bin" >> "$GITHUB_ENV"
+          mkdir -p "$RUNNER_TEMP/clue-jls2-championship-screen-v1" "$RUNNER_TEMP/opponent-bin"
+
+      - name: Verify final readiness lock before acquisition
+        run: |
+          python scripts/verify-clue-jls2-championship-screen-v1-lock.py \
+            --lock config/clue-jls2-championship-screen-v1-lock.json \
+            --output "$EVIDENCE_DIR/readiness-lock-receipt.json"
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential clang cmake curl g++ libboost-all-dev \
+            lld llvm-dev make ninja-build unzip xz-utils
+
+      - name: Install candidate and verification tools
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+          cargo build --release --locked --manifest-path native/Cargo.toml --bin clab-jls2
+
+      # ruff 0.16.0 (released 2026-07-23) adds rules that flag frozen scripts
+      # that are hash-pinned by the readiness lock and must not be edited
+      # pre-acquisition. Pin to the same 0.15.22 CI uses so lint stays reproducible.
+      - name: Pin ruff for reproducible lint
+        run: python -m pip install 'ruff==0.15.22'
+
+      - name: Verify frozen championship harness
+        run: |
+          python -m json.tool config/clue-jls2-championship-screen-v1-gates.json >/dev/null
+          python -m json.tool config/clue-json-log-corpus-championship-v1.json >/dev/null
+          ruff check \
+            scripts/reduce-clue-jls2-championship-screen-v1.py \
+            scripts/fetch-clue-json-corpus-championship-v1.py \
+            scripts/benchmark-clue-jls2-championship-screen-v1.py \
+            scripts/evaluate-clue-jls2-championship-screen-v1.py \
+            scripts/verify-clue-jls2-championship-screen-v1-lock.py \
+            tests/test_clue_jls2_championship_reducer.py \
+            tests/test_clue_json_corpus_championship.py \
+            tests/test_clue_jls2_championship_gates.py \
+            tests/test_clue_jls2_championship_lock.py
+          python -m unittest \
+            tests.test_clue_jls2_championship_reducer \
+            tests.test_clue_json_corpus_championship \
+            tests.test_clue_jls2_championship_gates \
+            tests.test_clue_jls2_championship_lock -v
+
+      - name: Build strongest standard codecs
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone https://github.com/facebook/zstd "$RUNNER_TEMP/zstd"
+          git -C "$RUNNER_TEMP/zstd" checkout --detach "$ZSTD_COMMIT"
+          make -C "$RUNNER_TEMP/zstd" -j"$(nproc)" zstd-release
+          cp "$RUNNER_TEMP/zstd/programs/zstd" "$BIN_DIR/zstd-22"
+          cp "$RUNNER_TEMP/zstd/programs/zstd" "$BIN_DIR/zstd-22-long31"
+
+          git clone https://github.com/google/brotli "$RUNNER_TEMP/brotli"
+          git -C "$RUNNER_TEMP/brotli" checkout --detach "$BROTLI_COMMIT"
+          cmake -S "$RUNNER_TEMP/brotli" -B "$RUNNER_TEMP/brotli-build" -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release
+          cmake --build "$RUNNER_TEMP/brotli-build" --parallel
+          cp "$RUNNER_TEMP/brotli-build/brotli" "$BIN_DIR/brotli-11"
+
+          curl --fail --location --proto '=https' --tlsv1.2 \
+            https://github.com/tukaani-project/xz/releases/download/v5.8.3/xz-5.8.3.tar.gz \
+            --output "$RUNNER_TEMP/xz.tar.gz"
+          echo "$XZ_TARBALL_SHA256  $RUNNER_TEMP/xz.tar.gz" | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/xz-src"
+          tar -xzf "$RUNNER_TEMP/xz.tar.gz" -C "$RUNNER_TEMP/xz-src" --strip-components=1
+          (cd "$RUNNER_TEMP/xz-src" && ./configure --disable-shared && make -j"$(nproc)")
+          cp "$RUNNER_TEMP/xz-src/src/xz/xz" "$BIN_DIR/xz-lzma2-9e"
+
+          curl --fail --location --proto '=https' --tlsv1.2 \
+            https://github.com/ip7z/7zip/releases/download/26.02/7z2602-linux-x64.tar.xz \
+            --output "$RUNNER_TEMP/7z.tar.xz"
+          echo "$SEVENZIP_SHA256  $RUNNER_TEMP/7z.tar.xz" | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/7z"
+          tar -xJf "$RUNNER_TEMP/7z.tar.xz" -C "$RUNNER_TEMP/7z"
+          cp "$RUNNER_TEMP/7z/7zz" "$BIN_DIR/7zip-9"
+          chmod 755 "$BIN_DIR/7zip-9"
+
+      - name: Build research opponents Kanzi and ZPAQ
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone https://github.com/flanglet/kanzi-cpp "$RUNNER_TEMP/kanzi"
+          git -C "$RUNNER_TEMP/kanzi" checkout --detach "$KANZI_COMMIT"
+          cmake -S "$RUNNER_TEMP/kanzi" -B "$RUNNER_TEMP/kanzi-build" \
+            -DCMAKE_BUILD_TYPE=Release -DKANZI_ENABLE_NATIVE_OPTIMIZATIONS=ON
+          cmake --build "$RUNNER_TEMP/kanzi-build" --parallel
+          cp "$(find "$RUNNER_TEMP/kanzi-build" -name kanzi -type f | head -n1)" "$BIN_DIR/kanzi-max"
+
+          curl --fail --location --proto '=https' --tlsv1.2 \
+            https://mattmahoney.net/dc/zpaq715.zip --output "$RUNNER_TEMP/zpaq715.zip"
+          echo "$ZPAQ_ZIP_SHA256  $RUNNER_TEMP/zpaq715.zip" | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/zpaq"
+          unzip -o "$RUNNER_TEMP/zpaq715.zip" -d "$RUNNER_TEMP/zpaq"
+          (cd "$RUNNER_TEMP/zpaq" && \
+            g++ -O3 -march=native -Dunix -DNOJIT -pthread zpaq.cpp libzpaq.cpp -o zpaq)
+          cp "$RUNNER_TEMP/zpaq/zpaq" "$BIN_DIR/zpaq-5-m54"
+          cp "$RUNNER_TEMP/zpaq/zpaq" "$BIN_DIR/zpaq-5-m510"
+
+      - name: Capture opponent binary provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          ( cd "$BIN_DIR" && sha256sum * ) | tee "$EVIDENCE_DIR/opponent-binary-sha256.txt"
+
+      - name: Acquire the two sealed championship ranges exactly once
+        run: |
+          python scripts/fetch-clue-json-corpus-championship-v1.py \
+            --split public-validation \
+            --allow-public-validation \
+            --validation-lock config/clue-jls2-championship-screen-v1-lock.json \
+            --output "$RUNNER_TEMP/clue-championship" \
+            --cache "$RUNNER_TEMP/clue-cache-championship"
+          cp "$RUNNER_TEMP/clue-championship/manifest.json" \
+            "$EVIDENCE_DIR/championship-manifest.json"
+
+      - name: Run frozen candidate and opponent championship score
+        id: benchmark
+        shell: bash
+        run: |
+          set +e
+          python scripts/benchmark-clue-jls2-championship-screen-v1.py \
+            --manifest "$RUNNER_TEMP/clue-championship/manifest.json" \
+            --gates config/clue-jls2-championship-screen-v1-gates.json \
+            --lock config/clue-jls2-championship-screen-v1-lock.json \
+            --native-binary native/target/release/clab-jls2 \
+            --bin-dir "$BIN_DIR" \
+            --output "$EVIDENCE_DIR/score" 2>&1 | tee "$EVIDENCE_DIR/benchmark.log"
+          echo "exit_code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Apply the frozen reducer to the immutable score
+        if: steps.benchmark.outputs.exit_code == '0'
+        id: evaluate
+        shell: bash
+        run: |
+          set +e
+          python scripts/evaluate-clue-jls2-championship-screen-v1.py \
+            --bundle "$EVIDENCE_DIR/score/bundle.json" \
+            --gates config/clue-jls2-championship-screen-v1-gates.json \
+            --output "$EVIDENCE_DIR/decision.json" 2>&1 | tee "$EVIDENCE_DIR/evaluator.log"
+          echo "exit_code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Publish transparent job summary
+        if: always()
+        shell: bash
+        run: |
+          if [[ -f "$EVIDENCE_DIR/decision.json" ]]; then
+            python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json, os
+          d = json.load(open(os.path.join(os.environ["EVIDENCE_DIR"], "decision.json")))
+          print("## CLUE-LDS JLS2 championship screen v1")
+          print()
+          print(f"Result: **{d['result']}**")
+          print(f"JLS2 aggregate complete bytes: {d['candidate_aggregate_complete_bytes']:,}")
+          strong = d.get("strongest_eligible_aggregate_bytes")
+          print(f"Strongest eligible: {d.get('strongest_eligible_aggregate_codec')} "
+                f"({strong:,} bytes)" if strong else "Strongest eligible: none")
+          print(f"Research opponents valid: {d['required_research_opponents_valid']}")
+          print()
+          print("Claim ceiling: public championship contender on the two named "
+                "previously unopened CLUE-LDS ranges only; not world-best, not a "
+                "private holdout, not independently reproduced. Contextual and "
+                "unavailable tools are never counted as beaten.")
+          PY
+          else
+            echo "The retained first attempt did not reach a complete decision." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Seal complete evidence checksums
+        if: always()
+        shell: bash
+        run: |
+          if compgen -G "$EVIDENCE_DIR/*" > /dev/null; then
+            ( cd "$EVIDENCE_DIR" && find . -type f ! -name SHA256SUMS -print0 \
+              | sort -z | xargs -0 sha256sum ) > "$EVIDENCE_DIR/SHA256SUMS"
+          fi
+
+      - name: Upload retained first attempt
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: clue-jls2-championship-screen-v1-${{ github.run_id }}
+          path: ${{ runner.temp }}/clue-jls2-championship-screen-v1
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Enforce screen outcome
+        if: always()
+        shell: bash
+        run: |
+          benchmark="${{ steps.benchmark.outputs.exit_code }}"
+          evaluate="${{ steps.evaluate.outputs.exit_code }}"
+          if [[ -z "$benchmark" || "$benchmark" != "0" ]]; then
+            exit "${benchmark:-1}"
+          fi
+          if [[ -z "$evaluate" ]]; then
+            exit 1
+          fi
+          exit "$evaluate"

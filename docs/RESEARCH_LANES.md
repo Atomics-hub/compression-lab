@@ -78,6 +78,21 @@ or changes status. Status date: 2026-07-23.
   `docs/benchmarks/2026-07-24-jls2-private-holdout-readiness-v1.md`; blockers are
   unexecuted dedicated-machine reproduction and Kanzi/ZPAQ never run in a frozen
   championship protocol. Acquisition stays owner-dispatched and one-way.
+- **Championship screen (owner-dispatched 2026-07-25, FROZEN, not executed):**
+  a freeze-first, one-shot public championship screen answering "does JLS2 beat
+  Kanzi-max and ZPAQ -method 54 on two fresh unopened CLUE-LDS ranges?" on
+  `clue-championship-e` (15,000,001–15,250,000) and `clue-championship-f`
+  (32,000,001–32,250,000). Protocol
+  `docs/benchmarks/2026-07-25-clue-jls2-championship-screen-protocol.md`; gates
+  `config/clue-jls2-championship-screen-v1-gates.json`; frozen integer reducer
+  `scripts/reduce-clue-jls2-championship-screen-v1.py` (contender iff JLS2 * 100 <=
+  95 * strongest eligible, equality passes, per-family + per-item + all JLS2 gates,
+  Kanzi and ZPAQ both valid). kanzi-max and zpaq-5-m54 are eligible byte opponents
+  regardless of their own RSS; -method 510 (1272.1 MiB decode) contextual only;
+  ZPAQ per-item wall frozen at 1800 s (JLS2 keeps the v2 1800 s wall). This screen
+  reads no corpus data at freeze, does NOT touch the v1 not_passed or v2 passed
+  records, is NOT charged against the moon 160-run ledger, and does not authorize
+  the private holdout. Acquisition/scoring stay owner-dispatched and one-way.
 - **Corollary:** the A2 context-reuse and inline-single-worker "no effect"
   results likely compared polluted readings against polluted readings;
   reread before citing them, pending confirmation of each run's exact

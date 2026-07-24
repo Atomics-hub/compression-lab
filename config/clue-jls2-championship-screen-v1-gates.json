@@ -1,0 +1,307 @@
+{
+  "schema_version": 1,
+  "name": "clue-jls2-championship-screen-v1",
+  "category": "byte_exact_structured_cloud_event_logs",
+  "public_brand": "Axiom",
+  "technical_codec": "JLS2",
+  "question": "On two fresh, previously unopened CLUE-LDS temporal ranges, is JLS2 a public championship contender against Kanzi 2.5.3 max and ZPAQ 7.15 -method 54, alongside the strongest eligible standard roster?",
+  "readiness_status": "protocol-and-gates-frozen-awaiting-final-readiness-lock",
+  "owner_dispatch": "2026-07-25 explicit owner dispatch; freeze-first, one-shot; does not authorize the private holdout and reads no corpus data in the freeze PR",
+  "supersedes": "none",
+  "prior_scores": {
+    "v1": {
+      "name": "clue-jls2-one-time-public-validation-v1",
+      "result": "not_passed",
+      "immutable": true
+    },
+    "v2": {
+      "name": "clue-jls2-two-range-public-validation-v2",
+      "result": "passed",
+      "immutable": true,
+      "note": "This championship screen stands on its own. It does not change, reopen, or re-score v1 not_passed or v2 passed."
+    }
+  },
+  "claim_ceiling": "A contender screen may support only a public championship contender claim on the two named previously unopened CLUE-LDS temporal ranges (clue-championship-e and clue-championship-f). It is not world-best, not state-of-the-art, not market-leading, not a private-holdout result, and not independently reproduced. Unavailable tools are unavailable, never beaten. A not-contender or interrupted screen is published under the same boundary. This screen does not change the immutable v1 not_passed or v2 passed scores.",
+  "moonshot_ledger_note": "This is the JLS2 product lane, not the Lane 2 moonshot prescreen lane; it is NOT charged against the moon 160-run cycle ledger.",
+  "extends": {
+    "v2_gates_path": "config/clue-jls2-public-validation-v2-gates.json",
+    "v2_gates_sha256": "376354fb60eacb7cc6c7b7cda4fdde37ffd25b2aaa0ce41792a4ede0627d6c9a",
+    "v2_results_doc": "docs/benchmarks/2026-07-24-clue-jls2-public-validation-v2-results.md",
+    "roster_path": "config/json-log-championship-roster-v1.json",
+    "roster_doc": "docs/benchmarks/2026-07-24-json-log-championship-roster-v1.md",
+    "eligibility_audit_path": "config/log-competitor-reproduction-v1.json",
+    "toolchain_receipt_path": "config/frontier-headroom-e1-toolchain-v1.json",
+    "note": "The framing, instrument, complete-byte accounting, one-way-door discipline, and JLS2 candidate identity are inherited unchanged from the frozen JLS2 v2 public validation and the #109 championship roster. This screen binds them to two fresh ranges and to the frozen integer contender reducer."
+  },
+  "candidate": {
+    "codec_id": "jls2",
+    "format": "JLS2 version 1 containing JLF2 version 1 segments",
+    "product_lineage": "native/src/jls2.rs from PR #74 (200c74b); byte-identical to the frozen JLS2 v2 candidate, zero tuning",
+    "frozen_implementation_commit": "69e9ea6a974c24c9a0f99a364cca5e8cd9d36145",
+    "segment_target_bytes": 16777216,
+    "internal_zstd_level": 6,
+    "compression_segment_workers": 2,
+    "standalone_decode_segment_workers": 3,
+    "frozen_paths": {
+      "pyproject.toml": "7022c21615daa7b6e6cdb080af468ae0321e80e4c219f27c8979e0e87833e93f",
+      "native/Cargo.lock": "a905547d069da6d55bf6739307ffe9c75202cc15e87a6ae399e10b8890544783",
+      "native/Cargo.toml": "984a69ab00314eaef3659fbc7642c0ea738f7d19d3895cf6530738278691c707",
+      "native/src/lib.rs": "ec3ba58920c8701c3eac6a6c4150c3b4474248e203376c158ec376a2b3411127",
+      "native/src/jls2.rs": "2868d54d8379cdc45608f96a219d49fe6dc406d2d63a0596cdae7a4c7b9779b2",
+      "native/src/bin/clab-jls2.rs": "45d835cc512406f747a0cab7173b2594897c2064fcddff1c53a94e8b9d43c7c9",
+      "src/compresslab/json_columnar.py": "cf3b677a40397b36d9f527b3df1f562594d396049c60692e0482af111c5ed85e",
+      "src/compresslab/json_log_codec.py": "d8882a3de67233acf9963adeb0c8edc19eae1209753cd42246490538f4597f9e",
+      "src/compresslab/native.py": "3420b3d7acaa636a27f2788e9304b19c01014f6f3183c2aa822e9bf3cc4cf7d1",
+      "src/compresslab/worker.py": "3d5cf89abd2d992e9ea017205105f212df90f3dd3ee15608b0eb742c4a193b61"
+    },
+    "identity_note": "JLS2 settings are IDENTICAL to v2 (16 MiB segment target, internal Zstandard level 6, 2 compression workers, 3 standalone decode workers). No tuning is permitted for this screen."
+  },
+  "instrument": {
+    "clean_rss_path": "scripts/measure-clean-rss.py",
+    "clean_rss_sha256": "805ee3a20680d2afcf339f678d2e1292fb0ed72dc3ba2ccff261ba693bf41306",
+    "candidate_compress_driver_path": "scripts/jls2-candidate-compress-v2.py",
+    "candidate_compress_driver_sha256": "d882140a5704b2de8ad8663ca572f3fa5c4f99f8c5c8a472feaee920e48bdda2",
+    "reducer_path": "scripts/reduce-clue-jls2-championship-screen-v1.py",
+    "measurement_note": "Every JLS2 candidate compression and standalone decode resource row is measured through the clean-child instrument (scripts/measure-clean-rss.py), exactly as v2. Kanzi and ZPAQ resource readings are reported transparently for context and do not gate their byte-comparison eligibility."
+  },
+  "validation": {
+    "corpus_config_path": "config/clue-json-log-corpus-championship-v1.json",
+    "corpus_config_sha256": null,
+    "expected_items": [
+      {
+        "id": "clue-championship-e",
+        "family": "clue_championship_e",
+        "first_record_id": 15000001,
+        "last_record_id": 15250000
+      },
+      {
+        "id": "clue-championship-f",
+        "family": "clue_championship_f",
+        "first_record_id": 32000001,
+        "last_record_id": 32250000
+      }
+    ],
+    "expected_record_counts": {
+      "clue-championship-e": 250000,
+      "clue-championship-f": 250000
+    },
+    "expected_license_spdx": "CC-BY-4.0",
+    "expected_split": "public_validation",
+    "acquisition_method": "Download the pinned Zenodo record 7119953 clue.zip (sha256 0c9eadb104acf1da6de738ba9babe957c83cd8602a01fa6d846a6ea4a6611d96), open the single member clue.json, and select the complete original NDJSON records whose official monotonically increasing id (id == line_number, enforced through the v2 fetcher discipline) is within each inclusive frozen range. Both ranges are refused if they overlap any consumed v1/v2 range or each other.",
+    "minimum_repetitions": 5,
+    "warmups": 1,
+    "memory_repetitions": 1,
+    "order_seed": 20260725,
+    "standard_execution_mode": "cold-process",
+    "candidate_compression_execution_mode": "cold-process",
+    "candidate_decompression_execution_mode": "standalone-native-cold-process",
+    "timing_scope": "parent wall clock including process startup and complete file IO",
+    "memory_scope": "clean-child cold-process peak RSS",
+    "max_normalized_preflight_load_1m": 0.75
+  },
+  "walls": {
+    "per_item_wall_seconds_default": 600.0,
+    "per_codec_wall_overrides_seconds": {
+      "jls2": 1800.0,
+      "zpaq-5-m54": 1800.0,
+      "zpaq-5-m510": 1800.0
+    },
+    "jls2_wall_note": "JLS2 keeps the v2 per-item wall exactly (1800 s).",
+    "zpaq_wall_justification": "Local arm64 NOJIT zpaq -method 54 measured 111.8 s and 113.8 s per ~24 MiB GH Archive slice (runs/moon-cycle2-c1c2c8-prescreen-v1/local-references-s24.json), i.e. ~4.7 s/MiB, projecting to ~220 s per ~46.5 MiB CLUE family. A synthetic worst case reached 166.8 s per 24 MiB (~6.6 s/MiB, ~310 s per family). The 1800 s ZPAQ ceiling gives roughly 6x-8x headroom over the projected family wall so that a slow runner cannot silently kill ZPAQ as a tool failure, while keeping the bound explicit and frozen. A ZPAQ item that still exceeds 1800 s is recorded as invalid-tool-failure with its reason, never quietly dropped.",
+    "did_not_finish_rule": "A tool that does not finish an item within its frozen per-item wall is recorded as a did-not-finish (invalid-tool-failure) for that item and is not eligible for a championship byte comparison on it; it is never silently dropped, and Kanzi and ZPAQ are never quietly omitted."
+  },
+  "roster": {
+    "candidate_codec_id": "jls2",
+    "eligible_opponent_codec_ids": [
+      "kanzi-max",
+      "zpaq-5-m54",
+      "brotli-11",
+      "zstd-22",
+      "xz-lzma2-9e",
+      "7zip-9",
+      "pbc-only"
+    ],
+    "required_research_opponent_codec_ids": [
+      "kanzi-max",
+      "zpaq-5-m54"
+    ],
+    "contextual_codec_ids": [
+      "zpaq-5-m510",
+      "zstd-22-long31"
+    ],
+    "eligibility_framing": "kanzi-max and zpaq-5-m54 are eligible byte-comparison opponents regardless of their own decode RSS or speed; those are reported transparently. This is the frozen framing for THIS championship screen: only JLS2 carries the 512 MiB product decode-RSS cap. -method 510 (1272.1 MiB decode RSS, runs/json-context-ceiling-e2-a-v1/) and zstd --long=31 are contextual only, reported alongside but never eligible and never counted as beaten or beating JLS2.",
+    "eligible_opponents": [
+      {
+        "codec_id": "kanzi-max",
+        "tool": "Kanzi-max",
+        "role": "research",
+        "version": "2.5.3",
+        "source": "https://github.com/flanglet/kanzi-cpp",
+        "commit": "6eea1658897019ab3107df2806d5e534ef0798df",
+        "source_tarball_sha256": "0f34944b0ea77843b34ae461d5207bacd3a9839436182d8df244c6c190a1e30d",
+        "settings": "--compress --level=9 --block=1g --jobs=1",
+        "build": "cmake -DCMAKE_BUILD_TYPE=Release -DKANZI_ENABLE_NATIVE_OPTIMIZATIONS=ON ; cmake --build --target kanzi_static",
+        "hash_capture": "Linux x86_64 build produced at execution time from the pinned source commit; binary sha256 captured into the run receipt at execution."
+      },
+      {
+        "codec_id": "zpaq-5-m54",
+        "tool": "ZPAQ",
+        "role": "research",
+        "version": "7.15",
+        "source": "https://mattmahoney.net/dc/zpaq715.zip",
+        "source_zip_sha256": "e85ec2529eb0ba22ceaeabd461e55357ef099b80f61c14f377b429ea3d49d418",
+        "settings": "add ARCHIVE input.bin -method 54 -threads 1 -noattributes -until 20000101000000",
+        "build": "make with the pinned zpaq.cpp/libzpaq.cpp; x86_64 Linux build (JIT). Per the E1 toolchain receipt (config/frontier-headroom-e1-toolchain-v1.json) the frozen build is compiled -DNOJIT; ZPAQ JIT and NOJIT builds produce byte-identical archives (the internal ZPAQL model and the emitted archive are independent of the x86 JIT execution path), so the complete-archive byte count is build-independent. If E1 JIT/NOJIT byte-identity cannot be re-cited at execution, this is enforced as build-identity policy: the archive bytes are recomputed and must match across the two build modes or the run is voided.",
+        "memory_context": "zpaq-5-m54 (16 MiB block) peaks at 343.3 MiB decode RSS and 358.3 MiB compress RSS (in-gate; runs/json-context-ceiling-e2-a-v1/).",
+        "hash_capture": "Linux x86_64 build produced at execution time from the pinned source zip; binary sha256 captured into the run receipt at execution."
+      },
+      {
+        "codec_id": "brotli-11",
+        "tool": "Brotli-11",
+        "role": "standard",
+        "version": "1.2.0",
+        "source": "https://github.com/google/brotli",
+        "commit": "028fb5a23661f123017c060daa546b55cf4bde29",
+        "settings": "quality 11 (maximum), single thread",
+        "note": "Strongest eligible standard on the JLS2 v2 score.",
+        "hash_capture": "Linux build from the pinned commit; binary sha256 captured at execution."
+      },
+      {
+        "codec_id": "zstd-22",
+        "tool": "Zstandard (high-ratio)",
+        "role": "standard",
+        "version": "1.5.7",
+        "source": "https://github.com/facebook/zstd",
+        "commit": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+        "settings": "--ultra -22 -T1 (default 128 MiB window, decode RSS within the 512 MiB gate)",
+        "contextual_variant": "zstd-22-long31 (--ultra -22 --long=31 -T1) recovers additional ratio but its ~2 GiB decode window is contextual only.",
+        "hash_capture": "Linux build from the pinned commit; binary sha256 captured at execution."
+      },
+      {
+        "codec_id": "xz-lzma2-9e",
+        "tool": "XZ / LZMA",
+        "role": "standard",
+        "version": "5.8.3",
+        "source": "https://github.com/tukaani-project/xz/releases/tag/v5.8.3",
+        "source_tarball_sha256": "fff1ffcf2b0da84d308a14de513a1aa23d4e9aa3464d17e64b9714bfdd0bbfb6",
+        "settings": "--format=xz --check=crc64 --lzma2=preset=9e --threads=1 (preset 9 extreme)",
+        "hash_capture": "Linux build from the pinned v5.8.3 source; binary sha256 captured at execution."
+      },
+      {
+        "codec_id": "7zip-9",
+        "tool": "7-Zip",
+        "role": "standard",
+        "version": "26.02",
+        "source": "https://github.com/ip7z/7zip/releases/download/26.02/7z2602-linux-x64.tar.xz",
+        "asset_sha256": "41aaba7b1235304ab5aa0624530c67ae829496cd29e875925271efdccc28c03e",
+        "settings": "LZMA2 -mx=9 (maximum)",
+        "hash_capture": "Pinned release asset sha256 is authoritative; extracted 7zz binary sha256 captured at execution."
+      },
+      {
+        "codec_id": "pbc-only",
+        "tool": "PBC",
+        "role": "specialist",
+        "source": "https://github.com/antgroup/pbc",
+        "commit": "bac1f86d29624cb585bb4475235d22a28e60ffea",
+        "license_spdx": "Apache-2.0",
+        "license_sha256": "bacacee63139034e9acba4de0c513eeb93cc6277ae52054a30eebf4be644e7ed",
+        "settings": "method pbc_only, pattern_size 100, train_data_number 2000, train_thread_num 64",
+        "complete_archive_rule": "pattern file bytes plus compressed payload bytes",
+        "gates_path": "config/clue-pbc-public-validation-v2-gates.json",
+        "gates_sha256": "481fdc71f61113b823631b3f98ae999e8de04ee0ea9ea3c86c0bc49edea84d4b",
+        "hash_capture": "Rebuilt from the pinned commit; binary sha256 re-captured at execution."
+      }
+    ],
+    "contextual_opponents": [
+      {
+        "codec_id": "zpaq-5-m510",
+        "tool": "ZPAQ (research ceiling)",
+        "source": "https://mattmahoney.net/dc/zpaq715.zip",
+        "settings": "add ARCHIVE input.bin -method 510 -threads 1 -noattributes -until 20000101000000",
+        "reason": "1 GiB block; 1272.1 MiB decode RSS (runs/json-context-ceiling-e2-a-v1/) far over the 512 MiB product decode gate. Reported as a contextual ratio ceiling only, never eligible, never a loss or a win."
+      },
+      {
+        "codec_id": "zstd-22-long31",
+        "tool": "Zstandard --long=31",
+        "settings": "--ultra -22 --long=31 -T1",
+        "reason": "~2 GiB decode window over the 512 MiB decode gate; contextual only, same treatment as -method 510."
+      }
+    ],
+    "unavailable_context": [
+      "LogFold",
+      "LogPrism",
+      "LogLite",
+      "DeLog"
+    ],
+    "unavailable_is_not_a_win": true,
+    "kanzi_zpaq_rule": "Kanzi and ZPAQ may not be quietly omitted from any championship claim. If either cannot run comparably on the frozen runner, the exact reason is documented and it is classified invalid-tool-failure or contextual, never beaten. A championship claim that omits either without a documented reason is invalid."
+  },
+  "reducer": {
+    "script_path": "scripts/reduce-clue-jls2-championship-screen-v1.py",
+    "contender_numerator": 95,
+    "contender_denominator": 100,
+    "integer_rule": "JLS2 aggregate complete bytes * 100 <= 95 * strongest, where strongest is the minimum aggregate complete bytes among the eligible opponents with a VALID execution.",
+    "equality_semantics": "The operator is <=, so equality passes. Byte-ratio equality (candidate * 100 == 95 * strongest, i.e. candidate exactly 95% of strongest = exactly 5% smaller) SATISFIES the condition and is a contender. One byte above the line is not a contender.",
+    "per_family_and_per_item_rule": "On every family (per temporal range) JLS2 must be the strictly smallest eligible complete archive AND clear the same integer 5% margin against the strongest eligible family result (the #109 frozen regression rules).",
+    "valid_execution_definition": "A byte-exact roundtrip that preserves record order and timezone text, produces deterministic output, and finishes the item within the frozen per-item wall. Any failure of these is invalid-tool-failure: excluded from strongest, never a JLS2 win or loss.",
+    "required_research_opponents": "kanzi-max and zpaq-5-m54 must both have valid executions for a clean contender claim; otherwise the screen is not a contender and the failure is recorded.",
+    "first_eligible_score_is_final": true,
+    "no_post_score_tuning": true
+  },
+  "regression_rules": {
+    "source": "config/json-log-championship-roster-v1.json (#109)",
+    "per_family_minimum_gain_percent": 5.0,
+    "aggregate_minimum_gain_percent": 5.0,
+    "jls2_smallest_eligible_per_family": true,
+    "segment_fallback_regression_bytes": 0,
+    "note": "Gains are measured against the smallest complete exact-byte result among every eligible available tool, not against a single named baseline."
+  },
+  "requirements": {
+    "maximum_cold_compression_peak_rss_bytes": 536870912,
+    "maximum_cold_decompression_peak_rss_bytes": 536870912,
+    "product_decode_rss_cap_applies_to": "jls2",
+    "maximum_shim_floor_bytes": 67108864,
+    "maximum_shim_fraction_of_maxrss": 0.25,
+    "maximum_segment_regression_vs_equally_framed_direct_fallback_bytes": 0,
+    "minimum_aggregate_compression_mbps": 100.0,
+    "minimum_aggregate_standalone_decompression_mbps": 250.0,
+    "minimum_repetition_compression_mbps": 90.0,
+    "minimum_repetition_standalone_decompression_mbps": 225.0,
+    "speed_gate_scope": "jls2 only; opponent speed is reported for context and does not gate the byte comparison",
+    "require_shim_floor_eligibility": true,
+    "require_clean_child_candidate_rss": true,
+    "require_exact_roundtrip_for_every_trial": true,
+    "require_deterministic_output": true,
+    "require_corruption_rejection": true,
+    "require_complete_frame_accounting": true,
+    "require_all_eligible_opponents_attempted": true,
+    "require_required_research_opponents_valid": true,
+    "require_clean_tracked_commit": true,
+    "require_frozen_candidate_paths": true,
+    "require_standalone_decoder": true,
+    "require_binary_sha256_capture_at_execution": true,
+    "require_tool_failure_classification": true,
+    "require_unavailable_competitor_markers": true
+  },
+  "runner_class": {
+    "hosted_label": "ubuntu-22.04",
+    "vcpus": 4,
+    "note": "GitHub-hosted ubuntu-22.04, 4 vCPU, matching the JLS2 v1/v2 evidence class."
+  },
+  "authorization": {
+    "maximum_acquisitions": 1,
+    "maximum_scored_attempts": 1,
+    "retain_failed_or_interrupted_attempt": true,
+    "prohibit_post_score_tuning": true,
+    "validation_currently_authorized": false,
+    "authorization_condition": "A final championship readiness lock must pin this gates file, corpus config, roster, candidate, instrument, reducer, acquisition fetcher, benchmark runner, evaluator, verifier, and workflow before acquisition. Acquisition and scoring remain a separate, owner-dispatched one-way door and do not happen in the freeze PR.",
+    "private_holdout_note": "This screen does not authorize the sealed private holdout. Private-holdout identities never enter this repository by design."
+  },
+  "decision_rule": "The first eligible score is final. JLS2 is a contender only if, on the two fresh sealed ranges under these frozen gates, its complete-byte archive is at least 5% smaller (integer 95/100, equality passes) than the strongest eligible complete-byte result per family and in aggregate, with kanzi-max and zpaq-5-m54 both producing valid executions, and every JLS2 gate passing. No candidate path, parameter, threshold, corpus range, opponent setting, instrument, reducer, runner, or wall may change after acquisition. A not-contender or interrupted scored attempt is retained and cannot be replaced by a tuned rerun.",
+  "evidence_bindings": {
+    "zpaq_memory_evidence": "runs/json-context-ceiling-e2-a-v1/",
+    "zpaq_wall_evidence": "runs/moon-cycle2-c1c2c8-prescreen-v1/local-references-s24.json",
+    "v2_score_evidence": "runs/clue-jls2-public-validation-v2/",
+    "note": "SHA-256 bindings for the corpus config and every frozen script are pinned by config/clue-jls2-championship-screen-v1-lock.json at readiness."
+  }
+}
