@@ -78,7 +78,8 @@ holdout identities never enter this repository by design.
 | **XZ / LZMA** | standard | eligible | 5.8.3, xz v5.8.3; `--format=xz --check=crc64 --lzma2=preset=9e --threads=1` (preset 9 extreme); v2-equivalent to lzma-9 | `16b9994cca884ed2a66ba63736f1450049cbc6fd1d93076c51e5f0e7f7a71381` (prior macOS receipt); Linux binary captured at execution |
 | **7-Zip** | standard | eligible | 26.02, ip7z/7zip release `7z2602-linux-x64.tar.xz`; LZMA2 `-mx=9` | release asset `41aaba7b1235304ab5aa0624530c67ae829496cd29e875925271efdccc28c03e`; extracted `7zz` captured at execution |
 | **Kanzi-max** | research | eligible (pending Linux build) | 2.5.3, github.com/flanglet/kanzi-cpp commit `6eea1658897019ab3107df2806d5e534ef0798df`; `--compress --level=9 --block=1g --jobs=1` | prior macOS receipts `1518708ef729b2520ac706997721eb90c024266d72e97cc3a1db25a3a1afcbdd`, `3c93e96fb108ebf8152e187ef0f830b03952200dc94b449fcec8d158e7474618`; Linux binary captured at execution |
-| **ZPAQ** | research | eligible (pending Linux build) | 7.15, mattmahoney.net zpaq715.zip (source zip SHA-256 `e85ec2529eb0ba22ceaeabd461e55357ef099b80f61c14f377b429ea3d49d418`); `add ARCHIVE input.bin -method 510 -threads 1 -noattributes -until 20000101000000` (level 5, 16 MiB block) | prior macOS NOJIT receipts `fecbedd1fe9ee9bfe8308ad61d223635dc65fc853f18b79dcabd854e5e341ac0`, `3030bfef86efe97cc63ca6f47b0c362ae83fa2ec55e05095d6b190f463f28d37`; Linux binary captured at execution |
+| **ZPAQ** | research | eligible (pending Linux build) | 7.15, mattmahoney.net zpaq715.zip (source zip SHA-256 `e85ec2529eb0ba22ceaeabd461e55357ef099b80f61c14f377b429ea3d49d418`); `add ARCHIVE input.bin -method 54 -threads 1 -noattributes -until 20000101000000` (level 5, 16 MiB block) | prior macOS NOJIT receipts `fecbedd1fe9ee9bfe8308ad61d223635dc65fc853f18b79dcabd854e5e341ac0`, `3030bfef86efe97cc63ca6f47b0c362ae83fa2ec55e05095d6b190f463f28d37`; Linux binary captured at execution |
+| **ZPAQ (research ceiling)** | research | contextual | 7.15, same source zip; `add ARCHIVE input.bin -method 510 -threads 1 -noattributes -until 20000101000000` (level 5, 1 GiB block) | same build as the eligible ZPAQ row; Linux binary captured at execution |
 | **PBC** | specialist | eligible | github.com/antgroup/pbc commit `bac1f86d29624cb585bb4475235d22a28e60ffea`, Apache-2.0; `pbc_only`, pattern_size 100, train_data_number 2000, train_thread_num 64; complete archive = pattern file + payload | `c96e0dbf5268899314a51238d5bed8bfa58c00bc032e196a2a1dddbff0bfc720` (v2 hosted-run receipt, head `b187308`); re-captured at execution |
 
 Standards `store`, `lz4-1`, `gzip-9`, `bz2-9`, `zstd-3`, `zstd-9`, and
@@ -98,13 +99,18 @@ already reported in v2. External standard versions are pinned by the v2 gates
   `--ultra -22 --long=31 -T1` recovers additional ratio but its roughly 2 GiB
   decode window exceeds the 512 MiB decode gate, so it is reported as
   **contextual**, not eligible.
-- **ZPAQ.** Level 5 at the E1-pinned 16 MiB block (`-method 510`) is the
-  strongest practical ZPAQ configuration that the frozen E2-A memory evidence
-  shows stays within the 512 MiB decode gate: the 16 MiB block peaks at
-  **343.3 MiB** decode RSS (eligible). Larger blocks recover up to the full
-  21.32% ratio gap but require **592.2 to 1272.1 MiB** on decode
-  (`runs/json-context-ceiling-e2-a-v1/`), and are therefore reported as
-  **contextual**, not eligible.
+- **ZPAQ.** The eligible championship config is level 5 at a 16 MiB block
+  (`-method 54`), the strongest practical ZPAQ configuration that the frozen
+  E2-A memory evidence shows stays within the 512 MiB decode gate: `zpaq-5-m54`
+  peaks at **343.3 MiB** decode RSS (358.3 MiB compress) and is memory-eligible
+  (`runs/json-context-ceiling-e2-a-v1/`). The larger-block variants recover up
+  to the full 21.32% ratio gap but exceed the gate on decode: `zpaq-5-m57`
+  (128 MiB block) and `zpaq-5-m510` (1 GiB block) both measure **1272.1 MiB**
+  decode RSS. The 1 GiB-block config (`-method 510`) is carried as the
+  **contextual research-ceiling** ZPAQ row: reported alongside, never eligible
+  under the 512 MiB decode gate, and its results are contextual, never losses or
+  wins under the product gates. This is the same treatment as zstd `--long=31`
+  below.
 
 ## Unavailable and contextual tools (absence is never a win)
 

@@ -144,12 +144,12 @@
       "tool": "ZPAQ",
       "role": "research",
       "status": "eligible-pending-linux-build",
-      "codec_id": "zpaq-5-m510",
+      "codec_id": "zpaq-5-m54",
       "version": "7.15",
       "source": "https://mattmahoney.net/dc/zpaq715.zip",
       "source_zip_sha256": "e85ec2529eb0ba22ceaeabd461e55357ef099b80f61c14f377b429ea3d49d418",
-      "settings": "add ARCHIVE input.bin -method 510 -threads 1 -noattributes -until 20000101000000",
-      "config_rationale": "Level 5 at the E1-pinned 16 MiB block is the strongest practical ZPAQ configuration that the frozen E2-A memory evidence shows stays within the 512 MiB decode gate: 16 MiB block peaks at 343.3 MiB decode RSS (eligible). Larger blocks recover up to the full 21.32% ratio gap but require 592.2 to 1272.1 MiB on decode and are therefore reported as contextual, not eligible.",
+      "settings": "add ARCHIVE input.bin -method 54 -threads 1 -noattributes -until 20000101000000",
+      "config_rationale": "Level 5 at a 16 MiB block (-method 54) is the strongest practical ZPAQ configuration that the frozen E2-A memory evidence shows stays within the 512 MiB decode gate: zpaq-5-m54 peaks at 343.3 MiB decode RSS and 358.3 MiB compress RSS (memory-eligible, runs/json-context-ceiling-e2-a-v1/). Larger blocks recover up to the full 21.32% ratio gap but exceed the gate on decode: zpaq-5-m57 (128 MiB block) and zpaq-5-m510 (1 GiB block) both measure 1272.1 MiB decode RSS. The 1 GiB-block config (-method 510) is carried as a separate contextual research-ceiling entry, never eligible under the product gates.",
       "prior_binary_receipts": {
         "macos_arm64_e1_nojit": "fecbedd1fe9ee9bfe8308ad61d223635dc65fc853f18b79dcabd854e5e341ac0",
         "macos_arm64_moon_nojit": "3030bfef86efe97cc63ca6f47b0c362ae83fa2ec55e05095d6b190f463f28d37"
@@ -205,6 +205,14 @@
       "repository": "https://github.com/y-scope/clp",
       "commit": "d3daf16517c51f8e6fc09960be821a93a3efe06b",
       "reason": "Official JSON documentation states timezone information and event order are not preserved, so it is ineligible for a byte-exact comparison; context-only semantic log compressor. Absence is not an Axiom win."
+    },
+    {
+      "tool": "ZPAQ (research ceiling)",
+      "status": "contextual",
+      "codec_id": "zpaq-5-m510",
+      "source": "https://mattmahoney.net/dc/zpaq715.zip",
+      "settings": "add ARCHIVE input.bin -method 510 -threads 1 -noattributes -until 20000101000000",
+      "reason": "Level 5 at a 1 GiB block (-method 510) is ZPAQ's research-ceiling configuration. The frozen E2-A evidence measures its decode RSS at 1272.1 MiB, far over the 512 MiB product decode gate, so it is never eligible under the product gates. It is reported alongside as a contextual ratio ceiling; its results are contextual, never losses or wins. Same treatment as zstd --long=31."
     }
   ],
   "kanzi_zpaq_rule": "Kanzi and ZPAQ may not be quietly omitted from any championship claim. If either cannot run comparably on the frozen runner, the exact reason is documented and it is classified unavailable or contextual, never beaten. A championship claim that omits either without a documented reason is invalid.",

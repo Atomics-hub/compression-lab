@@ -84,6 +84,22 @@ class ChampionshipRosterTests(unittest.TestCase):
             self.assertEqual(by_tool[name]["status"], "unavailable")
             self.assertIn(name, self.doc)
 
+    def test_zpaq_method_notation_is_correct(self) -> None:
+        zpaq = next(e for e in self.config["roster"] if e["tool"] == "ZPAQ")
+        # Eligible ZPAQ is level 5 / 16 MiB block = -method 54 (343.3 MiB decode, in-gate).
+        self.assertIn("-method 54 ", zpaq["settings"])
+        self.assertNotIn("-method 510", zpaq["settings"])
+        self.assertIn("-method 54", self.doc)
+        self.assertIn("343.3 MiB", self.doc)
+        # The 1 GiB block (-method 510, 1272.1 MiB decode) is the contextual ceiling only.
+        ceiling = next(
+            e for e in self.config["unavailable_or_contextual"] if e["tool"] == "ZPAQ (research ceiling)"
+        )
+        self.assertEqual(ceiling["status"], "contextual")
+        self.assertIn("-method 510", ceiling["settings"])
+        self.assertIn("1272.1 MiB", ceiling["reason"])
+        self.assertIn("-method 510", self.doc)
+
     def test_memory_gate_matches_v2(self) -> None:
         self.assertEqual(self.config["memory_rules"]["eligible_decode_gate_bytes"], 536870912)
         self.assertEqual(
