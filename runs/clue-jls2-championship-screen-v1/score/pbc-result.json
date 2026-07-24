@@ -1,0 +1,239 @@
+{
+  "accepted_path": "/home/runner/work/_temp/clue-jls2-championship-screen-v1/score/pbc-accepted.json",
+  "accepted_sha256": "40a27aa90782b29adaaa2f2532c13357f9175254d6e69f7123aae361584a7dfa",
+  "aggregates": {
+    "pbc_only": {
+      "archive_bytes": 45182993,
+      "complete_compression_mbps": 0.06285567636835643,
+      "complete_compression_seconds": 3054.967635296501,
+      "decompression_mbps": 82.78060052037758,
+      "decompression_seconds": 2.3196504469997308,
+      "jls2_bytes": 4323039,
+      "online_compression_mbps": 55.70442656946981,
+      "online_compression_seconds": 3.4471597470001143,
+      "original_bytes": 192022057,
+      "pattern_bytes": 67102,
+      "pattern_training_seconds": 3051.520475549501,
+      "payload_bytes": 45115891,
+      "pbc_gain_vs_jls2_percent": -945.1673695287042,
+      "pbc_gain_vs_zstd9_percent": -945.1673695287042,
+      "zstd9_bytes": 4323039
+    }
+  },
+  "benchmark_source": {
+    "commit": "850cb630647f29dbe1a58d374f4d189f420d2b8e",
+    "tracked_status": ""
+  },
+  "claim_ceiling": "Frozen PBC-only exact specialist comparison for the CLUE-LDS public championship screen on the two previously unopened championship ranges; PBC is a first-class attempted eligible opponent and, if it cannot run comparably, is recorded as an invalid-tool-failure, never silently dropped and never counted as beaten; no broad superiority claim.",
+  "decision": {
+    "oracle_context_only": {
+      "archive_bytes": 45182993,
+      "jls2_bytes": 4323039,
+      "pbc_gain_vs_jls2_percent": -945.1673695287042,
+      "pbc_gain_vs_zstd9_percent": -945.1673695287042,
+      "selected_methods": {
+        "clue_championship_e": "pbc_only",
+        "clue_championship_f": "pbc_only"
+      },
+      "zstd9_bytes": 4323039
+    },
+    "primary": {
+      "archive_bytes": 45182993,
+      "complete_compression_mbps": 0.06285567636835643,
+      "complete_compression_seconds": 3054.967635296501,
+      "decompression_mbps": 82.78060052037758,
+      "decompression_seconds": 2.3196504469997308,
+      "jls2_bytes": 4323039,
+      "online_compression_mbps": 55.70442656946981,
+      "online_compression_seconds": 3.4471597470001143,
+      "original_bytes": 192022057,
+      "pattern_bytes": 67102,
+      "pattern_training_seconds": 3051.520475549501,
+      "payload_bytes": 45115891,
+      "pbc_gain_vs_jls2_percent": -945.1673695287042,
+      "pbc_gain_vs_zstd9_percent": -945.1673695287042,
+      "zstd9_bytes": 4323039
+    },
+    "primary_method": "pbc_only"
+  },
+  "gate_results": {
+    "byte_exact_roundtrip": true,
+    "clean_tracked_source": true,
+    "complete_archive_accounting": true,
+    "deterministic_payload_for_fixed_pattern": true,
+    "exact_license": true,
+    "exact_source_commit": true,
+    "expected_families": true,
+    "expected_methods": true,
+    "record_size_eligible": true,
+    "repetitions": true,
+    "training_repetitions": true
+  },
+  "gates_path": "config/clue-pbc-championship-screen-v1-gates.json",
+  "gates_sha256": "58687d7a5079d0c9d8e1f1a116bca98b5dfb88cb3b2f9f52d34321983596015e",
+  "manifest_path": "/home/runner/work/_temp/clue-championship/manifest.json",
+  "manifest_sha256": "29dec96ae8d5060b4d143104da5df12b2d5958d527c64082404c753be54f91f2",
+  "passed": true,
+  "pbc": {
+    "binary": "/home/runner/work/_temp/pbc/bin/pbc",
+    "binary_sha256": "c96e0dbf5268899314a51238d5bed8bfa58c00bc032e196a2a1dddbff0bfc720",
+    "clean_tracked_source": true,
+    "commit": "bac1f86d29624cb585bb4475235d22a28e60ffea",
+    "exact_commit": true,
+    "exact_license": true,
+    "license_path": "/home/runner/work/_temp/pbc/LICENSE",
+    "license_sha256": "bacacee63139034e9acba4de0c513eeb93cc6277ae52054a30eebf4be644e7ed",
+    "origin": "https://github.com/antgroup/pbc",
+    "tracked_status": ""
+  },
+  "repetitions": 5,
+  "rows": [
+    {
+      "archive_bytes": 37628261,
+      "complete_compression_mbps": 0.05014753670958217,
+      "complete_compression_seconds": 2863.12499917,
+      "decompression_mbps": 99.82378955967009,
+      "decompression_samples": [
+        1.4383211320000555,
+        1.4475735269988945,
+        1.4358554150003329,
+        1.4327912000007927,
+        1.4535888909995265
+      ],
+      "decompression_seconds": 1.4383211320000555,
+      "family": "clue_championship_e",
+      "jls2_bytes": 4107254,
+      "maximum_record_bytes": 1041,
+      "method": "pbc_only",
+      "online_compression_mbps": 63.42852825188261,
+      "online_compression_samples": [
+        2.2734533220009325,
+        2.267702040000586,
+        2.2605358329983574,
+        2.2636291580001853,
+        2.2526089109996974
+      ],
+      "online_compression_seconds": 2.2636291580001853,
+      "original_bytes": 143578666,
+      "pattern_bytes": 49042,
+      "pattern_deterministic": true,
+      "pattern_sha256": "812068e7176ebfb51bfdbbdb545e841627f3466f39a06e6852292719570a6989",
+      "pattern_training_samples": [
+        2865.7642042220004,
+        2855.9585358019995
+      ],
+      "pattern_training_seconds": 2860.861370012,
+      "payload_bytes": 37579219,
+      "payload_deterministic_for_fixed_pattern": true,
+      "payload_sha256": "291357c02b3c094f2dee9157948e7b3cc225e837b6258f22d5b55e09f256072e",
+      "pbc_gain_vs_jls2_percent": -816.1415631952638,
+      "pbc_gain_vs_zstd9_percent": -816.1415631952638,
+      "record_count": 250000,
+      "roundtrip_verified": true,
+      "source_sha256": "9197e1ae113b5b8daa429a0a21b555e6b003921ff16aede49acb9683061ec80d",
+      "zstd9_bytes": 4107254
+    },
+    {
+      "archive_bytes": 7554732,
+      "complete_compression_mbps": 0.2525162913631797,
+      "complete_compression_seconds": 191.84263612650102,
+      "decompression_mbps": 54.96627670897098,
+      "decompression_samples": [
+        0.8812907520004956,
+        0.8813293149996753,
+        0.88190050799858,
+        0.8773194460009108,
+        0.885744776998763
+      ],
+      "decompression_seconds": 0.8813293149996753,
+      "family": "clue_championship_f",
+      "jls2_bytes": 215785,
+      "maximum_record_bytes": 393,
+      "method": "pbc_only",
+      "online_compression_mbps": 40.93125386892971,
+      "online_compression_samples": [
+        1.1813427950000914,
+        1.1874390690009022,
+        1.179421792001449,
+        1.183530588999929,
+        1.1878125980001641
+      ],
+      "online_compression_seconds": 1.183530588999929,
+      "original_bytes": 48443391,
+      "pattern_bytes": 18060,
+      "pattern_deterministic": false,
+      "pattern_sha256": "516eef774f78d6b0785fb8ebfa252e2c1ef4b5385b7b416411a9fc5aeb1cd2e4",
+      "pattern_training_samples": [
+        190.57882382200114,
+        190.73938725300104
+      ],
+      "pattern_training_seconds": 190.6591055375011,
+      "payload_bytes": 7536672,
+      "payload_deterministic_for_fixed_pattern": true,
+      "payload_sha256": "ef316f284d0603a1b537202db805d7608ff67d40e8ae1a140b216583492f8928",
+      "pbc_gain_vs_jls2_percent": -3401.045948513567,
+      "pbc_gain_vs_zstd9_percent": -3401.045948513567,
+      "record_count": 250000,
+      "roundtrip_verified": true,
+      "source_sha256": "ff84d87054d5705a2a66f920292bca18050f664fd16e9794558f08d950902cba",
+      "zstd9_bytes": 215785
+    }
+  ],
+  "runtime": {
+    "platform": "Linux-6.8.0-1062-azure-x86_64-with-glibc2.35",
+    "python": "3.12.13"
+  },
+  "schema_version": 1,
+  "settings": {
+    "input_type": "newline-delimited record",
+    "methods": [
+      "pbc_only"
+    ],
+    "pattern_size": 100,
+    "train_data_number": 2000,
+    "train_thread_num": 64
+  },
+  "system_states": [
+    {
+      "label": "run-start",
+      "load_average_1m_5m_15m": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "logical_cpus": 4,
+      "normalized_load_1m": 0.25
+    },
+    {
+      "label": "checkpoint-clue_championship_e-pbc_only",
+      "load_average_1m_5m_15m": [
+        31.40673828125,
+        43.39208984375,
+        47.10693359375
+      ],
+      "logical_cpus": 4,
+      "normalized_load_1m": 7.8516845703125
+    },
+    {
+      "label": "checkpoint-clue_championship_f-pbc_only",
+      "load_average_1m_5m_15m": [
+        26.90478515625,
+        39.2587890625,
+        44.66796875
+      ],
+      "logical_cpus": 4,
+      "normalized_load_1m": 6.7261962890625
+    },
+    {
+      "label": "run-end",
+      "load_average_1m_5m_15m": [
+        26.90478515625,
+        39.2587890625,
+        44.66796875
+      ],
+      "logical_cpus": 4,
+      "normalized_load_1m": 6.7261962890625
+    }
+  ],
+  "training_repetitions": 2
+}

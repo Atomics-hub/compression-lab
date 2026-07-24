@@ -1,0 +1,21 @@
+{
+  "rows": [
+    {
+      "encoded_bytes": 4107254,
+      "family": "clue_championship_e",
+      "id": "clue-championship-e",
+      "original_bytes": 143578666,
+      "source_sha256": "9197e1ae113b5b8daa429a0a21b555e6b003921ff16aede49acb9683061ec80d",
+      "zstd9_bytes": 4107254
+    },
+    {
+      "encoded_bytes": 215785,
+      "family": "clue_championship_f",
+      "id": "clue-championship-f",
+      "original_bytes": 48443391,
+      "source_sha256": "ff84d87054d5705a2a66f920292bca18050f664fd16e9794558f08d950902cba",
+      "zstd9_bytes": 215785
+    }
+  ],
+  "schema_version": 1
+}

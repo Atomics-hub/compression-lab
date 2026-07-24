@@ -1,0 +1,14 @@
+303ee8d0fd6aaa2b8f44e7bb795945818e3798a6d3917d346b8732eddbf729a3  ./benchmark.log
+29dec96ae8d5060b4d143104da5df12b2d5958d527c64082404c753be54f91f2  ./championship-manifest.json
+bbbfecc0013c7973eaa26a8bc796a739894c2ba658a89846a3de9269d3409be7  ./decision.json
+10150ccff6ec8af279ffef614da310bc0e1a58cb9459b4315fc758b90b6c3554  ./evaluator.log
+334f24e776771a000d64922709b1d33d6d8d2b32448749720de2bca3145aeeaa  ./opponent-binary-sha256.txt
+acde7458ed49304af4c3a9fd234a5536344e07d7827328e226de115c12dbc83c  ./pbc-build.log
+88a01ea1e4b26f75b899290720d1758f7f28b1ac5cdd3ba111f0fb8420676f2e  ./readiness-lock-receipt.json
+2c3bd1a6f1d45ec124b9606e3a66524b514da80cd761d02ef911fe305c618642  ./score/bundle.json
+40a27aa90782b29adaaa2f2532c13357f9175254d6e69f7123aae361584a7dfa  ./score/pbc-accepted.json
+d5e2119d5fb1bbb424369d3ea9d5c759df79f0910f7b1d32fee4fcfb18a4ad17  ./score/pbc-result.json
+5a61446664454e5ec85bbc1d75bc013a473f31a29b02faa823a6ed265578dca0  ./score/work/compress-rss-clue-championship-e.clean-rss.json
+ac788d9fc837fc75891b976fe2d43673ea115693ff28bb018b8aa198a1a5e401  ./score/work/compress-rss-clue-championship-f.clean-rss.json
+af7be5bcfccd9493f783b653d0134b950495b790f9091245074aef61a33ba5c3  ./score/work/decode-rss-clue-championship-e.clean-rss.json
+86ca984be25e2b70ae91d45830c4296bbb99b1a0f0927215ef318a14dfeb2d4e  ./score/work/decode-rss-clue-championship-f.clean-rss.json

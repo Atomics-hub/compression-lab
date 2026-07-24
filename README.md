@@ -30,7 +30,7 @@ head `b187308`).
 | Strongest-standard comparison (Brotli-11 et al., same frozen run) | **passed** |
 | Independent dedicated-machine reproduction | **pending** |
 | Sealed private holdout | **pending** |
-| Specialist/champion comparison (Kanzi, ZPAQ) | **untested** in the frozen validation protocol (prescreen references exist in the research lane only) |
+| Specialist/champion comparison (Kanzi, ZPAQ) | **failed** — ZPAQ `-m54` is **2.81× smaller** than JLS2 on the two named fresh CLUE-LDS ranges; Kanzi was unavailable-invalid in this screen ([championship results](docs/benchmarks/2026-07-25-clue-jls2-championship-screen-results.md)) |
 | General-file / universal claims | **untested** |
 
 Still owner-gated and unproven: independent dedicated-machine reproduction and
@@ -42,6 +42,19 @@ bundle](runs/clue-jls2-public-validation-v2/publication/README.md) contains the
 complete chart, every tested standard, family rows, gates, and exact claim
 ceiling; the [full v2 results](docs/benchmarks/2026-07-24-clue-jls2-public-validation-v2-results.md)
 add provenance, candidate resource rows, and the decision rule.
+
+A separate frozen **championship screen** then asked the specialist question the v2
+pass does not: does JLS2 beat ZPAQ-class context mixing on fresh, previously unopened
+CLUE-LDS ranges? The answer is **no**. On two new 250k-record ranges, ZPAQ `-method 54`
+compressed to **1,540,588 bytes** versus JLS2's **4,323,039** — JLS2 is **2.81×
+larger** (2.55× even on the v2-like range), and on the heavier of the two ranges JLS2
+also breaches its own 512 MiB compression-memory gate. The frozen reducer decided
+**not_contender**, a result overdetermined by both the ratio losses and the memory
+breach. This does not change the v2 pass, which is scoped to the standard roster and
+remains true; it means the gap to ZPAQ-class ratios is structural. Kanzi could not be
+measured in this screen (an infrastructure spawn failure of the runner binary, not a
+Kanzi result). Full transparent chart, every codec row, and the attempt log are in the
+[championship results](docs/benchmarks/2026-07-25-clue-jls2-championship-screen-results.md).
 
 Brand note: both the v1 and v2 validation protocols were frozen under the earlier
 public label **Atompress**, so both immutable evidence bundles (including the v2

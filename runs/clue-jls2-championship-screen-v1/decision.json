@@ -1,0 +1,148 @@
+{
+  "aggregate_candidate_smaller": false,
+  "aggregate_margin_ok": false,
+  "all_families_won": false,
+  "candidate_aggregate_complete_bytes": 4323039,
+  "candidate_gates_all_pass": false,
+  "claim_ceiling": "A contender screen may support only a public championship contender claim on the two named previously unopened CLUE-LDS temporal ranges (clue-championship-e and clue-championship-f). It is not world-best, not state-of-the-art, not market-leading, not a private-holdout result, and not independently reproduced. Unavailable tools are unavailable, never beaten. A not-contender or interrupted screen is published under the same boundary. This screen does not change the immutable v1 not_passed or v2 passed scores.",
+  "claim_note": "Best possible outcome is a public championship contender on the two named previously unopened CLUE-LDS temporal ranges. Not world-best, not a private holdout, not independently reproduced. Contextual and unavailable tools are never counted as beaten or as beating JLS2.",
+  "contender": false,
+  "contender_margin": {
+    "applies_to": "aggregate only; per family/item requires an outright win",
+    "denominator": 100,
+    "numerator": 95
+  },
+  "contextual_codecs": [
+    "zpaq-5-m510",
+    "zstd-22-long31"
+  ],
+  "decision_authority": "Tom's 2026-07-25 owner dispatch governs this screen and supersedes the #109 prospective roster for this screen only; #109 is unchanged. The label here is 'public championship contender', distinct from #109's stricter 'championship candidate' bar.",
+  "equality_semantics": "Aggregate rule candidate_bytes * 100 <= 95 * strongest_bytes. The operator is <=, so aggregate byte-ratio equality (candidate exactly 95% of strongest, i.e. exactly 5% smaller) PASSES and is a contender. Per family and per item JLS2 must WIN OUTRIGHT: strictly smaller than every eligible valid opponent, allowed regression zero bytes, equality is NOT a win.",
+  "family_decisions": [
+    {
+      "candidate_complete_bytes": 4107254,
+      "candidate_won": false,
+      "family": "clue_championship_e",
+      "strongest_eligible_bytes": 1456116,
+      "strongest_eligible_codec": "zpaq-5-m54"
+    },
+    {
+      "candidate_complete_bytes": 215785,
+      "candidate_won": false,
+      "family": "clue_championship_f",
+      "strongest_eligible_bytes": 84472,
+      "strongest_eligible_codec": "zpaq-5-m54"
+    }
+  ],
+  "name": "clue-jls2-championship-screen-v1-decision",
+  "opponent_classifications": [
+    {
+      "aggregate_valid": false,
+      "codec_id": "kanzi-max",
+      "eligibility_class": "eligible",
+      "per_family_classification": {
+        "clue_championship_e": "invalid-tool-failure",
+        "clue_championship_f": "invalid-tool-failure"
+      }
+    },
+    {
+      "aggregate_valid": true,
+      "codec_id": "zpaq-5-m54",
+      "eligibility_class": "eligible",
+      "per_family_classification": {
+        "clue_championship_e": "valid",
+        "clue_championship_f": "valid"
+      }
+    },
+    {
+      "aggregate_valid": true,
+      "codec_id": "brotli-11",
+      "eligibility_class": "eligible",
+      "per_family_classification": {
+        "clue_championship_e": "valid",
+        "clue_championship_f": "valid"
+      }
+    },
+    {
+      "aggregate_valid": true,
+      "codec_id": "zstd-22",
+      "eligibility_class": "eligible",
+      "per_family_classification": {
+        "clue_championship_e": "valid",
+        "clue_championship_f": "valid"
+      }
+    },
+    {
+      "aggregate_valid": false,
+      "codec_id": "xz-lzma2-9e",
+      "eligibility_class": "eligible",
+      "per_family_classification": {
+        "clue_championship_e": "invalid-tool-failure",
+        "clue_championship_f": "invalid-tool-failure"
+      }
+    },
+    {
+      "aggregate_valid": true,
+      "codec_id": "7zip-9",
+      "eligibility_class": "eligible",
+      "per_family_classification": {
+        "clue_championship_e": "valid",
+        "clue_championship_f": "valid"
+      }
+    },
+    {
+      "aggregate_valid": true,
+      "codec_id": "zpaq-5-m510",
+      "eligibility_class": "contextual",
+      "per_family_classification": {
+        "clue_championship_e": "valid",
+        "clue_championship_f": "valid"
+      }
+    },
+    {
+      "aggregate_valid": true,
+      "codec_id": "zstd-22-long31",
+      "eligibility_class": "contextual",
+      "per_family_classification": {
+        "clue_championship_e": "valid",
+        "clue_championship_f": "valid"
+      }
+    },
+    {
+      "aggregate_valid": true,
+      "codec_id": "pbc-only",
+      "eligibility_class": "eligible",
+      "per_family_classification": {
+        "clue_championship_e": "valid",
+        "clue_championship_f": "valid"
+      }
+    }
+  ],
+  "prior_scores": {
+    "v1": {
+      "immutable": true,
+      "name": "clue-jls2-one-time-public-validation-v1",
+      "result": "not_passed"
+    },
+    "v2": {
+      "immutable": true,
+      "name": "clue-jls2-two-range-public-validation-v2",
+      "note": "This championship screen stands on its own. It does not change, reopen, or re-score v1 not_passed or v2 passed.",
+      "result": "passed"
+    }
+  },
+  "required_research_opponent_status": {
+    "kanzi-max": false,
+    "zpaq-5-m54": true
+  },
+  "required_research_opponents_valid": false,
+  "result": "not_contender",
+  "schema_version": 1,
+  "sources": {
+    "bundle_sha256": "2c3bd1a6f1d45ec124b9606e3a66524b514da80cd761d02ef911fe305c618642",
+    "gates_sha256": "0ef19ddb503ce98c3d366b4d8f429d2f59e31962228d87869bb4725c5a1e379b"
+  },
+  "strongest_eligible_aggregate_bytes": 1540588,
+  "strongest_eligible_aggregate_codec": "zpaq-5-m54",
+  "unavailable_codecs": []
+}

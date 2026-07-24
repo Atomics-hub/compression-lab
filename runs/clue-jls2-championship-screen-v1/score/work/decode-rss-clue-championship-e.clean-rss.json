@@ -1,0 +1,19 @@
+{
+  "schema": "clean-rss-measurement-v1",
+  "command": [
+    "/home/runner/work/compression-lab/compression-lab/native/target/release/clab-jls2",
+    "decompress",
+    "/home/runner/work/_temp/clue-jls2-championship-screen-v1/score/work/clue-championship-e.first.jls2",
+    "-o",
+    "/home/runner/work/_temp/clue-jls2-championship-screen-v1/score/work/decode-clue-championship-e.jsonl",
+    "--force"
+  ],
+  "exit_code": 0,
+  "platform": "linux",
+  "maxrss_raw": 140428,
+  "maxrss_bytes": 143798272,
+  "shim_maxrss_bytes": 13557760,
+  "wall_ns": 293327583,
+  "user_seconds": 0.32350999999999996,
+  "system_seconds": 0.16175499999999998
+}

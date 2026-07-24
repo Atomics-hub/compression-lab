@@ -1,0 +1,76 @@
+{
+  "archive": {
+    "filename": "clue.zip",
+    "member": "clue.json",
+    "member_size_bytes": 14862210499,
+    "publisher_digest": "9e318370f96b68077667e9cdc05f26a5",
+    "publisher_digest_algorithm": "md5",
+    "sha256": "0c9eadb104acf1da6de738ba9babe957c83cd8602a01fa6d846a6ea4a6611d96",
+    "size_bytes": 635105552
+  },
+  "category": "structured_cloud_event_logs",
+  "claim_ceiling": "CLUE-LDS one-time public championship-screen evidence on two previously unopened temporal ranges only; a passing screen supports at most a public championship contender claim on those two ranges, and is not private-holdout, universal, market-leading, world-best, state-of-the-art, or independently reproduced evidence, and changes neither the immutable v1 not_passed score nor the v2 passed score",
+  "config_path": "config/clue-json-log-corpus-championship-v1.json",
+  "config_sha256": "d0cc090708712aa01daf69825562dcf95fa1797fb93156ad9a114e726708ddb4",
+  "items": [
+    {
+      "category": "structured_cloud_event_logs",
+      "dataset": "clue-json-log-corpus-championship-v1",
+      "family": "clue_championship_e",
+      "first_record_id": 15000001,
+      "id": "clue-championship-e",
+      "last_record_id": 15250000,
+      "license_spdx": "CC-BY-4.0",
+      "path": "clue-championship-e.jsonl",
+      "provenance": {
+        "archive_sha256": "0c9eadb104acf1da6de738ba9babe957c83cd8602a01fa6d846a6ea4a6611d96",
+        "doi": "10.5281/zenodo.7119953",
+        "selection_rule": "preserve complete original NDJSON records whose official monotonically increasing id is within the inclusive frozen range"
+      },
+      "record_count": 250000,
+      "sha256": "9197e1ae113b5b8daa429a0a21b555e6b003921ff16aede49acb9683061ec80d",
+      "size_bytes": 143578666,
+      "source_url": "https://zenodo.org/records/7119953",
+      "split": "public_validation"
+    },
+    {
+      "category": "structured_cloud_event_logs",
+      "dataset": "clue-json-log-corpus-championship-v1",
+      "family": "clue_championship_f",
+      "first_record_id": 32000001,
+      "id": "clue-championship-f",
+      "last_record_id": 32250000,
+      "license_spdx": "CC-BY-4.0",
+      "path": "clue-championship-f.jsonl",
+      "provenance": {
+        "archive_sha256": "0c9eadb104acf1da6de738ba9babe957c83cd8602a01fa6d846a6ea4a6611d96",
+        "doi": "10.5281/zenodo.7119953",
+        "selection_rule": "preserve complete original NDJSON records whose official monotonically increasing id is within the inclusive frozen range"
+      },
+      "record_count": 250000,
+      "sha256": "ff84d87054d5705a2a66f920292bca18050f664fd16e9794558f08d950902cba",
+      "size_bytes": 48443391,
+      "source_url": "https://zenodo.org/records/7119953",
+      "split": "public_validation"
+    }
+  ],
+  "name": "clue-json-log-corpus-championship-v1",
+  "provider": {
+    "authors": [
+      "Max Landauer",
+      "Florian Skopik",
+      "Georg H\u00f6ld",
+      "Markus Wurzenberger"
+    ],
+    "doi": "10.5281/zenodo.7119953",
+    "license_spdx": "CC-BY-4.0",
+    "publication_date": "2022-09-28",
+    "record_count_description": "around 50 million events",
+    "record_url": "https://zenodo.org/records/7119953",
+    "title": "Cloud-based User Entity Behavior Analytics Log Data Set",
+    "unpacked_size_description": "around 14.5 GB"
+  },
+  "schema_version": 1,
+  "selection_rule": "preserve complete original NDJSON records whose official monotonically increasing id is within the inclusive frozen range",
+  "split": "public_validation"
+}

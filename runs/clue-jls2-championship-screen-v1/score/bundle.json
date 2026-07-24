@@ -1,0 +1,919 @@
+{
+  "candidate": {
+    "aggregate_complete_bytes": 4323039,
+    "codec_id": "jls2",
+    "compression_peak_rss_bytes": 645296128,
+    "family_complete_bytes": {
+      "clue_championship_e": 4107254,
+      "clue_championship_f": 215785
+    },
+    "gates": {
+      "aggregate_compression_speed": true,
+      "aggregate_standalone_decompression_speed": true,
+      "bounded_direct_fallback": true,
+      "clean_child_shim_floor_eligibility": true,
+      "complete_frame_accounting": true,
+      "compression_memory": false,
+      "corruption_rejection": true,
+      "decompression_memory": true,
+      "deterministic_output": true,
+      "exact_standalone_decode": true,
+      "minimum_compression_repetition_speed": true,
+      "minimum_standalone_decompression_repetition_speed": true
+    },
+    "standalone_decode_peak_rss_bytes": 143798272
+  },
+  "candidate_proof": {
+    "aggregate_compression_mbps": 169.14468551875598,
+    "aggregate_standalone_decompression_mbps": 468.4791012081971,
+    "compression_peak_rss_bytes": 645296128,
+    "gates": {
+      "aggregate_compression_speed": true,
+      "aggregate_standalone_decompression_speed": true,
+      "bounded_direct_fallback": true,
+      "clean_child_shim_floor_eligibility": true,
+      "complete_frame_accounting": true,
+      "compression_memory": false,
+      "corruption_rejection": true,
+      "decompression_memory": true,
+      "deterministic_output": true,
+      "exact_standalone_decode": true,
+      "minimum_compression_repetition_speed": true,
+      "minimum_standalone_decompression_repetition_speed": true
+    },
+    "rows": [
+      {
+        "corruption_rejected": true,
+        "decode": {
+          "exact": true,
+          "mbps": 489.48232052217196,
+          "peak_rss_bytes": 143798272,
+          "shim_floor_eligible": true,
+          "wall_ns": 293327583
+        },
+        "deterministic": true,
+        "fallback_safety": {
+          "accounted_stream_bytes": 4107254,
+          "complete_frame_accounting": true,
+          "maximum_regression_bytes": -33757,
+          "passed": true,
+          "rows": [
+            {
+              "direct_frame_bytes": 587254,
+              "passed": true,
+              "regression_bytes": -61415,
+              "segment": 0,
+              "selected_frame_bytes": 525839
+            },
+            {
+              "direct_frame_bytes": 454164,
+              "passed": true,
+              "regression_bytes": -48410,
+              "segment": 1,
+              "selected_frame_bytes": 405754
+            },
+            {
+              "direct_frame_bytes": 617022,
+              "passed": true,
+              "regression_bytes": -64775,
+              "segment": 2,
+              "selected_frame_bytes": 552247
+            },
+            {
+              "direct_frame_bytes": 435480,
+              "passed": true,
+              "regression_bytes": -33757,
+              "segment": 3,
+              "selected_frame_bytes": 401723
+            },
+            {
+              "direct_frame_bytes": 533057,
+              "passed": true,
+              "regression_bytes": -56539,
+              "segment": 4,
+              "selected_frame_bytes": 476518
+            },
+            {
+              "direct_frame_bytes": 604061,
+              "passed": true,
+              "regression_bytes": -61181,
+              "segment": 5,
+              "selected_frame_bytes": 542880
+            },
+            {
+              "direct_frame_bytes": 427708,
+              "passed": true,
+              "regression_bytes": -40304,
+              "segment": 6,
+              "selected_frame_bytes": 387404
+            },
+            {
+              "direct_frame_bytes": 533473,
+              "passed": true,
+              "regression_bytes": -60119,
+              "segment": 7,
+              "selected_frame_bytes": 473354
+            },
+            {
+              "direct_frame_bytes": 375821,
+              "passed": true,
+              "regression_bytes": -34514,
+              "segment": 8,
+              "selected_frame_bytes": 341307
+            }
+          ],
+          "segments": 9,
+          "stream_bytes": 4107254
+        },
+        "family": "clue_championship_e",
+        "frame_bytes": 4107254,
+        "id": "clue-championship-e"
+      },
+      {
+        "corruption_rejected": true,
+        "decode": {
+          "exact": true,
+          "mbps": 415.62206249919404,
+          "peak_rss_bytes": 91226112,
+          "shim_floor_eligible": true,
+          "wall_ns": 116556351
+        },
+        "deterministic": true,
+        "fallback_safety": {
+          "accounted_stream_bytes": 215785,
+          "complete_frame_accounting": true,
+          "maximum_regression_bytes": -186576,
+          "passed": true,
+          "rows": [
+            {
+              "direct_frame_bytes": 293714,
+              "passed": true,
+              "regression_bytes": -229506,
+              "segment": 0,
+              "selected_frame_bytes": 64208
+            },
+            {
+              "direct_frame_bytes": 293938,
+              "passed": true,
+              "regression_bytes": -219826,
+              "segment": 1,
+              "selected_frame_bytes": 74112
+            },
+            {
+              "direct_frame_bytes": 263909,
+              "passed": true,
+              "regression_bytes": -186576,
+              "segment": 2,
+              "selected_frame_bytes": 77333
+            }
+          ],
+          "segments": 3,
+          "stream_bytes": 215785
+        },
+        "family": "clue_championship_f",
+        "frame_bytes": 215785,
+        "id": "clue-championship-f"
+      }
+    ],
+    "standalone_decode_peak_rss_bytes": 143798272
+  },
+  "claim_ceiling": "A contender screen may support only a public championship contender claim on the two named previously unopened CLUE-LDS temporal ranges (clue-championship-e and clue-championship-f). It is not world-best, not state-of-the-art, not market-leading, not a private-holdout result, and not independently reproduced. Unavailable tools are unavailable, never beaten. A not-contender or interrupted screen is published under the same boundary. This screen does not change the immutable v1 not_passed or v2 passed scores.",
+  "families": [
+    "clue_championship_e",
+    "clue_championship_f"
+  ],
+  "frozen_candidate_paths": {
+    "native/Cargo.lock": "a905547d069da6d55bf6739307ffe9c75202cc15e87a6ae399e10b8890544783",
+    "native/Cargo.toml": "984a69ab00314eaef3659fbc7642c0ea738f7d19d3895cf6530738278691c707",
+    "native/src/bin/clab-jls2.rs": "45d835cc512406f747a0cab7173b2594897c2064fcddff1c53a94e8b9d43c7c9",
+    "native/src/jls2.rs": "2868d54d8379cdc45608f96a219d49fe6dc406d2d63a0596cdae7a4c7b9779b2",
+    "native/src/lib.rs": "ec3ba58920c8701c3eac6a6c4150c3b4474248e203376c158ec376a2b3411127",
+    "pyproject.toml": "7022c21615daa7b6e6cdb080af468ae0321e80e4c219f27c8979e0e87833e93f",
+    "src/compresslab/json_columnar.py": "cf3b677a40397b36d9f527b3df1f562594d396049c60692e0482af111c5ed85e",
+    "src/compresslab/json_log_codec.py": "d8882a3de67233acf9963adeb0c8edc19eae1209753cd42246490538f4597f9e",
+    "src/compresslab/native.py": "3420b3d7acaa636a27f2788e9304b19c01014f6f3183c2aa822e9bf3cc4cf7d1",
+    "src/compresslab/worker.py": "3d5cf89abd2d992e9ea017205105f212df90f3dd3ee15608b0eb742c4a193b61"
+  },
+  "lock_receipt": {
+    "authorization": {
+      "expected_item_ids": [
+        "clue-championship-e",
+        "clue-championship-f"
+      ],
+      "maximum_acquisitions": 1,
+      "maximum_scored_attempts": 1,
+      "prohibit_post_score_tuning": true,
+      "retain_failed_or_interrupted_attempt": true,
+      "split": "public_validation"
+    },
+    "claim_ceiling": "This lock authorizes one unchanged acquisition and first score on the two declared previously unopened CLUE-LDS championship ranges (clue-championship-e and clue-championship-f). It provides no performance evidence, changes neither the immutable v1 not_passed nor v2 passed scores, does not authorize the private holdout, and supports at most a public championship contender claim on those two ranges.",
+    "head_commit": "850cb630647f29dbe1a58d374f4d189f420d2b8e",
+    "lock_path": "/home/runner/work/compression-lab/compression-lab/config/clue-jls2-championship-screen-v1-lock.json",
+    "lock_sha256": "c1e854f06bb55554db3d0146b80a60a9fb7a807d381947393111c2650855f31f",
+    "passed": true,
+    "readiness_commit": "1a1235f8c893fd612fcc298b17c85904dec7d215",
+    "schema_version": 1,
+    "tracked_status": "",
+    "verified_paths": {
+      ".github/workflows/clue-jls2-championship-screen-v1.yml": "b8d09d83ea1b51df740661bef49fad1975dadb856e1c67a81c246f0ac9159ff7",
+      "config/clue-jls2-championship-screen-v1-gates.json": "0ef19ddb503ce98c3d366b4d8f429d2f59e31962228d87869bb4725c5a1e379b",
+      "config/clue-jls2-public-validation-v2-gates.json": "376354fb60eacb7cc6c7b7cda4fdde37ffd25b2aaa0ce41792a4ede0627d6c9a",
+      "config/clue-json-log-corpus-championship-v1.json": "d0cc090708712aa01daf69825562dcf95fa1797fb93156ad9a114e726708ddb4",
+      "config/clue-pbc-championship-screen-v1-gates.json": "58687d7a5079d0c9d8e1f1a116bca98b5dfb88cb3b2f9f52d34321983596015e",
+      "docs/benchmarks/2026-07-25-clue-jls2-championship-screen-protocol.md": "67606e26b61d72925fe36143d116e705b7e4346b6588515254f31b9c203c9745",
+      "scripts/benchmark-clue-jls2-championship-screen-v1.py": "4d0156e4faa3e2be42fae14a9302bd25b4ffe058270cd2caedebd590c5c16699",
+      "scripts/benchmark-pbc-competitor.py": "e23691c006923b68b23a70c8ae923d8a3d7df99d63f825cea48c93542220970e",
+      "scripts/evaluate-clue-jls2-championship-screen-v1.py": "e9e77008234838e54d0540c8b91675c701dfe08401718ade811f76e2e1cfd8c0",
+      "scripts/fetch-clue-json-corpus-championship-v1.py": "7b7a15763ecfb691a692cfce12f9aecf7850e2916ca31b24dd8eabb56370960e",
+      "scripts/jls2-candidate-compress-v2.py": "d882140a5704b2de8ad8663ca572f3fa5c4f99f8c5c8a472feaee920e48bdda2",
+      "scripts/measure-clean-rss.py": "805ee3a20680d2afcf339f678d2e1292fb0ed72dc3ba2ccff261ba693bf41306",
+      "scripts/reduce-clue-jls2-championship-screen-v1.py": "d2209cb09c87170afe5fb8048eb109feca6dbdc81f9c604d9baf6881cffbb860",
+      "scripts/verify-clue-jls2-championship-screen-v1-lock.py": "395a4da02091d15859e1b4f2001632968c66c741778a0a1a18efad705a3c9430",
+      "tests/test_clue_jls2_championship_benchmark_restore.py": "673871e345efb503c791daa5c00bc98a477040f39ecb8f6252ce4e2cea536c3a",
+      "tests/test_clue_jls2_championship_gates.py": "c3b957cb5d5d0c016f2cef558903a4bb3e920aa4c8fc4c3bc8d885c2ee30965b",
+      "tests/test_clue_jls2_championship_lock.py": "69009d014c3533e7ab9000cfacbea30c2699d9c8c0f757a323ff5a7890a49b67",
+      "tests/test_clue_jls2_championship_reducer.py": "7004d12c6963088a4b6fb2e6d945738efa111cd361c12b027739336ef96c9549",
+      "tests/test_clue_json_corpus_championship.py": "0ebfd7e087f64c61f982e228d7687a1563bc95cdbd71e9ff5102cffd7b13c545"
+    }
+  },
+  "name": "clue-jls2-championship-screen-v1-bundle",
+  "native_binary_sha256": "65760fee6d467190690fe31b632a6ed73b0457e0b1b9898a530377d0a3419006",
+  "opponent_detail": [
+    {
+      "binary_sha256": "0521c4871be3d88d6891c7a653a8dbad83ba906a9c67b60ff2a5e9e772da4b6e",
+      "codec_id": "kanzi-max",
+      "eligibility_class": "eligible",
+      "items": {
+        "clue_championship_e": {
+          "classification": "invalid-tool-failure",
+          "codec_id": "kanzi-max",
+          "complete_bytes": null,
+          "compress_wall_ns": 1009810,
+          "decompress_wall_ns": 0,
+          "determinism_recompress_wall_ns": 0,
+          "execution": {
+            "compress_returncode": 127,
+            "decompress_returncode": 1,
+            "deterministic_output": false,
+            "exact_roundtrip": false,
+            "finished_within_wall": true,
+            "order_preserved": false,
+            "timezone_preserved": false
+          },
+          "family": "clue_championship_e",
+          "measured_archive_bytes": null
+        },
+        "clue_championship_f": {
+          "classification": "invalid-tool-failure",
+          "codec_id": "kanzi-max",
+          "complete_bytes": null,
+          "compress_wall_ns": 731987,
+          "decompress_wall_ns": 0,
+          "determinism_recompress_wall_ns": 0,
+          "execution": {
+            "compress_returncode": 127,
+            "decompress_returncode": 1,
+            "deterministic_output": false,
+            "exact_roundtrip": false,
+            "finished_within_wall": true,
+            "order_preserved": false,
+            "timezone_preserved": false
+          },
+          "family": "clue_championship_f",
+          "measured_archive_bytes": null
+        }
+      }
+    },
+    {
+      "binary_sha256": "561a58dcbf866a3420be0d810294913b7e808ec70fc03e2c129b7499ee431e6d",
+      "codec_id": "zpaq-5-m54",
+      "eligibility_class": "eligible",
+      "items": {
+        "clue_championship_e": {
+          "classification": "valid",
+          "codec_id": "zpaq-5-m54",
+          "complete_bytes": 1456116,
+          "compress_wall_ns": 521444526254,
+          "decompress_wall_ns": 536466234365,
+          "determinism_recompress_wall_ns": 514108531820,
+          "execution": {
+            "compress_returncode": 0,
+            "decompress_returncode": 0,
+            "deterministic_output": true,
+            "exact_roundtrip": true,
+            "finished_within_wall": true,
+            "order_preserved": true,
+            "timezone_preserved": true
+          },
+          "family": "clue_championship_e",
+          "measured_archive_bytes": 1456116
+        },
+        "clue_championship_f": {
+          "classification": "valid",
+          "codec_id": "zpaq-5-m54",
+          "complete_bytes": 84472,
+          "compress_wall_ns": 238644874576,
+          "decompress_wall_ns": 241584100361,
+          "determinism_recompress_wall_ns": 238723173142,
+          "execution": {
+            "compress_returncode": 0,
+            "decompress_returncode": 0,
+            "deterministic_output": true,
+            "exact_roundtrip": true,
+            "finished_within_wall": true,
+            "order_preserved": true,
+            "timezone_preserved": true
+          },
+          "family": "clue_championship_f",
+          "measured_archive_bytes": 84472
+        }
+      }
+    },
+    {
+      "binary_sha256": "29730d7ada563742cf819c764b2a9e357c1d965954617222c477c9fd98e6271b",
+      "codec_id": "brotli-11",
+      "eligibility_class": "eligible",
+      "items": {
+        "clue_championship_e": {
+          "classification": "valid",
+          "codec_id": "brotli-11",
+          "complete_bytes": 3403445,
+          "compress_wall_ns": 146031296248,
+          "decompress_wall_ns": 144312907,
+          "determinism_recompress_wall_ns": 145840869219,
+          "execution": {
+            "compress_returncode": 0,
+            "decompress_returncode": 0,
+            "deterministic_output": true,
+            "exact_roundtrip": true,
+            "finished_within_wall": true,
+            "order_preserved": true,
+            "timezone_preserved": true
+          },
+          "family": "clue_championship_e",
+          "measured_archive_bytes": 3403445
+        },
+        "clue_championship_f": {
+          "classification": "valid",
+          "codec_id": "brotli-11",
+          "complete_bytes": 480544,
+          "compress_wall_ns": 129224367006,
+          "decompress_wall_ns": 48276536,
+          "determinism_recompress_wall_ns": 129287608597,
+          "execution": {
+            "compress_returncode": 0,
+            "decompress_returncode": 0,
+            "deterministic_output": true,
+            "exact_roundtrip": true,
+            "finished_within_wall": true,
+            "order_preserved": true,
+            "timezone_preserved": true
+          },
+          "family": "clue_championship_f",
+          "measured_archive_bytes": 480544
+        }
+      }
+    },
+    {
+      "binary_sha256": "30fe49ee3aa3f6dae6ee243a3da4656e0c332aa4944a10ff93b07ba5c129cacb",
+      "codec_id": "zstd-22",
+      "eligibility_class": "eligible",
+      "items": {
+        "clue_championship_e": {
+          "classification": "valid",
+          "codec_id": "zstd-22",
+          "complete_bytes": 1974291,
+          "compress_wall_ns": 177866050632,
+          "decompress_wall_ns": 109284067,
+          "determinism_recompress_wall_ns": 178897832326,
+          "execution": {
+            "compress_returncode": 0,
+            "decompress_returncode": 0,
+            "deterministic_output": true,
+            "exact_roundtrip": true,
+            "finished_within_wall": true,
+            "order_preserved": true,
+            "timezone_preserved": true
+          },
+          "family": "clue_championship_e",
+          "measured_archive_bytes": 1974291
+        },
+        "clue_championship_f": {
+          "classification": "valid",
+          "codec_id": "zstd-22",
+          "complete_bytes": 677795,
+          "compress_wall_ns": 128883336833,
+          "decompress_wall_ns": 36690270,
+          "determinism_recompress_wall_ns": 127448125725,
+          "execution": {
+            "compress_returncode": 0,
+            "decompress_returncode": 0,
+            "deterministic_output": true,
+            "exact_roundtrip": true,
+            "finished_within_wall": true,
+            "order_preserved": true,
+            "timezone_preserved": true
+          },
+          "family": "clue_championship_f",
+          "measured_archive_bytes": 677795
+        }
+      }
+    },
+    {
+      "binary_sha256": "6f48e85adcf6fb0c5078c0c8df41e7dec7fb22dc7aae7d550ca45ed541e4bb6d",
+      "codec_id": "xz-lzma2-9e",
+      "eligibility_class": "eligible",
+      "items": {
+        "clue_championship_e": {
+          "classification": "invalid-tool-failure",
+          "codec_id": "xz-lzma2-9e",
+          "complete_bytes": null,
+          "compress_wall_ns": 62321917369,
+          "decompress_wall_ns": 7621843,
+          "determinism_recompress_wall_ns": 62322510389,
+          "execution": {
+            "compress_returncode": 0,
+            "decompress_returncode": 0,
+            "deterministic_output": true,
+            "exact_roundtrip": false,
+            "finished_within_wall": true,
+            "order_preserved": false,
+            "timezone_preserved": false
+          },
+          "family": "clue_championship_e",
+          "measured_archive_bytes": 2097288
+        },
+        "clue_championship_f": {
+          "classification": "invalid-tool-failure",
+          "codec_id": "xz-lzma2-9e",
+          "complete_bytes": null,
+          "compress_wall_ns": 118140918345,
+          "decompress_wall_ns": 3653193,
+          "determinism_recompress_wall_ns": 118642199881,
+          "execution": {
+            "compress_returncode": 0,
+            "decompress_returncode": 0,
+            "deterministic_output": true,
+            "exact_roundtrip": false,
+            "finished_within_wall": true,
+            "order_preserved": false,
+            "timezone_preserved": false
+          },
+          "family": "clue_championship_f",
+          "measured_archive_bytes": 322376
+        }
+      }
+    },
+    {
+      "binary_sha256": "1676a968815b92e865bc0ffeecee3fa284ba4402bf23dc2bec2412c4b502e922",
+      "codec_id": "7zip-9",
+      "eligibility_class": "eligible",
+      "items": {
+        "clue_championship_e": {
+          "classification": "valid",
+          "codec_id": "7zip-9",
+          "complete_bytes": 2392384,
+          "compress_wall_ns": 7629393025,
+          "decompress_wall_ns": 299140858,
+          "determinism_recompress_wall_ns": 7730868286,
+          "execution": {
+            "compress_returncode": 0,
+            "decompress_returncode": 0,
+            "deterministic_output": true,
+            "exact_roundtrip": true,
+            "finished_within_wall": true,
+            "order_preserved": true,
+            "timezone_preserved": true
+          },
+          "family": "clue_championship_e",
+          "measured_archive_bytes": 2392384
+        },
+        "clue_championship_f": {
+          "classification": "valid",
+          "codec_id": "7zip-9",
+          "complete_bytes": 595209,
+          "compress_wall_ns": 2103016731,
+          "decompress_wall_ns": 102957056,
+          "determinism_recompress_wall_ns": 2059530032,
+          "execution": {
+            "compress_returncode": 0,
+            "decompress_returncode": 0,
+            "deterministic_output": true,
+            "exact_roundtrip": true,
+            "finished_within_wall": true,
+            "order_preserved": true,
+            "timezone_preserved": true
+          },
+          "family": "clue_championship_f",
+          "measured_archive_bytes": 595209
+        }
+      }
+    },
+    {
+      "binary_sha256": "561a58dcbf866a3420be0d810294913b7e808ec70fc03e2c129b7499ee431e6d",
+      "codec_id": "zpaq-5-m510",
+      "eligibility_class": "contextual",
+      "items": {
+        "clue_championship_e": {
+          "classification": "valid",
+          "codec_id": "zpaq-5-m510",
+          "complete_bytes": 927943,
+          "compress_wall_ns": 532433520814,
+          "decompress_wall_ns": 523474349343,
+          "determinism_recompress_wall_ns": 513676463594,
+          "execution": {
+            "compress_returncode": 0,
+            "decompress_returncode": 0,
+            "deterministic_output": true,
+            "exact_roundtrip": true,
+            "finished_within_wall": true,
+            "order_preserved": true,
+            "timezone_preserved": true
+          },
+          "family": "clue_championship_e",
+          "measured_archive_bytes": 927943
+        },
+        "clue_championship_f": {
+          "classification": "valid",
+          "codec_id": "zpaq-5-m510",
+          "complete_bytes": 67441,
+          "compress_wall_ns": 241836940152,
+          "decompress_wall_ns": 243068356671,
+          "determinism_recompress_wall_ns": 241512812090,
+          "execution": {
+            "compress_returncode": 0,
+            "decompress_returncode": 0,
+            "deterministic_output": true,
+            "exact_roundtrip": true,
+            "finished_within_wall": true,
+            "order_preserved": true,
+            "timezone_preserved": true
+          },
+          "family": "clue_championship_f",
+          "measured_archive_bytes": 67441
+        }
+      }
+    },
+    {
+      "binary_sha256": "30fe49ee3aa3f6dae6ee243a3da4656e0c332aa4944a10ff93b07ba5c129cacb",
+      "codec_id": "zstd-22-long31",
+      "eligibility_class": "contextual",
+      "items": {
+        "clue_championship_e": {
+          "classification": "valid",
+          "codec_id": "zstd-22-long31",
+          "complete_bytes": 1974128,
+          "compress_wall_ns": 177545119256,
+          "decompress_wall_ns": 103640171,
+          "determinism_recompress_wall_ns": 179668934695,
+          "execution": {
+            "compress_returncode": 0,
+            "decompress_returncode": 0,
+            "deterministic_output": true,
+            "exact_roundtrip": true,
+            "finished_within_wall": true,
+            "order_preserved": true,
+            "timezone_preserved": true
+          },
+          "family": "clue_championship_e",
+          "measured_archive_bytes": 1974128
+        },
+        "clue_championship_f": {
+          "classification": "valid",
+          "codec_id": "zstd-22-long31",
+          "complete_bytes": 677177,
+          "compress_wall_ns": 130828487405,
+          "decompress_wall_ns": 37682307,
+          "determinism_recompress_wall_ns": 130747217567,
+          "execution": {
+            "compress_returncode": 0,
+            "decompress_returncode": 0,
+            "deterministic_output": true,
+            "exact_roundtrip": true,
+            "finished_within_wall": true,
+            "order_preserved": true,
+            "timezone_preserved": true
+          },
+          "family": "clue_championship_f",
+          "measured_archive_bytes": 677177
+        }
+      }
+    },
+    {
+      "binary_sha256": "c96e0dbf5268899314a51238d5bed8bfa58c00bc032e196a2a1dddbff0bfc720",
+      "codec_id": "pbc-only",
+      "eligibility_class": "eligible",
+      "items": {
+        "clue_championship_e": {
+          "classification": "valid",
+          "complete_bytes": 37628261,
+          "execution": {
+            "deterministic_output": true,
+            "exact_roundtrip": true,
+            "finished_within_wall": true,
+            "order_preserved": true,
+            "timezone_preserved": true
+          },
+          "measured_archive_bytes": 37628261
+        },
+        "clue_championship_f": {
+          "classification": "valid",
+          "complete_bytes": 7554732,
+          "execution": {
+            "deterministic_output": true,
+            "exact_roundtrip": true,
+            "finished_within_wall": true,
+            "order_preserved": true,
+            "timezone_preserved": true
+          },
+          "measured_archive_bytes": 7554732
+        }
+      },
+      "pbc_benchmark_returncode": 0,
+      "pbc_benchmark_stderr_tail": "",
+      "pbc_result_passed": true
+    }
+  ],
+  "opponents": [
+    {
+      "binary_sha256": "0521c4871be3d88d6891c7a653a8dbad83ba906a9c67b60ff2a5e9e772da4b6e",
+      "codec_id": "kanzi-max",
+      "eligibility_class": "eligible",
+      "items": {
+        "clue_championship_e": {
+          "complete_bytes": null,
+          "execution": {
+            "compress_returncode": 127,
+            "decompress_returncode": 1,
+            "deterministic_output": false,
+            "exact_roundtrip": false,
+            "finished_within_wall": true,
+            "order_preserved": false,
+            "timezone_preserved": false
+          }
+        },
+        "clue_championship_f": {
+          "complete_bytes": null,
+          "execution": {
+            "compress_returncode": 127,
+            "decompress_returncode": 1,
+            "deterministic_output": false,
+            "exact_roundtrip": false,
+            "finished_within_wall": true,
+            "order_preserved": false,
+            "timezone_preserved": false
+          }
+        }
+      }
+    },
+    {
+      "binary_sha256": "561a58dcbf866a3420be0d810294913b7e808ec70fc03e2c129b7499ee431e6d",
+      "codec_id": "zpaq-5-m54",
+      "eligibility_class": "eligible",
+      "items": {
+        "clue_championship_e": {
+          "complete_bytes": 1456116,
+          "execution": {
+            "compress_returncode": 0,
+            "decompress_returncode": 0,
+            "deterministic_output": true,
+            "exact_roundtrip": true,
+            "finished_within_wall": true,
+            "order_preserved": true,
+            "timezone_preserved": true
+          }
+        },
+        "clue_championship_f": {
+          "complete_bytes": 84472,
+          "execution": {
+            "compress_returncode": 0,
+            "decompress_returncode": 0,
+            "deterministic_output": true,
+            "exact_roundtrip": true,
+            "finished_within_wall": true,
+            "order_preserved": true,
+            "timezone_preserved": true
+          }
+        }
+      }
+    },
+    {
+      "binary_sha256": "29730d7ada563742cf819c764b2a9e357c1d965954617222c477c9fd98e6271b",
+      "codec_id": "brotli-11",
+      "eligibility_class": "eligible",
+      "items": {
+        "clue_championship_e": {
+          "complete_bytes": 3403445,
+          "execution": {
+            "compress_returncode": 0,
+            "decompress_returncode": 0,
+            "deterministic_output": true,
+            "exact_roundtrip": true,
+            "finished_within_wall": true,
+            "order_preserved": true,
+            "timezone_preserved": true
+          }
+        },
+        "clue_championship_f": {
+          "complete_bytes": 480544,
+          "execution": {
+            "compress_returncode": 0,
+            "decompress_returncode": 0,
+            "deterministic_output": true,
+            "exact_roundtrip": true,
+            "finished_within_wall": true,
+            "order_preserved": true,
+            "timezone_preserved": true
+          }
+        }
+      }
+    },
+    {
+      "binary_sha256": "30fe49ee3aa3f6dae6ee243a3da4656e0c332aa4944a10ff93b07ba5c129cacb",
+      "codec_id": "zstd-22",
+      "eligibility_class": "eligible",
+      "items": {
+        "clue_championship_e": {
+          "complete_bytes": 1974291,
+          "execution": {
+            "compress_returncode": 0,
+            "decompress_returncode": 0,
+            "deterministic_output": true,
+            "exact_roundtrip": true,
+            "finished_within_wall": true,
+            "order_preserved": true,
+            "timezone_preserved": true
+          }
+        },
+        "clue_championship_f": {
+          "complete_bytes": 677795,
+          "execution": {
+            "compress_returncode": 0,
+            "decompress_returncode": 0,
+            "deterministic_output": true,
+            "exact_roundtrip": true,
+            "finished_within_wall": true,
+            "order_preserved": true,
+            "timezone_preserved": true
+          }
+        }
+      }
+    },
+    {
+      "binary_sha256": "6f48e85adcf6fb0c5078c0c8df41e7dec7fb22dc7aae7d550ca45ed541e4bb6d",
+      "codec_id": "xz-lzma2-9e",
+      "eligibility_class": "eligible",
+      "items": {
+        "clue_championship_e": {
+          "complete_bytes": null,
+          "execution": {
+            "compress_returncode": 0,
+            "decompress_returncode": 0,
+            "deterministic_output": true,
+            "exact_roundtrip": false,
+            "finished_within_wall": true,
+            "order_preserved": false,
+            "timezone_preserved": false
+          }
+        },
+        "clue_championship_f": {
+          "complete_bytes": null,
+          "execution": {
+            "compress_returncode": 0,
+            "decompress_returncode": 0,
+            "deterministic_output": true,
+            "exact_roundtrip": false,
+            "finished_within_wall": true,
+            "order_preserved": false,
+            "timezone_preserved": false
+          }
+        }
+      }
+    },
+    {
+      "binary_sha256": "1676a968815b92e865bc0ffeecee3fa284ba4402bf23dc2bec2412c4b502e922",
+      "codec_id": "7zip-9",
+      "eligibility_class": "eligible",
+      "items": {
+        "clue_championship_e": {
+          "complete_bytes": 2392384,
+          "execution": {
+            "compress_returncode": 0,
+            "decompress_returncode": 0,
+            "deterministic_output": true,
+            "exact_roundtrip": true,
+            "finished_within_wall": true,
+            "order_preserved": true,
+            "timezone_preserved": true
+          }
+        },
+        "clue_championship_f": {
+          "complete_bytes": 595209,
+          "execution": {
+            "compress_returncode": 0,
+            "decompress_returncode": 0,
+            "deterministic_output": true,
+            "exact_roundtrip": true,
+            "finished_within_wall": true,
+            "order_preserved": true,
+            "timezone_preserved": true
+          }
+        }
+      }
+    },
+    {
+      "binary_sha256": "561a58dcbf866a3420be0d810294913b7e808ec70fc03e2c129b7499ee431e6d",
+      "codec_id": "zpaq-5-m510",
+      "eligibility_class": "contextual",
+      "items": {
+        "clue_championship_e": {
+          "complete_bytes": 927943,
+          "execution": {
+            "compress_returncode": 0,
+            "decompress_returncode": 0,
+            "deterministic_output": true,
+            "exact_roundtrip": true,
+            "finished_within_wall": true,
+            "order_preserved": true,
+            "timezone_preserved": true
+          }
+        },
+        "clue_championship_f": {
+          "complete_bytes": 67441,
+          "execution": {
+            "compress_returncode": 0,
+            "decompress_returncode": 0,
+            "deterministic_output": true,
+            "exact_roundtrip": true,
+            "finished_within_wall": true,
+            "order_preserved": true,
+            "timezone_preserved": true
+          }
+        }
+      }
+    },
+    {
+      "binary_sha256": "30fe49ee3aa3f6dae6ee243a3da4656e0c332aa4944a10ff93b07ba5c129cacb",
+      "codec_id": "zstd-22-long31",
+      "eligibility_class": "contextual",
+      "items": {
+        "clue_championship_e": {
+          "complete_bytes": 1974128,
+          "execution": {
+            "compress_returncode": 0,
+            "decompress_returncode": 0,
+            "deterministic_output": true,
+            "exact_roundtrip": true,
+            "finished_within_wall": true,
+            "order_preserved": true,
+            "timezone_preserved": true
+          }
+        },
+        "clue_championship_f": {
+          "complete_bytes": 677177,
+          "execution": {
+            "compress_returncode": 0,
+            "decompress_returncode": 0,
+            "deterministic_output": true,
+            "exact_roundtrip": true,
+            "finished_within_wall": true,
+            "order_preserved": true,
+            "timezone_preserved": true
+          }
+        }
+      }
+    },
+    {
+      "binary_sha256": "c96e0dbf5268899314a51238d5bed8bfa58c00bc032e196a2a1dddbff0bfc720",
+      "codec_id": "pbc-only",
+      "eligibility_class": "eligible",
+      "items": {
+        "clue_championship_e": {
+          "complete_bytes": 37628261,
+          "execution": {
+            "deterministic_output": true,
+            "exact_roundtrip": true,
+            "finished_within_wall": true,
+            "order_preserved": true,
+            "timezone_preserved": true
+          }
+        },
+        "clue_championship_f": {
+          "complete_bytes": 7554732,
+          "execution": {
+            "deterministic_output": true,
+            "exact_roundtrip": true,
+            "finished_within_wall": true,
+            "order_preserved": true,
+            "timezone_preserved": true
+          }
+        }
+      }
+    }
+  ],
+  "repository": {
+    "commit": "850cb630647f29dbe1a58d374f4d189f420d2b8e",
+    "tracked_status": ""
+  },
+  "schema_version": 1
+}

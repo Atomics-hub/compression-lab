@@ -1,0 +1,42 @@
+{
+  "authorization": {
+    "expected_item_ids": [
+      "clue-championship-e",
+      "clue-championship-f"
+    ],
+    "maximum_acquisitions": 1,
+    "maximum_scored_attempts": 1,
+    "prohibit_post_score_tuning": true,
+    "retain_failed_or_interrupted_attempt": true,
+    "split": "public_validation"
+  },
+  "claim_ceiling": "This lock authorizes one unchanged acquisition and first score on the two declared previously unopened CLUE-LDS championship ranges (clue-championship-e and clue-championship-f). It provides no performance evidence, changes neither the immutable v1 not_passed nor v2 passed scores, does not authorize the private holdout, and supports at most a public championship contender claim on those two ranges.",
+  "head_commit": "850cb630647f29dbe1a58d374f4d189f420d2b8e",
+  "lock_path": "/home/runner/work/compression-lab/compression-lab/config/clue-jls2-championship-screen-v1-lock.json",
+  "lock_sha256": "c1e854f06bb55554db3d0146b80a60a9fb7a807d381947393111c2650855f31f",
+  "passed": true,
+  "readiness_commit": "1a1235f8c893fd612fcc298b17c85904dec7d215",
+  "schema_version": 1,
+  "tracked_status": "",
+  "verified_paths": {
+    ".github/workflows/clue-jls2-championship-screen-v1.yml": "b8d09d83ea1b51df740661bef49fad1975dadb856e1c67a81c246f0ac9159ff7",
+    "config/clue-jls2-championship-screen-v1-gates.json": "0ef19ddb503ce98c3d366b4d8f429d2f59e31962228d87869bb4725c5a1e379b",
+    "config/clue-jls2-public-validation-v2-gates.json": "376354fb60eacb7cc6c7b7cda4fdde37ffd25b2aaa0ce41792a4ede0627d6c9a",
+    "config/clue-json-log-corpus-championship-v1.json": "d0cc090708712aa01daf69825562dcf95fa1797fb93156ad9a114e726708ddb4",
+    "config/clue-pbc-championship-screen-v1-gates.json": "58687d7a5079d0c9d8e1f1a116bca98b5dfb88cb3b2f9f52d34321983596015e",
+    "docs/benchmarks/2026-07-25-clue-jls2-championship-screen-protocol.md": "67606e26b61d72925fe36143d116e705b7e4346b6588515254f31b9c203c9745",
+    "scripts/benchmark-clue-jls2-championship-screen-v1.py": "4d0156e4faa3e2be42fae14a9302bd25b4ffe058270cd2caedebd590c5c16699",
+    "scripts/benchmark-pbc-competitor.py": "e23691c006923b68b23a70c8ae923d8a3d7df99d63f825cea48c93542220970e",
+    "scripts/evaluate-clue-jls2-championship-screen-v1.py": "e9e77008234838e54d0540c8b91675c701dfe08401718ade811f76e2e1cfd8c0",
+    "scripts/fetch-clue-json-corpus-championship-v1.py": "7b7a15763ecfb691a692cfce12f9aecf7850e2916ca31b24dd8eabb56370960e",
+    "scripts/jls2-candidate-compress-v2.py": "d882140a5704b2de8ad8663ca572f3fa5c4f99f8c5c8a472feaee920e48bdda2",
+    "scripts/measure-clean-rss.py": "805ee3a20680d2afcf339f678d2e1292fb0ed72dc3ba2ccff261ba693bf41306",
+    "scripts/reduce-clue-jls2-championship-screen-v1.py": "d2209cb09c87170afe5fb8048eb109feca6dbdc81f9c604d9baf6881cffbb860",
+    "scripts/verify-clue-jls2-championship-screen-v1-lock.py": "395a4da02091d15859e1b4f2001632968c66c741778a0a1a18efad705a3c9430",
+    "tests/test_clue_jls2_championship_benchmark_restore.py": "673871e345efb503c791daa5c00bc98a477040f39ecb8f6252ce4e2cea536c3a",
+    "tests/test_clue_jls2_championship_gates.py": "c3b957cb5d5d0c016f2cef558903a4bb3e920aa4c8fc4c3bc8d885c2ee30965b",
+    "tests/test_clue_jls2_championship_lock.py": "69009d014c3533e7ab9000cfacbea30c2699d9c8c0f757a323ff5a7890a49b67",
+    "tests/test_clue_jls2_championship_reducer.py": "7004d12c6963088a4b6fb2e6d945738efa111cd361c12b027739336ef96c9549",
+    "tests/test_clue_json_corpus_championship.py": "0ebfd7e087f64c61f982e228d7687a1563bc95cdbd71e9ff5102cffd7b13c545"
+  }
+}
