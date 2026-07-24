@@ -109,11 +109,11 @@ jobs:
           cp "$RUNNER_TEMP/brotli-build/brotli" "$BIN_DIR/brotli-11"
 
           curl --fail --location --proto '=https' --tlsv1.2 \
-            https://github.com/tukaani-project/xz/releases/download/v5.8.3/xz-5.8.3.tar.gz \
-            --output "$RUNNER_TEMP/xz.tar.gz"
-          echo "$XZ_TARBALL_SHA256  $RUNNER_TEMP/xz.tar.gz" | sha256sum -c -
+            https://github.com/tukaani-project/xz/releases/download/v5.8.3/xz-5.8.3.tar.xz \
+            --output "$RUNNER_TEMP/xz.tar.xz"
+          echo "$XZ_TARBALL_SHA256  $RUNNER_TEMP/xz.tar.xz" | sha256sum -c -
           mkdir -p "$RUNNER_TEMP/xz-src"
-          tar -xzf "$RUNNER_TEMP/xz.tar.gz" -C "$RUNNER_TEMP/xz-src" --strip-components=1
+          tar -xJf "$RUNNER_TEMP/xz.tar.xz" -C "$RUNNER_TEMP/xz-src" --strip-components=1
           (cd "$RUNNER_TEMP/xz-src" && ./configure --disable-shared && make -j"$(nproc)")
           cp "$RUNNER_TEMP/xz-src/src/xz/xz" "$BIN_DIR/xz-lzma2-9e"
 

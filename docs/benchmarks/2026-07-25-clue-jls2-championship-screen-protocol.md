@@ -311,3 +311,24 @@ the #105 precedent, is:
 4. Trigger the **single `workflow_dispatch`** run of
    `.github/workflows/clue-jls2-championship-screen-v1.yml`. One acquisition, one
    score, first result final.
+
+### Attempt log
+
+A dispatch attempt that dies **before** the acquisition step reads no CLUE data,
+consumes no score, and does not enter the one-way door; it is a fail-closed setup
+failure, and fixing the setup and re-dispatching is legitimate (the JLS2 v2
+attempt-1 precedent). Every attempt is recorded here.
+
+- **Attempt 1 — run 30073461614 at `29b07f7` — FAILED PRE-ACQUISITION (fail-closed).**
+  The "Build strongest standard codecs" step failed the xz tarball SHA-256 check:
+  the workflow downloaded `xz-5.8.3.tar.gz` while the pinned `XZ_TARBALL_SHA256`
+  (`fff1ffcf2b0da84d308a14de513a1aa23d4e9aa3464d17e64b9714bfdd0bbfb6`) is the digest
+  of the `xz-5.8.3.tar.xz` release asset (URL and hash referred to different
+  assets; the hash was inherited correctly from the frozen E1 toolchain config).
+  The "Acquire the two sealed championship ranges exactly once" step was **skipped**;
+  **no CLUE data was touched and no score was consumed**; the one-way door was not
+  entered. The retained first-attempt evidence was uploaded by the workflow. Fix
+  (this PR): download the `.tar.xz` asset and extract with `tar -xJf`; no pinned
+  hash string changed. The zpaq (`e85ec2529…`) and 7-Zip (`41aaba7b…`) asset
+  download/hash pairs were re-verified against the live assets and match; brotli,
+  zstd, and kanzi are git clones at pinned commits.

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "name": "clue-jls2-championship-screen-v1-readiness-lock",
-  "readiness_commit": "9674bfe0be17e0ab18d914c9f451bb2549dfd093",
+  "readiness_commit": "37a2bacb6b0aae10983ad949353c77af1f872e57",
   "claim_ceiling": "This lock authorizes one unchanged acquisition and first score on the two declared previously unopened CLUE-LDS championship ranges (clue-championship-e and clue-championship-f). It provides no performance evidence, changes neither the immutable v1 not_passed nor v2 passed scores, does not authorize the private holdout, and supports at most a public championship contender claim on those two ranges.",
   "authorization": {
     "maximum_acquisitions": 1,
@@ -15,11 +15,11 @@
     "prohibit_post_score_tuning": true
   },
   "locked_paths": {
-    ".github/workflows/clue-jls2-championship-screen-v1.yml": "91aba7df9e52d3b2487fb890efd3a2b9dfd80a758b26d89ad9564e41c0ffedd0",
+    ".github/workflows/clue-jls2-championship-screen-v1.yml": "ed197af1418fcb1b8e1e29ec021cdf2f8f2a19e6201a46940e144d3c523904ea",
     "config/clue-jls2-championship-screen-v1-gates.json": "0ef19ddb503ce98c3d366b4d8f429d2f59e31962228d87869bb4725c5a1e379b",
     "config/clue-json-log-corpus-championship-v1.json": "d0cc090708712aa01daf69825562dcf95fa1797fb93156ad9a114e726708ddb4",
     "config/clue-pbc-championship-screen-v1-gates.json": "58687d7a5079d0c9d8e1f1a116bca98b5dfb88cb3b2f9f52d34321983596015e",
-    "docs/benchmarks/2026-07-25-clue-jls2-championship-screen-protocol.md": "a80f5e3837698ebe7a06b8504de9aa4e4a3398cd0c2c53e1147771d3722a2ab4",
+    "docs/benchmarks/2026-07-25-clue-jls2-championship-screen-protocol.md": "73568cbb39d1f1d8f0e799d3f12c7cdc035b2a52ac4cea10f2cca0e3b19bef30",
     "scripts/reduce-clue-jls2-championship-screen-v1.py": "d2209cb09c87170afe5fb8048eb109feca6dbdc81f9c604d9baf6881cffbb860",
     "scripts/fetch-clue-json-corpus-championship-v1.py": "7b7a15763ecfb691a692cfce12f9aecf7850e2916ca31b24dd8eabb56370960e",
     "scripts/benchmark-clue-jls2-championship-screen-v1.py": "203eeb1dd139539243b14f7bd64d4f09606b07fd46226255373660eff03c8219",
