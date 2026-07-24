@@ -134,6 +134,14 @@ Windows now runs all native tests except those two named skips.
   adaptation, C1 match model, C2 pooled value reuse, C5 BWT; C4 is
   precheck-gated and C6 requires C1+C2 survival. C3 implementation is the
   immediate task. No development, validation, or holdout access is authorized.
+- **H1 loss decomposition (runs 38→40) — PUBLISHED 2026-07-23.** Attribution of
+  the H1 floor arm's coding loss across two public snapshots: ~78% string_value,
+  ~11% number_value, ~43% inside long repeats; timestamps/framing/cold-start
+  immaterial (≤~0.9%). Funds C1 (match-mixer, repeat mass), C2 (value-context,
+  string pot), and C8 (expert-mixture, 0.93× H1 kill frozen pre-measurement).
+  Evidence `runs/moon-h1-loss-decomposition-v1/`, doc
+  `docs/benchmarks/2026-07-23-moon-h1-loss-decomposition-diagnostic.md`; 40 of
+  160 cycle runs used.
 - **C3 (live adaptation) — KILLED at prescreen 2026-07-23.** Preregistered
   two-snapshot AND kill line (integer `C3·100 >= H1·97` on both public
   snapshots; manifest `config/moon-c3-public-prescreen-v1.json` merged in PR #95

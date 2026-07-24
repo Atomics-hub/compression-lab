@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "name": "clue-json-log-corpus-v2",
+  "category": "structured_cloud_event_logs",
+  "claim_ceiling": "CLUE-LDS second, separately frozen one-time public-validation evidence on two previously unopened temporal ranges only; not private-holdout, universal, market-leading, world-best, or state-of-the-art evidence, and no change to the immutable v1 not_passed score",
+  "provider": {
+    "title": "Cloud-based User Entity Behavior Analytics Log Data Set",
+    "authors": [
+      "Max Landauer",
+      "Florian Skopik",
+      "Georg Höld",
+      "Markus Wurzenberger"
+    ],
+    "doi": "10.5281/zenodo.7119953",
+    "record_url": "https://zenodo.org/records/7119953",
+    "publication_date": "2022-09-28",
+    "license_spdx": "CC-BY-4.0",
+    "record_count_description": "around 50 million events",
+    "unpacked_size_description": "around 14.5 GB"
+  },
+  "archive": {
+    "filename": "clue.zip",
+    "url": "https://zenodo.org/api/records/7119953/files/clue.zip/content",
+    "size_bytes": 635105552,
+    "publisher_digest_algorithm": "md5",
+    "publisher_digest": "9e318370f96b68077667e9cdc05f26a5",
+    "sha256": "0c9eadb104acf1da6de738ba9babe957c83cd8602a01fa6d846a6ea4a6611d96",
+    "member": "clue.json"
+  },
+  "selection": {
+    "rule": "preserve complete original NDJSON records whose official monotonically increasing id is within the inclusive frozen range",
+    "expected_id_equals_line_number": true,
+    "development": [],
+    "public_validation": [
+      {
+        "id": "clue-validation-v2-c",
+        "family": "clue_validation_v2_c",
+        "first_record_id": 28000001,
+        "last_record_id": 28250000,
+        "size_bytes": null,
+        "sha256": null
+      },
+      {
+        "id": "clue-validation-v2-d",
+        "family": "clue_validation_v2_d",
+        "first_record_id": 40000001,
+        "last_record_id": 40250000,
+        "size_bytes": null,
+        "sha256": null
+      }
+    ]
+  }
+}

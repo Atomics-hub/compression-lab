@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "name": "pbc-only-clue-public-validation-v2",
+  "source": {
+    "repository": "https://github.com/antgroup/pbc",
+    "commit": "bac1f86d29624cb585bb4475235d22a28e60ffea",
+    "license_spdx": "Apache-2.0",
+    "license_sha256": "bacacee63139034e9acba4de0c513eeb93cc6277ae52054a30eebf4be644e7ed",
+    "recommended_environment": "Ubuntu 22.04"
+  },
+  "settings": {
+    "methods": [
+      "pbc_only"
+    ],
+    "pattern_size": 100,
+    "train_data_number": 2000,
+    "train_thread_num": 64,
+    "input_type": "newline-delimited record"
+  },
+  "requirements": {
+    "expected_families": [
+      "clue_validation_v2_c",
+      "clue_validation_v2_d"
+    ],
+    "minimum_repetitions": 5,
+    "minimum_training_repetitions": 2,
+    "maximum_record_bytes": 1048576,
+    "max_normalized_preflight_load_1m": 1.0,
+    "require_clean_tracked_source": true,
+    "require_exact_source_commit": true,
+    "require_exact_license": true,
+    "require_deterministic_payload_for_fixed_pattern": true,
+    "require_byte_exact_roundtrip": true,
+    "require_complete_archive_accounting": true
+  },
+  "claim_ceiling": "Frozen PBC-only exact specialist comparison for the second one-time CLUE-LDS public-validation score on the two previously unopened v2 ranges; no broad superiority claim."
+}
