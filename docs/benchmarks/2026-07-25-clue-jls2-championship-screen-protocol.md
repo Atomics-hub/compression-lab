@@ -332,3 +332,60 @@ attempt-1 precedent). Every attempt is recorded here.
   hash string changed. The zpaq (`e85ec2529…`) and 7-Zip (`41aaba7b…`) asset
   download/hash pairs were re-verified against the live assets and match; brotli,
   zstd, and kanzi are git clones at pinned commits.
+
+- **Attempt 2 — run 30075201539 at `ac79380` — ENTERED THE DOOR, then CRASHED
+  mid-score (no scoreable result).** Acquisition **succeeded** and is immutable and
+  complete: `clue-championship-e` sha256 `9197e1ae…`, 143,578,666 source bytes (a
+  heavier temporal region, roughly 3x v2's record density); `clue-championship-f`
+  sha256 `ff84d870…`, 48,443,391 source bytes (manifest + hashes retained). The
+  benchmark then crashed with an `IsADirectoryError` at
+  `scripts/benchmark-clue-jls2-championship-screen-v1.py:439`,
+  `run_opponent_item` `scratch.unlink` on `zpaq-5-m54.clue_championship_e.restored`:
+  zpaq `extract -to` recreates the full stored source path as a **directory tree**
+  (the documented E1 zpaq behavior), and the harness assumed a file. **No score
+  JSON, no reducer input, and no opponent byte counts exist.** Two harness defects
+  are fixed in this PR: (1) restore handling now restores every opponent into a
+  fresh per-item directory, resolves the single restored payload under it (handling
+  path-recreating extractors generically), and cleans up files AND directory trees;
+  (2) the workflow score step now captures the benchmark exit code from `$?` on a
+  plain redirect (not `PIPESTATUS` through a `tee` pipe), always records it and
+  whether a bundle was produced, exits with the real code so a crash fails the step
+  visibly, the reducer step runs whenever a score bundle exists, and enforce reads
+  the real codes and reports each failure mode explicitly. A local synthetic
+  end-to-end dry-run of `run_opponent_item` for all eight opponents (brotli-11,
+  zstd-22, xz-9e, 7-Zip, kanzi-max, zpaq-54, zpaq-510, zstd-long31) verified
+  compress + restore + hash + cleanup; that dry-run additionally caught and fixed
+  two more latent template bugs (brotli 1.2.0 and kanzi 2.5.3 long-option forms).
+  PBC is not locally buildable (boost 1.67 / colm toolchain); a line-by-line review
+  of its path confirms it writes to a single named output file via `-o` and unlinks
+  a file, so it is unaffected by the directory-recreation/cleanup defect.
+  **Retained attempt-2 partials, all disclosed:** JLS2 clean-RSS receipts only —
+  compression peak RSS family e **610,725,888 B (582.4 MiB), OVER the frozen 512 MiB
+  compression cap**; compression peak RSS family f 316,547,072 B; standalone decode
+  peak RSS family e 143,806,464 B and family f 91,836,416 B (both decode readings
+  in-gate); plus the existence of zpaq's family-e roundtrip. No opponent byte counts
+  and no JLS2 archive sizes were produced.
+
+  **Helm ruling (recorded verbatim):** "the one-way door was entered once; the
+  acquisition is immutable and complete (manifest + hashes retained); NO scoreable
+  result was produced, so under the frozen 'one acquisition, one score, first
+  result final' the COMPLETING run is THE one score, not a second one. Nothing is
+  replaced-by-selection: attempt 2 produced no scoreable bundle; all attempt-2
+  partials are retained and disclosed side-by-side with the completed score's fresh
+  measurements; JLS2's identity is hash-pinned and untunable; the only
+  decision-relevant partial seen (582.4 MiB compress RSS on family e) is ADVERSE to
+  the candidate, so completion cannot flatter JLS2. The completing dispatch (attempt
+  3) must acquire byte-identical ranges (fetcher determinism enforces: same archive
+  sha 0c9eadb1..., same selection; verify manifest hashes match attempt 2's and
+  record that check in the attempt log)."
+
+  **Attempt 3 (the completing run) — byte-identical re-acquisition requirement:**
+  the fetcher is deterministic (same pinned archive sha256
+  `0c9eadb104acf1da6de738ba9babe957c83cd8602a01fa6d846a6ea4a6611d96`, same frozen
+  inclusive ranges and selection rule), so attempt 3 re-acquires the identical
+  ranges. Before scoring, the attempt-3 manifest per-item SHA-256 MUST equal
+  attempt 2's (`clue-championship-e` `9197e1ae…`, `clue-championship-f`
+  `ff84d870…`); that equality check is recorded here as part of the attempt-3 entry.
+  Because the sole decision-relevant partial already observed (582.4 MiB family-e
+  compression peak RSS) exceeds the 512 MiB compression cap and is adverse to the
+  candidate, completing the score cannot flatter JLS2.

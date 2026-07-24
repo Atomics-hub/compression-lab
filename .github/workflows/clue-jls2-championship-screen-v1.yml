@@ -193,6 +193,10 @@ jobs:
         id: benchmark
         shell: bash
         run: |
+          # Capture the benchmark exit code from $? on a plain redirect (not from
+          # PIPESTATUS through a `tee` pipe), always write both the exit code and
+          # whether a score bundle was produced, then exit with the real code so a
+          # crash fails the step visibly instead of being masked by `exit 0`.
           set +e
           python scripts/benchmark-clue-jls2-championship-screen-v1.py \
             --manifest "$RUNNER_TEMP/clue-championship/manifest.json" \
@@ -203,22 +207,36 @@ jobs:
             --pbc-binary "$PBC_DIR/bin/pbc" \
             --pbc-repository "$PBC_DIR" \
             --pbc-gates config/clue-pbc-championship-screen-v1-gates.json \
-            --output "$EVIDENCE_DIR/score" 2>&1 | tee "$EVIDENCE_DIR/benchmark.log"
-          echo "exit_code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
-          exit 0
+            --output "$EVIDENCE_DIR/score" > "$EVIDENCE_DIR/benchmark.log" 2>&1
+          code=$?
+          cat "$EVIDENCE_DIR/benchmark.log"
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          if [[ -f "$EVIDENCE_DIR/score/bundle.json" ]]; then
+            echo "bundle_present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "bundle_present=false" >> "$GITHUB_OUTPUT"
+          fi
+          if [[ "$code" -ne 0 ]]; then
+            echo "::error title=Championship benchmark failed::exit $code (see benchmark.log above)"
+          fi
+          exit "$code"
 
       - name: Apply the frozen reducer to the immutable score
-        if: steps.benchmark.outputs.exit_code == '0'
+        if: always() && steps.benchmark.outputs.bundle_present == 'true'
         id: evaluate
         shell: bash
         run: |
+          # Runs whenever a score bundle exists, regardless of the benchmark step
+          # outcome. Captures the reducer exit code from $? and exits with it.
           set +e
           python scripts/evaluate-clue-jls2-championship-screen-v1.py \
             --bundle "$EVIDENCE_DIR/score/bundle.json" \
             --gates config/clue-jls2-championship-screen-v1-gates.json \
-            --output "$EVIDENCE_DIR/decision.json" 2>&1 | tee "$EVIDENCE_DIR/evaluator.log"
-          echo "exit_code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
-          exit 0
+            --output "$EVIDENCE_DIR/decision.json" > "$EVIDENCE_DIR/evaluator.log" 2>&1
+          code=$?
+          cat "$EVIDENCE_DIR/evaluator.log"
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          exit "$code"
 
       - name: Publish transparent job summary
         if: always()
@@ -269,11 +287,23 @@ jobs:
         shell: bash
         run: |
           benchmark="${{ steps.benchmark.outputs.exit_code }}"
+          bundle="${{ steps.benchmark.outputs.bundle_present }}"
           evaluate="${{ steps.evaluate.outputs.exit_code }}"
-          if [[ -z "$benchmark" || "$benchmark" != "0" ]]; then
-            exit "${benchmark:-1}"
+          echo "benchmark_exit='$benchmark' bundle_present='$bundle' reducer_exit='$evaluate'"
+          if [[ -z "$benchmark" ]]; then
+            echo "::error::benchmark step did not report an exit code"
+            exit 1
+          fi
+          if [[ "$benchmark" != "0" ]]; then
+            echo "::error::benchmark did not complete cleanly (exit $benchmark); no score was produced"
+            exit "$benchmark"
+          fi
+          if [[ "$bundle" != "true" ]]; then
+            echo "::error::benchmark exited 0 but produced no score bundle"
+            exit 1
           fi
           if [[ -z "$evaluate" ]]; then
+            echo "::error::reducer did not run despite a score bundle"
             exit 1
           fi
           exit "$evaluate"
