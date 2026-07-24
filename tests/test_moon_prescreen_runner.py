@@ -514,6 +514,101 @@ class PrescreenRunnerTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             MODULE.c3_ratio_gate_kills({"only": (970, 1000)})
 
+    def test_c1_integer_ratio_gate_is_inclusive_and_overflow_safe(self) -> None:
+        # Boundary: exactly 0.90x H1 kills; one below survives.
+        self.assertTrue(MODULE.c1_snapshot_crosses_ratio_kill(900, 1000))
+        self.assertTrue(MODULE.c1_snapshot_crosses_ratio_kill(901, 1000))
+        self.assertFalse(MODULE.c1_snapshot_crosses_ratio_kill(899, 1000))
+        huge = 1 << 100
+        self.assertTrue(MODULE.c1_snapshot_crosses_ratio_kill(90 * huge, 100 * huge))
+        # Two-snapshot AND: both cross to kill.
+        self.assertTrue(
+            MODULE.c1_ratio_gate_kills({"a": (900, 1000), "b": (1800, 2000)})
+        )
+        # One snapshot below the line: survives.
+        self.assertFalse(
+            MODULE.c1_ratio_gate_kills({"a": (899, 1000), "b": (1800, 2000)})
+        )
+        with self.assertRaises(ValueError):
+            MODULE.c1_ratio_gate_kills({"only": (900, 1000)})
+
+    def test_c8_integer_ratio_gate_is_inclusive_and_overflow_safe(self) -> None:
+        # Boundary: exactly 0.93x H1 kills; one below survives.
+        self.assertTrue(MODULE.c8_snapshot_crosses_ratio_kill(930, 1000))
+        self.assertTrue(MODULE.c8_snapshot_crosses_ratio_kill(931, 1000))
+        self.assertFalse(MODULE.c8_snapshot_crosses_ratio_kill(929, 1000))
+        huge = 1 << 100
+        self.assertTrue(MODULE.c8_snapshot_crosses_ratio_kill(93 * huge, 100 * huge))
+        # Two-snapshot AND: both cross to kill.
+        self.assertTrue(
+            MODULE.c8_ratio_gate_kills({"a": (930, 1000), "b": (1860, 2000)})
+        )
+        # One snapshot below the line: survives.
+        self.assertFalse(
+            MODULE.c8_ratio_gate_kills({"a": (929, 1000), "b": (1860, 2000)})
+        )
+        with self.assertRaises(ValueError):
+            MODULE.c8_ratio_gate_kills({"only": (930, 1000)})
+
+    def test_c1c2c8_manifest_kill_lines_are_byte_identical_to_runner(self) -> None:
+        manifest = json.loads(
+            (
+                REPOSITORY
+                / "config"
+                / "moon-cycle2-c1c2c8-public-prescreen-v1.json"
+            ).read_text(encoding="utf-8")
+        )
+        self.assertEqual(
+            manifest["schema"], "moon-cycle2-c1c2c8-public-prescreen-config-v1"
+        )
+        self.assertEqual(
+            manifest["kernel_commit"],
+            "1519bbc0a7fbe534ef7c2e7ad463a19801452bd5",
+        )
+        expected_reducers = {
+            "c1-match-mixer": "scripts/moon-prescreen-runner.py::c1_ratio_gate_kills",
+            "c2-value-context": "scripts/moon-prescreen-runner.py::c2_ratio_gate_kills",
+            "c8-expert-mixture": "scripts/moon-prescreen-runner.py::c8_ratio_gate_kills",
+        }
+        expected_state = {
+            "c1-match-mixer": 136_773_760,
+            "c2-value-context": 220_676_096,
+            "c8-expert-mixture": 119_963_648,
+        }
+        seen = set()
+        for arm in manifest["arms"]:
+            name = arm["arm"]
+            seen.add(name)
+            self.assertEqual(arm["arm_id"], MODULE.ARM_IDS[name])
+            self.assertEqual(
+                arm["predicted_kill_criterion"], MODULE.KILL_LINES[name]
+            )
+            self.assertEqual(arm["ratio_kill"]["reducer"], expected_reducers[name])
+            self.assertEqual(
+                arm["declared_model_state_bytes"], expected_state[name]
+            )
+        self.assertEqual(
+            seen, {"c1-match-mixer", "c2-value-context", "c8-expert-mixture"}
+        )
+
+    def test_c1c2c8_manifest_ratio_numerators_match_the_runner(self) -> None:
+        manifest = json.loads(
+            (
+                REPOSITORY
+                / "config"
+                / "moon-cycle2-c1c2c8-public-prescreen-v1.json"
+            ).read_text(encoding="utf-8")
+        )
+        expected = {
+            "c1-match-mixer": (MODULE.C1_KILL_NUMERATOR, MODULE.C1_KILL_DENOMINATOR),
+            "c2-value-context": (MODULE.C2_KILL_NUMERATOR, MODULE.C2_KILL_DENOMINATOR),
+            "c8-expert-mixture": (MODULE.C8_KILL_NUMERATOR, MODULE.C8_KILL_DENOMINATOR),
+        }
+        for arm in manifest["arms"]:
+            numerator, denominator = expected[arm["arm"]]
+            self.assertEqual(arm["ratio_kill"]["numerator"], numerator)
+            self.assertEqual(arm["ratio_kill"]["denominator"], denominator)
+
 
 if __name__ == "__main__":
     unittest.main()

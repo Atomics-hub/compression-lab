@@ -52,6 +52,12 @@ C3_KILL_DENOMINATOR = 100
 # C2 crosses its H1 ratio line at complete bytes >= 0.95 * H1 (equality kills).
 C2_KILL_NUMERATOR = 95
 C2_KILL_DENOMINATOR = 100
+# C1 crosses its H1 ratio line at complete bytes >= 0.90 * H1 (equality kills).
+C1_KILL_NUMERATOR = 90
+C1_KILL_DENOMINATOR = 100
+# C8 crosses its H1 ratio line at complete bytes >= 0.93 * H1 (equality kills).
+C8_KILL_NUMERATOR = 93
+C8_KILL_DENOMINATOR = 100
 ARM_IDS = {
     "h1-floor": 100,
     "h6-hybrid": 101,
@@ -470,6 +476,40 @@ def c2_ratio_gate_kills(
         for c2_bytes, c1_bytes in c1_snapshots.values()
     )
     return versus_h1 or versus_c1
+
+
+def c1_snapshot_crosses_ratio_kill(c1_bytes: int, h1_bytes: int) -> bool:
+    """Exact C1 `>= 0.90 * H1` comparison; equality crosses the line."""
+    if c1_bytes < 0 or h1_bytes <= 0:
+        raise ValueError("C1/H1 complete bytes must be positive")
+    return c1_bytes * C1_KILL_DENOMINATOR >= h1_bytes * C1_KILL_NUMERATOR
+
+
+def c1_ratio_gate_kills(snapshots: dict[str, tuple[int, int]]) -> bool:
+    """Apply the binding two-snapshot AND rule to `(C1, H1)` byte pairs."""
+    if len(snapshots) != 2:
+        raise ValueError("C1 ratio gate requires exactly two distinct snapshots")
+    return all(
+        c1_snapshot_crosses_ratio_kill(c1_bytes, h1_bytes)
+        for c1_bytes, h1_bytes in snapshots.values()
+    )
+
+
+def c8_snapshot_crosses_ratio_kill(c8_bytes: int, h1_bytes: int) -> bool:
+    """Exact C8 `>= 0.93 * H1` comparison; equality crosses the line."""
+    if c8_bytes < 0 or h1_bytes <= 0:
+        raise ValueError("C8/H1 complete bytes must be positive")
+    return c8_bytes * C8_KILL_DENOMINATOR >= h1_bytes * C8_KILL_NUMERATOR
+
+
+def c8_ratio_gate_kills(snapshots: dict[str, tuple[int, int]]) -> bool:
+    """Apply the binding two-snapshot AND rule to `(C8, H1)` byte pairs."""
+    if len(snapshots) != 2:
+        raise ValueError("C8 ratio gate requires exactly two distinct snapshots")
+    return all(
+        c8_snapshot_crosses_ratio_kill(c8_bytes, h1_bytes)
+        for c8_bytes, h1_bytes in snapshots.values()
+    )
 
 
 def validate_kernel_receipt(
