@@ -52,6 +52,7 @@ LOCK_VERIFIER = (
 )
 MEASURE_CLEAN_RSS = REPOSITORY / "scripts" / "measure-clean-rss.py"
 CANDIDATE_COMPRESS_DRIVER = REPOSITORY / "scripts" / "jls2-candidate-compress-v2.py"
+PBC_BENCHMARK = REPOSITORY / "scripts" / "benchmark-pbc-competitor.py"
 CHUNK_SIZE = 1024 * 1024
 
 # Frozen per-codec command templates. Each template expands with {source},
@@ -318,7 +319,7 @@ def no_expansion_vs_direct(source: Path, encoded: Path) -> dict[str, Any]:
 
 
 def run_plain(command: list[str], timeout: float) -> tuple[int, bool]:
-    """Return (returncode, timed_out)."""
+    """Run a target without a peak-RSS reading (used for corruption rejection)."""
     try:
         completed = subprocess.run(
             command, cwd=REPOSITORY, capture_output=True, timeout=timeout
@@ -332,62 +333,95 @@ def _expand(template: list[str], mapping: dict[str, str]) -> list[str]:
     return [token.format(**mapping) for token in template]
 
 
+def _run_redirected(
+    argv: list[str], stdout_path: Path | None, timeout: float
+) -> tuple[int, bool, int]:
+    """Run a command (optionally redirecting stdout to a file) and time it.
+
+    Returns (returncode, timed_out, wall_ns). Every invocation - including the
+    stdout-redirected and determinism re-runs - is timed the same way, so no
+    measurement is untimed.
+    """
+    started = time.perf_counter_ns()
+    try:
+        if stdout_path is not None:
+            with stdout_path.open("wb") as handle:
+                completed = subprocess.run(
+                    argv,
+                    cwd=REPOSITORY,
+                    stdout=handle,
+                    stderr=subprocess.DEVNULL,
+                    timeout=timeout,
+                )
+        else:
+            completed = subprocess.run(
+                argv, cwd=REPOSITORY, capture_output=True, timeout=timeout
+            )
+    except subprocess.TimeoutExpired:
+        return 124, True, time.perf_counter_ns() - started
+    return completed.returncode, False, time.perf_counter_ns() - started
+
+
+def _compress(spec: dict[str, Any], mapping: dict[str, str], wall: float) -> tuple[int, bool, int]:
+    stdout_path = (
+        Path(spec["compress_stdout"].format(**mapping)) if "compress_stdout" in spec else None
+    )
+    return _run_redirected(_expand(spec["compress"], mapping), stdout_path, wall)
+
+
+def _decompress(spec: dict[str, Any], mapping: dict[str, str], wall: float) -> tuple[int, bool, int]:
+    stdout_path = (
+        Path(spec["decompress_stdout"].format(**mapping)) if "decompress_stdout" in spec else None
+    )
+    return _run_redirected(_expand(spec["decompress"], mapping), stdout_path, wall)
+
+
 def run_opponent_item(
     codec_id: str,
     spec: dict[str, Any],
     binary: Path,
     source: Path,
     source_sha256: str,
+    family: str,
     work: Path,
     wall_seconds: float,
 ) -> dict[str, Any]:
-    """Run one opponent on one item and classify the execution.
+    """Run one opponent on ONE item (family) and classify that item independently.
 
-    Returns a row with the complete-archive byte count and the validity flags the
-    reducer consumes. Determinism is checked by compressing twice and comparing
-    the archive bytes; exactness by restoring and comparing the SHA-256 to the
-    source (a byte-exact roundtrip preserves record order and timezone text).
+    Determinism is checked by compressing twice and comparing archive bytes;
+    exactness by restoring and comparing the SHA-256 to the source (a byte-exact
+    roundtrip preserves record order and timezone text). A failure here is an
+    invalid-tool-failure for THIS item only; another item's result stands.
+    Every compress/decompress invocation (including the stdout-redirected and
+    determinism re-runs) is timed.
     """
+    tag = f"{codec_id}.{family}"
     mapping = {
         "bin": str(binary),
         "source": str(source),
-        "archive": str(work / f"{codec_id}.archive"),
-        "restored": str(work / f"{codec_id}.restored"),
+        "archive": str(work / f"{tag}.archive"),
+        "restored": str(work / f"{tag}.restored"),
     }
     archive = Path(mapping["archive"])
     restored = Path(mapping["restored"])
+    second_archive = work / f"{tag}.archive.second"
 
-    started = time.perf_counter_ns()
-    compress_rc, compress_timeout = run_plain(_expand(spec["compress"], mapping), wall_seconds)
-    if "compress_stdout" in spec:
-        # stdout-emitting tools (xz) are re-run capturing stdout to the archive.
-        with archive.open("wb") as handle:
-            piped = subprocess.run(
-                _expand(spec["compress"], mapping), cwd=REPOSITORY, stdout=handle
-            )
-        compress_rc = piped.returncode
-    compress_wall_ns = time.perf_counter_ns() - started
-
+    compress_rc, compress_timeout, compress_wall_ns = _compress(spec, mapping, wall_seconds)
     archive_bytes = archive.stat().st_size if archive.is_file() else None
-    second_archive = work / f"{codec_id}.archive.second"
+
     deterministic = False
+    second_wall_ns = 0
     if archive.is_file() and not compress_timeout and compress_rc == 0:
         second_mapping = dict(mapping, archive=str(second_archive))
-        run_plain(_expand(spec["compress"], second_mapping), wall_seconds)
-        if "compress_stdout" in spec:
-            with second_archive.open("wb") as handle:
-                subprocess.run(_expand(spec["compress"], second_mapping), cwd=REPOSITORY, stdout=handle)
+        _rc2, _to2, second_wall_ns = _compress(spec, second_mapping, wall_seconds)
         deterministic = second_archive.is_file() and sha256_file(archive) == sha256_file(second_archive)
 
-    decompress_rc, decompress_timeout = 1, False
+    decompress_rc, decompress_timeout, decompress_wall_ns = 1, False, 0
     restored_sha256 = None
     if archive.is_file() and compress_rc == 0 and not compress_timeout:
-        if "decompress_stdout" in spec:
-            with restored.open("wb") as handle:
-                piped = subprocess.run(_expand(spec["decompress"], mapping), cwd=REPOSITORY, stdout=handle)
-            decompress_rc = piped.returncode
-        else:
-            decompress_rc, decompress_timeout = run_plain(_expand(spec["decompress"], mapping), wall_seconds)
+        decompress_rc, decompress_timeout, decompress_wall_ns = _decompress(
+            spec, mapping, wall_seconds
+        )
         if restored.is_file():
             restored_sha256 = sha256_file(restored)
 
@@ -405,10 +439,12 @@ def run_opponent_item(
         scratch.unlink(missing_ok=True)
     return {
         "codec_id": codec_id,
-        "eligibility_class": spec["role"],
-        "complete_archive_bytes": archive_bytes,
-        "binary_sha256": sha256_file(binary) if binary.is_file() else None,
+        "family": family,
+        "complete_bytes": archive_bytes if valid else None,
+        "measured_archive_bytes": archive_bytes,
         "compress_wall_ns": compress_wall_ns,
+        "determinism_recompress_wall_ns": second_wall_ns,
+        "decompress_wall_ns": decompress_wall_ns,
         "execution": {
             "finished_within_wall": finished_within_wall,
             "exact_roundtrip": exact,
@@ -443,9 +479,21 @@ def build_parser() -> argparse.ArgumentParser:
         help="directory of opponent binaries built by the workflow, named by codec_id",
     )
     parser.add_argument(
-        "--pbc-projection",
+        "--pbc-binary",
         type=Path,
-        help="PBC per-family complete-archive projection (pattern + payload bytes)",
+        required=True,
+        help="the official PBC binary built on the runner from the pinned commit",
+    )
+    parser.add_argument(
+        "--pbc-repository",
+        type=Path,
+        required=True,
+        help="the PBC source checkout at the pinned commit (commit/license verified)",
+    )
+    parser.add_argument(
+        "--pbc-gates",
+        type=Path,
+        default=REPOSITORY / "config" / "clue-pbc-championship-screen-v1-gates.json",
     )
     parser.add_argument("--output", type=Path, required=True)
     return parser
@@ -626,6 +674,107 @@ def candidate_proof(
     return family_bytes, proof
 
 
+def run_pbc_opponent(
+    pbc_binary: Path,
+    pbc_repository: Path,
+    pbc_gates: Path,
+    manifest_path: Path,
+    items: list[dict[str, Any]],
+    family_bytes: dict[str, int],
+    work: Path,
+    output_dir: Path,
+) -> dict[str, Any]:
+    """Attempt the PBC specialist as a first-class opponent via the v2 machinery.
+
+    Runs scripts/benchmark-pbc-competitor.py (the exact script that produced the
+    v2 pbc-result.json) with the frozen PBC commit/license/settings, captures the
+    built binary SHA-256 at execution, and classifies each family. If PBC cannot
+    run comparably it flows through the same tool-failure classification as any
+    opponent: recorded as invalid-tool-failure, never silently dropped and never
+    counted as beaten.
+    """
+    accepted = output_dir / "pbc-accepted.json"
+    accepted_rows = [
+        {
+            "id": item["id"],
+            "family": item["family"],
+            "original_bytes": int(item["size_bytes"]),
+            "source_sha256": item["sha256"],
+            "encoded_bytes": int(family_bytes[item["family"]]),
+            "zstd9_bytes": int(family_bytes[item["family"]]),
+        }
+        for item in items
+    ]
+    write_json_atomic(accepted, {"schema_version": 1, "rows": accepted_rows})
+    result_path = output_dir / "pbc-result.json"
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(PBC_BENCHMARK),
+            "--pbc-binary",
+            str(pbc_binary),
+            "--pbc-repository",
+            str(pbc_repository),
+            "--manifest",
+            str(manifest_path),
+            "--accepted",
+            str(accepted),
+            "--gates",
+            str(pbc_gates),
+            "--output",
+            str(result_path),
+            "--repetitions",
+            "5",
+            "--training-repetitions",
+            "2",
+            "--work-directory",
+            str(work),
+        ],
+        cwd=REPOSITORY,
+        capture_output=True,
+        text=True,
+    )
+    result = json.loads(result_path.read_text(encoding="utf-8")) if result_path.is_file() else {}
+    passed = bool(result.get("passed"))
+    binary_sha256 = result.get("pbc", {}).get("binary_sha256")
+    if binary_sha256 is None and pbc_binary.is_file():
+        binary_sha256 = sha256_file(pbc_binary)
+    by_family = {
+        row["family"]: row
+        for row in result.get("rows", [])
+        if row.get("method") == "pbc_only"
+    }
+    item_map: dict[str, Any] = {}
+    for item in items:
+        family = item["family"]
+        row = by_family.get(family)
+        roundtrip = bool(row and row.get("roundtrip_verified"))
+        deterministic = bool(row and row.get("payload_deterministic_for_fixed_pattern"))
+        archive_bytes = int(row["archive_bytes"]) if row and row.get("archive_bytes") else None
+        valid = bool(passed and roundtrip and deterministic and archive_bytes)
+        item_map[family] = {
+            "complete_bytes": archive_bytes if valid else None,
+            "measured_archive_bytes": archive_bytes,
+            "execution": {
+                "finished_within_wall": completed.returncode != 124,
+                "exact_roundtrip": roundtrip,
+                "order_preserved": roundtrip,
+                "timezone_preserved": roundtrip,
+                "deterministic_output": deterministic,
+            },
+            "classification": "valid" if valid else "invalid-tool-failure",
+        }
+    return {
+        "codec_id": "pbc-only",
+        "eligibility_class": "eligible",
+        "binary_sha256": binary_sha256,
+        "pbc_result_passed": passed,
+        "pbc_benchmark_returncode": completed.returncode,
+        "pbc_benchmark_stderr_tail": completed.stderr[-2000:],
+        "items": item_map,
+    }
+
+
 def main() -> int:
     args = build_parser().parse_args()
     if args.output.exists():
@@ -655,69 +804,42 @@ def main() -> int:
     )
     candidate_aggregate = sum(family_bytes.values())
 
+    # Every opponent is scored per item; a failure on one item leaves the other
+    # item's result standing (per-item tool-failure classification).
     opponents: list[dict[str, Any]] = []
     for codec_id, spec in OPPONENT_TEMPLATES.items():
         binary = args.bin_dir / codec_id
         wall = float(overrides.get(codec_id, default_wall))
-        per_family: dict[str, int] = {}
-        rows = []
-        valid = True
-        binary_sha256 = None
+        binary_sha256 = sha256_file(binary) if binary.is_file() else None
+        item_map: dict[str, Any] = {}
         for item in items:
             source = args.manifest.parent / item["path"]
             row = run_opponent_item(
-                codec_id, spec, binary, source, item["sha256"], work, wall
+                codec_id, spec, binary, source, item["sha256"], item["family"], work, wall
             )
-            binary_sha256 = row["binary_sha256"]
-            rows.append(row)
-            if row["classification"] == "valid" and row["complete_archive_bytes"]:
-                per_family[item["family"]] = int(row["complete_archive_bytes"])
-            else:
-                valid = False
+            item_map[item["family"]] = row
         opponents.append(
             {
                 "codec_id": codec_id,
                 "eligibility_class": spec["role"],
                 "binary_sha256": binary_sha256,
-                "aggregate_complete_bytes": sum(per_family.values()) if valid else None,
-                "family_complete_bytes": per_family if valid else {},
-                "execution": {
-                    "finished_within_wall": all(
-                        r["execution"]["finished_within_wall"] for r in rows
-                    ),
-                    "exact_roundtrip": all(r["execution"]["exact_roundtrip"] for r in rows),
-                    "order_preserved": all(r["execution"]["order_preserved"] for r in rows),
-                    "timezone_preserved": all(
-                        r["execution"]["timezone_preserved"] for r in rows
-                    ),
-                    "deterministic_output": all(
-                        r["execution"]["deterministic_output"] for r in rows
-                    ),
-                },
-                "item_rows": rows,
+                "items": item_map,
             }
         )
 
-    if args.pbc_projection is not None and args.pbc_projection.is_file():
-        projection = json.loads(args.pbc_projection.read_text(encoding="utf-8"))
-        per_family = {row["family"]: int(row["archive_bytes"]) for row in projection["rows"]}
-        opponents.append(
-            {
-                "codec_id": "pbc-only",
-                "eligibility_class": "eligible",
-                "binary_sha256": projection.get("binary_sha256"),
-                "aggregate_complete_bytes": sum(per_family.values()),
-                "family_complete_bytes": per_family,
-                "execution": {
-                    "finished_within_wall": True,
-                    "exact_roundtrip": True,
-                    "order_preserved": True,
-                    "timezone_preserved": True,
-                    "deterministic_output": True,
-                },
-                "item_rows": projection["rows"],
-            }
+    # PBC is a first-class attempted eligible opponent via the exact v2 machinery.
+    opponents.append(
+        run_pbc_opponent(
+            args.pbc_binary.resolve(),
+            args.pbc_repository.resolve(),
+            args.pbc_gates,
+            args.manifest,
+            items,
+            family_bytes,
+            work,
+            args.output,
         )
+    )
 
     bundle = {
         "schema_version": 1,
@@ -741,9 +863,14 @@ def main() -> int:
             {
                 "codec_id": o["codec_id"],
                 "eligibility_class": o["eligibility_class"],
-                "aggregate_complete_bytes": o["aggregate_complete_bytes"],
-                "family_complete_bytes": o["family_complete_bytes"],
-                "execution": o["execution"],
+                "binary_sha256": o.get("binary_sha256"),
+                "items": {
+                    family: {
+                        "complete_bytes": row["complete_bytes"],
+                        "execution": row["execution"],
+                    }
+                    for family, row in o["items"].items()
+                },
             }
             for o in opponents
         ],

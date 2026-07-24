@@ -207,9 +207,9 @@
         "license_sha256": "bacacee63139034e9acba4de0c513eeb93cc6277ae52054a30eebf4be644e7ed",
         "settings": "method pbc_only, pattern_size 100, train_data_number 2000, train_thread_num 64",
         "complete_archive_rule": "pattern file bytes plus compressed payload bytes",
-        "gates_path": "config/clue-pbc-public-validation-v2-gates.json",
-        "gates_sha256": "481fdc71f61113b823631b3f98ae999e8de04ee0ea9ea3c86c0bc49edea84d4b",
-        "hash_capture": "Rebuilt from the pinned commit; binary sha256 re-captured at execution."
+        "gates_path": "config/clue-pbc-championship-screen-v1-gates.json",
+        "attempt_path": "First-class attempted opponent: the benchmark runs scripts/benchmark-pbc-competitor.py (the exact v2 PBC machinery) from the pinned commit and classifies each family. If PBC cannot run comparably it is recorded as an invalid-tool-failure, never silently dropped and never counted as beaten.",
+        "hash_capture": "Rebuilt from the pinned commit; binary sha256 re-captured at execution into the run receipt."
       }
     ],
     "contextual_opponents": [
@@ -238,15 +238,26 @@
   },
   "reducer": {
     "script_path": "scripts/reduce-clue-jls2-championship-screen-v1.py",
+    "decision_authority": "Tom's 2026-07-25 owner dispatch governs this screen and supersedes the #109 prospective roster's decision reducer FOR THIS SCREEN ONLY; #109 is not modified. #109's stricter per-family 5% 'championship candidate' bar remains the frozen prospective holdout protocol; this screen's label is 'public championship contender' and is distinct. A contender under this screen does not automatically meet #109's bar.",
     "contender_numerator": 95,
     "contender_denominator": 100,
-    "integer_rule": "JLS2 aggregate complete bytes * 100 <= 95 * strongest, where strongest is the minimum aggregate complete bytes among the eligible opponents with a VALID execution.",
-    "equality_semantics": "The operator is <=, so equality passes. Byte-ratio equality (candidate * 100 == 95 * strongest, i.e. candidate exactly 95% of strongest = exactly 5% smaller) SATISFIES the condition and is a contender. One byte above the line is not a contender.",
-    "per_family_and_per_item_rule": "On every family (per temporal range) JLS2 must be the strictly smallest eligible complete archive AND clear the same integer 5% margin against the strongest eligible family result (the #109 frozen regression rules).",
-    "valid_execution_definition": "A byte-exact roundtrip that preserves record order and timezone text, produces deterministic output, and finishes the item within the frozen per-item wall. Any failure of these is invalid-tool-failure: excluded from strongest, never a JLS2 win or loss.",
-    "required_research_opponents": "kanzi-max and zpaq-5-m54 must both have valid executions for a clean contender claim; otherwise the screen is not a contender and the failure is recorded.",
+    "aggregate_rule": "JLS2 aggregate complete bytes * 100 <= 95 * strongest, where strongest is the minimum aggregate complete bytes among the eligible opponents with a VALID execution on EVERY family.",
+    "equality_semantics": "The aggregate operator is <=, so aggregate equality passes. Byte-ratio equality (candidate * 100 == 95 * strongest, i.e. candidate exactly 95% of strongest = exactly 5% smaller) SATISFIES the aggregate condition. One byte above the line is not a contender. Per family and per item equality is NOT a win.",
+    "per_family_and_per_item_rule": "On every family (per temporal range) and item JLS2 must WIN OUTRIGHT: strictly smaller complete bytes than every eligible opponent with a valid execution on that family. Allowed regression is zero bytes; equality is not a win. There is NO separate per-family 5% margin - Tom's dispatch reassigns the #109 5% margin to the aggregate only. The #109 0-byte segment-framing regression rule is kept.",
+    "valid_execution_definition": "A byte-exact roundtrip on that item preserving record order and timezone text, deterministic output, and finishing within the frozen per-item wall. Any failure is invalid-tool-failure for THAT item: excluded from the eligible minimum on that family (and from the aggregate, which requires validity on every family), never a JLS2 win or loss; another item's valid result stands.",
+    "required_research_opponents": "kanzi-max and zpaq-5-m54 must both have valid executions on every family for a clean contender claim; otherwise the screen is not a contender and the failure is recorded.",
     "first_eligible_score_is_final": true,
     "no_post_score_tuning": true
+  },
+  "supersession": {
+    "authority": "Tom's 2026-07-25 owner dispatch",
+    "supersedes_for_this_screen_only": "config/json-log-championship-roster-v1.json (#109) decision reducer",
+    "unchanged": "#109 remains the frozen prospective holdout protocol and is not edited by this screen; its stricter per-family 5% 'championship candidate' bar is preserved.",
+    "two_frozen_supersessions": [
+      "Decision reducer: per-family/per-item is an outright win (allowed regression 0), the 5% margin applies to the aggregate only.",
+      "Eligibility: kanzi-max and zpaq-5-m54 are eligible byte-comparison opponents regardless of their own decode RSS or speed (reported transparently); -method 510 and zstd --long=31 are contextual only."
+    ],
+    "distinct_labels": "This screen yields 'public championship contender'; #109 yields 'championship candidate'. A contender here does not automatically meet #109's bar."
   },
   "regression_rules": {
     "source": "config/json-log-championship-roster-v1.json (#109)",

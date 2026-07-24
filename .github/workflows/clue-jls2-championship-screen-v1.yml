@@ -42,6 +42,7 @@ jobs:
           set -euo pipefail
           echo "EVIDENCE_DIR=$RUNNER_TEMP/clue-jls2-championship-screen-v1" >> "$GITHUB_ENV"
           echo "BIN_DIR=$RUNNER_TEMP/opponent-bin" >> "$GITHUB_ENV"
+          echo "PBC_DIR=$RUNNER_TEMP/pbc" >> "$GITHUB_ENV"
           mkdir -p "$RUNNER_TEMP/clue-jls2-championship-screen-v1" "$RUNNER_TEMP/opponent-bin"
 
       - name: Verify final readiness lock before acquisition
@@ -73,6 +74,7 @@ jobs:
         run: |
           python -m json.tool config/clue-jls2-championship-screen-v1-gates.json >/dev/null
           python -m json.tool config/clue-json-log-corpus-championship-v1.json >/dev/null
+          python -m json.tool config/clue-pbc-championship-screen-v1-gates.json >/dev/null
           ruff check \
             scripts/reduce-clue-jls2-championship-screen-v1.py \
             scripts/fetch-clue-json-corpus-championship-v1.py \
@@ -145,11 +147,36 @@ jobs:
           cp "$RUNNER_TEMP/zpaq/zpaq" "$BIN_DIR/zpaq-5-m54"
           cp "$RUNNER_TEMP/zpaq/zpaq" "$BIN_DIR/zpaq-5-m510"
 
+      - name: Clone and build pinned official PBC
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone https://github.com/antgroup/pbc "$PBC_DIR"
+          git -C "$PBC_DIR" checkout --detach "$PBC_COMMIT"
+          test "$(git -C "$PBC_DIR" rev-parse HEAD)" = "$PBC_COMMIT"
+          test "$(sha256sum "$PBC_DIR/LICENSE" | cut -d' ' -f1)" = \
+            "bacacee63139034e9acba4de0c513eeb93cc6277ae52054a30eebf4be644e7ed"
+          sed -i \
+            's#https://boostorg.jfrog.io/artifactory/main/release/1.67.0/source/boost_1_67_0.tar.gz#https://archives.boost.io/release/1.67.0/source/boost_1_67_0.tar.gz#' \
+            "$PBC_DIR/third-party/externals/boost.cmake"
+          sed -i \
+            's#https://github.com/adrian-thurston/colm/archive/refs/tags/0.14.7.tar.gz#https://codeload.github.com/adrian-thurston/colm-suite/tar.gz/e88bda068d4a25f2afa7f48821e0f539405c8c6a#' \
+            "$PBC_DIR/third-party/externals/colm.cmake"
+          sed -i \
+            's#URL_HASH MD5=213a9ddf207c5732f04941852ca8db62#URL_HASH SHA256=6f11b349722797165f5b71bac5dd71a2ade3cff1c45a9c0ae5522f0f71902ee1#' \
+            "$PBC_DIR/third-party/externals/colm.cmake"
+          export PBC_MAKE_JOBS="$(nproc)"
+          (cd "$PBC_DIR" && bash ./build.sh -r) 2>&1 | tee "$EVIDENCE_DIR/pbc-build.log"
+          git -C "$PBC_DIR" checkout -- \
+            third-party/externals/boost.cmake third-party/externals/colm.cmake
+          test -z "$(git -C "$PBC_DIR" status --porcelain --untracked-files=no)"
+
       - name: Capture opponent binary provenance
         shell: bash
         run: |
           set -euo pipefail
           ( cd "$BIN_DIR" && sha256sum * ) | tee "$EVIDENCE_DIR/opponent-binary-sha256.txt"
+          sha256sum "$PBC_DIR/bin/pbc" | tee -a "$EVIDENCE_DIR/opponent-binary-sha256.txt"
 
       - name: Acquire the two sealed championship ranges exactly once
         run: |
@@ -173,6 +200,9 @@ jobs:
             --lock config/clue-jls2-championship-screen-v1-lock.json \
             --native-binary native/target/release/clab-jls2 \
             --bin-dir "$BIN_DIR" \
+            --pbc-binary "$PBC_DIR/bin/pbc" \
+            --pbc-repository "$PBC_DIR" \
+            --pbc-gates config/clue-pbc-championship-screen-v1-gates.json \
             --output "$EVIDENCE_DIR/score" 2>&1 | tee "$EVIDENCE_DIR/benchmark.log"
           echo "exit_code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
           exit 0

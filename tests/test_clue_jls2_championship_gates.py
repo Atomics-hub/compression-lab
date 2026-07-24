@@ -97,6 +97,52 @@ class ChampionshipGatesTests(unittest.TestCase):
         self.assertIn("equality passes", self.gates["reducer"]["equality_semantics"].lower())
         self.assertIn("equality passes", self.doc.lower())
 
+    def test_per_family_is_outright_win_not_five_percent_margin(self):
+        rule = self.gates["reducer"]["per_family_and_per_item_rule"]
+        self.assertIn("WIN OUTRIGHT", rule)
+        self.assertIn("zero bytes", rule)
+        self.assertIn("NO separate per-family 5% margin", rule)
+        self.assertIn("WIN OUTRIGHT", self.reducer.EQUALITY_SEMANTICS)
+        # The 5% margin applies to the aggregate only.
+        self.assertIn("aggregate only", rule)
+        self.assertEqual(self.gates["reducer"]["contender_numerator"], 95)
+        self.assertIn("outright win", self.doc.lower())
+        self.assertIn("allowed regression is zero", self.doc.lower())
+
+    def test_supersession_of_109_is_documented(self):
+        supersession = self.gates["supersession"]
+        self.assertIn("2026-07-25", supersession["authority"])
+        self.assertIn("json-log-championship-roster-v1", supersession["supersedes_for_this_screen_only"])
+        self.assertIn("not edited", supersession["unchanged"].lower())
+        self.assertIn("supersede", self.doc.lower())
+        self.assertIn("championship candidate", self.doc)
+        self.assertIn("public championship contender", self.doc)
+        # #109 itself is not modified by this PR: its file must still say "not yet executed".
+        self.assertEqual(self.roster["status"], "frozen prospective roster; not yet executed")
+
+    def test_pbc_is_first_class_attempted_via_v2_machinery(self):
+        eligible = {row["codec_id"]: row for row in self.gates["roster"]["eligible_opponents"]}
+        pbc = eligible["pbc-only"]
+        self.assertEqual(pbc["gates_path"], "config/clue-pbc-championship-screen-v1-gates.json")
+        self.assertIn("benchmark-pbc-competitor.py", pbc["attempt_path"])
+        self.assertIn("invalid-tool-failure", pbc["attempt_path"])
+        self.assertIn("pbc-only", self.gates["roster"]["eligible_opponent_codec_ids"])
+        self.assertIn("first-class attempted", self.doc.lower())
+        pbc_gates = json.loads(
+            (ROOT / "config" / "clue-pbc-championship-screen-v1-gates.json").read_bytes()
+        )
+        self.assertEqual(
+            pbc_gates["requirements"]["expected_families"],
+            ["clue_championship_e", "clue_championship_f"],
+        )
+        self.assertEqual(pbc_gates["source"]["commit"], "bac1f86d29624cb585bb4475235d22a28e60ffea")
+
+    def test_lock_re_pin_procedure_documented(self):
+        self.assertIn("re-pin", self.doc.lower())
+        self.assertIn("squash-merge", self.doc.lower())
+        self.assertIn("readiness_commit", self.doc)
+        self.assertIn("workflow_dispatch", self.doc)
+
     def test_walls_are_frozen_and_justified(self):
         walls = self.gates["walls"]
         self.assertEqual(walls["per_item_wall_seconds_default"], 600.0)

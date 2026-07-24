@@ -139,7 +139,13 @@ losses or wins**. Same treatment as `zstd --long=31`.
   `bac1f86d29624cb585bb4475235d22a28e60ffea`, license Apache-2.0 (sha256
   `bacacee63139034e9acba4de0c513eeb93cc6277ae52054a30eebf4be644e7ed`), method
   `pbc_only`, pattern_size 100, train_data_number 2000, train_thread_num 64.
-  Complete archive = pattern file bytes plus compressed payload bytes.
+  Complete archive = pattern file bytes plus compressed payload bytes. PBC is a
+  **first-class attempted eligible opponent**: the benchmark runs the exact v2 PBC
+  machinery (`scripts/benchmark-pbc-competitor.py`) from the pinned commit under
+  `config/clue-pbc-championship-screen-v1-gates.json`, captures the built binary
+  SHA-256 at execution, and classifies each family. If PBC cannot run comparably it
+  is recorded as an **invalid-tool-failure**, never silently dropped and never
+  counted as beaten.
 
 Every built binary's SHA-256 is captured into the run receipt at execution. The
 7-Zip pinned release asset sha256 is authoritative; the extracted `7zz` binary
@@ -216,24 +222,46 @@ frozen now with unit tests, applied mechanically by the evaluator. JLS2 is a
 1. **Aggregate margin.** `JLS2 aggregate complete bytes * 100 <= 95 * strongest`,
    where `strongest` is the minimum aggregate complete bytes among the eligible
    opponents (`kanzi-max`, `zpaq-5-m54`, `brotli-11`, `zstd-22`, `xz-lzma2-9e`,
-   `7zip-9`, `pbc-only`) that produced a **valid** execution.
-2. **Per-family and per-item.** On each family JLS2 is the strictly smallest
-   eligible complete archive AND clears the same integer 5% margin against the
-   strongest eligible family result (the #109 frozen regression rules:
-   per-family ≥ 5%, aggregate ≥ 5%, segment-fallback regression 0).
+   `7zip-9`, `pbc-only`) that produced a **valid** execution on **every** family.
+2. **Per-family and per-item — outright win.** On each family (and item) JLS2's
+   complete bytes are **strictly smaller** than every eligible opponent that
+   produced a valid execution on that family. **Allowed regression is zero bytes;
+   equality is not a win.** There is **no** separate per-family 5% margin.
 3. **JLS2 gates.** Every JLS2 gate passes: exact roundtrip, deterministic output,
    corruption rejection, 512 MiB standalone-decode RSS, complete accounting,
-   bounded fallback, frozen identity, and the v2 speed gates.
-4. **Required research opponents.** `kanzi-max` and `zpaq-5-m54` both produce
-   valid executions.
+   bounded direct fallback (0-byte segment-framing regression), frozen identity,
+   and the v2 speed gates.
+4. **Required research opponents.** `kanzi-max` and `zpaq-5-m54` both produce a
+   valid execution on every family.
+
+### Supersession of #109 (owner authority)
+
+This screen's decision rule is governed by **Tom's 2026-07-25 owner dispatch**,
+whose phrasing is that JLS2 "wins or stays within the frozen allowed regression on
+every family/item". The only frozen regression numbers in #109 are (a) the 5%
+margin requirement, which this dispatch reassigns to the **aggregate only**, and
+(b) the 0-byte segment-framing rule, which is **kept**. No separate per-family
+allowed-regression was ever frozen, so the conservative reading is **allowed
+regression = 0 (win required)** on each family/item.
+
+The dispatch therefore **supersedes the #109 prospective roster's decision reducer
+FOR THIS SCREEN ONLY**. **#109 is not modified**: its stricter per-family-5%
+"championship candidate" bar remains the frozen prospective holdout protocol. The
+two produce **different labels** — "public championship contender" here vs #109's
+"championship candidate" — and a contender under this screen **does not
+automatically meet #109's bar**. The already-documented eligibility supersession
+(kanzi-max and zpaq-5-m54 eligible byte opponents regardless of their own RSS;
+`-method 510` contextual; RSS/speed reported transparently) rests on the same
+owner authority.
 
 ### Equality semantics (explicit)
 
-The reducer operator is **`<=`**. Byte-ratio **equality passes**: when
+The aggregate operator is **`<=`**, so **aggregate equality passes**: when
 `candidate_bytes * 100 == 95 * strongest_bytes` (JLS2 is exactly 95% of the
-strongest = exactly 5% smaller), the condition is **satisfied** and JLS2 is a
-contender. One byte above the line is **not** a contender; equal-or-larger bytes
-than the strongest is not a contender. Both sides of the boundary are unit-tested.
+strongest = exactly 5% smaller), the aggregate condition is **satisfied**. One byte
+above the line is **not** a contender. **Per family and per item, equality is NOT
+a win** — JLS2 must be strictly smaller. Both sides of both boundaries are
+unit-tested.
 
 Contextual tools (`zpaq-5-m510`, `zstd-22-long31`) and unavailable tools
 (`LogFold`, `LogPrism`, `LogLite`, `DeLog`) are reported alongside the decision but
@@ -264,3 +292,22 @@ over a clean worktree before opening either sealed range. This screen does not
 authorize the sealed private holdout; private-holdout identities never enter this
 repository by design. The screen publishes **contender OR not-contender** — failure
 is publishable.
+
+### Dispatch procedure and lock re-pin (post-merge)
+
+The readiness lock's `readiness_commit` is pinned to the freeze branch commit, so
+it deliberately **fails closed** after a squash-merge (the branch commit is not an
+ancestor of the squashed mainline commit). The frozen dispatch sequence, following
+the #105 precedent, is:
+
+1. **Squash-merge** this freeze PR to `main`.
+2. Open a **small re-pin PR** that updates only
+   `config/clue-jls2-championship-screen-v1-lock.json`'s `readiness_commit` (and,
+   if any byte drifted through the squash, the `locked_paths` digests) to the
+   mainline merge commit. No other change.
+3. On a **clean checkout** of the merged mainline, run
+   `scripts/verify-clue-jls2-championship-screen-v1-lock.py` and confirm it passes
+   (clean tree, readiness commit is an ancestor of HEAD, every locked blob matches).
+4. Trigger the **single `workflow_dispatch`** run of
+   `.github/workflows/clue-jls2-championship-screen-v1.yml`. One acquisition, one
+   score, first result final.
