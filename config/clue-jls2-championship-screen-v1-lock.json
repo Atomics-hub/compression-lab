@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "name": "clue-jls2-championship-screen-v1-readiness-lock",
-  "readiness_commit": "37a2bacb6b0aae10983ad949353c77af1f872e57",
+  "readiness_commit": "853dc2b360245f37672887c7f047e40118745d23",
   "claim_ceiling": "This lock authorizes one unchanged acquisition and first score on the two declared previously unopened CLUE-LDS championship ranges (clue-championship-e and clue-championship-f). It provides no performance evidence, changes neither the immutable v1 not_passed nor v2 passed scores, does not authorize the private holdout, and supports at most a public championship contender claim on those two ranges.",
   "authorization": {
     "maximum_acquisitions": 1,
