@@ -1,0 +1,22 @@
+{
+  "aggregate_compression_speed": true,
+  "aggregate_ratio": true,
+  "aggregate_standalone_decompression_speed": true,
+  "all_family_ratio": true,
+  "bounded_direct_fallback": true,
+  "clean_child_shim_floor_eligibility": true,
+  "complete_frame_accounting": true,
+  "complete_standard_roster": true,
+  "compression_memory": true,
+  "corruption_rejection": true,
+  "decompression_memory": true,
+  "deterministic_output": true,
+  "development_evidence": true,
+  "exact_roundtrip": true,
+  "first_score_receipt": true,
+  "frozen_candidate_paths": true,
+  "minimum_compression_repetition_speed": true,
+  "minimum_standalone_decompression_repetition_speed": true,
+  "pbc_specialist_present": true,
+  "unavailable_markers": true
+}

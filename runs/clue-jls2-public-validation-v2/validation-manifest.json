@@ -1,0 +1,76 @@
+{
+  "archive": {
+    "filename": "clue.zip",
+    "member": "clue.json",
+    "member_size_bytes": 14862210499,
+    "publisher_digest": "9e318370f96b68077667e9cdc05f26a5",
+    "publisher_digest_algorithm": "md5",
+    "sha256": "0c9eadb104acf1da6de738ba9babe957c83cd8602a01fa6d846a6ea4a6611d96",
+    "size_bytes": 635105552
+  },
+  "category": "structured_cloud_event_logs",
+  "claim_ceiling": "CLUE-LDS second, separately frozen one-time public-validation evidence on two previously unopened temporal ranges only; not private-holdout, universal, market-leading, world-best, or state-of-the-art evidence, and no change to the immutable v1 not_passed score",
+  "config_path": "config/clue-json-log-corpus-v2.json",
+  "config_sha256": "5a5f764a336f5c123050aa4cf5f53b69876eda1cba8ef0ebf57bc5d07679754a",
+  "items": [
+    {
+      "category": "structured_cloud_event_logs",
+      "dataset": "clue-json-log-corpus-v2",
+      "family": "clue_validation_v2_c",
+      "first_record_id": 28000001,
+      "id": "clue-validation-v2-c",
+      "last_record_id": 28250000,
+      "license_spdx": "CC-BY-4.0",
+      "path": "clue-validation-v2-c.jsonl",
+      "provenance": {
+        "archive_sha256": "0c9eadb104acf1da6de738ba9babe957c83cd8602a01fa6d846a6ea4a6611d96",
+        "doi": "10.5281/zenodo.7119953",
+        "selection_rule": "preserve complete original NDJSON records whose official monotonically increasing id is within the inclusive frozen range"
+      },
+      "record_count": 250000,
+      "sha256": "4d720b9247718ffb468c8b034fe3b418742acff7a4c175db7685cf6426d4dffe",
+      "size_bytes": 49094060,
+      "source_url": "https://zenodo.org/records/7119953",
+      "split": "public_validation"
+    },
+    {
+      "category": "structured_cloud_event_logs",
+      "dataset": "clue-json-log-corpus-v2",
+      "family": "clue_validation_v2_d",
+      "first_record_id": 40000001,
+      "id": "clue-validation-v2-d",
+      "last_record_id": 40250000,
+      "license_spdx": "CC-BY-4.0",
+      "path": "clue-validation-v2-d.jsonl",
+      "provenance": {
+        "archive_sha256": "0c9eadb104acf1da6de738ba9babe957c83cd8602a01fa6d846a6ea4a6611d96",
+        "doi": "10.5281/zenodo.7119953",
+        "selection_rule": "preserve complete original NDJSON records whose official monotonically increasing id is within the inclusive frozen range"
+      },
+      "record_count": 250000,
+      "sha256": "dc1448e1e6899cab7844d65bf7d35428f2fde6db96426cee317302d0681cb908",
+      "size_bytes": 48427665,
+      "source_url": "https://zenodo.org/records/7119953",
+      "split": "public_validation"
+    }
+  ],
+  "name": "clue-json-log-corpus-v2",
+  "provider": {
+    "authors": [
+      "Max Landauer",
+      "Florian Skopik",
+      "Georg H\u00f6ld",
+      "Markus Wurzenberger"
+    ],
+    "doi": "10.5281/zenodo.7119953",
+    "license_spdx": "CC-BY-4.0",
+    "publication_date": "2022-09-28",
+    "record_count_description": "around 50 million events",
+    "record_url": "https://zenodo.org/records/7119953",
+    "title": "Cloud-based User Entity Behavior Analytics Log Data Set",
+    "unpacked_size_description": "around 14.5 GB"
+  },
+  "schema_version": 1,
+  "selection_rule": "preserve complete original NDJSON records whose official monotonically increasing id is within the inclusive frozen range",
+  "split": "public_validation"
+}

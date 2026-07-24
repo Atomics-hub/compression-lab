@@ -58,6 +58,16 @@ or changes status. Status date: 2026-07-23.
   RSS instrument. Design, implementation, and freeze are approved; acquisition
   and scoring remain separately owner-dispatched. Decision record:
   `docs/benchmarks/2026-07-23-jls2-public-validation-v2-owner-decision.md`.
+- **V2 RESULT — PASSED (category-scoped), 2026-07-24:** the fresh v2 protocol
+  scored `passed` on the two named previously unopened ranges (run
+  `30055586630`, head `b187308`, 20/20 gates): 522,423 B vs brotli-11 1,066,789 B
+  (51.03% aggregate gain; families 48.10%/54.52%), worst eligible clean-child
+  standalone-decode peak RSS 95,367,168 B (< 512 MiB gate). This is a separate
+  frozen result and does **not** change the immutable v1 `not_passed`. Evidence
+  sealed under `runs/clue-jls2-public-validation-v2/`; results doc
+  `docs/benchmarks/2026-07-24-clue-jls2-public-validation-v2-results.md`.
+  Dedicated-machine independent confirmation and the sealed private holdout
+  remain pending and owner-gated.
 - **Corollary:** the A2 context-reuse and inline-single-worker "no effect"
   results likely compared polluted readings against polluted readings;
   reread before citing them, pending confirmation of each run's exact

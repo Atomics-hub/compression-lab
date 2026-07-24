@@ -1,0 +1,88 @@
+[INFO]operation: train_pattern
+[INFO]compress method: PBC_ONLY
+[INFO]compress file path:/home/runner/work/_temp/pbc/testresult/integration_test/test_data
+[INFO]pattern file path:/home/runner/work/_temp/pbc/testresult/integration_test/test_data_2000_100_pbc_only
+[INFO]train_data_number: 2000
+[INFO]target pattern size: 100
+[INFO]total data number: 56482
+[INFO]train data number: 2018
+[INFO]start pretrain: current pattern_num = 2018
+[INFO]end pretrain: current pattern_num = 1242, cost time = 0.00138601s.
+[INFO]------------ compute minimal encoding length ------------
+[INFO]init pattern count:1242
+[INFO]---------------------------------------------------------
+
+[INFO]ComputeTotalMinValueTable_time=2.47729
+[INFO]------------ merge pattern ---------------
+[INFO]init pattern count:1242
+[INFO]target pattern num:100
+[INFO]------------------------------------------
+[INFO]actual pattern num : 97
+[INFO]ComputeTotalMinValueTable_time=2.47729s,UpdateMinValueTable_time=8.62723s,MergePattern_time=0.0798475s,GetMinValue_time=3.68064s,CreateSecondaryEncoderData_time=7e-08s.
+[INFO]train pattern cost time: 14.8768s
+[INFO]operation: train_pattern
+[INFO]compress method: PBC_FSE
+[INFO]compress file path:/home/runner/work/_temp/pbc/testresult/integration_test/test_data
+[INFO]pattern file path:/home/runner/work/_temp/pbc/testresult/integration_test/test_data_2000_100_pbc_fse
+[INFO]train_data_number: 2000
+[INFO]target pattern size: 100
+[INFO]total data number: 56482
+[INFO]train data number: 2018
+[INFO]start pretrain: current pattern_num = 2018
+[INFO]end pretrain: current pattern_num = 1242, cost time = 0.00154605s.
+[INFO]------------ compute minimal encoding length ------------
+[INFO]init pattern count:1242
+[INFO]---------------------------------------------------------
+
+[INFO]ComputeTotalMinValueTable_time=2.47036
+[INFO]------------ merge pattern ---------------
+[INFO]init pattern count:1242
+[INFO]target pattern num:100
+[INFO]------------------------------------------
+[INFO]actual pattern num : 97
+[INFO]ComputeTotalMinValueTable_time=2.47036s,UpdateMinValueTable_time=8.41644s,MergePattern_time=0.0771304s,GetMinValue_time=3.61337s,CreateSecondaryEncoderData_time=0.109774s.
+[INFO]train pattern cost time: 14.6993s
+[INFO]operation: train_pattern
+[INFO]compress method: PBC_FSST
+[INFO]compress file path:/home/runner/work/_temp/pbc/testresult/integration_test/test_data
+[INFO]pattern file path:/home/runner/work/_temp/pbc/testresult/integration_test/test_data_2000_100_pbc_fsst
+[INFO]train_data_number: 2000
+[INFO]target pattern size: 100
+[INFO]total data number: 56482
+[INFO]train data number: 2018
+[INFO]start pretrain: current pattern_num = 2018
+[INFO]end pretrain: current pattern_num = 1242, cost time = 0.00152812s.
+[INFO]------------ compute minimal encoding length ------------
+[INFO]init pattern count:1242
+[INFO]---------------------------------------------------------
+
+[INFO]ComputeTotalMinValueTable_time=2.58045
+[INFO]------------ merge pattern ---------------
+[INFO]init pattern count:1242
+[INFO]target pattern num:100
+[INFO]------------------------------------------
+[INFO]actual pattern num : 97
+[INFO]ComputeTotalMinValueTable_time=2.58045s,UpdateMinValueTable_time=8.53064s,MergePattern_time=0.0782233s,GetMinValue_time=3.74506s,CreateSecondaryEncoderData_time=0.223241s.
+[INFO]train pattern cost time: 15.1697s
+[INFO]operation: train_pattern
+[INFO]compress method: PBC_ZSTD
+[INFO]compress file path:/home/runner/work/_temp/pbc/testresult/integration_test/test_data
+[INFO]pattern file path:/home/runner/work/_temp/pbc/testresult/integration_test/test_data_2000_100_pbc_zstd
+[INFO]train_data_number: 2000
+[INFO]target pattern size: 100
+[INFO]total data number: 56482
+[INFO]train data number: 2018
+[INFO]start pretrain: current pattern_num = 2018
+[INFO]end pretrain: current pattern_num = 1242, cost time = 0.00150799s.
+[INFO]------------ compute minimal encoding length ------------
+[INFO]init pattern count:1242
+[INFO]---------------------------------------------------------
+
+[INFO]ComputeTotalMinValueTable_time=2.4491
+[INFO]------------ merge pattern ---------------
+[INFO]init pattern count:1242
+[INFO]target pattern num:100
+[INFO]------------------------------------------
+[INFO]actual pattern num : 97
+[INFO]ComputeTotalMinValueTable_time=2.4491s,UpdateMinValueTable_time=8.36015s,MergePattern_time=0.0763596s,GetMinValue_time=3.60044s,CreateSecondaryEncoderData_time=0.136706s.
+[INFO]train pattern cost time: 14.6349s

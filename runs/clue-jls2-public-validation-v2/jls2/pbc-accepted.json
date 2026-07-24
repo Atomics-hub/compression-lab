@@ -1,0 +1,21 @@
+{
+  "rows": [
+    {
+      "encoded_bytes": 301050,
+      "family": "clue_validation_v2_c",
+      "id": "clue-validation-v2-c",
+      "original_bytes": 49094060,
+      "source_sha256": "4d720b9247718ffb468c8b034fe3b418742acff7a4c175db7685cf6426d4dffe",
+      "zstd9_bytes": 842484
+    },
+    {
+      "encoded_bytes": 221373,
+      "family": "clue_validation_v2_d",
+      "id": "clue-validation-v2-d",
+      "original_bytes": 48427665,
+      "source_sha256": "dc1448e1e6899cab7844d65bf7d35428f2fde6db96426cee317302d0681cb908",
+      "zstd9_bytes": 723644
+    }
+  ],
+  "schema_version": 1
+}
