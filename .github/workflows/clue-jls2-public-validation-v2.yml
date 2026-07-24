@@ -104,6 +104,13 @@ jobs:
           python -m pip install -e ".[dev]"
           cargo build --release --locked --manifest-path native/Cargo.toml --bin clab-jls2
 
+      # ruff 0.16.0 (released 2026-07-23) adds rules (TRY004 and others) that flag
+      # the frozen v2 scripts, which are hash-pinned by the readiness lock and must
+      # not be edited pre-acquisition. Pin to the same 0.15.22 CI uses so the
+      # harness lint stays reproducible; adopting 0.16's rules is a separate change.
+      - name: Pin ruff for reproducible lint
+        run: python -m pip install 'ruff==0.15.22'
+
       - name: Clone and build pinned official PBC
         shell: bash
         run: |
