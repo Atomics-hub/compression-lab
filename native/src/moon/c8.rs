@@ -679,16 +679,18 @@ pub fn measure_c8_credit(
         overall_count += count;
         for expert in 0..C8_EXPERT_COUNT {
             overall_totals[expert] += class_totals[class][expert];
-            if count > 0 {
-                class_shares[class][expert] = (class_totals[class][expert] / count) as u32;
-            }
+            // `checked_div` yields None only when the class saw no bits; the
+            // default share for an unused class is 0 (identical to the prior
+            // `if count > 0` guard).
+            class_shares[class][expert] =
+                class_totals[class][expert].checked_div(count).unwrap_or(0) as u32;
         }
     }
     let mut overall_shares = [0_u32; C8_EXPERT_COUNT];
-    if overall_count > 0 {
-        for expert in 0..C8_EXPERT_COUNT {
-            overall_shares[expert] = (overall_totals[expert] / overall_count) as u32;
-        }
+    for expert in 0..C8_EXPERT_COUNT {
+        overall_shares[expert] = overall_totals[expert]
+            .checked_div(overall_count)
+            .unwrap_or(0) as u32;
     }
 
     Ok((
