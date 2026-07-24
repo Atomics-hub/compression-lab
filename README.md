@@ -7,40 +7,82 @@ routes it to a specialist codec, and falls back safely when specialization will
 not help. Every result is gated by exact byte restoration, complete archive
 accounting, frozen datasets, and checked-in benchmark receipts.
 
-## 52.97% smaller on previously unopened JSON event logs
+## Category-scoped public-validation pass on previously unopened JSON event logs
 
-Axiom's JLS2 codec compressed **96,934,483 source bytes to 489,591 bytes** on
-the single authorized CLUE-LDS public-validation score. Brotli-11, the
-smallest eligible complete standard, produced **1,040,990 bytes**. JLS2 was
-therefore **52.97% smaller**, while compressing at **109.58 MB/s** and decoding
-at **431.36 MB/s**. It won both previously unopened temporal families by
-**48.31%** and **54.50%**, and every measured round trip was exact.
+Axiom's JLS2 codec **passed** its frozen v2 public validation: a category-scoped
+public-validation product pass on **two previously unopened 250k-record CLUE-LDS
+temporal ranges** (official IDs 28,000,001–28,250,000 and 40,000,001–40,250,000),
+**97,521,725 source bytes**. It compressed them to **522,423 complete bytes**
+against Brotli-11 — the strongest eligible complete standard — at **1,066,789
+bytes**, a **51.03% aggregate advantage** (per family **48.10%** and **54.52%**).
+Compression ran at **101.76 MB/s** and standalone decode at **443.78 MB/s**, and
+the standalone-decoder peak RSS was **95,367,168 B**, well under the frozen 512
+MiB gate. All **20/20 frozen gates** passed, with exact deterministic output and
+corruption rejection. Evidence level: hosted public validation
+([run 30055586630](https://github.com/Atomics-hub/compression-lab/actions/runs/30055586630),
+head `b187308`).
 
-![Axiom JLS2 complete archive size compared with standards and eligible specialists on the frozen CLUE-LDS public-validation score](runs/clue-jls2-public-validation-v1/publication/comparison.svg)
+![Axiom JLS2 v2 complete compressed-byte comparison against every eligible standard and the PBC specialist on the frozen CLUE-LDS public-validation score](runs/clue-jls2-public-validation-v2/publication/comparison.svg)
 
-The frozen overall product gate is still an honest **no-pass**. JLS2 passed the
-aggregate and per-family ratio gates, compression and decompression speed,
-compression memory, exactness, determinism, corruption rejection, fallback,
-accounting, provenance, and roster gates. Its only miss was standalone decoder
-peak RSS: **621.3 MiB** against the frozen **512 MiB** limit. Both validation
-ranges are now consumed and will not be tuned or rerun.
+| Stage | Status |
+| --- | --- |
+| Public-validation product pass (category-scoped, 2 named CLUE-LDS ranges) | **passed** ([v2 publication](runs/clue-jls2-public-validation-v2/publication/README.md)) |
+| Strongest-standard comparison (Brotli-11 et al., same frozen run) | **passed** |
+| Independent dedicated-machine reproduction | **pending** |
+| Sealed private holdout | **pending** |
+| Specialist/champion comparison (Kanzi, ZPAQ) | **untested** in the frozen validation protocol (prescreen references exist in the research lane only) |
+| General-file / universal claims | **untested** |
 
-The [immutable publication bundle](runs/clue-jls2-public-validation-v1/publication/README.md)
-contains the complete chart, all tested standards, family rows, speed and
-memory measurements, unavailable-specialist disclosures, gates, and exact
-claim ceiling. The [import receipt](runs/clue-jls2-public-validation-v1-import.json)
-binds it to GitHub artifact `8418445259`, workflow run `29606109504`, the
-workflow commit, and GitHub's artifact SHA-256 digest.
+Still owner-gated and unproven: independent dedicated-machine reproduction and
+the sealed private holdout. Kanzi and ZPAQ specialists were not run in this
+frozen protocol, and no general-file or universal claim is made. LogFold,
+LogPrism, LogLite, and DeLog remain unavailable or ineligible for exact
+reproduction; their absence is not an Axiom win. The [immutable v2 publication
+bundle](runs/clue-jls2-public-validation-v2/publication/README.md) contains the
+complete chart, every tested standard, family rows, gates, and exact claim
+ceiling; the [full v2 results](docs/benchmarks/2026-07-24-clue-jls2-public-validation-v2-results.md)
+add provenance, candidate resource rows, and the decision rule.
 
-This is strong **category-scoped public-validation ratio evidence**, but not a
-complete category win, private-holdout result, independent reproduction,
-general-file result, or world-best claim. LogFold, LogPrism, LogLite, and DeLog
-remain unavailable or ineligible for exact reproduction; their absence is not
+Brand note: both the v1 and v2 validation protocols were frozen under the earlier
+public label **Atompress**, so both immutable evidence bundles (including the v2
+results doc and publication) retain that label. The current product name is
+**Axiom**; `JLS2` remains the technical on-disk format ID.
+
+<details>
+<summary><strong>Prior attempt: the v1 public-validation no-pass (immutable, unchanged by v2)</strong></summary>
+
+The earlier v1 public-validation score remains an immutable **no-pass**; v2 does
+not correct, replace, or reopen it. On the single authorized v1 CLUE-LDS score,
+JLS2 compressed **96,934,483 source bytes to 489,591 bytes** against Brotli-11's
+**1,040,990 bytes** — **52.97% smaller** — at **109.58 MB/s** compression and
+**431.36 MB/s** decode, winning both previously unopened temporal families by
+**48.31%** and **54.50%** with every round trip exact. It passed the aggregate
+and per-family ratio gates, compression and decompression speed, compression
+memory, exactness, determinism, corruption rejection, fallback, accounting,
+provenance, and roster gates. Its only miss was standalone decoder peak RSS:
+**621.3 MiB** against the frozen **512 MiB** limit, so the v1
+overall product gate is still an honest **no-pass**.
+Both v1 ranges are consumed and were never tuned or rerun.
+
+![Axiom JLS2 v1 complete archive size compared with standards and eligible specialists on the frozen CLUE-LDS public-validation score](runs/clue-jls2-public-validation-v1/publication/comparison.svg)
+
+That 621.3 MiB reading was subsequently shown to be a measurement-instrument
+artifact, not decoder memory: `ru_maxrss` for a child spawned from a large Python
+parent reports the parent's footprint (see
+[RESEARCH_LANES Lane 1](docs/RESEARCH_LANES.md) and the
+[instrument addendum](docs/benchmarks/2026-07-23-jls2-memory-gate-instrument-addendum.md)).
+The diagnostic invalidates the *reading*, not the *result* — v1 did not pass, and
+no recomputed v1 score exists. The [immutable v1 publication
+bundle](runs/clue-jls2-public-validation-v1/publication/README.md) contains the
+complete chart, all tested standards, family rows, speed and memory measurements,
+unavailable-specialist disclosures, gates, and exact claim ceiling. Its
+[import receipt](runs/clue-jls2-public-validation-v1-import.json) binds it to
+GitHub artifact `8418445259`, workflow run `29606109504`, the workflow commit,
+and GitHub's artifact SHA-256 digest. LogFold, LogPrism, LogLite, and DeLog were
+unavailable or ineligible for exact reproduction here too; their absence is not
 an Axiom win.
 
-Brand note: the validation protocol was frozen under the earlier public label
-**Atompress**, so the immutable evidence retains that label. The current
-product name is **Axiom**; `JLS2` remains the technical on-disk format ID.
+</details>
 
 ## Where the next gains are: frozen E1 frontier census
 
@@ -295,7 +337,7 @@ remains independently reproducible.
 
 | Category | Objective completion | Best measured result | Gate status and evidence |
 | --- | ---: | --- | --- |
-| JSON and machine logs | **50%** | JLS2 is 52.97% smaller than the strongest eligible standard on the first frozen public-validation score; bounded generic context scaling later captured 5.78% vs E1 Kanzi-max under the stricter 460 MiB development cap | JLS2's overall gate failed only decoder RSS at 621.3 MiB vs 512 MiB; E2-A killed the generic bounded level-5 lane; the S0 native structure-aware screen was then killed by its own preregistered gates, so the lane needs a new protocol before any further candidate ([JLS2 result](runs/clue-jls2-public-validation-v1/publication/README.md), [E2-A chart](runs/json-context-ceiling-e2-a-v1/README.md), [S0 chart](runs/json-log-native-screen-s0-v1/README.md)) |
+| JSON and machine logs | **70%** | JLS2 passed its frozen v2 public validation: 522,423 complete bytes vs Brotli-11's 1,066,789 (51.03% aggregate; families 48.10% / 54.52%) on two previously unopened CLUE-LDS ranges, 20/20 gates, decoder peak RSS 95,367,168 B under the 512 MiB cap | The v2 pass flips the public-validation-complete and bounded-memory evidence gates green (7 of 10 gates, up from 5); the sealed private holdout and independent reproduction remain pending. The immutable v1 no-pass is unchanged, and the E2-A and S0 native screens stay killed ([v2 result](runs/clue-jls2-public-validation-v2/publication/README.md), [v1 no-pass](runs/clue-jls2-public-validation-v1/publication/README.md), [S0 chart](runs/json-log-native-screen-s0-v1/README.md)) |
 | Source-code bundles | **10%** | Exact Axiom Q1 was 1.42% larger than Kanzi-max; the later non-Axiom BWT ceiling was at least 34.75% larger | Structural, low-order predictor, explicit-LZP, record-neighborhood, and BWT directions all failed frozen gates; next candidate must expose grammar productions and identifier bindings ([latest chart](runs/text-source-bwt-screen-v1/publication/README.md), [protocol](docs/benchmarks/2026-07-18-text-source-bwt-screen-protocol.md)) |
 | English Wikimedia wikitext | **10%** | Exact WK-C1 was 0.158% larger than Kanzi-max and only 0.032% better than its structure-only ablation | Structural, low-order predictor, explicit-LZP, record-neighborhood, BWT, and recursive template-column directions all failed frozen gates; the next candidate must improve prediction or coding rather than only rearrange structure ([latest chart](runs/text-source-wk-c1-screen-v1/publication/README.md), [protocol](docs/benchmarks/2026-07-18-text-source-wk-c1-protocol.md)) |
 | Delimited tables | **50%** | TBS1 vs 7-Zip-9: 3.48% larger aggregate | Frozen gate failed ([decision](docs/benchmarks/2026-07-17-tbl1-public-validation-decision.md), [Fresh successor corpus protocol](docs/benchmarks/2026-07-17-tabular-successor-corpus-protocol.md)) |
@@ -307,7 +349,9 @@ The [category portfolio scorecard](docs/benchmarks/2026-07-16-category-portfolio
 tracks objective completion from 0% to 100% using ten equally weighted binary
 evidence gates per category. Partial or failed validation does not receive
 credit for a complete-validation gate; 100% requires private-holdout success
-and independent reproduction.
+and independent reproduction. That machine-readable scorecard snapshot predates
+the JLS2 v2 pass; the JSON/logs row above applies the same ten-gate arithmetic to
+the v2 result.
 
 Consumed validation families are never reused as fresh evidence. The benchmark
 runner also has a checked-in [manifest-binding gate](runs/benchmark-manifest-binding-v1/README.md).
