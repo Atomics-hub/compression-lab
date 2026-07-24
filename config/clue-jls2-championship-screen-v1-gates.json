@@ -260,12 +260,15 @@
     "distinct_labels": "This screen yields 'public championship contender'; #109 yields 'championship candidate'. A contender here does not automatically meet #109's bar."
   },
   "regression_rules": {
-    "source": "config/json-log-championship-roster-v1.json (#109)",
-    "per_family_minimum_gain_percent": 5.0,
+    "source": "Governed by Tom's 2026-07-25 owner dispatch, which supersedes the #109 regression rules for this screen only; #109 is unchanged. See the supersession block.",
     "aggregate_minimum_gain_percent": 5.0,
+    "per_family_rule": "outright win: JLS2 strictly smaller than every eligible valid opponent on each family and item",
+    "per_family_allowed_regression_bytes": 0,
+    "per_family_minimum_gain_percent": null,
     "jls2_smallest_eligible_per_family": true,
     "segment_fallback_regression_bytes": 0,
-    "note": "Gains are measured against the smallest complete exact-byte result among every eligible available tool, not against a single named baseline."
+    "equality_is_a_win": false,
+    "note": "Per family and per item JLS2 must WIN OUTRIGHT with zero allowed regression (equality is not a win); the 5% integer margin applies to the aggregate only. Gains and wins are measured against the smallest complete exact-byte result among every eligible available tool with a valid execution, not against a single named baseline."
   },
   "requirements": {
     "maximum_cold_compression_peak_rss_bytes": 536870912,
@@ -308,7 +311,7 @@
     "authorization_condition": "A final championship readiness lock must pin this gates file, corpus config, roster, candidate, instrument, reducer, acquisition fetcher, benchmark runner, evaluator, verifier, and workflow before acquisition. Acquisition and scoring remain a separate, owner-dispatched one-way door and do not happen in the freeze PR.",
     "private_holdout_note": "This screen does not authorize the sealed private holdout. Private-holdout identities never enter this repository by design."
   },
-  "decision_rule": "The first eligible score is final. JLS2 is a contender only if, on the two fresh sealed ranges under these frozen gates, its complete-byte archive is at least 5% smaller (integer 95/100, equality passes) than the strongest eligible complete-byte result per family and in aggregate, with kanzi-max and zpaq-5-m54 both producing valid executions, and every JLS2 gate passing. No candidate path, parameter, threshold, corpus range, opponent setting, instrument, reducer, runner, or wall may change after acquisition. A not-contender or interrupted scored attempt is retained and cannot be replaced by a tuned rerun.",
+  "decision_rule": "The first eligible score is final. JLS2 is a contender only if, on the two fresh sealed ranges under these frozen gates, its aggregate complete-byte archive is at least 5% smaller (integer 95/100, aggregate equality passes) than the strongest eligible aggregate complete-byte result AND JLS2 WINS OUTRIGHT on every family and item (strictly smaller than every eligible valid opponent, allowed regression zero, equality is not a win), with kanzi-max and zpaq-5-m54 both producing valid executions, and every JLS2 gate passing. No candidate path, parameter, threshold, corpus range, opponent setting, instrument, reducer, runner, or wall may change after acquisition. A not-contender or interrupted scored attempt is retained and cannot be replaced by a tuned rerun.",
   "evidence_bindings": {
     "zpaq_memory_evidence": "runs/json-context-ceiling-e2-a-v1/",
     "zpaq_wall_evidence": "runs/moon-cycle2-c1c2c8-prescreen-v1/local-references-s24.json",

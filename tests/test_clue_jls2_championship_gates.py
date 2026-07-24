@@ -137,6 +137,28 @@ class ChampionshipGatesTests(unittest.TestCase):
         )
         self.assertEqual(pbc_gates["source"]["commit"], "bac1f86d29624cb585bb4475235d22a28e60ffea")
 
+    def test_decision_rule_and_regression_rules_match_reducer_semantics(self):
+        # Guards against the frozen gates contract drifting back to a per-family 5%
+        # rule that contradicts the governing outright-win reducer.
+        decision = self.gates["decision_rule"]
+        self.assertIn("WINS OUTRIGHT on every family and item", decision)
+        self.assertIn("allowed regression zero", decision)
+        self.assertIn("equality is not a win", decision)
+        self.assertIn("aggregate complete-byte archive is at least 5% smaller", decision)
+        # The stale conjunction that applied the 5% margin per family must be gone.
+        self.assertNotIn("per family and in aggregate", decision)
+
+        regression = self.gates["regression_rules"]
+        self.assertEqual(regression["aggregate_minimum_gain_percent"], 5.0)
+        self.assertIsNone(regression["per_family_minimum_gain_percent"])
+        self.assertEqual(regression["per_family_allowed_regression_bytes"], 0)
+        self.assertFalse(regression["equality_is_a_win"])
+        self.assertEqual(regression["segment_fallback_regression_bytes"], 0)
+        self.assertIn("WIN OUTRIGHT", regression["note"])
+        self.assertIn("aggregate only", regression["note"])
+        # No config field may assert a positive per-family gain threshold.
+        self.assertNotIn(5.0, [regression.get("per_family_minimum_gain_percent")])
+
     def test_lock_re_pin_procedure_documented(self):
         self.assertIn("re-pin", self.doc.lower())
         self.assertIn("squash-merge", self.doc.lower())
