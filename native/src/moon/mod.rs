@@ -10,6 +10,7 @@
 pub mod c1;
 pub mod c2;
 pub mod c3;
+pub mod c8;
 pub mod diagnose;
 pub mod h1;
 pub mod h6;
@@ -34,6 +35,13 @@ pub use c3::{
     c3_declared_state_bytes, decode_c3_item, decode_c3_item_with_bits, encode_c3_item,
     encode_c3_item_with_bits, encode_c3_item_with_bits_and_quarters, C3Error, C3QuarterSnapshot,
     C3_APM_STATE_BYTES, C3_ARM_ID, C3_BYTE_ORDERS, C3_CONTEXT_COUNT, C3_CONTEXT_TABLE_BYTES,
+};
+
+pub use c8::{
+    c8_declared_state_bytes, decode_c8_item, decode_c8_item_with_bits, encode_c8_item,
+    encode_c8_item_with_bits, measure_c8_credit, C8CreditReport, C8Error, C8_ARM_ID,
+    C8_BUCKET_CLASSES, C8_BYTE_ORDERS, C8_CLASS_LABELS, C8_EXPERT_COUNT, C8_EXPERT_NAMES,
+    C8_MIXER_WEIGHT_BYTES,
 };
 
 pub use diagnose::{

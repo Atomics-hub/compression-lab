@@ -356,6 +356,29 @@ class PrescreenRunnerTests(unittest.TestCase):
         self.assertIsNotNone(match)
         self.assertEqual(match.group(1), MODULE.KILL_LINES["c3-live-adaptation"])
 
+    def test_c8_kill_line_is_byte_identical_across_kernel_and_runner(self) -> None:
+        source = KERNEL_SOURCE.read_text(encoding="utf-8")
+        match = re.search(
+            r'const C8_KILL_CRITERION: &str = "([^"]+)";', source
+        )
+        self.assertIsNotNone(match)
+        self.assertEqual(match.group(1), MODULE.KILL_LINES["c8-expert-mixture"])
+        self.assertEqual(MODULE.ARM_IDS["c8-expert-mixture"], 107)
+
+    def test_c8_kill_line_is_byte_identical_across_kernel_and_precheck(self) -> None:
+        precheck = REPOSITORY / "scripts" / "moon-synthetic-precheck.py"
+        spec = importlib.util.spec_from_file_location(
+            "moon_synthetic_precheck_bind_c8", precheck
+        )
+        assert spec is not None and spec.loader is not None
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        self.assertEqual(
+            module.C8_KILL_CRITERION, MODULE.KILL_LINES["c8-expert-mixture"]
+        )
+        self.assertEqual(module.C8_ARM_ID, MODULE.ARM_IDS["c8-expert-mixture"])
+        self.assertEqual(module.C8_DECLARED_STATE_BYTES, 119_963_648)
+
     def test_c1_kill_line_is_byte_identical_across_kernel_and_runner(self) -> None:
         source = KERNEL_SOURCE.read_text(encoding="utf-8")
         match = re.search(

@@ -48,6 +48,13 @@ C2_KILL_CRITERION = (
     "snapshots, OR any exactness, identity, ledger, unaccounted-state, "
     "600-second wall, or 512 MiB decode-RSS gate fails."
 )
+C8_ARM_ID = 107
+C8_DECLARED_STATE_BYTES = 119_963_648
+C8_KILL_CRITERION = (
+    "Kill if C8 complete bytes are at least 0.93x H1 complete bytes on both "
+    "public snapshots, OR any exactness, identity, ledger, unaccounted-state, "
+    "600-second wall, or 512 MiB decode-RSS gate fails."
+)
 
 
 def xorshift64(state: int) -> int:
@@ -172,6 +179,15 @@ def run(kernel: Path, arm: str, output_dir: Path, size: int, seed: int) -> dict:
         for field, expected in c2_fields.items():
             if kernel_receipt.get(field) != expected:
                 raise SystemExit(f"C2 kernel receipt {field} mismatch")
+    if arm == "c8-expert-mixture":
+        c8_fields = {
+            "arm_id": C8_ARM_ID,
+            "declared_model_state_bytes": C8_DECLARED_STATE_BYTES,
+            "predicted_kill_criterion": C8_KILL_CRITERION,
+        }
+        for field, expected in c8_fields.items():
+            if kernel_receipt.get(field) != expected:
+                raise SystemExit(f"C8 kernel receipt {field} mismatch")
     tape_bytes = tape_path.read_bytes()
     if kernel_receipt.get("tape_bytes") != len(tape_bytes):
         raise SystemExit("kernel receipt tape length mismatch")

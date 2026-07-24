@@ -60,6 +60,7 @@ ARM_IDS = {
     "c3-live-adaptation": 104,
     "c1-match-mixer": 105,
     "c2-value-context": 106,
+    "c8-expert-mixture": 107,
 }
 # Grace beyond the wall limit before the wrapper subprocess is force-killed.
 WALL_TIMEOUT_GRACE_SECONDS = 30.0
@@ -86,6 +87,11 @@ KILL_LINES = {
     # C1_KILL_CRITERION and the synthetic precheck's C1_KILL_CRITERION.
     "c1-match-mixer": (
         "Kill if C1 complete bytes are at least 0.90x H1 complete bytes on both "
+        "public snapshots, OR any exactness, identity, ledger, unaccounted-state, "
+        "600-second wall, or 512 MiB decode-RSS gate fails."
+    ),
+    "c8-expert-mixture": (
+        "Kill if C8 complete bytes are at least 0.93x H1 complete bytes on both "
         "public snapshots, OR any exactness, identity, ledger, unaccounted-state, "
         "600-second wall, or 512 MiB decode-RSS gate fails."
     ),
