@@ -60,8 +60,9 @@ JLS2 compressed **96,934,483 source bytes to 489,591 bytes** against Brotli-11's
 and per-family ratio gates, compression and decompression speed, compression
 memory, exactness, determinism, corruption rejection, fallback, accounting,
 provenance, and roster gates. Its only miss was standalone decoder peak RSS:
-**621.3 MiB** against the frozen **512 MiB** limit. Both v1 ranges are consumed
-and were never tuned or rerun.
+**621.3 MiB** against the frozen **512 MiB** limit, so the v1
+overall product gate is still an honest **no-pass**.
+Both v1 ranges are consumed and were never tuned or rerun.
 
 ![Axiom JLS2 v1 complete archive size compared with standards and eligible specialists on the frozen CLUE-LDS public-validation score](runs/clue-jls2-public-validation-v1/publication/comparison.svg)
 
