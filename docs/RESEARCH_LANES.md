@@ -73,6 +73,11 @@ or changes status. Status date: 2026-07-23.
   reducer are frozen ahead of execution in
   `docs/benchmarks/2026-07-24-json-log-championship-roster-v1.md`; execution is
   owner-gated and follows independent reproduction.
+- **Private-holdout readiness (audit, NOT READY):** the sealed private-holdout
+  preconditions audit and frozen one-shot decision rule are recorded in
+  `docs/benchmarks/2026-07-24-jls2-private-holdout-readiness-v1.md`; blockers are
+  unexecuted dedicated-machine reproduction and Kanzi/ZPAQ never run in a frozen
+  championship protocol. Acquisition stays owner-dispatched and one-way.
 - **Corollary:** the A2 context-reuse and inline-single-worker "no effect"
   results likely compared polluted readings against polluted readings;
   reread before citing them, pending confirmation of each run's exact
