@@ -1,0 +1,28 @@
+{
+  "schema": "moon-prescreen-runner-config-v1",
+  "kernel_command": [
+    "/Users/guts/Documents/compression-lab/native/target/release/clab-moon-kernel"
+  ],
+  "references": "/Users/guts/Documents/axiom-moonshot-corpora/local-references-s24.json",
+  "budget_state": "/Users/guts/Documents/axiom-moonshot-corpora/run-budget.json",
+  "output_dir": "/Users/guts/Documents/axiom-moonshot-corpora/sweep-cycle2-c1c2c8",
+  "arms": [
+    "c1-match-mixer",
+    "c2-value-context",
+    "c8-expert-mixture"
+  ],
+  "snapshots": [
+    {
+      "name": "gharchive-2026-05-15-14-s24",
+      "path": "/Users/guts/Documents/axiom-moonshot-corpora/slices/gharchive-2026-05-15-14-s24.ndjson",
+      "sha256": "a6873fdebc69a79c1cad8e7b4b52c8d207c5e7f5fa5ed1df3ec4117d920802b4",
+      "item_index": 0
+    },
+    {
+      "name": "gharchive-2026-06-15-14-s24",
+      "path": "/Users/guts/Documents/axiom-moonshot-corpora/slices/gharchive-2026-06-15-14-s24.ndjson",
+      "sha256": "05220440b98e0adfc933ce0b6f838a6bed37d35118e4bb4f02075d7e34e50f79",
+      "item_index": 1
+    }
+  ]
+}
