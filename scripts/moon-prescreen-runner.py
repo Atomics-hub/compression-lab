@@ -58,6 +58,7 @@ ARM_IDS = {
     "h9-grammar": 102,
     "h8-static-mixer": 103,
     "c3-live-adaptation": 104,
+    "c1-match-mixer": 105,
     "c2-value-context": 106,
 }
 # Grace beyond the wall limit before the wrapper subprocess is force-killed.
@@ -78,6 +79,13 @@ KILL_LINES = {
     ),
     "c3-live-adaptation": (
         "Kill if C3 complete bytes are at least 0.97x H1 complete bytes on both "
+        "public snapshots, OR any exactness, identity, ledger, unaccounted-state, "
+        "600-second wall, or 512 MiB decode-RSS gate fails."
+    ),
+    # Cycle-2 charter §Arm gates, C1. Byte-identical to the kernel's
+    # C1_KILL_CRITERION and the synthetic precheck's C1_KILL_CRITERION.
+    "c1-match-mixer": (
+        "Kill if C1 complete bytes are at least 0.90x H1 complete bytes on both "
         "public snapshots, OR any exactness, identity, ledger, unaccounted-state, "
         "600-second wall, or 512 MiB decode-RSS gate fails."
     ),

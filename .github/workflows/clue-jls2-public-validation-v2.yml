@@ -1,0 +1,347 @@
+name: CLUE-LDS JLS2 v2 one-time public validation
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: clue-jls2-public-validation-v2
+  cancel-in-progress: false
+
+jobs:
+  first-score:
+    name: Frozen first and only CLUE-LDS v2 score
+    runs-on: ubuntu-22.04
+    timeout-minutes: 180
+    env:
+      PYTHONUNBUFFERED: "1"
+      PYTHONPATH: src
+      PBC_COMMIT: bac1f86d29624cb585bb4475235d22a28e60ffea
+      ZSTD_COMMIT: f8745da6ff1ad1e7bab384bd1f9d742439278e99
+      LZ4_COMMIT: ebb370ca83af193212df4dcbadcc5d87bc0de2f0
+      BROTLI_COMMIT: 028fb5a23661f123017c060daa546b55cf4bde29
+      SEVENZIP_SHA256: 41aaba7b1235304ab5aa0624530c67ae829496cd29e875925271efdccc28c03e
+      ACI_JOB_NAME: github-actions
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Initialize immutable attempt paths
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "EVIDENCE_DIR=$RUNNER_TEMP/clue-jls2-public-validation-v2" >> "$GITHUB_ENV"
+          echo "TOOLS_DIR=$RUNNER_TEMP/frozen-codecs" >> "$GITHUB_ENV"
+          echo "PBC_DIR=$RUNNER_TEMP/pbc" >> "$GITHUB_ENV"
+          mkdir -p \
+            "$RUNNER_TEMP/clue-jls2-public-validation-v2" \
+            "$RUNNER_TEMP/frozen-codecs/bin"
+
+      - name: Verify final readiness lock before acquisition
+        run: |
+          python scripts/verify-clue-jls2-public-validation-v2-lock.py \
+            --lock config/clue-jls2-public-validation-v2-lock.json \
+            --output "$EVIDENCE_DIR/readiness-lock-receipt.json"
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            clang \
+            cmake \
+            curl \
+            libboost-all-dev \
+            lld \
+            llvm-dev \
+            ninja-build \
+            xz-utils
+
+      - name: Build exact standard codec releases
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone https://github.com/facebook/zstd "$RUNNER_TEMP/zstd"
+          git -C "$RUNNER_TEMP/zstd" checkout --detach "$ZSTD_COMMIT"
+          make -C "$RUNNER_TEMP/zstd" -j"$(nproc)" zstd-release
+          cp "$RUNNER_TEMP/zstd/programs/zstd" "$TOOLS_DIR/bin/zstd"
+
+          git clone https://github.com/lz4/lz4 "$RUNNER_TEMP/lz4"
+          git -C "$RUNNER_TEMP/lz4" checkout --detach "$LZ4_COMMIT"
+          make -C "$RUNNER_TEMP/lz4" -j"$(nproc)"
+          cp "$RUNNER_TEMP/lz4/lz4" "$TOOLS_DIR/bin/lz4"
+
+          git clone https://github.com/google/brotli "$RUNNER_TEMP/brotli"
+          git -C "$RUNNER_TEMP/brotli" checkout --detach "$BROTLI_COMMIT"
+          cmake -S "$RUNNER_TEMP/brotli" -B "$RUNNER_TEMP/brotli-build" \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX="$TOOLS_DIR"
+          cmake --build "$RUNNER_TEMP/brotli-build" --parallel
+          cmake --install "$RUNNER_TEMP/brotli-build"
+          echo "LD_LIBRARY_PATH=$TOOLS_DIR/lib:${LD_LIBRARY_PATH:-}" >> "$GITHUB_ENV"
+
+          curl --fail --location --proto '=https' --tlsv1.2 \
+            https://github.com/ip7z/7zip/releases/download/26.02/7z2602-linux-x64.tar.xz \
+            --output "$RUNNER_TEMP/7z2602-linux-x64.tar.xz"
+          echo "$SEVENZIP_SHA256  $RUNNER_TEMP/7z2602-linux-x64.tar.xz" | sha256sum -c -
+          tar -xJf "$RUNNER_TEMP/7z2602-linux-x64.tar.xz" -C "$TOOLS_DIR/bin"
+          chmod 755 "$TOOLS_DIR/bin/7zz"
+          echo "$TOOLS_DIR/bin" >> "$GITHUB_PATH"
+
+      - name: Install candidate and verification tools
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+          cargo build --release --locked --manifest-path native/Cargo.toml --bin clab-jls2
+
+      # ruff 0.16.0 (released 2026-07-23) adds rules (TRY004 and others) that flag
+      # the frozen v2 scripts, which are hash-pinned by the readiness lock and must
+      # not be edited pre-acquisition. Pin to the same 0.15.22 CI uses so the
+      # harness lint stays reproducible; adopting 0.16's rules is a separate change.
+      - name: Pin ruff for reproducible lint
+        run: python -m pip install 'ruff==0.15.22'
+
+      - name: Clone and build pinned official PBC
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone https://github.com/antgroup/pbc "$PBC_DIR"
+          git -C "$PBC_DIR" checkout --detach "$PBC_COMMIT"
+          test "$(git -C "$PBC_DIR" rev-parse HEAD)" = "$PBC_COMMIT"
+          test "$(sha256sum "$PBC_DIR/LICENSE" | cut -d' ' -f1)" = \
+            "bacacee63139034e9acba4de0c513eeb93cc6277ae52054a30eebf4be644e7ed"
+          sed -i \
+            's#https://boostorg.jfrog.io/artifactory/main/release/1.67.0/source/boost_1_67_0.tar.gz#https://archives.boost.io/release/1.67.0/source/boost_1_67_0.tar.gz#' \
+            "$PBC_DIR/third-party/externals/boost.cmake"
+          sed -i \
+            's#https://github.com/adrian-thurston/colm/archive/refs/tags/0.14.7.tar.gz#https://codeload.github.com/adrian-thurston/colm-suite/tar.gz/e88bda068d4a25f2afa7f48821e0f539405c8c6a#' \
+            "$PBC_DIR/third-party/externals/colm.cmake"
+          sed -i \
+            's#URL_HASH MD5=213a9ddf207c5732f04941852ca8db62#URL_HASH SHA256=6f11b349722797165f5b71bac5dd71a2ade3cff1c45a9c0ae5522f0f71902ee1#' \
+            "$PBC_DIR/third-party/externals/colm.cmake"
+          git -C "$PBC_DIR" diff --check
+          git -C "$PBC_DIR" diff -- \
+            third-party/externals/boost.cmake \
+            third-party/externals/colm.cmake | \
+            tee "$EVIDENCE_DIR/pbc-build-dependency-repair.patch"
+          export PBC_MAKE_JOBS="$(nproc)"
+          (cd "$PBC_DIR" && bash ./build.sh -r) 2>&1 | tee "$EVIDENCE_DIR/pbc-build.log"
+          find "$PBC_DIR/third-party/downloads" -maxdepth 1 -type f \
+            -exec sha256sum {} + | sort | \
+            tee "$EVIDENCE_DIR/pbc-third-party-downloads-sha256.txt"
+          git -C "$PBC_DIR" checkout -- \
+            third-party/externals/boost.cmake \
+            third-party/externals/colm.cmake
+          test -z "$(git -C "$PBC_DIR" status --porcelain --untracked-files=no)"
+
+      - name: Run official PBC unit and integration tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          capture_pbc_testresult() {
+            if [[ -d "$PBC_DIR/testresult" ]]; then
+              cp -a "$PBC_DIR/testresult" "$EVIDENCE_DIR/pbc-testresult"
+            fi
+          }
+          trap capture_pbc_testresult EXIT
+          integration_dir="$PBC_DIR/testresult/integration_test"
+          mkdir -p "$integration_dir"
+          touch \
+            "$integration_dir/test_data_2000_100_pbc_only_compress" \
+            "$integration_dir/test_data_2000_100_pbc_only_decompress" \
+            "$integration_dir/test_data_2000_100_pbc_only_decompress2"
+          chmod 600 \
+            "$integration_dir/test_data_2000_100_pbc_only_compress" \
+            "$integration_dir/test_data_2000_100_pbc_only_decompress" \
+            "$integration_dir/test_data_2000_100_pbc_only_decompress2"
+          bash "$PBC_DIR/run_tests.sh" --pbc-integration-test 2>&1 | \
+            tee "$EVIDENCE_DIR/pbc-tests.log"
+          test -z "$(git -C "$PBC_DIR" status --porcelain --untracked-files=no)"
+
+      - name: Verify frozen source and harness
+        run: |
+          python -m json.tool config/clue-jls2-public-validation-v2-gates.json >/dev/null
+          python -m json.tool config/clue-pbc-public-validation-v2-gates.json >/dev/null
+          python -m json.tool config/clue-json-log-corpus-v2.json >/dev/null
+          ruff check \
+            scripts/benchmark-clue-jls2-public-validation-v2.py \
+            scripts/benchmark-pbc-competitor.py \
+            scripts/evaluate-clue-jls2-public-validation-v2.py \
+            scripts/fetch-clue-json-corpus-v2.py \
+            scripts/import-clue-jls2-public-validation-v2.py \
+            scripts/jls2-candidate-compress-v2.py \
+            scripts/publish-clue-jls2-public-validation-v2.py \
+            scripts/verify-clue-jls2-public-validation-v2-lock.py \
+            tests/test_clue_jls2_v2_publication.py \
+            tests/test_clue_jls2_v2_validation_readiness.py \
+            tests/test_clue_jls2_v2_validation_lock.py \
+            tests/test_clue_jls2_v2_import.py \
+            tests/test_clue_jls2_v2_benchmark_rss.py \
+            tests/test_clue_json_corpus_v2.py
+          python -m unittest \
+            tests.test_clue_jls2_v2_publication \
+            tests.test_clue_jls2_v2_validation_readiness \
+            tests.test_clue_jls2_v2_validation_lock \
+            tests.test_clue_jls2_v2_import \
+            tests.test_clue_jls2_v2_benchmark_rss \
+            tests.test_clue_json_corpus_v2 \
+            tests.test_measure_clean_rss -v
+          cargo test --release --locked --manifest-path native/Cargo.toml
+
+      - name: Capture pre-acquisition provenance and exact versions
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            lsb_release -a
+            uname -a
+            nproc
+            lscpu
+            python --version
+            rustc --version
+            zstd --version
+            lz4 --version
+            brotli --version
+            7zz i
+            git -C "$RUNNER_TEMP/zstd" rev-parse HEAD
+            git -C "$RUNNER_TEMP/lz4" rev-parse HEAD
+            git -C "$RUNNER_TEMP/brotli" rev-parse HEAD
+            git -C "$PBC_DIR" rev-parse HEAD
+            sha256sum "$RUNNER_TEMP/7z2602-linux-x64.tar.xz"
+            sha256sum native/target/release/clab-jls2
+            sha256sum "$PBC_DIR/bin/pbc"
+            sha256sum scripts/measure-clean-rss.py
+            git rev-parse HEAD
+            git status --porcelain --untracked-files=no
+          } | tee "$EVIDENCE_DIR/pre-acquisition-provenance.txt"
+
+      - name: Acquire the two sealed v2 ranges exactly once
+        run: |
+          python scripts/fetch-clue-json-corpus-v2.py \
+            --split public-validation \
+            --allow-public-validation \
+            --validation-lock config/clue-jls2-public-validation-v2-lock.json \
+            --output "$RUNNER_TEMP/clue-validation-v2" \
+            --cache "$RUNNER_TEMP/clue-cache-v2"
+          cp "$RUNNER_TEMP/clue-validation-v2/manifest.json" \
+            "$EVIDENCE_DIR/validation-manifest.json"
+
+      - name: Run frozen standards and candidate score
+        id: jls2
+        shell: bash
+        run: |
+          set +e
+          python scripts/benchmark-clue-jls2-public-validation-v2.py \
+            --manifest "$RUNNER_TEMP/clue-validation-v2/manifest.json" \
+            --gates config/clue-jls2-public-validation-v2-gates.json \
+            --lock config/clue-jls2-public-validation-v2-lock.json \
+            --native-binary native/target/release/clab-jls2 \
+            --output "$EVIDENCE_DIR/jls2" 2>&1 | \
+            tee "$EVIDENCE_DIR/jls2-benchmark.log"
+          status=${PIPESTATUS[0]}
+          echo "exit_code=$status" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Run frozen PBC-only specialist score
+        if: steps.jls2.outputs.exit_code == '0'
+        id: pbc
+        shell: bash
+        run: |
+          set +e
+          python scripts/benchmark-pbc-competitor.py \
+            --pbc-binary "$PBC_DIR/bin/pbc" \
+            --pbc-repository "$PBC_DIR" \
+            --manifest "$RUNNER_TEMP/clue-validation-v2/manifest.json" \
+            --accepted "$EVIDENCE_DIR/jls2/pbc-accepted.json" \
+            --gates config/clue-pbc-public-validation-v2-gates.json \
+            --output "$EVIDENCE_DIR/pbc-result.json" \
+            --repetitions 5 \
+            --training-repetitions 2 2>&1 | tee "$EVIDENCE_DIR/pbc-benchmark.log"
+          status=${PIPESTATUS[0]}
+          echo "exit_code=$status" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Evaluate immutable first score
+        if: steps.jls2.outputs.exit_code == '0' && steps.pbc.outputs.exit_code == '0'
+        id: evaluate
+        shell: bash
+        run: |
+          set +e
+          python scripts/evaluate-clue-jls2-public-validation-v2.py \
+            --receipt "$EVIDENCE_DIR/jls2/receipt.json" \
+            --performance "$EVIDENCE_DIR/jls2/performance/results.json" \
+            --pbc "$EVIDENCE_DIR/pbc-result.json" \
+            --gates config/clue-jls2-public-validation-v2-gates.json \
+            --output "$EVIDENCE_DIR/decision.json" 2>&1 | \
+            tee "$EVIDENCE_DIR/evaluator.log"
+          status=${PIPESTATUS[0]}
+          echo "exit_code=$status" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Render immutable transparent publication bundle
+        if: steps.evaluate.outputs.exit_code != ''
+        run: |
+          python scripts/publish-clue-jls2-public-validation-v2.py \
+            --decision "$EVIDENCE_DIR/decision.json" \
+            --receipt "$EVIDENCE_DIR/jls2/receipt.json" \
+            --performance "$EVIDENCE_DIR/jls2/performance/results.json" \
+            --pbc "$EVIDENCE_DIR/pbc-result.json" \
+            --manifest "$EVIDENCE_DIR/validation-manifest.json" \
+            --gates config/clue-jls2-public-validation-v2-gates.json \
+            --output "$EVIDENCE_DIR/publication"
+
+      - name: Publish transparent job summary
+        if: always()
+        run: |
+          if [[ -f "$EVIDENCE_DIR/decision.json" ]]; then
+            python -c "import json,os; p=json.load(open(os.path.join(os.environ['EVIDENCE_DIR'],'decision.json'))); a=p['aggregate']; print('## CLUE-LDS JLS2 v2 first score'); print(); print(f\"Category gate passed: **{p['category_gate_passed']}**\"); print(f\"Compressed bytes: {a['candidate_bytes']:,}\"); print(f\"Strongest eligible: {a['strongest_eligible_codec']} ({a['strongest_eligible_bytes']:,} bytes)\"); print(f\"Gain: {a['gain_vs_strongest_eligible_percent']:.2f}%\"); print(f\"Compression: {a['compression_mbps']:.2f} MB/s\"); print(f\"Standalone decode: {a['standalone_decompression_mbps']:.2f} MB/s\"); print(f\"Decode peak RSS (clean-child): {a['standalone_decompression_peak_rss_bytes']:,} bytes\"); print(); print('Claim ceiling: category-scoped public validation only on the two v2 ranges; v1 not_passed is unchanged; unavailable specialists are not wins.')" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "The retained first attempt did not reach a complete decision." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Seal complete evidence checksums
+        if: always()
+        run: |
+          if compgen -G "$EVIDENCE_DIR/*" > /dev/null; then
+            (
+              cd "$EVIDENCE_DIR"
+              find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum
+            ) > "$EVIDENCE_DIR/SHA256SUMS"
+          fi
+
+      - name: Upload retained first attempt
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: clue-jls2-public-validation-v2-${{ github.run_id }}
+          path: ${{ runner.temp }}/clue-jls2-public-validation-v2
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Enforce first-score outcome
+        if: always()
+        shell: bash
+        run: |
+          jls2="${{ steps.jls2.outputs.exit_code }}"
+          pbc="${{ steps.pbc.outputs.exit_code }}"
+          evaluate="${{ steps.evaluate.outputs.exit_code }}"
+          if [[ -z "$jls2" || "$jls2" != "0" ]]; then
+            exit "${jls2:-1}"
+          fi
+          if [[ -z "$pbc" || "$pbc" != "0" ]]; then
+            exit "${pbc:-1}"
+          fi
+          if [[ -z "$evaluate" ]]; then
+            exit 1
+          fi
+          exit "$evaluate"

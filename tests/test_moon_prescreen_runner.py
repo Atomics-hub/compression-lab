@@ -356,11 +356,48 @@ class PrescreenRunnerTests(unittest.TestCase):
         self.assertIsNotNone(match)
         self.assertEqual(match.group(1), MODULE.KILL_LINES["c3-live-adaptation"])
 
+    def test_c1_kill_line_is_byte_identical_across_kernel_and_runner(self) -> None:
+        source = KERNEL_SOURCE.read_text(encoding="utf-8")
+        match = re.search(
+            r'const C1_KILL_CRITERION: &str = "([^"]+)";', source
+        )
+        self.assertIsNotNone(match)
+        self.assertEqual(match.group(1), MODULE.KILL_LINES["c1-match-mixer"])
+        self.assertEqual(MODULE.ARM_IDS["c1-match-mixer"], 105)
+
+    def test_c1_kill_line_is_byte_identical_across_kernel_and_precheck(self) -> None:
+        precheck = REPOSITORY / "scripts" / "moon-synthetic-precheck.py"
+        spec = importlib.util.spec_from_file_location(
+            "moon_synthetic_precheck_bind", precheck
+        )
+        assert spec is not None and spec.loader is not None
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        self.assertEqual(
+            module.C1_KILL_CRITERION, MODULE.KILL_LINES["c1-match-mixer"]
+        )
+        self.assertEqual(module.C1_ARM_ID, MODULE.ARM_IDS["c1-match-mixer"])
+        self.assertEqual(module.C1_DECLARED_STATE_BYTES, 136_773_760)
+
     def test_c2_kill_line_is_byte_identical_across_kernel_and_runner(self) -> None:
         source = KERNEL_SOURCE.read_text(encoding="utf-8")
         match = re.search(r'const C2_KILL_CRITERION: &str = "([^"]+)";', source)
         self.assertIsNotNone(match)
         self.assertEqual(match.group(1), MODULE.KILL_LINES["c2-value-context"])
+
+    def test_c2_kill_line_is_byte_identical_across_kernel_and_precheck(self) -> None:
+        precheck = REPOSITORY / "scripts" / "moon-synthetic-precheck.py"
+        spec = importlib.util.spec_from_file_location(
+            "moon_synthetic_precheck_bind_c2", precheck
+        )
+        assert spec is not None and spec.loader is not None
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        self.assertEqual(
+            module.C2_KILL_CRITERION, MODULE.KILL_LINES["c2-value-context"]
+        )
+        self.assertEqual(module.C2_ARM_ID, MODULE.ARM_IDS["c2-value-context"])
+        self.assertEqual(module.C2_DECLARED_STATE_BYTES, 220_676_096)
 
     def test_c2_arm_id_is_registered(self) -> None:
         self.assertEqual(MODULE.ARM_IDS["c2-value-context"], 106)

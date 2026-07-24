@@ -17,6 +17,9 @@ pub mod s0;
 #[path = "../moon/mod.rs"]
 pub mod moon;
 
+use moon::c1::{
+    c1_declared_state_bytes, decode_c1_item_with_bits, encode_c1_item_with_bits, C1_ARM_ID,
+};
 use moon::c2::{
     c2_declared_state_bytes, decode_c2_item_with_bits, encode_c2_item_with_bits, C2_ARM_ID,
 };
@@ -65,6 +68,10 @@ const H8_KILL_CRITERION: &str = "Kill if frozen-mixer complete bytes exceed 1.02
 const H9_KILL_CRITERION: &str =
     "Kill if bounded-grammar size > 1.3x local ZPAQ-16MiB on the public set.";
 const C3_KILL_CRITERION: &str = "Kill if C3 complete bytes are at least 0.97x H1 complete bytes on both public snapshots, OR any exactness, identity, ledger, unaccounted-state, 600-second wall, or 512 MiB decode-RSS gate fails.";
+// C1 kill line, verbatim from the cycle-2 charter (§Arm gates, C1). Byte-
+// identical to the runner's KILL_LINES entry and the synthetic precheck's
+// C1_KILL_CRITERION (asserted by a binding test).
+const C1_KILL_CRITERION: &str = "Kill if C1 complete bytes are at least 0.90x H1 complete bytes on both public snapshots, OR any exactness, identity, ledger, unaccounted-state, 600-second wall, or 512 MiB decode-RSS gate fails.";
 // C2 value-context kill line (charter cycle-2 §arm-gates). Byte-identical to the
 // runner's KILL_LINES["c2-value-context"] entry (binding test enforces it).
 const C2_KILL_CRITERION: &str = "Kill if C2 complete bytes are at least 0.95x H1 complete bytes on both public snapshots, or if C2 is no smaller than C1 on both public snapshots, OR any exactness, identity, ledger, unaccounted-state, 600-second wall, or 512 MiB decode-RSS gate fails.";
@@ -73,6 +80,7 @@ const C2_KILL_CRITERION: &str = "Kill if C2 complete bytes are at least 0.95x H1
 /// state, and preregistered kill line so the kernel dispatches uniformly.
 #[derive(Clone, Copy)]
 enum MoonArm {
+    C1MatchMixer,
     C2ValueContext,
     C3LiveAdaptation,
     H1Floor,
@@ -81,7 +89,8 @@ enum MoonArm {
     H9Grammar,
 }
 
-const ARMS: [MoonArm; 6] = [
+const ARMS: [MoonArm; 7] = [
+    MoonArm::C1MatchMixer,
     MoonArm::C2ValueContext,
     MoonArm::C3LiveAdaptation,
     MoonArm::H1Floor,
@@ -93,6 +102,7 @@ const ARMS: [MoonArm; 6] = [
 impl MoonArm {
     fn from_name(name: &str) -> Option<Self> {
         match name {
+            "c1-match-mixer" => Some(Self::C1MatchMixer),
             "c2-value-context" => Some(Self::C2ValueContext),
             "c3-live-adaptation" => Some(Self::C3LiveAdaptation),
             "h1-floor" => Some(Self::H1Floor),
@@ -105,6 +115,7 @@ impl MoonArm {
 
     fn name(self) -> &'static str {
         match self {
+            Self::C1MatchMixer => "c1-match-mixer",
             Self::C2ValueContext => "c2-value-context",
             Self::C3LiveAdaptation => "c3-live-adaptation",
             Self::H1Floor => "h1-floor",
@@ -116,6 +127,7 @@ impl MoonArm {
 
     fn id(self) -> u8 {
         match self {
+            Self::C1MatchMixer => C1_ARM_ID,
             Self::C2ValueContext => C2_ARM_ID,
             Self::C3LiveAdaptation => C3_ARM_ID,
             Self::H1Floor => H1_ARM_ID,
@@ -127,6 +139,7 @@ impl MoonArm {
 
     fn kill_criterion(self) -> &'static str {
         match self {
+            Self::C1MatchMixer => C1_KILL_CRITERION,
             Self::C2ValueContext => C2_KILL_CRITERION,
             Self::C3LiveAdaptation => C3_KILL_CRITERION,
             Self::H1Floor => H1_KILL_CRITERION,
@@ -138,6 +151,7 @@ impl MoonArm {
 
     fn declared_state_bytes(self, table: &LossTable, sse_bucket_bits: u32) -> usize {
         match self {
+            Self::C1MatchMixer => c1_declared_state_bytes(table, sse_bucket_bits),
             Self::C2ValueContext => c2_declared_state_bytes(table, sse_bucket_bits),
             Self::C3LiveAdaptation => c3_declared_state_bytes(table, sse_bucket_bits),
             Self::H1Floor => h1_declared_state_bytes(table, sse_bucket_bits),
@@ -155,6 +169,11 @@ impl MoonArm {
         sse_bucket_bits: u32,
     ) -> Result<(Tape, Ledger, Option<[C3QuarterSnapshot; 4]>), String> {
         match self {
+            Self::C1MatchMixer => {
+                encode_c1_item_with_bits(source, table, item_index, sse_bucket_bits)
+                    .map(|(tape, ledger)| (tape, ledger, None))
+                    .map_err(|error| error.to_string())
+            }
             Self::C2ValueContext => {
                 encode_c2_item_with_bits(source, table, item_index, sse_bucket_bits)
                     .map(|(tape, ledger)| (tape, ledger, None))
@@ -191,6 +210,10 @@ impl MoonArm {
         sse_bucket_bits: u32,
     ) -> Result<Vec<u8>, String> {
         match self {
+            Self::C1MatchMixer => {
+                decode_c1_item_with_bits(tape, expected_ledger, table, item_index, sse_bucket_bits)
+                    .map_err(|error| error.to_string())
+            }
             Self::C2ValueContext => {
                 decode_c2_item_with_bits(tape, expected_ledger, table, item_index, sse_bucket_bits)
                     .map_err(|error| error.to_string())
@@ -223,10 +246,10 @@ const HELP: &str = "clab-moon-kernel — moonshot cycle-1 prescreen accounting k
 
 Usage:
   clab-moon-kernel arms
-  clab-moon-kernel encode --arm c2-value-context|c3-live-adaptation|h1-floor|h6-hybrid|h8-static-mixer|h9-grammar --item-index N --input PATH
+  clab-moon-kernel encode --arm c1-match-mixer|c2-value-context|c3-live-adaptation|h1-floor|h6-hybrid|h8-static-mixer|h9-grammar --item-index N --input PATH
                           --tape-out PATH --receipt-out PATH
                           [--sse-bucket-bits 17|18] [--force]
-  clab-moon-kernel decode --arm c2-value-context|c3-live-adaptation|h1-floor|h6-hybrid|h8-static-mixer|h9-grammar --item-index N --tape PATH
+  clab-moon-kernel decode --arm c1-match-mixer|c2-value-context|c3-live-adaptation|h1-floor|h6-hybrid|h8-static-mixer|h9-grammar --item-index N --tape PATH
                           --records N --modeled-binary-events N
                           --modeled-loss-q24 N --raw-literal-bytes N
                           --output PATH --receipt-out PATH
@@ -1147,6 +1170,68 @@ mod tests {
     }
 
     #[test]
+    fn c1_encodes_decodes_and_binds_state_and_kill_line() {
+        let scratch = Scratch::new();
+        // Repetitive records so the match model fires and folds real signal.
+        let mut source = Vec::new();
+        for index in 0..64_u32 {
+            source.extend_from_slice(
+                format!(
+                    "{{\"level\":\"info\",\"service\":\"api\",\"seq\":{}}}\n",
+                    index % 6
+                )
+                .as_bytes(),
+            );
+        }
+        fs::write(scratch.path("item.ndjson"), &source).unwrap();
+        let receipt_path = scratch.path("c1.receipt.json");
+        unwrap_message(encode_command(&[
+            "--arm",
+            "c1-match-mixer",
+            "--item-index",
+            "6",
+            "--input",
+            &scratch.path("item.ndjson"),
+            "--tape-out",
+            &scratch.path("c1.tape"),
+            "--receipt-out",
+            &receipt_path,
+        ]));
+        let receipt = fs::read_to_string(&receipt_path).unwrap();
+        assert_eq!(receipt_field(&receipt, "arm"), "c1-match-mixer");
+        assert_eq!(receipt_field(&receipt, "arm_id"), "105");
+        assert_eq!(receipt_field(&receipt, "decode_matches_source"), "true");
+        assert_eq!(
+            receipt_field(&receipt, "declared_model_state_bytes"),
+            "136773760"
+        );
+        assert!(receipt.contains(C1_KILL_CRITERION));
+
+        let output = scratch.path("c1.decoded");
+        unwrap_message(decode_command(&[
+            "--arm",
+            "c1-match-mixer",
+            "--item-index",
+            "6",
+            "--tape",
+            &scratch.path("c1.tape"),
+            "--records",
+            receipt_field(&receipt, "records"),
+            "--modeled-binary-events",
+            receipt_field(&receipt, "modeled_binary_events"),
+            "--modeled-loss-q24",
+            receipt_field(&receipt, "modeled_loss_q24"),
+            "--raw-literal-bytes",
+            receipt_field(&receipt, "raw_literal_bytes"),
+            "--output",
+            &output,
+            "--receipt-out",
+            &scratch.path("c1.decode-receipt.json"),
+        ]));
+        assert_eq!(fs::read(&output).unwrap(), source);
+    }
+
+    #[test]
     fn c2_encodes_decodes_and_binds_state_and_kill_line() {
         let scratch = Scratch::new();
         let source = corpus();
@@ -1201,6 +1286,10 @@ mod tests {
     #[test]
     fn arms_lists_every_moon_arm() {
         assert_eq!(
+            MoonArm::from_name("c1-match-mixer").map(MoonArm::id),
+            Some(105)
+        );
+        assert_eq!(
             MoonArm::from_name("c2-value-context").map(MoonArm::id),
             Some(106)
         );
@@ -1216,7 +1305,7 @@ mod tests {
         );
         assert_eq!(MoonArm::from_name("h9-grammar").map(MoonArm::id), Some(102));
         assert!(MoonArm::from_name("nope").is_none());
-        assert_eq!(ARMS.len(), 6);
+        assert_eq!(ARMS.len(), 7);
     }
 
     #[test]
