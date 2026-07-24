@@ -21,9 +21,11 @@ from typing import Any
 
 REPOSITORY = Path(__file__).resolve().parents[1]
 EXPECTED_REPOSITORY = "Atomics-hub/compression-lab"
-# Placeholders; filled from the single scored dispatch at import time.
-EXPECTED_RUN_ID = 0
-EXPECTED_HEAD_SHA = "0" * 40
+# Set at import time from the single scored dispatch (run 30055586630, the
+# passing attempt 2 on the ruff-fixed main). The importer was byte-identical to
+# the audited head 67f6709 before these two provenance constants were filled.
+EXPECTED_RUN_ID = 30055586630
+EXPECTED_HEAD_SHA = "b187308c86566e74a3243e9fe3664cd87fa3299f"
 EXPECTED_ARTIFACT_NAME = f"clue-jls2-public-validation-v2-{EXPECTED_RUN_ID}"
 DECISION_NAME = "clue-jls2-public-validation-v2-first-score"
 BUNDLE_NAME = "clue-jls2-public-validation-v2-first-score-bundle"

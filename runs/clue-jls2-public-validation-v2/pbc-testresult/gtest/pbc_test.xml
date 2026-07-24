@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="3" failures="0" disabled="0" errors="0" time="38.103" timestamp="2026-07-24T00:27:58.484" name="AllTests">
+  <testsuite name="PBC_CompressionTest" tests="3" failures="0" disabled="0" skipped="0" errors="0" time="38.103" timestamp="2026-07-24T00:27:58.484">
+    <testcase name="GivenDatasets" file="/home/runner/work/_temp/pbc/src/unit_test/test_pbc.cc" line="161" status="run" result="completed" time="28.214" timestamp="2026-07-24T00:27:58.484" classname="PBC_CompressionTest" />
+    <testcase name="RandomDataWithPattern" file="/home/runner/work/_temp/pbc/src/unit_test/test_pbc.cc" line="274" status="run" result="completed" time="4.633" timestamp="2026-07-24T00:28:26.699" classname="PBC_CompressionTest" />
+    <testcase name="RandomDataWithPatternContainEmptyChar" file="/home/runner/work/_temp/pbc/src/unit_test/test_pbc.cc" line="279" status="run" result="completed" time="5.256" timestamp="2026-07-24T00:28:31.332" classname="PBC_CompressionTest" />
+  </testsuite>
+</testsuites>

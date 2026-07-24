@@ -1,0 +1,17 @@
+{
+  "artifact_digest": "sha256:ec04bb0fb8a16a0f5ed36b48047a01fcf4e78c080b0a548b9302b05ece92b904",
+  "artifact_id": 8583800718,
+  "artifact_name": "clue-jls2-public-validation-v2-30055586630",
+  "category_gate_passed": true,
+  "claim_ceiling": "A passing v2 score may support only a category-scoped public-validation product pass on the two named previously unopened CLUE-LDS temporal ranges. It does not change v1, prove a private holdout, establish independent reproduction, cover general files, or support universal, market-leading, world-best, or state-of-the-art language. A failing or interrupted score must be published under the same boundary.",
+  "decision_sha256": "0105e62f889e4fb06f9dbe42b7c7b9e46faba7b189e32b6bdc6b86ab5f3b295f",
+  "file_count_excluding_sha256sums": 42,
+  "name": "clue-jls2-public-validation-v2-first-score-import",
+  "publication_bundle_sha256": "3bdeef6ae2424e808ac7903c4bb1b255cea684e7dc0f9e052561f3e9c7d1fcba",
+  "repository": "Atomics-hub/compression-lab",
+  "result": "passed",
+  "schema_version": 1,
+  "sha256sums_sha256": "37917103f7d860204c0420c90fc3c880fd789349a86d3d2fc2a5716d44a2cd6d",
+  "workflow_head_sha": "b187308c86566e74a3243e9fe3664cd87fa3299f",
+  "workflow_run_id": 30055586630
+}

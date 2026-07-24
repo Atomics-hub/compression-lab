@@ -1,0 +1,239 @@
+{
+  "accepted_path": "/home/runner/work/_temp/clue-jls2-public-validation-v2/jls2/pbc-accepted.json",
+  "accepted_sha256": "ca2085c915135958b7f968a65ee61234fde62e8b662bec4a5670cb6ba4c66605",
+  "aggregates": {
+    "pbc_only": {
+      "archive_bytes": 12694697,
+      "complete_compression_mbps": 0.2645881049545698,
+      "complete_compression_seconds": 368.5794001084994,
+      "decompression_mbps": 62.678159452594606,
+      "decompression_seconds": 1.5559123919992999,
+      "jls2_bytes": 522423,
+      "online_compression_mbps": 45.63684648192968,
+      "online_compression_seconds": 2.1369076199998744,
+      "original_bytes": 97521725,
+      "pattern_bytes": 31389,
+      "pattern_training_seconds": 366.4424924884995,
+      "payload_bytes": 12663308,
+      "pbc_gain_vs_jls2_percent": -2329.9651814717195,
+      "pbc_gain_vs_zstd9_percent": -710.5785095471124,
+      "zstd9_bytes": 1566128
+    }
+  },
+  "benchmark_source": {
+    "commit": "b187308c86566e74a3243e9fe3664cd87fa3299f",
+    "tracked_status": ""
+  },
+  "claim_ceiling": "Frozen PBC-only exact specialist comparison for the second one-time CLUE-LDS public-validation score on the two previously unopened v2 ranges; no broad superiority claim.",
+  "decision": {
+    "oracle_context_only": {
+      "archive_bytes": 12694697,
+      "jls2_bytes": 522423,
+      "pbc_gain_vs_jls2_percent": -2329.9651814717195,
+      "pbc_gain_vs_zstd9_percent": -710.5785095471124,
+      "selected_methods": {
+        "clue_validation_v2_c": "pbc_only",
+        "clue_validation_v2_d": "pbc_only"
+      },
+      "zstd9_bytes": 1566128
+    },
+    "primary": {
+      "archive_bytes": 12694697,
+      "complete_compression_mbps": 0.2645881049545698,
+      "complete_compression_seconds": 368.5794001084994,
+      "decompression_mbps": 62.678159452594606,
+      "decompression_seconds": 1.5559123919992999,
+      "jls2_bytes": 522423,
+      "online_compression_mbps": 45.63684648192968,
+      "online_compression_seconds": 2.1369076199998744,
+      "original_bytes": 97521725,
+      "pattern_bytes": 31389,
+      "pattern_training_seconds": 366.4424924884995,
+      "payload_bytes": 12663308,
+      "pbc_gain_vs_jls2_percent": -2329.9651814717195,
+      "pbc_gain_vs_zstd9_percent": -710.5785095471124,
+      "zstd9_bytes": 1566128
+    },
+    "primary_method": "pbc_only"
+  },
+  "gate_results": {
+    "byte_exact_roundtrip": true,
+    "clean_tracked_source": true,
+    "complete_archive_accounting": true,
+    "deterministic_payload_for_fixed_pattern": true,
+    "exact_license": true,
+    "exact_source_commit": true,
+    "expected_families": true,
+    "expected_methods": true,
+    "record_size_eligible": true,
+    "repetitions": true,
+    "training_repetitions": true
+  },
+  "gates_path": "config/clue-pbc-public-validation-v2-gates.json",
+  "gates_sha256": "481fdc71f61113b823631b3f98ae999e8de04ee0ea9ea3c86c0bc49edea84d4b",
+  "manifest_path": "/home/runner/work/_temp/clue-validation-v2/manifest.json",
+  "manifest_sha256": "7e9b2b89e91f50fa49799db9dde4617fe65ba2da474f944dbdeffda0c1bb21d9",
+  "passed": true,
+  "pbc": {
+    "binary": "/home/runner/work/_temp/pbc/bin/pbc",
+    "binary_sha256": "c96e0dbf5268899314a51238d5bed8bfa58c00bc032e196a2a1dddbff0bfc720",
+    "clean_tracked_source": true,
+    "commit": "bac1f86d29624cb585bb4475235d22a28e60ffea",
+    "exact_commit": true,
+    "exact_license": true,
+    "license_path": "/home/runner/work/_temp/pbc/LICENSE",
+    "license_sha256": "bacacee63139034e9acba4de0c513eeb93cc6277ae52054a30eebf4be644e7ed",
+    "origin": "https://github.com/antgroup/pbc",
+    "tracked_status": ""
+  },
+  "repetitions": 5,
+  "rows": [
+    {
+      "archive_bytes": 5742006,
+      "complete_compression_mbps": 0.2613121797141333,
+      "complete_compression_seconds": 187.87513101650006,
+      "decompression_mbps": 64.89512952489504,
+      "decompression_samples": [
+        0.7556418419999318,
+        0.7564614890006851,
+        0.7569339060000857,
+        0.7565137839992531,
+        0.7607155180003247
+      ],
+      "decompression_seconds": 0.7565137839992531,
+      "family": "clue_validation_v2_c",
+      "jls2_bytes": 301050,
+      "maximum_record_bytes": 629,
+      "method": "pbc_only",
+      "online_compression_mbps": 46.61671371680247,
+      "online_compression_samples": [
+        1.0528621639996345,
+        1.0500530480003363,
+        1.058306119000008,
+        1.0531428770000275,
+        1.0745895079999173
+      ],
+      "online_compression_seconds": 1.0531428770000275,
+      "original_bytes": 49094060,
+      "pattern_bytes": 13450,
+      "pattern_deterministic": true,
+      "pattern_sha256": "ea4f089d4bcf1ade19c6247e1d6a7ba7372725fdf0e6244ed71fe181fab9f23d",
+      "pattern_training_samples": [
+        186.88142831699997,
+        186.7625479620001
+      ],
+      "pattern_training_seconds": 186.82198813950004,
+      "payload_bytes": 5728556,
+      "payload_deterministic_for_fixed_pattern": true,
+      "payload_sha256": "1a8d5cabedd85f2abd560b20313df78641045fc7e57bd3da1c5404efb097e527",
+      "pbc_gain_vs_jls2_percent": -1807.3263577478822,
+      "pbc_gain_vs_zstd9_percent": -581.5566823820986,
+      "record_count": 250000,
+      "roundtrip_verified": true,
+      "source_sha256": "4d720b9247718ffb468c8b034fe3b418742acff7a4c175db7685cf6426d4dffe",
+      "zstd9_bytes": 842484
+    },
+    {
+      "archive_bytes": 6952691,
+      "complete_compression_mbps": 0.267994028272485,
+      "complete_compression_seconds": 180.70426909199932,
+      "decompression_mbps": 60.58012175072134,
+      "decompression_samples": [
+        0.8003802160001214,
+        0.7993986080000468,
+        0.8014176449996739,
+        0.795672492000449,
+        0.7985359229996902
+      ],
+      "decompression_seconds": 0.7993986080000468,
+      "family": "clue_validation_v2_d",
+      "jls2_bytes": 221373,
+      "maximum_record_bytes": 702,
+      "method": "pbc_only",
+      "online_compression_mbps": 44.684665480031065,
+      "online_compression_samples": [
+        1.0812141970000084,
+        1.083764742999847,
+        1.0858131690001755,
+        1.0856107649997284,
+        1.0803414870006236
+      ],
+      "online_compression_seconds": 1.083764742999847,
+      "original_bytes": 48427665,
+      "pattern_bytes": 17939,
+      "pattern_deterministic": true,
+      "pattern_sha256": "9ff4c5880ff457b270e2a9d5039b3731d81c2db60b05c57a1d63bd76322d4e3a",
+      "pattern_training_samples": [
+        180.21348777499952,
+        179.02752092299943
+      ],
+      "pattern_training_seconds": 179.62050434899948,
+      "payload_bytes": 6934752,
+      "payload_deterministic_for_fixed_pattern": true,
+      "payload_sha256": "0e13025ac0dcf10aa563989494bb1966564349be07a11a08c5a1a2321093704f",
+      "pbc_gain_vs_jls2_percent": -3040.713185438152,
+      "pbc_gain_vs_zstd9_percent": -860.7888685596786,
+      "record_count": 250000,
+      "roundtrip_verified": true,
+      "source_sha256": "dc1448e1e6899cab7844d65bf7d35428f2fde6db96426cee317302d0681cb908",
+      "zstd9_bytes": 723644
+    }
+  ],
+  "runtime": {
+    "platform": "Linux-6.8.0-1062-azure-x86_64-with-glibc2.35",
+    "python": "3.12.13"
+  },
+  "schema_version": 1,
+  "settings": {
+    "input_type": "newline-delimited record",
+    "methods": [
+      "pbc_only"
+    ],
+    "pattern_size": 100,
+    "train_data_number": 2000,
+    "train_thread_num": 64
+  },
+  "system_states": [
+    {
+      "label": "run-start",
+      "load_average_1m_5m_15m": [
+        1.05615234375,
+        1.05419921875,
+        1.21728515625
+      ],
+      "logical_cpus": 4,
+      "normalized_load_1m": 0.2640380859375
+    },
+    {
+      "label": "checkpoint-clue_validation_v2_c-pbc_only",
+      "load_average_1m_5m_15m": [
+        32.05810546875,
+        26.837890625,
+        13.31494140625
+      ],
+      "logical_cpus": 4,
+      "normalized_load_1m": 8.0145263671875
+    },
+    {
+      "label": "checkpoint-clue_validation_v2_d-pbc_only",
+      "load_average_1m_5m_15m": [
+        33.76123046875,
+        34.93701171875,
+        21.56396484375
+      ],
+      "logical_cpus": 4,
+      "normalized_load_1m": 8.4403076171875
+    },
+    {
+      "label": "run-end",
+      "load_average_1m_5m_15m": [
+        33.76123046875,
+        34.93701171875,
+        21.56396484375
+      ],
+      "logical_cpus": 4,
+      "normalized_load_1m": 8.4403076171875
+    }
+  ],
+  "training_repetitions": 2
+}

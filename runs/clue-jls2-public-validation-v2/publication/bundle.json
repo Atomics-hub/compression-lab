@@ -1,0 +1,19 @@
+{
+  "artifacts": {
+    "README.md": "c65ffea2167ad95875bcc9995481eb57759b520aa1cd7347fa22d20eabf7b768",
+    "comparison.svg": "fa1b2b38be8244abbcd00943776e8ccd9c733a87bbcd6a18f62a8314df0582bd",
+    "decision.json": "0105e62f889e4fb06f9dbe42b7c7b9e46faba7b189e32b6bdc6b86ab5f3b295f",
+    "gates.json": "376354fb60eacb7cc6c7b7cda4fdde37ffd25b2aaa0ce41792a4ede0627d6c9a",
+    "pbc-result.json": "8555319e6b68594d118db194f22204aaeb4d82d671cf8c9e49e918f9d5271f5c",
+    "performance.json": "761f4416b423a735fda6d6a19989e791d7449cf52ba291be8fda365929fecab4",
+    "receipt.json": "015f0530fe283a01ab91893b1cdc2281418f1a9ec3dc36e3fa2219b69691c6f6",
+    "validation-manifest.json": "7e9b2b89e91f50fa49799db9dde4617fe65ba2da474f944dbdeffda0c1bb21d9"
+  },
+  "category_gate_passed": true,
+  "claim_ceiling": "A passing v2 score may support only a category-scoped public-validation product pass on the two named previously unopened CLUE-LDS temporal ranges. It does not change v1, prove a private holdout, establish independent reproduction, cover general files, or support universal, market-leading, world-best, or state-of-the-art language. A failing or interrupted score must be published under the same boundary.",
+  "name": "clue-jls2-public-validation-v2-first-score-bundle",
+  "public_brand": "Atompress",
+  "schema_version": 1,
+  "status": "passed",
+  "technical_codec": "JLS2"
+}
