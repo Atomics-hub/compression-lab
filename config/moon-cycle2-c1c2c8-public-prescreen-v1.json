@@ -1,0 +1,93 @@
+{
+  "schema": "moon-cycle2-c1c2c8-public-prescreen-config-v1",
+  "evidence_stage": "development_only_prescreen",
+  "kernel_commit": "1519bbc0a7fbe534ef7c2e7ad463a19801452bd5",
+  "arms": [
+    {
+      "arm": "c1-match-mixer",
+      "arm_id": 105,
+      "evidence_stage": "development_only_prescreen",
+      "predicted_kill_criterion": "Kill if C1 complete bytes are at least 0.90x H1 complete bytes on both public snapshots, OR any exactness, identity, ledger, unaccounted-state, 600-second wall, or 512 MiB decode-RSS gate fails.",
+      "ratio_kill": {
+        "rule": "kill when C1_bytes * 100 >= H1_bytes * 90 on BOTH snapshots; equality kills; any operational gate failure kills regardless of ratio",
+        "numerator": 90,
+        "denominator": 100,
+        "reducer": "scripts/moon-prescreen-runner.py::c1_ratio_gate_kills"
+      },
+      "declared_model_state_bytes": 136773760,
+      "synthetic_precheck_reference": "PR #103: exact 4 MiB redecode, 56.096037417 s wall, 336.576224502 s projected at 24 MiB, 185466880 B clean peak RSS, 136773760 B declared state, decode_matches_source true"
+    },
+    {
+      "arm": "c2-value-context",
+      "arm_id": 106,
+      "evidence_stage": "development_only_prescreen",
+      "predicted_kill_criterion": "Kill if C2 complete bytes are at least 0.95x H1 complete bytes on both public snapshots, or if C2 is no smaller than C1 on both public snapshots, OR any exactness, identity, ledger, unaccounted-state, 600-second wall, or 512 MiB decode-RSS gate fails.",
+      "ratio_kill": {
+        "rule": "kill when C2_bytes * 100 >= H1_bytes * 95 on BOTH snapshots, OR C2_bytes >= C1_bytes on BOTH snapshots; each side is an AND over both snapshots; equality kills/crosses; any operational gate failure kills regardless of ratio",
+        "numerator": 95,
+        "denominator": 100,
+        "reducer": "scripts/moon-prescreen-runner.py::c2_ratio_gate_kills"
+      },
+      "declared_model_state_bytes": 220676096,
+      "synthetic_precheck_reference": "PR #101: exact 4 MiB redecode, 43.45 s wall, 260.69 s projected at 24 MiB, 260030464 B clean peak RSS, 220676096 B declared state, decode_matches_source true"
+    },
+    {
+      "arm": "c8-expert-mixture",
+      "arm_id": 107,
+      "evidence_stage": "development_only_prescreen",
+      "predicted_kill_criterion": "Kill if C8 complete bytes are at least 0.93x H1 complete bytes on both public snapshots, OR any exactness, identity, ledger, unaccounted-state, 600-second wall, or 512 MiB decode-RSS gate fails.",
+      "ratio_kill": {
+        "rule": "kill when C8_bytes * 100 >= H1_bytes * 93 on BOTH snapshots; equality kills; any operational gate failure kills regardless of ratio",
+        "numerator": 93,
+        "denominator": 100,
+        "reducer": "scripts/moon-prescreen-runner.py::c8_ratio_gate_kills"
+      },
+      "declared_model_state_bytes": 119963648,
+      "synthetic_precheck_reference": "PR #102: exact 4 MiB redecode, 47.96 s wall, 287.75 s projected at 24 MiB, 156139520 B clean peak RSS, 119963648 B declared state, decode_matches_source true"
+    }
+  ],
+  "snapshots": [
+    {
+      "name": "gharchive-2026-05-15-14-s24",
+      "item_index": 0,
+      "source_bytes": 25165377,
+      "source_sha256": "a6873fdebc69a79c1cad8e7b4b52c8d207c5e7f5fa5ed1df3ec4117d920802b4",
+      "h1_floor_complete_bytes": 3609680,
+      "h1_floor_receipt": "runs/moon-prescreen-cycle1-h1-v1/gharchive-2026-05-15-14-s24__h1-floor.receipt.json"
+    },
+    {
+      "name": "gharchive-2026-06-15-14-s24",
+      "item_index": 1,
+      "source_bytes": 25165414,
+      "source_sha256": "05220440b98e0adfc933ce0b6f838a6bed37d35118e4bb4f02075d7e34e50f79",
+      "h1_floor_complete_bytes": 3517625,
+      "h1_floor_receipt": "runs/moon-prescreen-cycle1-h1-v1/gharchive-2026-06-15-14-s24__h1-floor.receipt.json"
+    }
+  ],
+  "budget": {
+    "counted_runs": 6,
+    "consumed_before": 40,
+    "cap": 160,
+    "ledger": "moon-prescreen run-budget ledger (40 consumed before this sweep; 6 counted runs = 3 arms x 2 snapshots)",
+    "cycle2_allowance_note": "cycle 2 may spend at most 60 runs beyond cycle 1's 36 without a new owner ruling"
+  },
+  "operational_gates": {
+    "wall_seconds": 600,
+    "clean_decode_rss_bytes": 536870912,
+    "exact_redecode": true,
+    "identity_ledger_unaccounted_state": true,
+    "complete_byte_accounting": true
+  },
+  "discipline": {
+    "no_tuning_on_measured_snapshots": true,
+    "frozen_before_execution": "this file must merge to main before any of the six runs is measured",
+    "measurement_order": [
+      "c1-match-mixer",
+      "c2-value-context",
+      "c8-expert-mixture"
+    ],
+    "measurement_order_note": "C1 -> C2 -> C8; C2's reducer reads C1's receipts",
+    "output_dir": "runs/moon-cycle2-c1c2c8-prescreen-v1/",
+    "survivor_confrontation": "survivors are confronted with the local kanzi-max and zpaq -m54 references recorded for the same slice bytes before any counted development screen is proposed"
+  }
+}
