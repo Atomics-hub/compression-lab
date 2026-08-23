@@ -53,15 +53,7 @@ def _library_path() -> Path:
     return cross_compiled if cross_compiled.is_file() else default
 
 
-def _load_library() -> Optional[ctypes.CDLL]:
-    global _LIBRARY, _LOAD_ATTEMPTED
-    if _LOAD_ATTEMPTED:
-        return _LIBRARY
-    _LOAD_ATTEMPTED = True
-    path = _library_path()
-    if not path.is_file():
-        return None
-    library = ctypes.CDLL(str(path))
+def _configure_library(library: ctypes.CDLL) -> ctypes.CDLL:
     for name in ("clab_delta_transpose", "clab_inverse_delta_transpose"):
         function = getattr(library, name)
         function.argtypes = [ctypes.c_void_p, ctypes.c_size_t, ctypes.c_void_p]
@@ -181,6 +173,21 @@ def _load_library() -> Optional[ctypes.CDLL]:
         ctypes.c_void_p,
     ]
     library.clab_structured_text_zstd_decode.restype = ctypes.c_int
+    return library
+
+
+def _load_library() -> Optional[ctypes.CDLL]:
+    global _LIBRARY, _LOAD_ATTEMPTED
+    if _LOAD_ATTEMPTED:
+        return _LIBRARY
+    _LOAD_ATTEMPTED = True
+    path = _library_path()
+    if not path.is_file():
+        return None
+    try:
+        library = _configure_library(ctypes.CDLL(str(path)))
+    except (AttributeError, OSError):
+        return None
     _LIBRARY = library
     return library
 
@@ -450,6 +457,60 @@ def structured_text_decode_channels(
     return output.raw[:expected_size]
 
 
+def _configure_zstd_library(
+    library: ctypes.CDLL,
+) -> Tuple[ctypes.CDLL, Tuple[ctypes.c_void_p, ...]]:
+    library.ZSTD_compressBound.argtypes = [ctypes.c_size_t]
+    library.ZSTD_compressBound.restype = ctypes.c_size_t
+    library.ZSTD_compress.argtypes = [
+        ctypes.c_void_p,
+        ctypes.c_size_t,
+        ctypes.c_void_p,
+        ctypes.c_size_t,
+        ctypes.c_int,
+    ]
+    library.ZSTD_compress.restype = ctypes.c_size_t
+    library.ZSTD_decompress.argtypes = [
+        ctypes.c_void_p,
+        ctypes.c_size_t,
+        ctypes.c_void_p,
+        ctypes.c_size_t,
+    ]
+    library.ZSTD_decompress.restype = ctypes.c_size_t
+    library.ZSTD_getFrameContentSize.argtypes = [
+        ctypes.c_void_p,
+        ctypes.c_size_t,
+    ]
+    library.ZSTD_getFrameContentSize.restype = ctypes.c_ulonglong
+    library.ZSTD_isError.argtypes = [ctypes.c_size_t]
+    library.ZSTD_isError.restype = ctypes.c_uint
+    library.ZSTD_getErrorName.argtypes = [ctypes.c_size_t]
+    library.ZSTD_getErrorName.restype = ctypes.c_char_p
+    library.ZSTD_createDStream.argtypes = []
+    library.ZSTD_createDStream.restype = ctypes.c_void_p
+    library.ZSTD_freeDStream.argtypes = [ctypes.c_void_p]
+    library.ZSTD_freeDStream.restype = ctypes.c_size_t
+    library.ZSTD_initDStream.argtypes = [ctypes.c_void_p]
+    library.ZSTD_initDStream.restype = ctypes.c_size_t
+    library.ZSTD_decompressStream.argtypes = [
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+    ]
+    library.ZSTD_decompressStream.restype = ctypes.c_size_t
+    stream_functions = tuple(
+        ctypes.cast(function, ctypes.c_void_p)
+        for function in (
+            library.ZSTD_createDStream,
+            library.ZSTD_freeDStream,
+            library.ZSTD_initDStream,
+            library.ZSTD_decompressStream,
+            library.ZSTD_isError,
+        )
+    )
+    return library, stream_functions
+
+
 def _load_zstd() -> Optional[ctypes.CDLL]:
     global _ZSTD_LIBRARY, _ZSTD_LOAD_ATTEMPTED, _ZSTD_STREAM_FUNCTIONS
     if _ZSTD_LOAD_ATTEMPTED:
@@ -473,57 +534,12 @@ def _load_zstd() -> Optional[ctypes.CDLL]:
         if not candidate:
             return None
         try:
-            library = ctypes.CDLL(candidate)
-        except OSError:
-            continue
-        library.ZSTD_compressBound.argtypes = [ctypes.c_size_t]
-        library.ZSTD_compressBound.restype = ctypes.c_size_t
-        library.ZSTD_compress.argtypes = [
-            ctypes.c_void_p,
-            ctypes.c_size_t,
-            ctypes.c_void_p,
-            ctypes.c_size_t,
-            ctypes.c_int,
-        ]
-        library.ZSTD_compress.restype = ctypes.c_size_t
-        library.ZSTD_decompress.argtypes = [
-            ctypes.c_void_p,
-            ctypes.c_size_t,
-            ctypes.c_void_p,
-            ctypes.c_size_t,
-        ]
-        library.ZSTD_decompress.restype = ctypes.c_size_t
-        library.ZSTD_getFrameContentSize.argtypes = [
-            ctypes.c_void_p,
-            ctypes.c_size_t,
-        ]
-        library.ZSTD_getFrameContentSize.restype = ctypes.c_ulonglong
-        library.ZSTD_isError.argtypes = [ctypes.c_size_t]
-        library.ZSTD_isError.restype = ctypes.c_uint
-        library.ZSTD_getErrorName.argtypes = [ctypes.c_size_t]
-        library.ZSTD_getErrorName.restype = ctypes.c_char_p
-        library.ZSTD_createDStream.argtypes = []
-        library.ZSTD_createDStream.restype = ctypes.c_void_p
-        library.ZSTD_freeDStream.argtypes = [ctypes.c_void_p]
-        library.ZSTD_freeDStream.restype = ctypes.c_size_t
-        library.ZSTD_initDStream.argtypes = [ctypes.c_void_p]
-        library.ZSTD_initDStream.restype = ctypes.c_size_t
-        library.ZSTD_decompressStream.argtypes = [
-            ctypes.c_void_p,
-            ctypes.c_void_p,
-            ctypes.c_void_p,
-        ]
-        library.ZSTD_decompressStream.restype = ctypes.c_size_t
-        _ZSTD_STREAM_FUNCTIONS = tuple(
-            ctypes.cast(function, ctypes.c_void_p)
-            for function in (
-                library.ZSTD_createDStream,
-                library.ZSTD_freeDStream,
-                library.ZSTD_initDStream,
-                library.ZSTD_decompressStream,
-                library.ZSTD_isError,
+            library, stream_functions = _configure_zstd_library(
+                ctypes.CDLL(candidate)
             )
-        )
+        except (AttributeError, OSError):
+            continue
+        _ZSTD_STREAM_FUNCTIONS = stream_functions
         _ZSTD_LIBRARY = library
         return library
     return None
