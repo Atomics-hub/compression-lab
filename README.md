@@ -368,6 +368,9 @@ the v2 result.
 
 Consumed validation families are never reused as fresh evidence. The benchmark
 runner also has a checked-in [manifest-binding gate](runs/benchmark-manifest-binding-v1/README.md).
+The [public-checkout verification gate](runs/public-checkout-verification-v1/README.md)
+records which history-bound checks degrade safely when historical git objects
+are unavailable and which two frozen checks retain a full-history requirement.
 
 ## Try it
 
@@ -433,12 +436,22 @@ separate from the stable API until their formats and evidence gates are frozen.
 
 ## Reproduce the work
 
-Run the complete verification suite:
+Run the complete verification suite from a source checkout:
 
 ```bash
+python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install -e ".[dev]"
 scripts/build-native.sh
-PYTHONPATH=src python3 -m unittest discover -s tests -v
+python -W error::ResourceWarning -m unittest discover -s tests -v
 ```
+
+Historical evidence bindings verify exact git blobs at recorded commits, so
+the complete suite needs a full-history clone. On checkouts that do not
+retain those objects — source archives and shallow clones — the editable
+history-bound checks skip with an explanatory reason
+instead of erroring, except the two lock-frozen readiness modules, which
+intentionally keep their full-history requirement.
 
 Run the manifest-bound benchmark harness:
 

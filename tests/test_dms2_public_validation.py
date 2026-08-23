@@ -40,6 +40,27 @@ def digest_at_commit(commit: str, path: str) -> str:
     return hashlib.sha256(content).hexdigest()
 
 
+def commit_object_present(commit: str) -> bool:
+    if len(commit) != 40 or any(character not in "0123456789abcdef" for character in commit):
+        raise AssertionError(f"invalid pinned commit: {commit!r}")
+    present = subprocess.run(
+        ["git", "cat-file", "-e", f"{commit}^{{commit}}"],
+        cwd=REPOSITORY,
+        capture_output=True,
+    )
+    if present.returncode == 0:
+        return True
+    shallow = subprocess.run(
+        ["git", "rev-parse", "--is-shallow-repository"],
+        cwd=REPOSITORY,
+        capture_output=True,
+        text=True,
+    )
+    if shallow.returncode != 0 or shallow.stdout.strip() == "true":
+        return False
+    raise AssertionError(f"pinned commit is absent from a full-history checkout: {commit}")
+
+
 def load_module(name: str, path: Path):
     specification = importlib.util.spec_from_file_location(name, path)
     if specification is None or specification.loader is None:
@@ -53,6 +74,14 @@ class DMS2PublicValidationTests(unittest.TestCase):
     def test_final_lock_pins_the_merged_readiness_surface(self):
         lock = json.loads(LOCK_PATH.read_text(encoding="utf-8"))
         self.assertRegex(lock["readiness_commit"], r"^[0-9a-f]{40}$")
+        readiness = lock["readiness_commit"]
+        if not commit_object_present(readiness):
+            self.skipTest(
+                f"readiness commit {readiness[:7]}... is not reachable from "
+                "this checkout (shallow clone or source archive); "
+                "the historical lock binding is verifiable only in clones "
+                "retaining the object"
+            )
         ancestor = subprocess.run(
             ["git", "merge-base", "--is-ancestor", lock["readiness_commit"], "HEAD"],
             cwd=REPOSITORY,
@@ -92,6 +121,14 @@ class DMS2PublicValidationTests(unittest.TestCase):
     def test_explicit_acquisition_still_refuses_a_drifted_lock(self):
         fetcher = load_module("fetch_dms2_drifted_lock", FETCHER)
         lock = json.loads(LOCK_PATH.read_text(encoding="utf-8"))
+        readiness = lock["readiness_commit"]
+        if not commit_object_present(readiness):
+            self.skipTest(
+                f"readiness commit {readiness[:7]}... is not reachable from "
+                "this checkout (shallow clone or source archive); "
+                "the drift refusal is distinguishable from the ancestor "
+                "refusal only in clones retaining the object"
+            )
         lock["locked_paths"]["config/dms2-public-validation-gates.json"] = "0" * 64
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)
@@ -115,13 +152,12 @@ class DMS2PublicValidationTests(unittest.TestCase):
         gates = json.loads(GATES_PATH.read_text(encoding="utf-8"))
         benchmark = load_module("benchmark_dms2_validation", BENCHMARK)
         candidate = gates["candidate"]
-        for relative, expected in candidate["frozen_paths"].items():
-            self.assertEqual(
-                digest_at_commit(candidate["frozen_base_commit"], relative),
-                expected,
+        self.assertTrue(
+            any(
+                digest(REPOSITORY / relative) != expected
+                for relative, expected in candidate["frozen_paths"].items()
             )
-        with self.assertRaisesRegex(ValueError, "working candidate path drifted"):
-            benchmark.verify_frozen_candidate(candidate)
+        )
         evidence = gates["development_evidence"]
         self.assertEqual(
             benchmark.verify_development_evidence(gates),
@@ -135,6 +171,21 @@ class DMS2PublicValidationTests(unittest.TestCase):
         )
         self.assertEqual(candidate["selector_sample_bytes"], 65536)
         self.assertEqual(candidate["direct_fallback_level"], 1)
+        frozen_base = candidate["frozen_base_commit"]
+        if not commit_object_present(frozen_base):
+            self.skipTest(
+                f"frozen base commit {frozen_base[:7]}... is not reachable "
+                "from this checkout (shallow clone or source archive); the "
+                "historical candidate binding is verifiable only "
+                "in clones retaining the object"
+            )
+        for relative, expected in candidate["frozen_paths"].items():
+            self.assertEqual(
+                digest_at_commit(candidate["frozen_base_commit"], relative),
+                expected,
+            )
+        with self.assertRaisesRegex(ValueError, "working candidate path drifted"):
+            benchmark.verify_frozen_candidate(candidate)
 
     def test_validation_is_unopened_and_both_families_must_win(self):
         gates = json.loads(GATES_PATH.read_text(encoding="utf-8"))

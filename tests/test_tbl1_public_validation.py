@@ -32,6 +32,27 @@ def digest_at_commit(commit: str, path: str) -> str:
     return hashlib.sha256(content).hexdigest()
 
 
+def commit_object_present(commit: str) -> bool:
+    if len(commit) != 40 or any(character not in "0123456789abcdef" for character in commit):
+        raise AssertionError(f"invalid pinned commit: {commit!r}")
+    present = subprocess.run(
+        ["git", "cat-file", "-e", f"{commit}^{{commit}}"],
+        cwd=REPOSITORY,
+        capture_output=True,
+    )
+    if present.returncode == 0:
+        return True
+    shallow = subprocess.run(
+        ["git", "rev-parse", "--is-shallow-repository"],
+        cwd=REPOSITORY,
+        capture_output=True,
+        text=True,
+    )
+    if shallow.returncode != 0 or shallow.stdout.strip() == "true":
+        return False
+    raise AssertionError(f"pinned commit is absent from a full-history checkout: {commit}")
+
+
 def load_benchmark_module():
     specification = importlib.util.spec_from_file_location(
         "benchmark_tbl1_public_validation",
@@ -48,6 +69,14 @@ class TBL1PublicValidationTests(unittest.TestCase):
     def test_final_lock_pins_merged_readiness_controls(self):
         lock = json.loads(LOCK_PATH.read_text(encoding="utf-8"))
         self.assertRegex(lock["readiness_commit"], r"^[0-9a-f]{40}$")
+        readiness = lock["readiness_commit"]
+        if not commit_object_present(readiness):
+            self.skipTest(
+                f"readiness commit {readiness[:7]}... is not reachable from "
+                "this checkout (shallow clone or source archive); "
+                "the historical lock binding is verifiable only in clones "
+                "retaining the object"
+            )
         ancestor = subprocess.run(
             ["git", "merge-base", "--is-ancestor", lock["readiness_commit"], "HEAD"],
             cwd=REPOSITORY,
@@ -91,6 +120,20 @@ class TBL1PublicValidationTests(unittest.TestCase):
     def test_declared_candidate_hashes_match_frozen_base_commit(self):
         gates = json.loads(GATES_PATH.read_text(encoding="utf-8"))
         candidate = gates["candidate"]
+        self.assertTrue(
+            any(
+                digest(REPOSITORY / relative) != expected
+                for relative, expected in candidate["frozen_paths"].items()
+            )
+        )
+        frozen_base = candidate["frozen_base_commit"]
+        if not commit_object_present(frozen_base):
+            self.skipTest(
+                f"frozen base commit {frozen_base[:7]}... is not reachable "
+                "from this checkout (shallow clone or source archive); the "
+                "historical candidate binding is verifiable only "
+                "in clones retaining the object"
+            )
         for relative, expected in candidate["frozen_paths"].items():
             self.assertEqual(
                 digest_at_commit(candidate["frozen_base_commit"], relative),
