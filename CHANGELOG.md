@@ -48,10 +48,11 @@ this project uses [Semantic Versioning](https://semver.org/).
   public API boundary instead of leaking backend-specific exceptions.
 - Native C-ABI entry points reject null pointers even for zero-length buffers.
 
-## [0.1.0] - Unreleased
+## [0.1.0] - 2026-07-16
 
-Initial public release candidate. The date will be set only when the release is
-approved and published.
+Initial public alpha release. The signed `v0.1.0` tag was published to PyPI and
+GitHub with five platform wheels, one source distribution, a SHA-256 manifest,
+and the controlling benchmark-evidence bundle.
 
 [Unreleased]: https://github.com/Atomics-hub/compression-lab/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/Atomics-hub/compression-lab/releases/tag/v0.1.0
