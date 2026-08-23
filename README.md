@@ -380,7 +380,8 @@ Python 3.9 or newer is required. Install the published package from PyPI:
 python -m pip install compression-lab
 ```
 
-For a source checkout, native builds also require Rust stable:
+For a source checkout, native builds also require rustup; the exact Rust
+version is selected by the checked-in `rust-toolchain.toml`:
 
 ```bash
 git clone https://github.com/Atomics-hub/compression-lab.git
