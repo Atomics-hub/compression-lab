@@ -1,6 +1,6 @@
 # Public-checkout verification gate
 
-Status: **passed, 16/16 controls**.
+Status: **passed, 18/18 controls**.
 
 This infrastructure gate checks that editable tests which bind historical git
 objects degrade to explicit skips, rather than errors, when those objects are
@@ -9,7 +9,7 @@ strict: when an object is present, the original binding assertions still run.
 
 | Control group | Evidence | Result |
 | --- | --- | --- |
-| Guard wiring | Five editable history-bound modules guard every affected method | ✅ Pass |
+| Guard wiring | Six editable history-bound modules guard every affected method | ✅ Pass |
 | Guard semantics | A hermetic git fixture accepts present commits, refuses bad pins on full history, and permits skips only without history | ✅ Pass |
 | Shallow-checkout behavior | The guarded methods complete or skip without errors | ✅ Pass |
 | Optional dependency | The numeric prototype skips only when `zstandard` is unavailable | ✅ Pass |
@@ -17,7 +17,7 @@ strict: when an object is present, the original binding assertions still run.
 | Frozen boundary | Both lock-frozen readiness modules remain byte-identical | ✅ Pass |
 | Existing doctrine | The original DMS2 object-presence precedent remains present | ✅ Pass |
 
-The machine-readable [receipt](receipt.json) contains all 16 checks and their
+The machine-readable [receipt](receipt.json) contains all 18 checks and their
 source bindings. Reproduce it without corpus or candidate execution:
 
 ```bash

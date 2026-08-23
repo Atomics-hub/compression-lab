@@ -57,6 +57,11 @@ GUARDED_SITES: Tuple[Tuple[str, str, Tuple[str, ...]], ...] = (
         "JLS2NativeDecoderEvidenceTests",
         ("test_receipt_binds_artifacts_sources_and_external_runs",),
     ),
+    (
+        "tests/test_jls2_cold_start_evidence.py",
+        "JLS2ColdStartEvidenceTests",
+        ("test_receipt_binds_artifacts_and_publication_sources",),
+    ),
 )
 
 NUMERIC_TEST = "tests/test_numeric_ar5_numr_prototype.py"

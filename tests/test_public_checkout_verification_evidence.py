@@ -15,6 +15,7 @@ GUARDED_TESTS = (
     "tests/test_tbl1_public_validation.py",
     "tests/test_text_source_development_evidence.py",
     "tests/test_jls2_native_decoder_evidence.py",
+    "tests/test_jls2_cold_start_evidence.py",
 )
 NUMERIC_TEST = "tests/test_numeric_ar5_numr_prototype.py"
 
@@ -29,9 +30,9 @@ class PublicCheckoutVerificationEvidenceTests(unittest.TestCase):
         self.assertEqual(receipt["gate"], "public-checkout-verification-v1")
         self.assertEqual(receipt["status"], "passed")
         self.assertEqual(
-            receipt["summary"], {"failed": 0, "passed": 16, "total": 16}
+            receipt["summary"], {"failed": 0, "passed": 18, "total": 18}
         )
-        self.assertEqual(len(receipt["checks"]), 16)
+        self.assertEqual(len(receipt["checks"]), 18)
         self.assertTrue(all(row["status"] == "pass" for row in receipt["checks"]))
 
         identity = receipt["runner_identity"]
@@ -50,7 +51,7 @@ class PublicCheckoutVerificationEvidenceTests(unittest.TestCase):
     def test_public_record_and_claim_ceiling_are_visible(self) -> None:
         report = (RUN / "README.md").read_text(encoding="utf-8")
         root_readme = (REPOSITORY / "README.md").read_text(encoding="utf-8")
-        self.assertIn("passed, 16/16 controls", report)
+        self.assertIn("passed, 18/18 controls", report)
         self.assertIn("does **not** prove", report)
         self.assertIn("public-checkout-verification-v1/README.md", root_readme)
 
