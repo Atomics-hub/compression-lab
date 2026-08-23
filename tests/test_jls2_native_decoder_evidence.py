@@ -26,6 +26,27 @@ def sha256_git_blob(commit: str, relative: str) -> str:
     return hashlib.sha256(result.stdout).hexdigest()
 
 
+def commit_object_present(commit: str) -> bool:
+    if len(commit) != 40 or any(character not in "0123456789abcdef" for character in commit):
+        raise AssertionError(f"invalid pinned commit: {commit!r}")
+    present = subprocess.run(
+        ["git", "cat-file", "-e", f"{commit}^{{commit}}"],
+        cwd=ROOT,
+        capture_output=True,
+    )
+    if present.returncode == 0:
+        return True
+    shallow = subprocess.run(
+        ["git", "rev-parse", "--is-shallow-repository"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+    )
+    if shallow.returncode != 0 or shallow.stdout.strip() == "true":
+        return False
+    raise AssertionError(f"pinned commit is absent from a full-history checkout: {commit}")
+
+
 class JLS2NativeDecoderEvidenceTests(unittest.TestCase):
     def test_passed_gate_is_complete_exact_and_machine_readable(self) -> None:
         result = json.loads((RUN / "results.json").read_text(encoding="utf-8"))
@@ -115,6 +136,13 @@ class JLS2NativeDecoderEvidenceTests(unittest.TestCase):
         # Publication inputs are historical evidence. Verify their exact blobs
         # at the merged publication commit so later README or test maintenance
         # cannot mutate the receipt and need not freeze those live files forever.
+        if not commit_object_present(PUBLICATION_COMMIT):
+            self.skipTest(
+                f"publication commit {PUBLICATION_COMMIT[:7]}... is not "
+                "reachable from this checkout (shallow clone, source "
+                "archive); the historical source binding is "
+                "verifiable only in clones retaining the object"
+            )
         for relative, expected in receipt["publication_sources"].items():
             self.assertEqual(
                 sha256_git_blob(PUBLICATION_COMMIT, relative), expected

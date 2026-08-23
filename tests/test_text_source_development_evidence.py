@@ -23,6 +23,27 @@ def digest_at_commit(commit: str, relative: str) -> str:
     return hashlib.sha256(content).hexdigest()
 
 
+def commit_object_present(commit: str) -> bool:
+    if len(commit) != 40 or any(character not in "0123456789abcdef" for character in commit):
+        raise AssertionError(f"invalid pinned commit: {commit!r}")
+    present = subprocess.run(
+        ["git", "cat-file", "-e", f"{commit}^{{commit}}"],
+        cwd=ROOT,
+        capture_output=True,
+    )
+    if present.returncode == 0:
+        return True
+    shallow = subprocess.run(
+        ["git", "rev-parse", "--is-shallow-repository"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+    )
+    if shallow.returncode != 0 or shallow.stdout.strip() == "true":
+        return False
+    raise AssertionError(f"pinned commit is absent from a full-history checkout: {commit}")
+
+
 class TextSourceDevelopmentEvidenceTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
@@ -41,6 +62,14 @@ class TextSourceDevelopmentEvidenceTests(unittest.TestCase):
         )
         self.assertEqual(receipt["protocol_sha256"], acquisition["protocol_sha256"])
         self.assertEqual(receipt["rules_sha256"], acquisition["rules_sha256"])
+        acquisition_commit = receipt["acquisition_commit"]
+        if not commit_object_present(acquisition_commit):
+            self.skipTest(
+                f"acquisition commit {acquisition_commit[:7]}... is not "
+                "reachable from this checkout (shallow clone, source "
+                "archive); the historical pre-acquisition binding "
+                "is verifiable only in clones retaining the object"
+            )
         self.assertEqual(
             digest_at_commit(
                 receipt["acquisition_commit"],

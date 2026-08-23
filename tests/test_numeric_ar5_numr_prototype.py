@@ -9,7 +9,12 @@ import random
 import struct
 import unittest
 
-import compresslab.numeric_ar5_numr as numeric
+try:
+    import compresslab.numeric_ar5_numr as numeric
+except ModuleNotFoundError as error:
+    if error.name != "zstandard":
+        raise
+    numeric = None
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -60,6 +65,13 @@ class NumericToolchainLockTests(unittest.TestCase):
 
 
 class NumericPrototypeTests(unittest.TestCase):
+    def setUp(self) -> None:
+        if numeric is None:
+            self.skipTest(
+                "zstandard is unavailable; the numeric AR5/NUM-R prototype "
+                "requires it"
+            )
+
     def roundtrip(
         self,
         source: bytes,

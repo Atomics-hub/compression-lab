@@ -7,6 +7,10 @@ this project uses [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- Git-history-bound evidence tests now degrade to explanatory skips on
+  shallow or archive checkouts that do not retain the referenced commits
+  instead of erroring, with an offline audit script for
+  the public-checkout verification gate.
 - Reproducible alternating JLS2 decode-kernel A/B evidence with raw samples,
   exact fixture and source hashes, a complete-product gate, and a public chart.
 - Exact `--manifest` benchmark selection, results-schema-v5 corpus identity
