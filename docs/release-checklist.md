@@ -1,4 +1,8 @@
-# Public release checklist
+# Public release checklist — v0.1.0 (completed)
+
+This checklist records the release completed on **2026-07-16**. It is not a
+standing authorization for another tag or upload. Repository controls were
+rechecked on **2026-08-23**.
 
 ## Code and compatibility
 
@@ -22,16 +26,21 @@
 - [x] `python -m build` and `twine check dist/*` pass.
 - [x] Clean wheel installs pass native compression and decompression smoke tests.
 - [x] Version agrees in Python, PyPI metadata, Cargo, and changelog.
-- [ ] PyPI project name and trusted publisher are configured by the owner.
-- [ ] The `pypi` GitHub environment requires owner approval.
-- [ ] SHA-256 sums are attached to the GitHub release.
+- [x] PyPI project name and trusted publisher are configured by the owner.
+- [x] The `pypi` GitHub environment requires owner approval.
+- [x] SHA-256 sums are attached to the GitHub release.
 
 ## Public launch actions requiring owner approval
 
-- [ ] Change repository visibility from private to public.
-- [ ] Confirm branch protection and private vulnerability reporting.
-- [ ] Create signed tag `v0.1.0` and approve the GitHub release.
-- [ ] Approve the protected PyPI publishing environment.
+- [x] Change repository visibility from private to public.
+- [x] Confirm branch protection and private vulnerability reporting.
+- [x] Create signed tag `v0.1.0` and approve the GitHub release.
+- [x] Approve the protected PyPI publishing environment.
+
+The signed tag, release artifacts, checksums, and evidence bundle are retained
+at the [v0.1.0 GitHub release](https://github.com/Atomics-hub/compression-lab/releases/tag/v0.1.0).
+The six Python distributions are retained at
+[PyPI](https://pypi.org/project/compression-lab/0.1.0/).
 
 An npm package is intentionally not a 0.1.0 requirement. There is no supported
 JavaScript or WebAssembly API yet; a wrapper that merely shells out to Python

@@ -1,4 +1,4 @@
-# Version 0.1 release readiness
+# Version 0.1 release record
 
 ## Engineering state
 
@@ -19,27 +19,34 @@ PyPI is the 0.1 distribution target. npm is deliberately deferred because the
 project has no JavaScript or WebAssembly API; a shell wrapper would add a second
 compatibility promise without making the compressor more useful.
 
-## Owner-only launch gates
+## Release outcome
 
-These actions intentionally remain outside unattended automation:
+Version 0.1.0 was released on **2026-07-16**. The durable public record is:
 
-1. Review and merge pull request 1 while the repository is still private.
-2. Create a GitHub `pypi` environment with required-reviewer protection.
-3. Configure PyPI trusted publishing for owner `Atomics-hub`, repository
-   `compression-lab`, workflow `release.yml`, environment `pypi`. The project
-   name was absent from PyPI when checked on 2026-07-15, but that is not a name
-   reservation.
-4. Add a `main` branch ruleset requiring the CI checks. No branch protection or
-   repository ruleset was configured during the private readiness audit.
-5. Set the repository description and topics, decide whether to disable the
-   currently enabled wiki and projects, then make the repository public.
-6. Enable private vulnerability reporting once GitHub exposes it for the public
-   repository.
-7. Create the signed `v0.1.0` tag. The tag builds and verifies the complete
-   artifact set, then pauses at the protected `pypi` environment.
-8. Review the SHA-256 manifest and approve PyPI publication. Create the GitHub
-   release from the same tag and attach the verified artifacts, checksums, and
-   controlling benchmark evidence.
+1. The valid signed tag [`v0.1.0`](https://github.com/Atomics-hub/compression-lab/releases/tag/v0.1.0)
+   points to commit `3b17b7b7978aa392dfaee2d053925c3565ebb58e`.
+2. Release workflow run
+   [`29509611019`](https://github.com/Atomics-hub/compression-lab/actions/runs/29509611019)
+   built the source distribution and five platform wheels, verified the complete
+   set, and published it to
+   [PyPI](https://pypi.org/project/compression-lab/0.1.0/).
+3. The GitHub release retains the same five wheels and source distribution plus
+   `SHA256SUMS` and the controlling benchmark-evidence bundle.
+4. The `pypi` environment requires owner review. The public repository has
+   private vulnerability reporting enabled, and `main` protection requires the
+   cross-platform Python, package, and native-wheel checks while refusing force
+   pushes and deletion.
+
+Those repository settings were rechecked on **2026-08-23**. They are current
+operational state, not immutable benchmark evidence, and must be checked again
+before a future release.
+
+## Future release gates
+
+Every later release still requires an owner-created signed tag and explicit
+approval at the protected `pypi` environment. The workflow may build and verify
+artifacts before that approval, but it cannot turn an ordinary branch run into
+a public upload.
 
 Do not replace these steps with a broad “best compression” claim. The frozen
 release benchmark explicitly rejects that positioning; the permitted claims
