@@ -34,7 +34,7 @@ jobs:
       EVIDENCE_DIR: jls2-declared-size-lifetime-a3-attribution
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
