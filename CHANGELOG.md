@@ -38,6 +38,8 @@ this project uses [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- Python wheels, source builds, standalone decoders, CI, and native tests now
+  share one repository-pinned Rust toolchain.
 - JLS2 decode now bulk-copies JSON literal spans and lets the outer frame own
   restored-byte authentication, preserving exact encoded bytes while improving
   the development byte-API paired median by 21.66%.

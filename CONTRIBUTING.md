@@ -7,7 +7,8 @@ material.
 
 ## Development setup
 
-Requirements are Python 3.9 or newer, Rust stable, and a C-compatible
+Requirements are Python 3.9 or newer, the Rust version pinned in
+`rust-toolchain.toml`, and a C-compatible
 Zstandard implementation supplied by the `zstandard` Python dependency or the
 host system.
 
@@ -15,6 +16,7 @@ host system.
 python3 -m venv .venv
 . .venv/bin/activate
 python -m pip install -e ".[dev]"
+rustup component add clippy rustfmt
 cargo test --manifest-path native/Cargo.toml --locked
 python -m unittest discover -s tests -v
 ```

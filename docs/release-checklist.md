@@ -11,7 +11,7 @@ rechecked on **2026-08-23**.
 - [x] Version-1, version-2, and version-3 decode fixtures pass.
 - [x] Malformed, truncated, oversized, checksum, and allocation-limit tests pass.
 - [x] Wheel-installed native library is exercised on every release platform.
-- [x] Source distribution builds in a clean environment with Rust stable.
+- [x] Source distribution builds in a clean environment with the repository-pinned Rust toolchain.
 
 ## Evidence and claims
 
