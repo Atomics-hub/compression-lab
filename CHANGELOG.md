@@ -46,6 +46,8 @@ this project uses [Semantic Versioning](https://semver.org/).
 
 ### Security
 
+- Incompatible or stale native-library overrides now degrade to the documented
+  portable backend instead of breaking import or availability checks.
 - Legacy gzip, LZ4, and command-line Zstandard decoders now cap expansion at
   the frame's declared output size instead of checking only after the payload
   has been fully expanded.

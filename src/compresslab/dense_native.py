@@ -66,15 +66,7 @@ def _configure_reassemble(library: ctypes.CDLL, name: str) -> None:
     function.restype = ctypes.c_int
 
 
-def _load_library() -> Optional[ctypes.CDLL]:
-    global _LIBRARY, _LOAD_ATTEMPTED
-    if _LOAD_ATTEMPTED:
-        return _LIBRARY
-    _LOAD_ATTEMPTED = True
-    path = _library_path()
-    if not path.is_file():
-        return None
-    library = ctypes.CDLL(str(path))
+def _configure_library(library: ctypes.CDLL) -> ctypes.CDLL:
     for name in (
         "clab_dense_adaptive_transform",
         "clab_dense_parallel_transform",
@@ -94,6 +86,21 @@ def _load_library() -> Optional[ctypes.CDLL]:
         ctypes.POINTER(ctypes.c_size_t),
     ]
     library.clab_dense_sample_alphabet.restype = ctypes.c_int
+    return library
+
+
+def _load_library() -> Optional[ctypes.CDLL]:
+    global _LIBRARY, _LOAD_ATTEMPTED
+    if _LOAD_ATTEMPTED:
+        return _LIBRARY
+    _LOAD_ATTEMPTED = True
+    path = _library_path()
+    if not path.is_file():
+        return None
+    try:
+        library = _configure_library(ctypes.CDLL(str(path)))
+    except (AttributeError, OSError):
+        return None
     _LIBRARY = library
     return library
 
