@@ -11,8 +11,27 @@ permissions:
   contents: read
 
 jobs:
+  version:
+    name: Verify release version identity
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Bind a release tag to every package version
+        shell: bash
+        run: |
+          args=()
+          if [[ "$GITHUB_REF_TYPE" == "tag" ]]; then
+            args+=(--tag "$GITHUB_REF_NAME")
+          fi
+          python scripts/verify-release-version.py "${args[@]}"
+
   sdist:
     name: Source distribution
+    needs: version
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -36,6 +55,7 @@ jobs:
 
   wheels:
     name: Wheel / ${{ matrix.os }}
+    needs: version
     runs-on: ${{ matrix.os }}
     timeout-minutes: 45
     strategy:
@@ -62,6 +82,7 @@ jobs:
 
   standalone:
     name: Standalone JLS2 decoder / ${{ matrix.os }}
+    needs: version
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     strategy:
