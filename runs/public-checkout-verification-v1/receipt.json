@@ -26,6 +26,11 @@
       "status": "pass"
     },
     {
+      "check": "guard wired: tests/test_jls2_cold_start_evidence.py",
+      "evidence": "guard_defined=True; fail_closed=True; methods_wired=1/1",
+      "status": "pass"
+    },
+    {
       "check": "guard separates present and absent objects",
       "evidence": "present=True; full_history_absent_refused=True; malformed_refused=True; archive_absent=False",
       "status": "pass"
@@ -56,6 +61,11 @@
       "status": "pass"
     },
     {
+      "check": "degrades without error: tests/test_jls2_cold_start_evidence.py",
+      "evidence": "test_receipt_binds_artifacts_and_publication_sources=success",
+      "status": "pass"
+    },
+    {
       "check": "numeric prototype skips when zstandard is unavailable",
       "evidence": "returncode=0; numeric-degrades=ok",
       "status": "pass"
@@ -83,12 +93,13 @@
   ],
   "claim_ceiling": "Proves that the advertised verification suite's git-history-bound checks degrade to explicit skips instead of errors on shallow checkouts or source archives that do not retain the referenced commit objects; missing or malformed pins fail on full-history checkouts. The guard is exercised on this repository and a synthetic git fixture only. It does not prove test-suite completeness, benchmark representativeness, compression speed, compression ratio, packaging correctness, or release readiness, and it does not verify the historical bindings themselves on checkouts lacking those objects; the two lock-frozen readiness modules intentionally retain their full-history requirement.",
   "gate": "public-checkout-verification-v1",
-  "generated_at": "2026-08-23T18:37:02.863941+00:00",
+  "generated_at": "2026-08-23T21:24:38.025616+00:00",
   "runner_identity": {
-    "audit_script_sha256": "bcf9afec8f140c49fdeaaabdb328dff7d2bf25594b667d69df663032c9a184e7",
+    "audit_script_sha256": "c21909856f278fa5456e13f315f1c1e6ddc56a5d5e6ae3812b3cbe1458643794",
     "guarded_test_sha256": {
       "tests/test_clue_jls2_validation_lock.py": "9ba78aca8922f35ed688c8001f13230065545d308b13ab607a4f6fab3c2fa2a7",
       "tests/test_dms2_public_validation.py": "3e1ad7e5e684783ffa14f720fcf36f3c9b672a75d3a31d44238916ec5abc850b",
+      "tests/test_jls2_cold_start_evidence.py": "518176f34b2bf21c799a4b3f41d495509dc83e9bb9b6d75cfd630f1bb56adf48",
       "tests/test_jls2_native_decoder_evidence.py": "579cea01ef30384357b10b4e7b65ae98fe6e7848cecaa24a86b671fac9de8b17",
       "tests/test_tbl1_public_validation.py": "f015ca5fd31bc284d784b3c83c701841ca3282c041e1c66ba36db0fff786f61e",
       "tests/test_text_source_development_evidence.py": "165a867abbd60d5e71f3500a44f9420f90b9481426dac6d6892ede6572806d4d"
@@ -99,7 +110,7 @@
   "status": "passed",
   "summary": {
     "failed": 0,
-    "passed": 16,
-    "total": 16
+    "passed": 18,
+    "total": 18
   }
 }
