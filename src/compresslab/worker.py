@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import bz2
 import gzip
+import io
 import json
 import lzma
 import os
@@ -10,6 +11,7 @@ import shutil
 import struct
 import subprocess
 import sys
+import tempfile
 import time
 import hashlib
 from pathlib import Path
@@ -266,7 +268,72 @@ def _inverse_delta_transpose(data: bytes, original_size: int) -> bytes:
     return _python_inverse_delta_transpose(data, original_size)
 
 
-def _codec_filter(codec_id: str, operation: str, data: bytes) -> bytes:
+def _bounded_gzip_decompress(data: bytes, expected_size: int) -> bytes:
+    with gzip.GzipFile(fileobj=io.BytesIO(data)) as stream:
+        restored = bytearray()
+        while len(restored) <= expected_size:
+            chunk = stream.read(
+                min(64 * 1024, expected_size + 1 - len(restored))
+            )
+            if not chunk:
+                break
+            restored.extend(chunk)
+    if len(restored) > expected_size:
+        raise ValueError("adaptive frame original-size mismatch")
+    return bytes(restored)
+
+
+def _bounded_subprocess_filter(
+    command: list[str], data: bytes, max_output: int
+) -> bytes:
+    with tempfile.TemporaryFile() as source, tempfile.TemporaryFile() as errors:
+        source.write(data)
+        source.seek(0)
+        process = subprocess.Popen(
+            command,
+            stdin=source,
+            stdout=subprocess.PIPE,
+            stderr=errors,
+        )
+        if process.stdout is None:  # pragma: no cover - guaranteed by PIPE
+            process.kill()
+            process.wait()
+            raise RuntimeError("codec filter stdout pipe was not created")
+        try:
+            output = bytearray()
+            while len(output) <= max_output:
+                chunk = process.stdout.read(
+                    min(64 * 1024, max_output + 1 - len(output))
+                )
+                if not chunk:
+                    break
+                output.extend(chunk)
+            if len(output) > max_output:
+                process.kill()
+                process.wait()
+                raise ValueError("adaptive frame original-size mismatch")
+            returncode = process.wait()
+        except BaseException:
+            if process.poll() is None:
+                process.kill()
+                process.wait()
+            raise
+        finally:
+            process.stdout.close()
+        if returncode != 0:
+            errors.seek(0)
+            detail = errors.read().decode("utf-8", errors="replace").strip()
+            raise RuntimeError(f"exited {returncode}: {detail}")
+        return bytes(output)
+
+
+def _codec_filter(
+    codec_id: str,
+    operation: str,
+    data: bytes,
+    *,
+    max_output: Optional[int] = None,
+) -> bytes:
     codec = codec_by_id(codec_id)
     if not codec.available or not codec.executable:
         raise RuntimeError(f"native codec is unavailable: {codec_id}")
@@ -284,8 +351,14 @@ def _codec_filter(codec_id: str, operation: str, data: bytes) -> bytes:
         )
     else:
         raise ValueError(f"codec does not support filter mode: {codec_id}")
+    command = [codec.executable, *arguments]
+    if max_output is not None:
+        try:
+            return _bounded_subprocess_filter(command, data, max_output)
+        except RuntimeError as error:
+            raise RuntimeError(f"{codec_id} {operation} {error}") from error
     completed = subprocess.run(
-        [codec.executable, *arguments],
+        command,
         input=data,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -308,7 +381,7 @@ def _v2_zstd_compress(data: bytes) -> bytes:
 def _v2_zstd_decompress(data: bytes, expected_size: int) -> bytes:
     if zstd_available():
         return zstd_decompress(data, expected_size)
-    return _codec_filter("zstd-3", "decompress", data)
+    return _codec_filter("zstd-3", "decompress", data, max_output=expected_size)
 
 
 def _v2_codec_engine(backend: int) -> str:
@@ -533,17 +606,19 @@ def _adaptive_decompress(
         data = payload
         selected_backend = "store"
     elif version == ADAPTIVE_VERSION_V1 and backend == BACKEND_GZIP_1:
-        data = gzip.decompress(payload)
+        data = _bounded_gzip_decompress(payload, original_size)
         selected_backend = "gzip-1"
     elif version == ADAPTIVE_VERSION_V1 and backend == BACKEND_DELTA_TRANSPOSE_GZIP_1:
-        transformed = gzip.decompress(payload)
+        transformed = _bounded_gzip_decompress(payload, original_size)
         data = _inverse_delta_transpose(transformed, original_size)
         selected_backend = "delta-transpose+gzip-1"
     elif version == ADAPTIVE_VERSION_V2 and backend == BACKEND_ZSTD_3:
         data = _v2_zstd_decompress(payload, original_size)
         selected_backend = "zstd-3"
     elif version == ADAPTIVE_VERSION_V2 and backend == BACKEND_LZ4_1:
-        data = _codec_filter("lz4-1", "decompress", payload)
+        data = _codec_filter(
+            "lz4-1", "decompress", payload, max_output=original_size
+        )
         selected_backend = "lz4-1"
     elif version == ADAPTIVE_VERSION_V2 and backend == BACKEND_DELTA_TRANSPOSE_ZSTD_3:
         transformed = _v2_zstd_decompress(payload, original_size)

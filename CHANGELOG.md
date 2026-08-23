@@ -46,6 +46,9 @@ this project uses [Semantic Versioning](https://semver.org/).
 
 ### Security
 
+- Legacy gzip, LZ4, and command-line Zstandard decoders now cap expansion at
+  the frame's declared output size instead of checking only after the payload
+  has been fully expanded.
 - The public decoder rejects frames whose declared output exceeds its 2 GiB
   default limit before allocating the output buffer.
 - Portable backend and legacy gzip corruption errors are normalized at the
