@@ -154,8 +154,9 @@ tests rather than pretending that a GitHub runner satisfies the byte-pinned Carg
 Xcode, Cargo-home, and fixed-build-root identities. Windows skips the 24-test POSIX lifecycle class,
 whose security tests require directory descriptors, no-follow opens, Unix executable
 scripts, symlinks, and the bound Apple Git path; the pure readiness guards remain
-cross-platform. On the pinned owner path, omitting the opt-in is a hard error, not a
-green skip. Readiness requires the command below to complete all 35 tests with zero skips
+cross-platform. If the pinned owner-home marker `/Users/guts` exists, omitting the
+opt-in is a hard error regardless of checkout location, not a green skip. Readiness
+requires the command below to complete all 35 tests with zero skips
 on the pinned owner host; setting the gate on any other host fails closed on
 the first identity mismatch.
 
