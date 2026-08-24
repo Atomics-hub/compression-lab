@@ -143,13 +143,14 @@
   ],
   "procedure": {
     "runner": "scripts/moon-c1-residual-diagnostic-run.py",
-    "rehearsal": "Lifecycle tests use temporary synthetic snapshots and a fake kernel to prove authorization, duplicate-key refusal at every inbound JSON nesting depth, preflight, durable pre-dispatch charge, dispatch-failure, and held-directory publication behavior. A separate Python integration test materializes e514b23 and performs two independent clean build invocations through the same exact fixed exclusive production build root, requires byte-identical frozen release SHA-256, runs that real producer on the pinned synthetic source, matches the complete report/event/tape goldens, and passes those actual bytes through the Python validator. The fake-kernel layer is not claimed as producer parity.",
+    "rehearsal": "Lifecycle tests use temporary synthetic snapshots and a fake kernel to prove authorization, duplicate-key refusal at every inbound JSON nesting depth, preflight, durable pre-dispatch charge, dispatch-failure, and held-directory publication behavior. A separate explicitly gated owner-host Python integration test materializes e514b23 and performs two independent clean build invocations through the same exact fixed exclusive production build root, requires byte-identical frozen release SHA-256, runs that real producer on the pinned synthetic source, matches the complete report/event/tape goldens, and passes those actual bytes through the Python validator. Foreign-host CI skips exactly those two pinned-host tests; the readiness command requires 34 tests with zero skips. The fake-kernel layer is not claimed as producer parity.",
+    "pinned_host_integration_command": "MOON_C1_PINNED_HOST_INTEGRATION=1 python3 -m unittest tests.test_moon_c1_residual_diagnostic_readiness tests.test_moon_c1_residual_diagnostic_run",
     "charter": "docs/benchmarks/2026-08-23-moon-c1-residual-diagnostic-readiness-v1.md"
   },
   "package_bindings": {
     "scripts/moon-c1-residual-diagnostic-run.py": "a155d839461b71df77013d7f456f625f71b67d8314a70bb21c458e58b16c88c5",
-    "docs/benchmarks/2026-08-23-moon-c1-residual-diagnostic-readiness-v1.md": "b27361a3eb6db9e2fb73d0774fd5bed984650227fc7c579baffe7b56a50a7782",
-    "tests/test_moon_c1_residual_diagnostic_run.py": "19a82a0bff62a77e4ab005c0a582d9ba32b75b25ab13e16b5321173e8d8ef877",
-    "tests/test_moon_c1_residual_diagnostic_readiness.py": "f967c354322e03ead8552c2c203738932dbf249caf14e8163e21afbd38d5ff95"
+    "docs/benchmarks/2026-08-23-moon-c1-residual-diagnostic-readiness-v1.md": "f763108b4f9c3038ce224d298b41d00889b37a712f4e57336992e68fac5237b0",
+    "tests/test_moon_c1_residual_diagnostic_run.py": "3069836b1d732d93b0e0a17365e4550e24bb5f8f1ef3ce6de4f8e889c5d41804",
+    "tests/test_moon_c1_residual_diagnostic_readiness.py": "c6ef30c705c42f2a4a8697297a3f6164b1361918d0b0568cb0c976c709a0010f"
   }
 }
