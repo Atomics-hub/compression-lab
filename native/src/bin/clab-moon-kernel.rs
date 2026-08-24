@@ -717,6 +717,60 @@ fn canonical_output_path(path: &str) -> Result<PathBuf, CommandError> {
     Ok(parent.join(name))
 }
 
+#[cfg(windows)]
+fn windows_file_identity(path: &Path) -> Result<(u32, u64), CommandError> {
+    use std::os::windows::io::AsRawHandle;
+
+    #[repr(C)]
+    struct FileTime {
+        low: u32,
+        high: u32,
+    }
+
+    #[repr(C)]
+    struct ByHandleFileInformation {
+        file_attributes: u32,
+        creation_time: FileTime,
+        last_access_time: FileTime,
+        last_write_time: FileTime,
+        volume_serial_number: u32,
+        file_size_high: u32,
+        file_size_low: u32,
+        number_of_links: u32,
+        file_index_high: u32,
+        file_index_low: u32,
+    }
+
+    #[link(name = "kernel32")]
+    extern "system" {
+        fn GetFileInformationByHandle(
+            file: *mut std::ffi::c_void,
+            information: *mut ByHandleFileInformation,
+        ) -> i32;
+    }
+
+    let file = fs::File::open(path)
+        .map_err(|error| failure(format!("cannot open {}: {error}", path.display())))?;
+    let mut information = std::mem::MaybeUninit::<ByHandleFileInformation>::uninit();
+    let status = unsafe {
+        GetFileInformationByHandle(
+            file.as_raw_handle() as *mut std::ffi::c_void,
+            information.as_mut_ptr(),
+        )
+    };
+    if status == 0 {
+        return Err(failure(format!(
+            "cannot identify {}: {}",
+            path.display(),
+            std::io::Error::last_os_error()
+        )));
+    }
+    let information = unsafe { information.assume_init() };
+    let file_index =
+        (u64::from(information.file_index_high) << 32) | u64::from(information.file_index_low);
+    Ok((information.volume_serial_number, file_index))
+}
+
 fn paths_name_same_file(left: &Path, right: &Path) -> Result<bool, CommandError> {
     if left == right {
         return Ok(true);
@@ -739,7 +793,11 @@ fn paths_name_same_file(left: &Path, right: &Path) -> Result<bool, CommandError>
         Ok(_left_metadata.dev() == _right_metadata.dev()
             && _left_metadata.ino() == _right_metadata.ino())
     }
-    #[cfg(not(unix))]
+    #[cfg(windows)]
+    {
+        Ok(windows_file_identity(left)? == windows_file_identity(right)?)
+    }
+    #[cfg(not(any(unix, windows)))]
     {
         Ok(false)
     }
