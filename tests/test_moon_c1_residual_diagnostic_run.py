@@ -24,6 +24,13 @@ if SPEC is None or SPEC.loader is None:
 MODULE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(MODULE)
 
+PINNED_HOST_INTEGRATION_ENV = "MOON_C1_PINNED_HOST_INTEGRATION"
+PINNED_HOST_INTEGRATION = os.environ.get(PINNED_HOST_INTEGRATION_ENV) == "1"
+PINNED_HOST_INTEGRATION_SKIP = (
+    f"set {PINNED_HOST_INTEGRATION_ENV}=1 to require the exact byte-pinned "
+    "owner build host"
+)
+
 
 def digest(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
@@ -691,6 +698,7 @@ class RunnerTests(unittest.TestCase):
                             config, snapshot, source.count(b"\n"), report
                         )
 
+    @unittest.skipUnless(PINNED_HOST_INTEGRATION, PINNED_HOST_INTEGRATION_SKIP)
     def test_real_producer_synthetic_report_passes_python_validator_and_golden(
         self,
     ) -> None:
@@ -856,6 +864,7 @@ class RunnerTests(unittest.TestCase):
             with self.assertRaises(MODULE.Refused):
                 MODULE.read_budget(budget)
 
+    @unittest.skipUnless(PINNED_HOST_INTEGRATION, PINNED_HOST_INTEGRATION_SKIP)
     def test_controlled_build_environment_drops_ambient_injection(self) -> None:
         config = json.loads((REPOSITORY / MODULE.CONFIG_RELATIVE).read_text())
         with tempfile.TemporaryDirectory() as tmp:
