@@ -3,9 +3,9 @@
   "status": "READY_TO_AUTHORIZE_PROSPECTIVE",
   "evidence_stage": "mechanism_local_diagnostic",
   "identity": {
-    "implementation_base_commit": "d14f3d310ac5c2471d64cda2fe86be3e1aa2948d",
-    "implementation_commit": "e514b230cce457a2a603837b286fe8e80d55e770",
-    "implementation_tree": "ef131cba9a4597cdf0e8150dda1195b601154e24",
+    "implementation_base_commit": "e514b230cce457a2a603837b286fe8e80d55e770",
+    "implementation_commit": "937f74f3022b694d721bb1ff6cc626eddf4a5595",
+    "implementation_tree": "974ee53aa0fc8d8e95cae251c335b3d41dd3c88a",
     "readiness_diff_roster": [
       "config/moon-c1-residual-diagnostic-readiness-v1.json",
       "docs/benchmarks/2026-08-23-moon-c1-residual-diagnostic-readiness-v1.md",
@@ -14,7 +14,7 @@
       "tests/test_moon_c1_residual_diagnostic_run.py"
     ],
     "source_sha256": {
-      "native/src/bin/clab-moon-kernel.rs": "abed0cae2f2de5b24bedb42c6b63b6282af8f4902bcaa636b23904bda6d0dd77",
+      "native/src/bin/clab-moon-kernel.rs": "78374d40edc7d0945778181b50a9fff1f578564f0466537c00b9b54da7769cbe",
       "native/src/moon/c1.rs": "0d0c6d818b4b317bfb4bf67cd3ca4a7e470bdac9501b46a890051253a6d8b6d9",
       "native/src/moon/c1_diagnose.rs": "335c1cffff2a427f1b016510c641ff0a7ee8df324978d93b467fcf3be66e718f",
       "native/src/moon/diagnose.rs": "6075732cc70763bbf9432d302334c3c225173b008c34f8ecbb8e3343c2280017",
@@ -143,14 +143,14 @@
   ],
   "procedure": {
     "runner": "scripts/moon-c1-residual-diagnostic-run.py",
-    "rehearsal": "Lifecycle tests use temporary synthetic snapshots and a fake kernel to prove authorization, duplicate-key refusal at every inbound JSON nesting depth, preflight, durable pre-dispatch charge, dispatch-failure, and held-directory publication behavior. A separate explicitly gated owner-host Python integration test materializes e514b23 and performs two independent clean build invocations through the same exact fixed exclusive production build root, requires byte-identical frozen release SHA-256, runs that real producer on the pinned synthetic source, matches the complete report/event/tape goldens, and passes those actual bytes through the Python validator. Foreign POSIX CI skips exactly those two pinned-host tests. Windows skips the 24-test POSIX lifecycle class while retaining the pure readiness guards. Presence of the pinned owner-home marker hard-fails if the opt-in is absent regardless of checkout location, and the readiness command requires 35 tests with zero skips. The fake-kernel layer is not claimed as producer parity.",
+    "rehearsal": "Lifecycle tests use temporary synthetic snapshots and a fake kernel to prove authorization, duplicate-key refusal at every inbound JSON nesting depth, preflight, durable pre-dispatch charge, dispatch-failure, and held-directory publication behavior. A separate explicitly gated owner-host Python integration test materializes 937f74f and performs two independent clean build invocations through the same exact fixed exclusive production build root, requires byte-identical frozen release SHA-256, runs that real producer on the pinned synthetic source, matches the complete report/event/tape goldens, and passes those actual bytes through the Python validator. Foreign POSIX CI skips exactly those two pinned-host tests. Windows skips the 24-test POSIX lifecycle class while retaining the pure readiness guards. Presence of the pinned owner-home marker hard-fails if the opt-in is absent regardless of checkout location, and the readiness command requires 35 tests with zero skips. The fake-kernel layer is not claimed as producer parity.",
     "pinned_host_integration_command": "MOON_C1_PINNED_HOST_INTEGRATION=1 python3 -m unittest tests.test_moon_c1_residual_diagnostic_readiness tests.test_moon_c1_residual_diagnostic_run",
     "charter": "docs/benchmarks/2026-08-23-moon-c1-residual-diagnostic-readiness-v1.md"
   },
   "package_bindings": {
     "scripts/moon-c1-residual-diagnostic-run.py": "a155d839461b71df77013d7f456f625f71b67d8314a70bb21c458e58b16c88c5",
-    "docs/benchmarks/2026-08-23-moon-c1-residual-diagnostic-readiness-v1.md": "9478c6bc3672f03a52519e5211d52ebed1936c011f550355000c09a46a755176",
+    "docs/benchmarks/2026-08-23-moon-c1-residual-diagnostic-readiness-v1.md": "41b6f6d401bf828805dec44f6ef9c58948e368adb89331342792ca5abd665d8c",
     "tests/test_moon_c1_residual_diagnostic_run.py": "08a1d1627c5151be20b0888373ad09ac48ca11d5476139526f4f70d33d79109e",
-    "tests/test_moon_c1_residual_diagnostic_readiness.py": "ecd5bc787582b16ce04eb5400961896406863994603fe6212af81ee554ff4d5d"
+    "tests/test_moon_c1_residual_diagnostic_readiness.py": "1e1ec29a6c7a4a544e62aac38005018119ca06ec1a26b049e4a47b9673013cb1"
   }
 }
