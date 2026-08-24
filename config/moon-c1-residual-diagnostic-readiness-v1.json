@@ -143,14 +143,14 @@
   ],
   "procedure": {
     "runner": "scripts/moon-c1-residual-diagnostic-run.py",
-    "rehearsal": "Lifecycle tests use temporary synthetic snapshots and a fake kernel to prove authorization, duplicate-key refusal at every inbound JSON nesting depth, preflight, durable pre-dispatch charge, dispatch-failure, and held-directory publication behavior. A separate explicitly gated owner-host Python integration test materializes e514b23 and performs two independent clean build invocations through the same exact fixed exclusive production build root, requires byte-identical frozen release SHA-256, runs that real producer on the pinned synthetic source, matches the complete report/event/tape goldens, and passes those actual bytes through the Python validator. Foreign POSIX CI skips exactly those two pinned-host tests. Windows skips the 24-test POSIX lifecycle class while retaining the pure readiness guards. The pinned owner path hard-fails if the opt-in is absent, and the readiness command requires 35 tests with zero skips. The fake-kernel layer is not claimed as producer parity.",
+    "rehearsal": "Lifecycle tests use temporary synthetic snapshots and a fake kernel to prove authorization, duplicate-key refusal at every inbound JSON nesting depth, preflight, durable pre-dispatch charge, dispatch-failure, and held-directory publication behavior. A separate explicitly gated owner-host Python integration test materializes e514b23 and performs two independent clean build invocations through the same exact fixed exclusive production build root, requires byte-identical frozen release SHA-256, runs that real producer on the pinned synthetic source, matches the complete report/event/tape goldens, and passes those actual bytes through the Python validator. Foreign POSIX CI skips exactly those two pinned-host tests. Windows skips the 24-test POSIX lifecycle class while retaining the pure readiness guards. Presence of the pinned owner-home marker hard-fails if the opt-in is absent regardless of checkout location, and the readiness command requires 35 tests with zero skips. The fake-kernel layer is not claimed as producer parity.",
     "pinned_host_integration_command": "MOON_C1_PINNED_HOST_INTEGRATION=1 python3 -m unittest tests.test_moon_c1_residual_diagnostic_readiness tests.test_moon_c1_residual_diagnostic_run",
     "charter": "docs/benchmarks/2026-08-23-moon-c1-residual-diagnostic-readiness-v1.md"
   },
   "package_bindings": {
     "scripts/moon-c1-residual-diagnostic-run.py": "a155d839461b71df77013d7f456f625f71b67d8314a70bb21c458e58b16c88c5",
-    "docs/benchmarks/2026-08-23-moon-c1-residual-diagnostic-readiness-v1.md": "2d8c0e778447d4528c0c52ea45291e543ecd324fb5334e1f2eda6c2f27507e11",
-    "tests/test_moon_c1_residual_diagnostic_run.py": "d1ab0b5b894091426865c657b05a979f1fdb74e40e03d8353d2d8e6fce168154",
+    "docs/benchmarks/2026-08-23-moon-c1-residual-diagnostic-readiness-v1.md": "9478c6bc3672f03a52519e5211d52ebed1936c011f550355000c09a46a755176",
+    "tests/test_moon_c1_residual_diagnostic_run.py": "08a1d1627c5151be20b0888373ad09ac48ca11d5476139526f4f70d33d79109e",
     "tests/test_moon_c1_residual_diagnostic_readiness.py": "ecd5bc787582b16ce04eb5400961896406863994603fe6212af81ee554ff4d5d"
   }
 }

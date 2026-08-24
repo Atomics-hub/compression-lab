@@ -28,16 +28,12 @@ PINNED_HOST_INTEGRATION_ENV = "MOON_C1_PINNED_HOST_INTEGRATION"
 
 
 def pinned_host_integration_policy(
-    repository: Path, pinned_owner_home: Path, opt_in: str | None
+    pinned_owner_marker_exists: bool, opt_in: str | None
 ) -> bool:
     """Return whether integration must run; refuse ambiguous owner-host skips."""
     if opt_in not in (None, "1"):
         raise RuntimeError(f"{PINNED_HOST_INTEGRATION_ENV} must be exactly 1 or unset")
-    try:
-        owner_locus = repository.resolve().is_relative_to(pinned_owner_home.resolve())
-    except OSError as error:
-        raise RuntimeError("cannot establish pinned owner-host locus") from error
-    if owner_locus and opt_in != "1":
+    if pinned_owner_marker_exists and opt_in != "1":
         raise RuntimeError(
             f"the pinned owner host must set {PINNED_HOST_INTEGRATION_ENV}=1; "
             "real-producer evidence may not be skipped"
@@ -51,9 +47,16 @@ _PINNED_CONFIG = json.loads(
 _PINNED_OWNER_HOME = Path(
     _PINNED_CONFIG["runtime"]["toolchain"]["cargo_source_home"]
 ).parent
+try:
+    _PINNED_OWNER_HOME.lstat()
+except FileNotFoundError:
+    _PINNED_OWNER_MARKER_EXISTS = False
+except OSError as error:
+    raise RuntimeError("cannot establish pinned owner-host marker") from error
+else:
+    _PINNED_OWNER_MARKER_EXISTS = True
 PINNED_HOST_INTEGRATION = pinned_host_integration_policy(
-    REPOSITORY,
-    _PINNED_OWNER_HOME,
+    _PINNED_OWNER_MARKER_EXISTS,
     os.environ.get(PINNED_HOST_INTEGRATION_ENV),
 )
 PINNED_HOST_INTEGRATION_SKIP = (
@@ -275,16 +278,13 @@ class PinnedHostIntegrationPolicyTests(unittest.TestCase):
     def test_pinned_host_integration_policy_has_three_fail_closed_branches(
         self,
     ) -> None:
-        owner = Path("/pinned-owner")
-        repository = owner / "compression-lab"
-        foreign = Path("/foreign/compression-lab")
-        self.assertFalse(pinned_host_integration_policy(foreign, owner, None))
-        self.assertTrue(pinned_host_integration_policy(foreign, owner, "1"))
-        self.assertTrue(pinned_host_integration_policy(repository, owner, "1"))
+        self.assertFalse(pinned_host_integration_policy(False, None))
+        self.assertTrue(pinned_host_integration_policy(False, "1"))
+        self.assertTrue(pinned_host_integration_policy(True, "1"))
         with self.assertRaisesRegex(RuntimeError, "may not be skipped"):
-            pinned_host_integration_policy(repository, owner, None)
+            pinned_host_integration_policy(True, None)
         with self.assertRaisesRegex(RuntimeError, "exactly 1 or unset"):
-            pinned_host_integration_policy(foreign, owner, "true")
+            pinned_host_integration_policy(False, "true")
 
 
 @unittest.skipUnless(os.name == "posix", "runner lifecycle requires POSIX APIs")
