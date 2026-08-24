@@ -149,11 +149,15 @@ independent clean build invocations through that same exact fixed production
 root, requires the frozen release SHA-256 byte-for-byte both times, runs the real
 producer on the pinned synthetic source, matches the complete report/event/tape
 goldens, and passes those actual bytes through the Python validator. Those two
-owner-host integration tests are explicitly gated: foreign-host CI skips exactly two
+owner-host integration tests are explicitly gated: foreign POSIX CI skips exactly two
 tests rather than pretending that a GitHub runner satisfies the byte-pinned Cargo,
-Xcode, Cargo-home, and fixed-build-root identities. Readiness requires the command
-below to complete all 34 tests with zero skips on the pinned owner host; setting the
-gate on any other host fails closed on the first identity mismatch.
+Xcode, Cargo-home, and fixed-build-root identities. Windows skips the 24-test POSIX lifecycle class,
+whose security tests require directory descriptors, no-follow opens, Unix executable
+scripts, symlinks, and the bound Apple Git path; the pure readiness guards remain
+cross-platform. On the pinned owner path, omitting the opt-in is a hard error, not a
+green skip. Readiness requires the command below to complete all 35 tests with zero skips
+on the pinned owner host; setting the gate on any other host fails closed on
+the first identity mismatch.
 
 ```sh
 MOON_C1_PINNED_HOST_INTEGRATION=1 python3 -m unittest tests.test_moon_c1_residual_diagnostic_readiness tests.test_moon_c1_residual_diagnostic_run
