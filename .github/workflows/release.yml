@@ -16,8 +16,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-python@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: "3.12"
       - name: Bind a release tag to every package version
@@ -35,8 +35,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-python@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: "3.12"
       - run: python -m pip install --upgrade build
@@ -47,7 +47,7 @@ jobs:
           python -m venv "$RUNNER_TEMP/sdist-venv"
           "$RUNNER_TEMP/sdist-venv/bin/python" -m pip install dist/*.tar.gz
           "$RUNNER_TEMP/sdist-venv/bin/python" -c "import compresslab; data=b'sdist-smoke'*10000; assert compresslab.decompress(compresslab.compress(data)) == data"
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: release-sdist
           path: dist/*.tar.gz
@@ -63,18 +63,18 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-15, windows-latest]
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
       - name: Register arm64 emulation
         if: matrix.os == 'ubuntu-latest'
-        uses: docker/setup-qemu-action@v4
+        uses: docker/setup-qemu-action@96fe6ef7f33517b61c61be40b68a1882f3264fb8 # v4
         with:
           platforms: arm64
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: "3.12"
       - run: python -m pip install cibuildwheel==3.4.1
       - run: python -m cibuildwheel --output-dir wheelhouse
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: release-wheels-${{ runner.os }}
           path: wheelhouse/*.whl
@@ -90,7 +90,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-15, windows-latest]
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
       # Split so each command is its own step: on Windows the default shell is
       # pwsh, whose run: | blocks only propagate the LAST command's exit code, so
       # a build failure would be masked by a passing test. One command per step
@@ -123,7 +123,7 @@ jobs:
           & "native/target/release/clab-jls2.exe" --version
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           Compress-Archive -Path "$env:RUNNER_TEMP/clab-jls2" -DestinationPath "standalone/clab-jls2-$env:RUNNER_OS-$env:RUNNER_ARCH.zip"
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: release-standalone-${{ runner.os }}
           path: standalone/*
@@ -135,7 +135,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           pattern: "release-*"
           path: incoming
@@ -156,7 +156,7 @@ jobs:
               for source in artifact.iterdir():
                   shutil.copy2(source, destination / source.name)
           PY
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: "3.12"
       - run: python -m pip install --upgrade twine
@@ -215,7 +215,7 @@ jobs:
                   output.write(f"{sha256(path.read_bytes()).hexdigest()}  {path}\n")
           PY
           cat SHA256SUMS
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: verified-release-artifacts
           path: |
@@ -236,13 +236,13 @@ jobs:
     permissions:
       id-token: write
     steps:
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: verified-release-artifacts
           path: release
       - name: Require explicit environment approval before public upload
         run: mkdir dist && cp release/dist/* dist/
-      - uses: pypa/gh-action-pypi-publish@release/v1
+      - uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # release/v1
 
   publish-github:
     name: Publish GitHub release
@@ -253,7 +253,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: verified-release-artifacts
           path: release

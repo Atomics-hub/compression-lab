@@ -38,6 +38,9 @@ this project uses [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- Production CI now audits the resolved Python runtime graph and both Rust
+  dependency graphs, while active CI, fuzz, and release actions are pinned to
+  immutable commits.
 - Python wheels, source builds, standalone decoders, CI, and native tests now
   share one repository-pinned Rust toolchain.
 - JLS2 decode now bulk-copies JSON literal spans and lets the outer frame own

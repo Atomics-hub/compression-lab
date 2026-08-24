@@ -12,8 +12,11 @@ The automated gates cover Python 3.9 through 3.14; Linux, macOS, and Windows;
 Rust debug and release tests; native wheel installation; malformed and hostile
 frames; 5,000-case pull-request fuzzing; 100,000-case scheduled fuzzing; sdist
 installation; five native platform wheels; Twine metadata; and SHA-256 release
-manifests. The controlling workflow calls the same release workflow used by a
-tag, so a private branch run can prove the full artifact set without publishing.
+manifests. They also include pinned Python and Rust dependency audits. The
+continuously active CI, fuzz, and release workflows bind external actions to
+immutable commits. The controlling workflow calls the same release workflow
+used by a tag, so a private branch run can prove the full artifact set without
+publishing.
 
 PyPI is the 0.1 distribution target. npm is deliberately deferred because the
 project has no JavaScript or WebAssembly API; a shell wrapper would add a second
@@ -36,6 +39,10 @@ Version 0.1.0 was released on **2026-07-16**. The durable public record is:
    private vulnerability reporting enabled, and `main` protection requires the
    cross-platform Python, package, and native-wheel checks while refusing force
    pushes and deletion.
+5. GitHub-managed extended CodeQL scanning covers Python and Actions, secret
+   scanning push protection is enabled, and repository Actions are restricted
+   to GitHub-owned actions plus the explicitly used PyPA publisher and Docker
+   QEMU helper.
 
 Those repository settings were rechecked on **2026-08-23**. They are current
 operational state, not immutable benchmark evidence, and must be checked again
