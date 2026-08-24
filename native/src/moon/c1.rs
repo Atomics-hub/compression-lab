@@ -191,6 +191,15 @@ struct MatchModel {
     len_bucket: usize,
 }
 
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+struct MatchAdvanceTrace {
+    empty_slot: bool,
+    prefix_verification_failed: bool,
+    window_expired: bool,
+    live_suppressed_acquisition: bool,
+    acquired: bool,
+}
+
 impl MatchModel {
     fn new() -> Self {
         let mut hit_probability = [1_u16 << 15; MATCH_LEN_BUCKETS];
@@ -291,6 +300,13 @@ impl MatchModel {
     /// match, updates the hash table (overwrite-most-recent), and — only when no
     /// match is live — byte-verifies and acquires a fresh candidate.
     fn advance(&mut self, history: &[u8]) {
+        let _ = self.advance_traced(history);
+    }
+
+    /// Identical state transition to [`Self::advance`], with a read-only
+    /// disposition describing why a fresh acquisition did or did not occur.
+    fn advance_traced(&mut self, history: &[u8]) -> MatchAdvanceTrace {
+        let mut trace = MatchAdvanceTrace::default();
         let pos = history.len() - 1;
         let k = MATCH_MIN_LENGTH;
 
@@ -304,22 +320,34 @@ impl MatchModel {
         }
 
         if pos + 1 < k {
-            return;
+            return trace;
         }
         let key = Self::key(&history[pos + 1 - k..=pos]);
         let candidate = self.table[key];
         self.table[key] = (pos + 1) as u32;
 
-        if self.match_len == 0 && candidate != NO_POS {
+        if self.match_len > 0 {
+            trace.live_suppressed_acquisition = true;
+        } else if candidate == NO_POS {
+            trace.empty_slot = true;
+        } else {
             let candidate = candidate as usize;
             if candidate >= k && candidate <= pos {
                 let distance = (pos + 1) - candidate;
-                if distance <= MATCH_WINDOW_BYTES && Self::verify(history, candidate - 1, pos, k) {
+                if distance > MATCH_WINDOW_BYTES {
+                    trace.window_expired = true;
+                } else if Self::verify(history, candidate - 1, pos, k) {
                     self.match_pos = candidate;
                     self.match_len = k;
+                    trace.acquired = true;
+                } else {
+                    trace.prefix_verification_failed = true;
                 }
+            } else {
+                trace.prefix_verification_failed = true;
             }
         }
+        trace
     }
 
     /// Byte-verify that the `k`-grams ending at `end_a` and `end_b` are equal.
@@ -568,23 +596,56 @@ impl C1Model {
         table: &LossTable,
         ledger: &mut Ledger,
         writer: &mut TapeWriter,
-    ) -> Result<(), C1Error> {
+    ) -> Result<C1ObservedByte, C1Error> {
         self.matcher.begin_byte(history, pos);
+        let match_length = self.matcher.match_len as u32;
+        let match_distance = if self.matcher.live {
+            pos.saturating_sub(self.matcher.match_pos) as u32
+        } else {
+            0
+        };
         let mut node: u32 = 1;
-        for shift in (0..8_u32).rev() {
+        let mut bit_loss_q24 = [0_u32; 8];
+        let mut match_valid_mask = 0_u8;
+        let mut match_correct_mask = 0_u8;
+        for (slot, shift) in (0..8_u32).rev().enumerate() {
             let bit_index = 7 - shift;
             let bit = (byte >> shift) & 1 == 1;
             let (indices, probabilities) = self.resolve(history, node as u8);
             let match_bit = self.matcher.predict_bit(node, shift, bit_index);
+            if match_bit.valid {
+                match_valid_mask |= 1 << slot;
+                if match_bit.predicted_bit == bit {
+                    match_correct_mask |= 1 << slot;
+                }
+            }
             let event_id = self.event_id(node as u8);
             let charged = self.predict_byte_bit(&probabilities, node as u8, event_id, match_bit);
-            charge(charged, bit, table, ledger)?;
+            bit_loss_q24[slot] = charge(charged, bit, table, ledger)?;
             writer.push_bit(bit)?;
             self.update_byte_bit(&indices, match_bit, bit);
             node = (node << 1) | u32::from(bit);
         }
         self.advance_byte(byte);
-        Ok(())
+        Ok(C1ObservedByte {
+            position: pos,
+            byte,
+            continuation_loss_q24: 0,
+            bit_loss_q24,
+            match_valid_mask,
+            match_correct_mask,
+            match_length_before: match_length,
+            match_distance_before: match_distance,
+            match_length_after: 0,
+            match_distance_after: 0,
+            match_broke: false,
+            acquisition_initial: false,
+            acquisition_after_break: false,
+            acquisition_empty_slot: false,
+            acquisition_prefix_verification_failed: false,
+            acquisition_window_expired: false,
+            acquisition_live_suppressed: false,
+        })
     }
 
     fn decode_byte(
@@ -621,14 +682,14 @@ impl C1Model {
         table: &LossTable,
         ledger: &mut Ledger,
         writer: &mut TapeWriter,
-    ) -> Result<(), C1Error> {
+    ) -> Result<u32, C1Error> {
         let base = self.continuation.probability_of_one();
         let charged = self.mixer.predict(CONTINUATION_EVENT_ID, base);
-        charge(charged, more, table, ledger)?;
+        let loss = charge(charged, more, table, ledger)?;
         writer.push_bit(more)?;
         self.mixer.update(more);
         self.continuation.update(more, C1_RATE_SHIFT);
-        Ok(())
+        Ok(loss)
     }
 
     fn decode_continuation(
@@ -652,14 +713,114 @@ fn charge(
     bit: bool,
     table: &LossTable,
     ledger: &mut Ledger,
-) -> Result<(), C1Error> {
+) -> Result<u32, C1Error> {
     let loss = table
         .get(observed_probability(probability, bit))
         .ok_or(C1Error::InvalidProbability)?;
     ledger
         .add_modeled_event(loss)
         .ok_or(C1Error::LedgerOverflow)?;
-    Ok(())
+    Ok(loss)
+}
+
+// ---------------------------------------------------------------------------
+// Read-only residual observer
+// ---------------------------------------------------------------------------
+
+/// One streaming observation emitted by the canonical C1 encoder. None of
+/// these fields is consulted by the coding path.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct C1ObservedByte {
+    pub position: usize,
+    pub byte: u8,
+    pub continuation_loss_q24: u32,
+    pub bit_loss_q24: [u32; 8],
+    /// Bits for which the canonical one-candidate matcher remained live.
+    pub match_valid_mask: u8,
+    /// Live-match bits whose prediction equalled the observed bit.
+    pub match_correct_mask: u8,
+    pub match_length_before: u32,
+    pub match_distance_before: u32,
+    /// Canonical matcher state after this byte, which is the pre-state for the
+    /// next byte when one exists.
+    pub match_length_after: u32,
+    pub match_distance_after: u32,
+    pub match_broke: bool,
+    pub acquisition_initial: bool,
+    pub acquisition_after_break: bool,
+    pub acquisition_empty_slot: bool,
+    pub acquisition_prefix_verification_failed: bool,
+    pub acquisition_window_expired: bool,
+    pub acquisition_live_suppressed: bool,
+}
+
+impl C1ObservedByte {
+    #[must_use]
+    pub fn modeled_loss_q24(&self) -> u64 {
+        self.bit_loss_q24.iter().map(|&loss| u64::from(loss)).sum()
+    }
+}
+
+/// The one canonical C1 event generator. The optional observer receives events
+/// only after all coder/model updates for that byte; it cannot influence them.
+pub(super) fn encode_c1_item_with_bits_observer<F>(
+    source: &[u8],
+    table: &LossTable,
+    item_index: u8,
+    sse_bucket_bits: u32,
+    mut observer: F,
+) -> Result<(Tape, Ledger, u32), C1Error>
+where
+    F: FnMut(C1ObservedByte),
+{
+    let mut model = C1Model::new(table, sse_bucket_bits);
+    let mut writer = TapeWriter::new(C1_ARM_ID, item_index);
+    let mut ledger = Ledger::default();
+    let mut outstanding_break = false;
+    for (position, &byte) in source.iter().enumerate() {
+        let continuation_loss_q24 =
+            model.encode_continuation(true, table, &mut ledger, &mut writer)?;
+        let mut event = model.encode_byte(
+            byte,
+            &source[..position],
+            position,
+            table,
+            &mut ledger,
+            &mut writer,
+        )?;
+        let acquisition = model.matcher.advance_traced(&source[..=position]);
+        let after_len = model.matcher.match_len as u32;
+        let after_distance = if model.matcher.match_len > 0 {
+            position
+                .saturating_add(1)
+                .saturating_sub(model.matcher.match_pos) as u32
+        } else {
+            0
+        };
+        event.match_broke = event.match_length_before > 0
+            && after_len != event.match_length_before.saturating_add(1);
+        if event.match_broke {
+            outstanding_break = true;
+        }
+        if acquisition.acquired {
+            event.acquisition_after_break = outstanding_break;
+            event.acquisition_initial = !outstanding_break;
+            outstanding_break = false;
+        }
+        event.continuation_loss_q24 = continuation_loss_q24;
+        event.acquisition_empty_slot = acquisition.empty_slot;
+        event.acquisition_prefix_verification_failed = acquisition.prefix_verification_failed;
+        event.acquisition_window_expired = acquisition.window_expired;
+        event.acquisition_live_suppressed = acquisition.live_suppressed_acquisition;
+        event.match_length_after = after_len;
+        event.match_distance_after = after_distance;
+        if byte == b'\n' {
+            ledger.add_record().ok_or(C1Error::LedgerOverflow)?;
+        }
+        observer(event);
+    }
+    let terminal = model.encode_continuation(false, table, &mut ledger, &mut writer)?;
+    Ok((writer.finish(), ledger, terminal))
 }
 
 /// Encode one item under the C1 arm at the base SSE capacity.
@@ -678,26 +839,8 @@ pub fn encode_c1_item_with_bits(
     item_index: u8,
     sse_bucket_bits: u32,
 ) -> Result<(Tape, Ledger), C1Error> {
-    let mut model = C1Model::new(table, sse_bucket_bits);
-    let mut writer = TapeWriter::new(C1_ARM_ID, item_index);
-    let mut ledger = Ledger::default();
-    for (position, &byte) in source.iter().enumerate() {
-        model.encode_continuation(true, table, &mut ledger, &mut writer)?;
-        model.encode_byte(
-            byte,
-            &source[..position],
-            position,
-            table,
-            &mut ledger,
-            &mut writer,
-        )?;
-        model.matcher.advance(&source[..=position]);
-        if byte == b'\n' {
-            ledger.add_record().ok_or(C1Error::LedgerOverflow)?;
-        }
-    }
-    model.encode_continuation(false, table, &mut ledger, &mut writer)?;
-    Ok((writer.finish(), ledger))
+    encode_c1_item_with_bits_observer(source, table, item_index, sse_bucket_bits, |_| {})
+        .map(|(tape, ledger, _terminal)| (tape, ledger))
 }
 
 /// Decode one item under the C1 arm at the base SSE capacity.
