@@ -347,8 +347,9 @@ class C1ResidualDiagnosticReadinessTests(unittest.TestCase):
         self.assertIn(
             procedure["pinned_host_integration_command"], self.charter
         )
-        self.assertIn("foreign-host CI skips exactly two", self.charter)
-        self.assertIn("34 tests with zero skips", self.charter)
+        self.assertIn("foreign POSIX CI skips exactly two", self.charter)
+        self.assertIn("Windows skips the 24-test POSIX lifecycle class", self.charter)
+        self.assertIn("35 tests with zero skips", self.charter)
         self.assertEqual(
             procedure["charter"], CHARTER_PATH.relative_to(ROOT).as_posix()
         )
