@@ -20,6 +20,7 @@ pub mod moon;
 use moon::c1::{
     c1_declared_state_bytes, decode_c1_item_with_bits, encode_c1_item_with_bits, C1_ARM_ID,
 };
+use moon::c1_diagnose::diagnose_c1;
 use moon::c2::{
     c2_declared_state_bytes, decode_c2_item_with_bits, encode_c2_item_with_bits, C2_ARM_ID,
 };
@@ -47,11 +48,15 @@ use s0::{Ledger, LossTable, Tape, SSE_BASE_BUCKET_BITS, SSE_REFINED_BUCKET_BITS}
 use sha2::{Digest, Sha256};
 use std::env;
 use std::fs;
+use std::fs::OpenOptions;
+use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
+use std::sync::atomic::{AtomicU64, Ordering};
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 const EVIDENCE_STAGE: &str = "development_only_prescreen";
+static DIAGNOSTIC_PUBLICATION_SERIAL: AtomicU64 = AtomicU64::new(0);
 
 // Preregistered per-arm kill lines (draft cycle-1 §2), echoed verbatim into
 // every receipt so the eventual kill/nominate report is mechanical. Data
@@ -276,6 +281,8 @@ Usage:
                           [--sse-bucket-bits 17|18] [--force]
   clab-moon-kernel diagnose-h1 --item-index N --input PATH --report-out PATH
                           [--sse-bucket-bits 17|18] [--top-regions N] [--force]
+  clab-moon-kernel diagnose-c1 --item-index N --input PATH --report-out PATH
+                          [--sse-bucket-bits 17|18] [--force]
   clab-moon-kernel --help
   clab-moon-kernel --version
 ";
@@ -305,6 +312,7 @@ fn main() -> ExitCode {
         Some((&"encode", rest)) => run(encode_command(rest)),
         Some((&"decode", rest)) => run(decode_command(rest)),
         Some((&"diagnose-h1", rest)) => run(diagnose_h1_command(rest)),
+        Some((&"diagnose-c1", rest)) => run(diagnose_c1_command(rest)),
         Some((command, _)) => {
             eprintln!("unknown or malformed command: {command}\n{HELP}");
             ExitCode::from(2)
@@ -352,6 +360,9 @@ fn parse_options(arguments: &[&str], allowed: &[&str]) -> Result<Options, Comman
         let flag = arguments[index];
         match flag {
             "--force" => {
+                if options.force {
+                    return Err(usage("duplicate option: --force"));
+                }
                 options.force = true;
                 index += 1;
             }
@@ -687,6 +698,133 @@ fn diagnose_h1_command(arguments: &[&str]) -> Result<(), CommandError> {
     let report =
         decomposition.to_json(VERSION, &sha256_hex(&source), &sha256_hex(&tape.to_bytes()));
     write_output(report_out, report.as_bytes(), options.force)?;
+    Ok(())
+}
+
+fn canonical_output_path(path: &str) -> Result<PathBuf, CommandError> {
+    let destination = PathBuf::from(path);
+    let parent = destination
+        .parent()
+        .filter(|p| *p != Path::new(""))
+        .unwrap_or(Path::new("."));
+    fs::create_dir_all(parent)
+        .map_err(|error| failure(format!("cannot create directory for {path}: {error}")))?;
+    let parent = fs::canonicalize(parent)
+        .map_err(|error| failure(format!("cannot resolve directory for {path}: {error}")))?;
+    let name = destination
+        .file_name()
+        .ok_or_else(|| usage("--report-out must name a file"))?;
+    Ok(parent.join(name))
+}
+
+fn paths_name_same_file(left: &Path, right: &Path) -> Result<bool, CommandError> {
+    if left == right {
+        return Ok(true);
+    }
+    let _left_metadata = fs::metadata(left)
+        .map_err(|error| failure(format!("cannot inspect {}: {error}", left.display())))?;
+    let _right_metadata = match fs::metadata(right) {
+        Ok(metadata) => metadata,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(false),
+        Err(error) => {
+            return Err(failure(format!(
+                "cannot inspect {}: {error}",
+                right.display()
+            )))
+        }
+    };
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::MetadataExt;
+        Ok(_left_metadata.dev() == _right_metadata.dev()
+            && _left_metadata.ino() == _right_metadata.ino())
+    }
+    #[cfg(not(unix))]
+    {
+        Ok(false)
+    }
+}
+
+fn preflight_c1_report(input: &str, output: &str, force: bool) -> Result<PathBuf, CommandError> {
+    let input_path = fs::canonicalize(input)
+        .map_err(|error| failure(format!("cannot resolve {input}: {error}")))?;
+    let output_path = canonical_output_path(output)?;
+    if paths_name_same_file(&input_path, &output_path)? {
+        return Err(failure("refusing C1 diagnostic input/output alias"));
+    }
+    if fs::symlink_metadata(&output_path).is_ok() && !force {
+        return Err(failure(format!(
+            "refusing to overwrite {output} without --force"
+        )));
+    }
+    Ok(output_path)
+}
+
+fn publish_c1_report_atomic(
+    destination: &Path,
+    bytes: &[u8],
+    force: bool,
+) -> Result<(), CommandError> {
+    let serial = DIAGNOSTIC_PUBLICATION_SERIAL.fetch_add(1, Ordering::Relaxed);
+    let name = destination
+        .file_name()
+        .and_then(|name| name.to_str())
+        .unwrap_or("report");
+    let pending =
+        destination.with_file_name(format!(".{name}.{}.{}.pending", std::process::id(), serial));
+    let result = (|| {
+        let mut file = OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(&pending)
+            .map_err(|error| {
+                failure(format!("cannot create atomic report staging file: {error}"))
+            })?;
+        file.write_all(bytes).map_err(|error| {
+            failure(format!("cannot write atomic report staging file: {error}"))
+        })?;
+        file.sync_all()
+            .map_err(|error| failure(format!("cannot sync atomic report staging file: {error}")))?;
+        if force {
+            fs::rename(&pending, destination)
+                .map_err(|error| failure(format!("cannot atomically publish report: {error}")))
+        } else {
+            fs::hard_link(&pending, destination).map_err(|error| {
+                failure(format!(
+                    "cannot atomically publish no-clobber report: {error}"
+                ))
+            })?;
+            fs::remove_file(&pending).map_err(|error| {
+                failure(format!("cannot remove linked report staging file: {error}"))
+            })
+        }
+    })();
+    if result.is_err() {
+        let _ = fs::remove_file(&pending);
+    }
+    result
+}
+
+/// Provenance-neutral C1 mechanism diagnostic.
+fn diagnose_c1_command(arguments: &[&str]) -> Result<(), CommandError> {
+    let options = parse_options(
+        arguments,
+        &["item-index", "input", "report-out", "sse-bucket-bits"],
+    )?;
+    let item_index: u8 = parse_number("item-index", options.take("item-index")?)?;
+    let input = options.take("input")?;
+    let report_out = options.take("report-out")?;
+    let sse_bucket_bits = parse_sse_bucket_bits(&options)?;
+    let destination = preflight_c1_report(input, report_out, options.force)?;
+    let source = read_bytes(input)?;
+    let table = LossTable::generate();
+    let report = diagnose_c1(&source, &table, item_index, sse_bucket_bits)
+        .map_err(|error| failure(format!("C1 residual diagnosis failed: {error}")))?;
+    let (tape, _) =
+        moon::c1::encode_c1_item_with_bits(&source, &table, item_index, sse_bucket_bits)
+            .map_err(|error| failure(format!("C1 tape hash re-encode failed: {error}")))?;
+    let json = report.to_json(VERSION, &sha256_hex(&source), &sha256_hex(&tape.to_bytes()));
+    publish_c1_report_atomic(&destination, json.as_bytes(), options.force)?;
     Ok(())
 }
 
@@ -1446,7 +1584,128 @@ mod tests {
     }
 
     #[test]
+    fn diagnose_c1_is_deterministic_and_force_is_explicit() {
+        let scratch = Scratch::new();
+        let source = b"{\"k\":\"abcdef-long-value\"}\n{\"k\":\"abcdef-long-value\"}\n";
+        let input = scratch.path("item.ndjson");
+        fs::write(&input, source).unwrap();
+        let report = scratch.path("c1.report.json");
+        let arguments = [
+            "--item-index",
+            "5",
+            "--input",
+            &input,
+            "--report-out",
+            &report,
+        ];
+        unwrap_message(diagnose_c1_command(&arguments));
+        let first = fs::read(&report).unwrap();
+        assert!(matches!(
+            diagnose_c1_command(&arguments),
+            Err(CommandError::Failure(_))
+        ));
+        assert_eq!(fs::read(&report).unwrap(), first);
+
+        let forced = [
+            "--item-index",
+            "5",
+            "--input",
+            &input,
+            "--report-out",
+            &report,
+            "--force",
+        ];
+        unwrap_message(diagnose_c1_command(&forced));
+        assert_eq!(fs::read_to_string(&report).unwrap().as_bytes(), first);
+        let text = String::from_utf8(first).unwrap();
+        assert!(text.contains("\"schema\":\"clab-moon-c1-residual-diagnostic-v2\""));
+        assert!(text.contains("\"canonical_tape_equal\":true"));
+        assert!(text.contains("mechanism_local_diagnostic"));
+        assert!(!text.contains("synthetic_diagnostic_only"));
+    }
+
+    #[test]
+    fn diagnose_c1_refuses_input_output_alias_before_reading_or_writing() {
+        let scratch = Scratch::new();
+        let input = scratch.path("same.ndjson");
+        let original = b"abcdef-abcdef";
+        fs::write(&input, original).unwrap();
+        let result = diagnose_c1_command(&[
+            "--item-index",
+            "0",
+            "--input",
+            &input,
+            "--report-out",
+            &input,
+            "--force",
+        ]);
+        assert!(matches!(result, Err(CommandError::Failure(_))));
+        assert_eq!(fs::read(&input).unwrap(), original);
+    }
+
+    #[test]
+    fn diagnose_c1_refuses_hard_link_input_output_alias() {
+        let scratch = Scratch::new();
+        let input = scratch.path("input.ndjson");
+        let output = scratch.path("alias.json");
+        let original = b"abcdef-abcdef";
+        fs::write(&input, original).unwrap();
+        fs::hard_link(&input, &output).unwrap();
+        let result = diagnose_c1_command(&[
+            "--item-index",
+            "0",
+            "--input",
+            &input,
+            "--report-out",
+            &output,
+            "--force",
+        ]);
+        assert!(matches!(result, Err(CommandError::Failure(_))));
+        assert_eq!(fs::read(&input).unwrap(), original);
+        assert_eq!(fs::read(&output).unwrap(), original);
+    }
+
+    #[test]
+    fn no_force_atomic_publication_cannot_clobber_a_racing_destination() {
+        let scratch = Scratch::new();
+        let destination = PathBuf::from(scratch.path("raced.json"));
+        // This entry represents another publisher winning after preflight but
+        // before this publisher's atomic no-clobber link.
+        fs::write(&destination, b"winner").unwrap();
+        let result = publish_c1_report_atomic(&destination, b"loser", false);
+        assert!(matches!(result, Err(CommandError::Failure(_))));
+        assert_eq!(fs::read(&destination).unwrap(), b"winner");
+        assert_eq!(fs::read_dir(&scratch.root).unwrap().count(), 1);
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn dangling_symlink_counts_as_an_existing_no_force_destination() {
+        use std::os::unix::fs::symlink;
+
+        let scratch = Scratch::new();
+        let input = scratch.path("input.ndjson");
+        let output = scratch.path("dangling.json");
+        fs::write(&input, b"abcdef-abcdef").unwrap();
+        symlink(scratch.root.join("absent-target"), &output).unwrap();
+        let result = diagnose_c1_command(&[
+            "--item-index",
+            "0",
+            "--input",
+            &input,
+            "--report-out",
+            &output,
+        ]);
+        assert!(matches!(result, Err(CommandError::Failure(_))));
+        assert!(fs::symlink_metadata(&output).is_ok());
+    }
+
+    #[test]
     fn usage_errors_are_reported_as_usage() {
+        assert!(matches!(
+            diagnose_c1_command(&["--force", "--force"]),
+            Err(CommandError::Usage(_))
+        ));
         assert!(matches!(
             encode_command(&["--arm", "nope"]),
             Err(CommandError::Usage(_))

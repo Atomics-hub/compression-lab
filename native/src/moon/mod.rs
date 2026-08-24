@@ -8,6 +8,7 @@
 //! exact-codec, or ratio claims, and no licensed-item reads.
 
 pub mod c1;
+pub mod c1_diagnose;
 pub mod c2;
 pub mod c3;
 pub mod c8;
@@ -26,6 +27,7 @@ pub use c1::{
     FOLD_WEIGHT_BYTES, MATCH_MIN_LENGTH as C1_MATCH_MIN_LENGTH, MATCH_STATEMAP_BYTES,
     MATCH_TABLE_BYTES, MATCH_WINDOW_BYTES as C1_MATCH_WINDOW_BYTES,
 };
+pub use c1_diagnose::{diagnose_c1, C1DiagnoseError, C1ResidualReport, C1_DIAGNOSIS_SCHEMA};
 pub use c2::{
     c2_declared_state_bytes, decode_c2_item, decode_c2_item_with_bits, encode_c2_item,
     encode_c2_item_with_bits, C2Error, C2_ARM_ID, C2_BYTE_ORDERS, C2_CONTEXT_COUNT,
