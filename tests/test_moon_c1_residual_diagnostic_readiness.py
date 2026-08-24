@@ -339,6 +339,17 @@ class C1ResidualDiagnosticReadinessTests(unittest.TestCase):
         self.assertIn("complete report/event/tape goldens", procedure["rehearsal"])
         self.assertIn("not claimed as producer parity", procedure["rehearsal"])
         self.assertEqual(
+            procedure["pinned_host_integration_command"],
+            "MOON_C1_PINNED_HOST_INTEGRATION=1 python3 -m unittest "
+            "tests.test_moon_c1_residual_diagnostic_readiness "
+            "tests.test_moon_c1_residual_diagnostic_run",
+        )
+        self.assertIn(
+            procedure["pinned_host_integration_command"], self.charter
+        )
+        self.assertIn("foreign-host CI skips exactly two", self.charter)
+        self.assertIn("34 tests with zero skips", self.charter)
+        self.assertEqual(
             procedure["charter"], CHARTER_PATH.relative_to(ROOT).as_posix()
         )
         required_commands = (
