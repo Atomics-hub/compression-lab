@@ -32,4 +32,9 @@ The format provides integrity detection, not encryption or authenticity.
 Every pull request runs deterministic truncation, bit-mutation, plausible-frame,
 and allocation-limit tests plus a 5,000-case mutational fuzz smoke. A scheduled
 workflow expands that to 100,000 hostile frames against valid version 1, 2, and
-3 seeds. These checks reduce risk but are not a security proof.
+3 seeds. CI also resolves and audits the local project's Python runtime
+dependency graph with `pip-audit 2.10.1` and both Rust lockfiles with
+`cargo-audit 0.22.2`. GitHub's extended CodeQL default setup scans Python and
+Actions; Rust is covered by RustSec dependency auditing, `clippy -D warnings`,
+cross-platform tests, and hostile-input fuzzing because CodeQL does not
+currently analyze Rust. These checks reduce risk but are not a security proof.
