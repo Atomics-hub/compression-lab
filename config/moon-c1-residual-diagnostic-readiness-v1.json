@@ -1,0 +1,156 @@
+{
+  "schema": "moon-c1-residual-diagnostic-readiness-v1",
+  "status": "READY_TO_AUTHORIZE_PROSPECTIVE",
+  "evidence_stage": "mechanism_local_diagnostic",
+  "identity": {
+    "implementation_base_commit": "937f74f3022b694d721bb1ff6cc626eddf4a5595",
+    "implementation_commit": "977bd017286775489464b8e7cdde8d28572696ef",
+    "implementation_tree": "aa7309921b629051eb3b7ab2e604c836909e0c31",
+    "readiness_diff_roster": [
+      "config/moon-c1-residual-diagnostic-readiness-v1.json",
+      "docs/benchmarks/2026-08-23-moon-c1-residual-diagnostic-readiness-v1.md",
+      "scripts/moon-c1-residual-diagnostic-run.py",
+      "tests/test_moon_c1_residual_diagnostic_readiness.py",
+      "tests/test_moon_c1_residual_diagnostic_run.py"
+    ],
+    "source_sha256": {
+      "native/src/bin/clab-moon-kernel.rs": "32c873f230b1c0cdfe3367e641d0190fd9a60f7398c8d7503e42117751a3cc62",
+      "native/src/moon/c1.rs": "0d0c6d818b4b317bfb4bf67cd3ca4a7e470bdac9501b46a890051253a6d8b6d9",
+      "native/src/moon/c1_diagnose.rs": "335c1cffff2a427f1b016510c641ff0a7ee8df324978d93b467fcf3be66e718f",
+      "native/src/moon/diagnose.rs": "6075732cc70763bbf9432d302334c3c225173b008c34f8ecbb8e3343c2280017",
+      "native/src/moon/mod.rs": "ccf7ba4357a34361e657c24c6cc2e1bd64ca99dd29b7885c46bcc1709347b9bb"
+    },
+    "build_inputs_sha256": {
+      "native/Cargo.lock": "a905547d069da6d55bf6739307ffe9c75202cc15e87a6ae399e10b8890544783",
+      "native/Cargo.toml": "984a69ab00314eaef3659fbc7642c0ea738f7d19d3895cf6530738278691c707"
+    }
+  },
+  "instrument": {
+    "binary": "native/target/release/clab-moon-kernel",
+    "subcommand": "diagnose-c1",
+    "report_schema": "clab-moon-c1-residual-diagnostic-v2",
+    "kernel_version": "0.1.0",
+    "evidence_stage": "mechanism_local_diagnostic",
+    "report_claim_ceiling": "mechanism-local attribution and hindsight upper bounds only; no input-class, ratio, corpus, realizable-gain, candidate, SOTA, or product claim",
+    "sse_bucket_bits": 17,
+    "synthetic_complete_event_golden": {
+      "source_utf8": "aaaaaa-aaaaaaXaaaaaa\n",
+      "item_index": 7,
+      "kernel_version_argument": "golden",
+      "source_sha256_argument": "source",
+      "tape_sha256_argument": "tape",
+      "charged_event_digest_sha256": "5b78a73f3d8eeac809ba5867a2c6f0f0d1d9f4fe67c5319d5b69fc347501833a",
+      "complete_report_sha256": "a6f3e8388f6aa37c647846bc5cb8adb8469e724ab0ad3e20ee6daced52404492",
+      "real_cli_source_sha256": "81cecc7c3bd4dd714628b6682cd3ae733d9111d92d91d3d1654034455c3f2032",
+      "real_cli_tape_sha256": "66b9015b8f2d0f2b161be21f6f6b0326a57b1636ff3a02bd664108b76c952ddd",
+      "real_cli_complete_report_sha256": "ae5502fd1e3248d54249a63edc8e6bfca7a0bb6ad5e533780c7c97da84b90862"
+    }
+  },
+  "retained_snapshot_identity": {
+    "metadata_sources": [
+      {
+        "path": "config/moon-cycle2-c1c2c8-public-prescreen-v1.json",
+        "sha256": "433d7eb641d49d82cb83b1e03fd7042725c906bc0c6f914db7a991924d44f872",
+        "git_blob": "16e4902f0f4126b24c1f9c20bec7f07339a709b0"
+      },
+      {
+        "path": "runs/moon-prescreen-cycle1-h1-v1/local-references-s24.json",
+        "sha256": "5fb1a001b44e5652c5be19f9eead6167f29ce53084c791c3ab982a1fc750e07f",
+        "git_blob": "0c237c6b47ca2ca0f9434ffa395ca9d691c390b2"
+      }
+    ],
+    "snapshots": [
+      {
+        "name": "gharchive-2026-05-15-14-s24",
+        "item_index": 0,
+        "source_bytes": 25165377,
+        "source_sha256": "a6873fdebc69a79c1cad8e7b4b52c8d207c5e7f5fa5ed1df3ec4117d920802b4"
+      },
+      {
+        "name": "gharchive-2026-06-15-14-s24",
+        "item_index": 1,
+        "source_bytes": 25165414,
+        "source_sha256": "05220440b98e0adfc933ce0b6f838a6bed37d35118e4bb4f02075d7e34e50f79"
+      }
+    ]
+  },
+  "output_roster": [
+    "runs/moon-c1-residual-diagnostic-v1/gharchive-2026-05-15-14-s24__c1-residual-diagnostic.report.json",
+    "runs/moon-c1-residual-diagnostic-v1/gharchive-2026-06-15-14-s24__c1-residual-diagnostic.report.json",
+    "runs/moon-c1-residual-diagnostic-v1/sweep-summary.json",
+    "runs/moon-c1-residual-diagnostic-v1/SHA256SUMS"
+  ],
+  "runtime": {
+    "references": "runs/moon-prescreen-cycle1-h1-v1/local-references-s24.json",
+    "shared_budget_path": "/Users/guts/Documents/axiom-moonshot-corpora/run-budget.json",
+    "shared_budget_schema": "moon-prescreen-budget-v1",
+    "shared_budget_cap": 160,
+    "expected_consumed_before": 52,
+    "expected_consumed_after": 54,
+    "durable_attempt_ref": "refs/moon/c1-residual-diagnostic-v1/attempt",
+    "build_environment_allowlist": [],
+    "kernel_runtime_environment_names": ["LC_ALL", "PATH", "TMPDIR"],
+    "toolchain": {
+      "cargo_path": "/Users/guts/.rustup/toolchains/1.96.0-aarch64-apple-darwin/bin/cargo",
+      "cargo_sha256": "fec239e6b74df873f54ef52912bfcfcc8d8414bc14a7ae1e0be80460bae72841",
+      "cargo_version": "cargo 1.96.0 (30a34c682 2026-05-25)",
+      "rustc_path": "/Users/guts/.rustup/toolchains/1.96.0-aarch64-apple-darwin/bin/rustc",
+      "rustc_sha256": "c5922366bfe3d6d028a65d626f4e629b3adad066995cf0b60c8a4b617bba5ffe",
+      "rustc_version": "rustc 1.96.0 (ac68faa20 2026-05-25)",
+      "clang_path": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "clang_sha256": "7def90dd8829726686213a747fc5bff1583df933dae5edc55d755479e0bfe00a",
+      "clang_version": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
+      "git_path": "/usr/bin/git",
+      "git_sha256": "179301dcb41ea78accc3fa0048a7e6f6710d891945a751a34addd622020c1818",
+      "git_version": "git version 2.50.1 (Apple Git-155)",
+      "fixed_path": "/usr/bin:/bin:/usr/sbin:/sbin",
+      "developer_dir": "/Applications/Xcode.app/Contents/Developer",
+      "sdkroot": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+      "cargo_source_home": "/Users/guts/.cargo",
+      "rustup_home": "/Users/guts/.rustup",
+      "fixed_build_root": "/private/tmp/moon-c1-residual-diagnostic-build-v1",
+      "remap_path_prefix": "/moon-c1-exact-build",
+      "expected_release_binary_sha256": "f8d5b0315f3b087fbfab44a4dbe81c134fff47d0220f3165bbf287587145336e"
+    },
+    "charge_timing": "Durably replace and fsync the shared budget before every subprocess dispatch; a dispatched failure remains charged.",
+    "concurrency_rule": "No other Moon budget writer may run concurrently with this authorized diagnostic."
+  },
+  "memory_and_claim_ceiling": {
+    "accounted_concurrent_logical_bytes_max": 536870912,
+    "aggregation_struct_bytes_frozen_target": 952,
+    "memory_semantics": "Per-report checked logical-payload accounting only; this is not an RSS measurement or RSS ceiling claim.",
+    "claim_ceiling": "Mechanism-local attribution and non-causal hindsight upper bounds only; no input-class, ratio, corpus-quality, realizable-gain, candidate, SOTA, championship, product, or funding claim.",
+    "shadow_rows_direct_funding_evidence": false,
+    "shadow_rows_realizable_gain_evidence": false
+  },
+  "authority": {
+    "attempts_authorized": 0,
+    "execution_currently_authorized": false,
+    "retained_snapshot_read_authorized": false,
+    "candidate_execution_authorized": false,
+    "scoring_authorized": false,
+    "corpus_advancement_authorized": false,
+    "run_budget_advancement_authorized": false,
+    "ledger_advancement_authorized": false,
+    "exact_owner_literal_template": "Authorize Moon C1 residual diagnostic at readiness commit {FINAL_READINESS_COMMIT}",
+    "binding_rule": "Replace the placeholder with the full 40-hex final readiness commit. At that exact commit, the literal authorizes exactly the two listed retained-snapshot reads, the durable local attempt ref, two shared Moon budget charges from 52 to 54, and only the two listed diagnostic reports, sweep-summary.json, and SHA256SUMS; any other spelling, commit, tree, source hash, snapshot identity, item index, SSE width, command, budget, or output roster refuses."
+  },
+  "accepted_limitations": [
+    "Acc size wording tension: aggregation_struct_bytes uses Rust size_of::<Acc>() as a logical accounting component while the report simultaneously excludes stack, allocator overhead, and Vec capacity; it is a conservative bookkeeping proxy, not a direct allocation or RSS measurement.",
+    "Post-link cleanup ambiguity: held-directory no-force publication hard-links a validated, synced private pending inode containing the retained in-memory bytes to the destination; if later pending-link cleanup fails, the destination may already be validly published while the command reports failure and leaves the pending hard link.",
+    "Shadow collision-test evidence limitation: tests pin low-width slot rotation, deterministic fifth-candidate eviction, and depth monotonicity through factored helpers, but do not construct a full production-width end-to-end hash-collision corpus.",
+    "Shadow rows are non-causal per-position candidate-diversity upper bounds; candidates may change every byte, so the rows are prohibited as direct funding evidence and as realizable-gain evidence."
+  ],
+  "procedure": {
+    "runner": "scripts/moon-c1-residual-diagnostic-run.py",
+    "rehearsal": "Lifecycle tests use temporary synthetic snapshots and a fake kernel to prove authorization, duplicate-key refusal at every inbound JSON nesting depth, preflight, durable pre-dispatch charge, dispatch-failure, and held-directory publication behavior. A separate explicitly gated owner-host Python integration test materializes 977bd01 and performs two independent clean build invocations through the same exact fixed exclusive production build root, requires byte-identical frozen release SHA-256, runs that real producer on the pinned synthetic source, matches the complete report/event/tape goldens, and passes those actual bytes through the Python validator. Foreign POSIX CI skips exactly those two pinned-host tests. Windows skips the 24-test POSIX lifecycle class while retaining the pure readiness guards. Presence of the pinned owner-home marker hard-fails if the opt-in is absent regardless of checkout location, and the readiness command requires 35 tests with zero skips. The fake-kernel layer is not claimed as producer parity.",
+    "pinned_host_integration_command": "MOON_C1_PINNED_HOST_INTEGRATION=1 python3 -m unittest tests.test_moon_c1_residual_diagnostic_readiness tests.test_moon_c1_residual_diagnostic_run",
+    "charter": "docs/benchmarks/2026-08-23-moon-c1-residual-diagnostic-readiness-v1.md"
+  },
+  "package_bindings": {
+    "scripts/moon-c1-residual-diagnostic-run.py": "a155d839461b71df77013d7f456f625f71b67d8314a70bb21c458e58b16c88c5",
+    "docs/benchmarks/2026-08-23-moon-c1-residual-diagnostic-readiness-v1.md": "887c25d83097e2e55e392bbae34513f2d2f71794a04b64642f3a9b24ea6099ca",
+    "tests/test_moon_c1_residual_diagnostic_run.py": "08a1d1627c5151be20b0888373ad09ac48ca11d5476139526f4f70d33d79109e",
+    "tests/test_moon_c1_residual_diagnostic_readiness.py": "1de5bed00c3acfd4aa760c49f87b58cc2b95535c4c04eacd0bae36fe6bcdd973"
+  }
+}

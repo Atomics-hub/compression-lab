@@ -234,7 +234,7 @@ pub fn classify(source: &[u8]) -> Vec<ByteClass> {
 }
 
 /// Mark bytes inside a maximal digit run — the cheapest value subclass overlay.
-fn digit_overlay(source: &[u8]) -> Vec<bool> {
+pub(super) fn digit_overlay(source: &[u8]) -> Vec<bool> {
     source.iter().map(|byte| byte.is_ascii_digit()).collect()
 }
 
@@ -242,7 +242,7 @@ fn digit_overlay(source: &[u8]) -> Vec<bool> {
 /// `YYYY-MM-DDThh:mm:ss` (a space in place of `T` is also accepted), optionally
 /// followed by a fractional part `.d+` and a zone (`Z` or `[+-]hh:mm`). Purely
 /// structural digit/separator matching, not calendar validation.
-fn timestamp_overlay(source: &[u8]) -> Vec<bool> {
+pub(super) fn timestamp_overlay(source: &[u8]) -> Vec<bool> {
     let n = source.len();
     let mut marked = vec![false; n];
     let digit = |offset: usize| offset < n && source[offset].is_ascii_digit();
@@ -297,7 +297,7 @@ fn timestamp_overlay(source: &[u8]) -> Vec<bool> {
 /// Mark bytes inside a long hex run (>= [`HEX_RUN_MIN`]) or a long mixed
 /// alphanumeric id run (>= [`ID_RUN_MIN`] containing at least one digit and one
 /// letter). A cheap proxy for opaque identifiers/hashes.
-fn hex_id_overlay(source: &[u8]) -> Vec<bool> {
+pub(super) fn hex_id_overlay(source: &[u8]) -> Vec<bool> {
     let n = source.len();
     let mut marked = vec![false; n];
 
