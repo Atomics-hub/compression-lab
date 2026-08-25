@@ -16,7 +16,7 @@ CONFIG_PATH = ROOT / "config/moon-c1-residual-diagnostic-readiness-v1.json"
 CHARTER_PATH = (
     ROOT / "docs/benchmarks/2026-08-23-moon-c1-residual-diagnostic-readiness-v1.md"
 )
-IMPLEMENTATION = "937f74f3022b694d721bb1ff6cc626eddf4a5595"
+IMPLEMENTATION = "977bd017286775489464b8e7cdde8d28572696ef"
 
 
 def sha256(path: Path) -> str:
@@ -335,7 +335,7 @@ class C1ResidualDiagnosticReadinessTests(unittest.TestCase):
             procedure["runner"], "scripts/moon-c1-residual-diagnostic-run.py"
         )
         self.assertIn("temporary synthetic snapshots", procedure["rehearsal"])
-        self.assertIn("materializes 937f74f", procedure["rehearsal"])
+        self.assertIn("materializes 977bd01", procedure["rehearsal"])
         self.assertIn("complete report/event/tape goldens", procedure["rehearsal"])
         self.assertIn("not claimed as producer parity", procedure["rehearsal"])
         self.assertEqual(
@@ -356,7 +356,7 @@ class C1ResidualDiagnosticReadinessTests(unittest.TestCase):
         required_commands = (
             'test "$(git rev-parse HEAD)" = "$AUTHORIZED_READINESS_COMMIT"',
             'test -z "$(git status --porcelain)"',
-            "git diff --exit-code 937f74f3022b694d721bb1ff6cc626eddf4a5595",
+            "git diff --exit-code 977bd017286775489464b8e7cdde8d28572696ef",
             "moon-c1-residual-diagnostic-run.py",
             "--authorized-readiness-commit",
             "--owner-literal",

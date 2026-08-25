@@ -32,9 +32,9 @@ execution, external publication, push, merge, or any other data access.
 
 ## Frozen implementation identity
 
-- Parent before the Windows identity repair: `e514b230cce457a2a603837b286fe8e80d55e770`
-- Audited implementation commit: `937f74f3022b694d721bb1ff6cc626eddf4a5595`
-- Audited implementation tree: `974ee53aa0fc8d8e95cae251c335b3d41dd3c88a`
+- Parent before the Windows raw-handle lint repair: `937f74f3022b694d721bb1ff6cc626eddf4a5595`
+- Audited implementation commit: `977bd017286775489464b8e7cdde8d28572696ef`
+- Audited implementation tree: `aa7309921b629051eb3b7ab2e604c836909e0c31`
 - CLI: `clab-moon-kernel diagnose-c1`
 - Report schema: `clab-moon-c1-residual-diagnostic-v2`
 - SSE bucket bits: `17`
@@ -177,9 +177,9 @@ export MOON_BUDGET='/Users/guts/Documents/axiom-moonshot-corpora/run-budget.json
 
 test "$(git rev-parse HEAD)" = "$AUTHORIZED_READINESS_COMMIT"
 test -z "$(git status --porcelain)"
-test "$(git rev-parse 937f74f3022b694d721bb1ff6cc626eddf4a5595^{tree})" = '974ee53aa0fc8d8e95cae251c335b3d41dd3c88a'
-git diff --exit-code 937f74f3022b694d721bb1ff6cc626eddf4a5595 -- native/src/bin/clab-moon-kernel.rs native/src/moon/c1.rs native/src/moon/c1_diagnose.rs native/src/moon/diagnose.rs native/src/moon/mod.rs native/Cargo.toml native/Cargo.lock
-test "$(shasum -a 256 native/src/bin/clab-moon-kernel.rs | cut -d ' ' -f 1)" = '78374d40edc7d0945778181b50a9fff1f578564f0466537c00b9b54da7769cbe'
+test "$(git rev-parse 977bd017286775489464b8e7cdde8d28572696ef^{tree})" = 'aa7309921b629051eb3b7ab2e604c836909e0c31'
+git diff --exit-code 977bd017286775489464b8e7cdde8d28572696ef -- native/src/bin/clab-moon-kernel.rs native/src/moon/c1.rs native/src/moon/c1_diagnose.rs native/src/moon/diagnose.rs native/src/moon/mod.rs native/Cargo.toml native/Cargo.lock
+test "$(shasum -a 256 native/src/bin/clab-moon-kernel.rs | cut -d ' ' -f 1)" = '32c873f230b1c0cdfe3367e641d0190fd9a60f7398c8d7503e42117751a3cc62'
 test "$(shasum -a 256 native/src/moon/c1.rs | cut -d ' ' -f 1)" = '0d0c6d818b4b317bfb4bf67cd3ca4a7e470bdac9501b46a890051253a6d8b6d9'
 test "$(shasum -a 256 native/src/moon/c1_diagnose.rs | cut -d ' ' -f 1)" = '335c1cffff2a427f1b016510c641ff0a7ee8df324978d93b467fcf3be66e718f'
 test "$(shasum -a 256 native/src/moon/diagnose.rs | cut -d ' ' -f 1)" = '6075732cc70763bbf9432d302334c3c225173b008c34f8ecbb8e3343c2280017'
