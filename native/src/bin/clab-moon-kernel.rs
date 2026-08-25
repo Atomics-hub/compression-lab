@@ -752,12 +752,8 @@ fn windows_file_identity(path: &Path) -> Result<(u32, u64), CommandError> {
     let file = fs::File::open(path)
         .map_err(|error| failure(format!("cannot open {}: {error}", path.display())))?;
     let mut information = std::mem::MaybeUninit::<ByHandleFileInformation>::uninit();
-    let status = unsafe {
-        GetFileInformationByHandle(
-            file.as_raw_handle() as *mut std::ffi::c_void,
-            information.as_mut_ptr(),
-        )
-    };
+    let status =
+        unsafe { GetFileInformationByHandle(file.as_raw_handle(), information.as_mut_ptr()) };
     if status == 0 {
         return Err(failure(format!(
             "cannot identify {}: {}",
