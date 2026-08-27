@@ -38,10 +38,10 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
   "build>=1.2,<2",
-  "mypy>=1.11,<2",
+  "mypy>=1.11,<3",
   "psutil>=7,<8",
   "ruff>=0.12,<1",
-  "twine>=6,<7",
+  "twine>=6,<8",
 ]
 
 [project.urls]
