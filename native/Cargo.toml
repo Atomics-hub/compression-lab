@@ -22,7 +22,7 @@ jls2-a3-audit = []
 
 [dependencies]
 sha2 = "0.11.0"
-zstd = "0.13.3"
+zstd = "0.14.0"
 
 [profile.release]
 lto = "fat"
