@@ -120,7 +120,7 @@ jobs:
             git diff "$BASELINE_COMMIT"..HEAD -- native/src/jls2.rs
           } > "$RUNNER_TEMP/$EVIDENCE_DIR/provenance.txt"
 
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@v6
         if: always()
         with:
           name: jls2-context-reuse-inline-single-worker-a2-${{ github.run_id }}

@@ -93,13 +93,13 @@ jobs:
           python scripts/verify-frontier-headroom-e1-toolchain.py \
             --tool-root "$RUNNER_TEMP/e1-tool-root" \
             --plan "$RUNNER_TEMP/e1-schedule.json"
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: e1-tools-${{ github.run_id }}
           path: ${{ runner.temp }}/e1-tool-root
           if-no-files-found: error
           retention-days: 30
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: e1-schedule-${{ github.run_id }}
           path: ${{ runner.temp }}/e1-schedule.json
@@ -145,7 +145,7 @@ jobs:
             --tabular "$base/tabular/manifest.json" \
             --successor "$base/successor/manifest.json" \
             --output "$base/manifest.json"
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: e1-training-${{ github.run_id }}
           path: ${{ runner.temp }}/e1-training
@@ -194,7 +194,7 @@ jobs:
             --output "$RUNNER_TEMP/shard" \
             --phase "$phase" --category '${{ matrix.category }}' \
             --codec-group "$codec"
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: e1-${{ matrix.lane }}-${{ matrix.category }}-${{ github.run_id }}
           path: ${{ runner.temp }}/shard
@@ -245,7 +245,7 @@ jobs:
             --tool-root "$RUNNER_TEMP/e1-tool-root" \
             --output "$RUNNER_TEMP/shard" \
             --phase segment --category '${{ matrix.category }}' "${args[@]}"
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: e1-segment-${{ matrix.category }}-${{ github.run_id }}
           path: ${{ runner.temp }}/shard
@@ -286,7 +286,7 @@ jobs:
             --tool-receipt "$RUNNER_TEMP/tools/receipt.json" \
             --shards-root "$RUNNER_TEMP/shards" \
             --output "$RUNNER_TEMP/final"
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: e1-final-training-result-${{ github.run_id }}
           path: ${{ runner.temp }}/final
