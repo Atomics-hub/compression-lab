@@ -124,7 +124,7 @@ jobs:
 
       - name: Upload complete benchmark evidence
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v6
         with:
           name: jls2-product-benchmark-${{ github.run_id }}
           path: ${{ runner.temp }}/compression-lab-jls2-evidence

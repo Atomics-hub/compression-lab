@@ -140,7 +140,7 @@ jobs:
       - run: python -m pip install --upgrade build twine
       - run: python -m build
       - run: python -m twine check dist/*
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v7
         with:
           name: compression-lab-distributions
           path: dist/*
@@ -181,7 +181,7 @@ jobs:
             selector_stream_compress(io.BytesIO(data*2),encoded,segment_size=65536);
             restored=io.BytesIO(); selector_stream_decompress(io.BytesIO(encoded.getvalue()),
             restored,max_output_size=len(data)*2); assert restored.getvalue()==data*2"
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v7
         with:
           name: wheel-smoke-${{ runner.os }}
           path: wheelhouse/*.whl

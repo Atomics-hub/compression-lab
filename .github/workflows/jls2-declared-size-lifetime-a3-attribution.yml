@@ -180,7 +180,7 @@ jobs:
               > "$RUNNER_TEMP/$EVIDENCE_DIR/results.sha256"
           fi
 
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@v6
         if: always()
         with:
           name: jls2-declared-size-lifetime-a3-attribution-${{ github.run_id }}

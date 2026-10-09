@@ -102,7 +102,7 @@ jobs:
 
       - name: Upload complete evidence
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v6
         with:
           name: controlling-release-benchmark-${{ github.run_id }}
           path: ${{ runner.temp }}/compression-lab-evidence
